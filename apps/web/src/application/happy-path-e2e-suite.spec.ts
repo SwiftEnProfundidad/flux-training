@@ -5,6 +5,8 @@ import type {
   AnalyticsEvent,
   CrashReport,
   DataDeletionRequest,
+  DataExportRequest,
+  DataExportRequestInput,
   ExerciseVideo,
   LegalConsentSubmission,
   NutritionLog,
@@ -68,6 +70,7 @@ class InMemoryHappyPathGateway
   private readonly analyticsEvents: AnalyticsEvent[] = [];
   private readonly crashReports: CrashReport[] = [];
   private readonly legalConsents: LegalConsentSubmission[] = [];
+  private readonly exportRequests: DataExportRequestInput[] = [];
   private readonly deletionRequests: DataDeletionRequest[] = [];
   private readonly recommendations: AIRecommendation[] = [
     {
@@ -111,6 +114,19 @@ class InMemoryHappyPathGateway
   async submitConsent(input: LegalConsentSubmission): Promise<LegalConsentSubmission> {
     this.legalConsents.push(input);
     return input;
+  }
+
+  async requestDataExport(input: DataExportRequestInput): Promise<DataExportRequest> {
+    this.exportRequests.push(input);
+    return {
+      id: "exp-happy-1",
+      userId: input.userId,
+      requestedAt: input.requestedAt ?? "2026-03-02T18:02:00.000Z",
+      format: input.format,
+      status: "completed",
+      downloadUrl: `https://cdn.flux.training/exports/${input.userId}/exp-happy-1.${input.format}`,
+      expiresAt: "2026-03-03T18:02:00.000Z"
+    };
   }
 
   async requestDataDeletion(input: DataDeletionRequest): Promise<DataDeletionRequest> {
@@ -277,13 +293,22 @@ describe("HappyPathE2ESuite", () => {
       acceptedAt: "2026-03-02T18:00:00.000Z",
       privacyPolicyAccepted: true,
       termsAccepted: true,
-      medicalDisclaimerAccepted: true
+      medicalDisclaimerAccepted: true,
+      policyVersion: "v1.0",
+      locale: "es-ES",
+      source: "web"
+    });
+    const exportRequest = await legalUseCase.requestDataExport({
+      userId: "user-happy-1",
+      format: "json"
     });
     const deletion = await legalUseCase.requestDataDeletion({
       userId: "user-happy-1",
       requestedAt: "2026-03-02T18:04:00.000Z",
       reason: "remove_account",
-      status: "pending"
+      status: "pending",
+      exportRequested: true,
+      exportFormat: "json"
     });
 
     const plan = await trainingUseCase.createTrainingPlan({
@@ -361,6 +386,7 @@ describe("HappyPathE2ESuite", () => {
     const crashes = await observabilityUseCase.listCrashReports("user-happy-1");
 
     expect(consent.userId).toBe("user-happy-1");
+    expect(exportRequest.status).toBe("completed");
     expect(deletion.status).toBe("pending");
     expect(pendingBeforeSync).toHaveLength(2);
     expect(syncResult.acceptedIds).toEqual(["happy-queue-1", "happy-queue-2"]);

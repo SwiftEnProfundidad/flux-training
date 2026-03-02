@@ -7,8 +7,12 @@ import {
   authSessionSchema,
   billingInvoiceSchema,
   crashReportSchema,
+  dataExportRequestInputSchema,
+  dataExportRequestSchema,
   dataDeletionRequestSchema,
+  dataRetentionPolicySchema,
   exerciseVideoSchema,
+  legalConsentAuditSchema,
   legalConsentSchema,
   legalConsentSubmissionSchema,
   onboardingProfileInputSchema,
@@ -415,6 +419,22 @@ describe("legalConsentSubmissionSchema", () => {
   });
 });
 
+describe("legalConsentAuditSchema", () => {
+  it("accepts a legal consent audit entry", () => {
+    const parsed = legalConsentAuditSchema.safeParse({
+      auditId: "audit-1",
+      userId: "user-1",
+      acceptedAt: "2026-02-26T10:00:00.000Z",
+      policyVersion: "v1.0",
+      locale: "es-ES",
+      source: "web",
+      capturedAt: "2026-02-26T10:00:01.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
 describe("legalConsentSchema", () => {
   it("accepts a persisted legal consent payload", () => {
     const parsed = legalConsentSchema.safeParse({
@@ -436,6 +456,46 @@ describe("dataDeletionRequestSchema", () => {
       requestedAt: "2026-02-26T10:00:00.000Z",
       reason: "user_request",
       status: "pending"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("dataExportRequestInputSchema", () => {
+  it("accepts a valid data export request input", () => {
+    const parsed = dataExportRequestInputSchema.safeParse({
+      userId: "user-1",
+      format: "json"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("dataExportRequestSchema", () => {
+  it("accepts a completed export request payload", () => {
+    const parsed = dataExportRequestSchema.safeParse({
+      id: "exp-1",
+      userId: "user-1",
+      requestedAt: "2026-02-26T10:00:00.000Z",
+      format: "csv",
+      status: "completed",
+      downloadUrl: "https://cdn.flux.training/exports/exp-1.csv",
+      expiresAt: "2026-02-27T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("dataRetentionPolicySchema", () => {
+  it("accepts a retention policy payload", () => {
+    const parsed = dataRetentionPolicySchema.safeParse({
+      domain: "legal",
+      retentionDays: 365,
+      legalBasis: "gdpr_art_6_1_c",
+      effectiveFrom: "2026-03-02T00:00:00.000Z"
     });
 
     expect(parsed.success).toBe(true);

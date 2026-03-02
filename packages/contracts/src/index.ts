@@ -62,10 +62,22 @@ export const legalConsentSubmissionSchema = z.object({
   acceptedAt: z.string().datetime(),
   privacyPolicyAccepted: z.boolean(),
   termsAccepted: z.boolean(),
-  medicalDisclaimerAccepted: z.boolean()
+  medicalDisclaimerAccepted: z.boolean(),
+  policyVersion: z.string().min(1).default("v1.0"),
+  locale: z.string().regex(/^[a-z]{2}-[A-Z]{2}$/).default("es-ES"),
+  source: z.enum(["web", "ios", "backend"]).default("web")
 });
 
 export const legalConsentSchema = legalConsentSubmissionSchema;
+export const legalConsentAuditSchema = z.object({
+  auditId: z.string().min(1),
+  userId: z.string().min(1),
+  acceptedAt: z.string().datetime(),
+  policyVersion: z.string().min(1),
+  locale: z.string().regex(/^[a-z]{2}-[A-Z]{2}$/),
+  source: z.enum(["web", "ios", "backend"]),
+  capturedAt: z.string().datetime()
+});
 
 export const dataDeletionRequestStatusSchema = z.enum([
   "pending",
@@ -77,7 +89,48 @@ export const dataDeletionRequestSchema = z.object({
   userId: z.string().min(1),
   requestedAt: z.string().datetime(),
   reason: z.string().min(1).optional(),
-  status: dataDeletionRequestStatusSchema.default("pending")
+  status: dataDeletionRequestStatusSchema.default("pending"),
+  exportRequested: z.boolean().default(true),
+  exportFormat: z.enum(["json", "csv"]).default("json"),
+  retentionUntil: z.string().datetime().optional(),
+  retentionReason: z.string().min(1).optional()
+});
+
+export const dataExportRequestInputSchema = z.object({
+  userId: z.string().min(1),
+  requestedAt: z.string().datetime().optional(),
+  format: z.enum(["json", "csv"]).default("json")
+});
+
+export const dataExportRequestStatusSchema = z.enum([
+  "pending",
+  "completed",
+  "expired"
+]);
+
+export const dataExportRequestSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  requestedAt: z.string().datetime(),
+  format: z.enum(["json", "csv"]),
+  status: dataExportRequestStatusSchema,
+  downloadUrl: z.string().url(),
+  expiresAt: z.string().datetime()
+});
+
+export const dataRetentionDomainSchema = z.enum([
+  "auth",
+  "training",
+  "nutrition",
+  "legal",
+  "observability"
+]);
+
+export const dataRetentionPolicySchema = z.object({
+  domain: dataRetentionDomainSchema,
+  retentionDays: z.number().int().positive(),
+  legalBasis: z.string().min(1),
+  effectiveFrom: z.string().datetime()
 });
 
 export const setLogSchema = z.object({
@@ -389,8 +442,14 @@ export type OnboardingSubmissionInput = z.infer<typeof onboardingSubmissionInput
 export type OnboardingResult = z.infer<typeof onboardingResultSchema>;
 export type LegalConsentSubmission = z.infer<typeof legalConsentSubmissionSchema>;
 export type LegalConsent = z.infer<typeof legalConsentSchema>;
+export type LegalConsentAudit = z.infer<typeof legalConsentAuditSchema>;
 export type DataDeletionRequestStatus = z.infer<typeof dataDeletionRequestStatusSchema>;
 export type DataDeletionRequest = z.infer<typeof dataDeletionRequestSchema>;
+export type DataExportRequestInput = z.infer<typeof dataExportRequestInputSchema>;
+export type DataExportRequestStatus = z.infer<typeof dataExportRequestStatusSchema>;
+export type DataExportRequest = z.infer<typeof dataExportRequestSchema>;
+export type DataRetentionDomain = z.infer<typeof dataRetentionDomainSchema>;
+export type DataRetentionPolicy = z.infer<typeof dataRetentionPolicySchema>;
 export type SetLog = z.infer<typeof setLogSchema>;
 export type TrainingExercise = z.infer<typeof trainingExerciseSchema>;
 export type ExerciseVideoDifficulty = z.infer<typeof exerciseVideoDifficultySchema>;

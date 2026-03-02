@@ -133,7 +133,10 @@ describe("EdgeCaseE2ESuite", () => {
         acceptedAt: "2026-03-02T19:01:00.000Z",
         privacyPolicyAccepted: true,
         termsAccepted: false,
-        medicalDisclaimerAccepted: true
+        medicalDisclaimerAccepted: true,
+        policyVersion: "v1.0",
+        locale: "es-ES",
+        source: "backend"
       })
     ).rejects.toThrowError("legal_consent_incomplete");
 

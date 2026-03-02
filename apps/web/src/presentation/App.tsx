@@ -927,7 +927,10 @@ export function App() {
         acceptedAt: new Date().toISOString(),
         privacyPolicyAccepted,
         termsAccepted,
-        medicalDisclaimerAccepted
+        medicalDisclaimerAccepted,
+        policyVersion: "v1.0",
+        locale: language === "es" ? "es-ES" : "en-US",
+        source: "web"
       });
       setLegalStatus("saved");
     } catch (error) {
@@ -949,7 +952,9 @@ export function App() {
         userId: demoUserId,
         requestedAt: new Date().toISOString(),
         reason: "user_request",
-        status: "pending"
+        status: "pending",
+        exportRequested: true,
+        exportFormat: "json"
       });
       setLegalStatus("deletion_requested");
     } catch (error) {
@@ -965,13 +970,25 @@ export function App() {
     setSettingsStatus("saved");
   }
 
-  function handleExportData() {
+  async function handleExportData() {
     setLegalStatus("loading");
     if (!privacyPolicyAccepted || !termsAccepted) {
       setLegalStatus("consent_required");
       return;
     }
-    setLegalStatus("exported");
+    try {
+      await manageLegalUseCase.requestDataExport({
+        userId: demoUserId,
+        requestedAt: new Date().toISOString(),
+        format: "json"
+      });
+      setLegalStatus("exported");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setLegalStatus("error");
+    }
   }
 
   async function handleCreatePlan() {

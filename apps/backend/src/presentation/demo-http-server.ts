@@ -4,6 +4,7 @@ import {
   analyticsEventSchema,
   authRecoveryRequestSchema,
   crashReportSchema,
+  dataExportRequestInputSchema,
   dataDeletionRequestSchema,
   goalSchema,
   legalConsentSubmissionSchema,
@@ -66,7 +67,9 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/createCrashReport": "POST",
   "/api/listCrashReports": "GET",
   "/api/recordLegalConsent": "POST",
+  "/api/requestDataExport": "POST",
   "/api/requestDataDeletion": "POST",
+  "/api/listDataRetentionPolicies": "GET",
   "/api/listExerciseVideos": "GET",
   "/api/listAIRecommendations": "GET",
   "/api/listRoleCapabilities": "GET",
@@ -723,6 +726,33 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: "invalid_data_deletion_request_payload" }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/requestDataExport") {
+    try {
+      const exportRequestInput = dataExportRequestInputSchema.parse(
+        await readJsonBody(request)
+      );
+      const exportRequest = await runtime.requestDataExport(exportRequestInput);
+      return { statusCode: 201, payload: { request: exportRequest } };
+    } catch {
+      return {
+        statusCode: 400,
+        payload: { error: "invalid_data_export_request_payload" }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listDataRetentionPolicies") {
+    try {
+      const policies = await runtime.listDataRetentionPolicies();
+      return { statusCode: 200, payload: { policies } };
+    } catch {
+      return {
+        statusCode: 400,
+        payload: { error: "invalid_list_data_retention_policies_payload" }
       };
     }
   }

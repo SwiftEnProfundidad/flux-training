@@ -5,7 +5,10 @@ import {
   authRecoveryResultSchema,
   billingInvoiceSchema,
   crashReportSchema,
+  dataExportRequestInputSchema,
+  dataExportRequestSchema,
   dataDeletionRequestSchema,
+  dataRetentionPolicySchema,
   legalConsentSubmissionSchema,
   supportIncidentSchema,
   roleCapabilitiesSchema,
@@ -18,9 +21,13 @@ import {
   type BillingInvoice,
   type CrashReport,
   type DataDeletionRequest,
+  type DataExportRequest,
+  type DataExportRequestInput,
+  type DataRetentionPolicy,
   type ExerciseVideo,
   type Goal,
   type HealthScreening,
+  type LegalConsentAudit,
   type LegalConsent,
   type LegalConsentSubmission,
   type NutritionLog,
@@ -55,14 +62,18 @@ import { ListWorkoutSessionsUseCase } from "../application/list-workout-sessions
 import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabilities";
 import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices";
 import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
+import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
+import { RequestDataExportUseCase } from "../application/request-data-export";
 import { RequestDataDeletionUseCase } from "../application/request-data-deletion";
 import type { AnalyticsEventRepository } from "../domain/analytics-event-repository";
 import type { AuthTokenVerifier } from "../domain/auth-token-verifier";
 import type { CrashReportRepository } from "../domain/crash-report-repository";
 import type { DataDeletionRequestRepository } from "../domain/data-deletion-request-repository";
+import type { DataExportRequestRepository } from "../domain/data-export-request-repository";
 import type { HealthScreeningRepository } from "../domain/health-screening-repository";
+import type { LegalConsentAuditRepository } from "../domain/legal-consent-audit-repository";
 import type { LegalConsentRepository } from "../domain/legal-consent-repository";
 import type { NutritionLogRepository } from "../domain/nutrition-log-repository";
 import type { TrainingPlanRepository } from "../domain/training-plan-repository";
@@ -180,10 +191,26 @@ class InMemoryLegalConsentRepository implements LegalConsentRepository {
   }
 }
 
+class InMemoryLegalConsentAuditRepository implements LegalConsentAuditRepository {
+  private readonly records: LegalConsentAudit[] = [];
+
+  async save(entry: LegalConsentAudit): Promise<void> {
+    this.records.push(entry);
+  }
+}
+
 class InMemoryDataDeletionRequestRepository implements DataDeletionRequestRepository {
   private readonly records: DataDeletionRequest[] = [];
 
   async save(request: DataDeletionRequest): Promise<void> {
+    this.records.push(request);
+  }
+}
+
+class InMemoryDataExportRequestRepository implements DataExportRequestRepository {
+  private readonly records: DataExportRequest[] = [];
+
+  async save(request: DataExportRequest): Promise<void> {
     this.records.push(request);
   }
 }
@@ -265,7 +292,9 @@ export type DemoApiRuntime = {
   createCrashReport(payload: CrashReport): Promise<CrashReport>;
   listCrashReports(userId: string): Promise<CrashReport[]>;
   recordLegalConsent(payload: LegalConsentSubmission): Promise<LegalConsent>;
+  requestDataExport(payload: DataExportRequestInput): Promise<DataExportRequest>;
   requestDataDeletion(payload: DataDeletionRequest): Promise<DataDeletionRequest>;
+  listDataRetentionPolicies(): Promise<DataRetentionPolicy[]>;
   listExerciseVideos(input: ListExerciseVideosInput): Promise<ExerciseVideo[]>;
   listAIRecommendations(input: ListAIRecommendationsInput): Promise<AIRecommendation[]>;
   listRoleCapabilities(role: AccessRole): Promise<RoleCapabilities>;
@@ -282,6 +311,8 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   const analyticsEventRepository = new InMemoryAnalyticsEventRepository();
   const crashReportRepository = new InMemoryCrashReportRepository();
   const legalConsentRepository = new InMemoryLegalConsentRepository();
+  const legalConsentAuditRepository = new InMemoryLegalConsentAuditRepository();
+  const dataExportRequestRepository = new InMemoryDataExportRequestRepository();
   const dataDeletionRequestRepository = new InMemoryDataDeletionRequestRepository();
   const exerciseVideoRepository = new StaticExerciseVideoRepository();
 
@@ -316,10 +347,17 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   );
   const createCrashReportUseCase = new CreateCrashReportUseCase(crashReportRepository);
   const listCrashReportsUseCase = new ListCrashReportsUseCase(crashReportRepository);
-  const recordLegalConsentUseCase = new RecordLegalConsentUseCase(legalConsentRepository);
+  const recordLegalConsentUseCase = new RecordLegalConsentUseCase(
+    legalConsentRepository,
+    legalConsentAuditRepository
+  );
+  const requestDataExportUseCase = new RequestDataExportUseCase(
+    dataExportRequestRepository
+  );
   const requestDataDeletionUseCase = new RequestDataDeletionUseCase(
     dataDeletionRequestRepository
   );
+  const listDataRetentionPoliciesUseCase = new ListDataRetentionPoliciesUseCase();
   const requestAuthRecoveryUseCase = new RequestAuthRecoveryUseCase();
   const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
   const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
@@ -424,8 +462,20 @@ export function createDemoApiRuntime(): DemoApiRuntime {
       return recordLegalConsentUseCase.execute(legalConsentSubmissionSchema.parse(payload));
     },
 
+    async requestDataExport(payload: DataExportRequestInput) {
+      const parsedPayload = dataExportRequestInputSchema.parse(payload);
+      const request = await requestDataExportUseCase.execute(parsedPayload);
+      return dataExportRequestSchema.parse(request);
+    },
+
     async requestDataDeletion(payload: DataDeletionRequest) {
       return requestDataDeletionUseCase.execute(dataDeletionRequestSchema.parse(payload));
+    },
+
+    async listDataRetentionPolicies() {
+      return dataRetentionPolicySchema
+        .array()
+        .parse(listDataRetentionPoliciesUseCase.execute());
     },
 
     async listExerciseVideos(input: ListExerciseVideosInput) {

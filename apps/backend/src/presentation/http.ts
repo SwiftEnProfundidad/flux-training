@@ -5,7 +5,9 @@ import {
   authRecoveryResultSchema,
   billingInvoiceSchema,
   crashReportSchema,
+  dataExportRequestInputSchema,
   dataDeletionRequestSchema,
+  dataRetentionPolicySchema,
   goalSchema,
   legalConsentSubmissionSchema,
   supportIncidentSchema,
@@ -25,6 +27,7 @@ import {
   EnsureSupportedClientVersionUseCase
 } from "../application/ensure-supported-client-version";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
+import { RequestDataExportUseCase } from "../application/request-data-export";
 import { RequestDataDeletionUseCase } from "../application/request-data-deletion";
 import { ListAnalyticsEventsUseCase } from "../application/list-analytics-events";
 import { ListCrashReportsUseCase } from "../application/list-crash-reports";
@@ -39,6 +42,7 @@ import { GenerateAIRecommendationsUseCase } from "../application/generate-ai-rec
 import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabilities";
 import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices";
 import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
+import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
 import { FirebaseAuthTokenVerifier } from "../infrastructure/firebase-auth-token-verifier";
 import { FirestoreAnalyticsEventRepository } from "../infrastructure/firestore-analytics-event-repository";
 import { FirestoreCrashReportRepository } from "../infrastructure/firestore-crash-report-repository";
@@ -106,10 +110,14 @@ const createAuthSessionUseCase = new CreateAuthSessionUseCase(authTokenVerifier)
 const requestAuthRecoveryUseCase = new RequestAuthRecoveryUseCase();
 const legalConsentRepository = new FirestoreLegalConsentRepository();
 const recordLegalConsentUseCase = new RecordLegalConsentUseCase(legalConsentRepository);
+const requestDataExportUseCase = new RequestDataExportUseCase({
+  async save() {}
+});
 const dataDeletionRequestRepository = new FirestoreDataDeletionRequestRepository();
 const requestDataDeletionUseCase = new RequestDataDeletionUseCase(
   dataDeletionRequestRepository
 );
+const listDataRetentionPoliciesUseCase = new ListDataRetentionPoliciesUseCase();
 const ensureSupportedClientVersionUseCase = new EnsureSupportedClientVersionUseCase({
   webMinimumVersion: String(process.env.MIN_WEB_CLIENT_VERSION ?? "0.1.0"),
   iosMinimumVersion: String(process.env.MIN_IOS_CLIENT_VERSION ?? "0.1.0")
@@ -407,6 +415,19 @@ export const recordLegalConsent = onRequest(async (request, response) => {
   }
 });
 
+export const requestDataExport = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const payload = dataExportRequestInputSchema.parse(request.body);
+    const exportRequest = await requestDataExportUseCase.execute(payload);
+    response.status(201).json({ request: exportRequest });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_data_export_request_payload");
+  }
+});
+
 export const requestDataDeletion = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
@@ -417,6 +438,25 @@ export const requestDataDeletion = onRequest(async (request, response) => {
     response.status(201).json({ request: deletionRequest });
   } catch {
     sendStandardError(request, response, 400, "invalid_data_deletion_request_payload");
+  }
+});
+
+export const listDataRetentionPolicies = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const policies = listDataRetentionPoliciesUseCase.execute();
+    response
+      .status(200)
+      .json({ policies: dataRetentionPolicySchema.array().parse(policies) });
+  } catch {
+    sendStandardError(
+      request,
+      response,
+      400,
+      "invalid_list_data_retention_policies_payload"
+    );
   }
 });
 

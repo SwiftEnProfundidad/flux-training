@@ -246,7 +246,10 @@ describe("HappyPathE2ESuite", () => {
       acceptedAt: "2026-03-02T18:02:00.000Z",
       privacyPolicyAccepted: true,
       termsAccepted: true,
-      medicalDisclaimerAccepted: true
+      medicalDisclaimerAccepted: true,
+      policyVersion: "v1.0",
+      locale: "es-ES",
+      source: "backend"
     });
 
     const syncResult = await processSyncQueueUseCase.execute(authSession.userId, [
@@ -348,7 +351,9 @@ describe("HappyPathE2ESuite", () => {
       userId: authSession.userId,
       requestedAt: "2026-03-02T18:14:00.000Z",
       reason: "user_request",
-      status: "pending"
+      status: "pending",
+      exportRequested: true,
+      exportFormat: "json"
     });
 
     expect(authSession.userId).toBe("user-happy-1");

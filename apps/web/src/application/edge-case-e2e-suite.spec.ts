@@ -5,6 +5,8 @@ import type {
   AnalyticsEvent,
   CrashReport,
   DataDeletionRequest,
+  DataExportRequest,
+  DataExportRequestInput,
   ExerciseVideo,
   LegalConsentSubmission,
   NutritionLog,
@@ -69,6 +71,18 @@ class EdgeCaseGateway
 
   async submitConsent(input: LegalConsentSubmission): Promise<LegalConsentSubmission> {
     return input;
+  }
+
+  async requestDataExport(input: DataExportRequestInput): Promise<DataExportRequest> {
+    return {
+      id: "exp-edge-1",
+      userId: input.userId,
+      requestedAt: input.requestedAt ?? "2026-03-02T19:03:30.000Z",
+      format: input.format,
+      status: "completed",
+      downloadUrl: `https://cdn.flux.training/exports/${input.userId}/exp-edge-1.${input.format}`,
+      expiresAt: "2026-03-03T19:03:30.000Z"
+    };
   }
 
   async requestDataDeletion(input: DataDeletionRequest): Promise<DataDeletionRequest> {
@@ -187,7 +201,9 @@ describe("EdgeCaseE2ESuite", () => {
         userId: "",
         requestedAt: "2026-03-02T19:04:00.000Z",
         reason: "remove_account",
-        status: "pending"
+        status: "pending",
+        exportRequested: true,
+        exportFormat: "json"
       })
     ).rejects.toThrow();
 
