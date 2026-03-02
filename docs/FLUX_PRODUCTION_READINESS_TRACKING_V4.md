@@ -25,8 +25,8 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V4-P1-T1 | Telemetria unificada iOS/Web/Backend | V4-P1-T1.1 eventos canonicos; V4-P1-T1.2 correlacion cross-layer; V4-P1-T1.3 dashboard operativo | ✅ | V4-P0-T3 | Trazabilidad end-to-end estable |
-| V4-P1-T2 | Alerting y runbooks | V4-P1-T2.1 alertas por SLO; V4-P1-T2.2 playbooks; V4-P1-T2.3 ownership on-call | 🚧 | V4-P1-T1 | Incidentes operables sin ambiguedad |
-| V4-P1-T3 | Logging/audit trail completo | V4-P1-T3.1 logs estructurados; V4-P1-T3.2 activity log; V4-P1-T3.3 export forense | ⏳ | V4-P1-T2 | Auditoria enterprise lista |
+| V4-P1-T2 | Alerting y runbooks | V4-P1-T2.1 alertas por SLO; V4-P1-T2.2 playbooks; V4-P1-T2.3 ownership on-call | ✅ | V4-P1-T1 | Incidentes operables sin ambiguedad |
+| V4-P1-T3 | Logging/audit trail completo | V4-P1-T3.1 logs estructurados; V4-P1-T3.2 activity log; V4-P1-T3.3 export forense | 🚧 | V4-P1-T2 | Auditoria enterprise lista |
 
 ## Fase P2 - Performance y escalabilidad
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -78,3 +78,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
 - Siguiente task activa:
   - `V4-P1-T2` (Alerting y runbooks) en `🚧`.
+- Cierre V4-P1-T2:
+  - contratos ampliados con tipos de alerta operativa y runbooks con ownership/SLA por paso.
+  - backend con evaluación de umbrales SLO y endpoints de `listOperationalAlerts` + `listOperationalRunbooks`.
+  - web alineada con consumo de alertas/runbooks y métricas operativas de on-call en observabilidad.
+  - evidencia publicada: `docs/validation/V4_P1_T2_ALERTING_RUNBOOKS.json`.
+  - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
+- Siguiente task activa:
+  - `V4-P1-T3` (Logging/audit trail completo) en `🚧`.

@@ -115,6 +115,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V4_P0_T2_COMPLIANCE_LEGAL_DATA.json`: evidencia de compliance legal/datos (consent audit, export/delete y retention policy) con regresión completa en verde.
 - `V4_P0_T3_ENTERPRISE_ACCESS_CONTROL.json`: evidencia de RBAC action-level, permisos condicionales y auditoría de denegaciones con validación end-to-end.
 - `V4_P1_T1_UNIFIED_TELEMETRY.json`: evidencia de telemetría canónica y correlación cross-layer con resumen operativo iOS/Web/Backend en verde.
+- `V4_P1_T2_ALERTING_RUNBOOKS.json`: evidencia de alertas SLO, runbooks y ownership on-call con integración backend/web.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -188,6 +189,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v4_p0_t2_compliance_legal_data.feature`
 - `features/v4_p0_t3_access_control_enterprise.feature`
 - `features/v4_p1_t1_unified_telemetry.feature`
+- `features/v4_p1_t2_alerting_runbooks.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
