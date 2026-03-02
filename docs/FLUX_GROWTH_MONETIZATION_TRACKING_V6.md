@@ -25,8 +25,8 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V6-P1-T1 | Arquitectura de planes freemium/premium | V6-P1-T1.1 packaging; V6-P1-T1.2 limites por rol; V6-P1-T1.3 upgrade paths | ✅ | V6-P0-T2 | Planes consistentes y accionables |
-| V6-P1-T2 | Paywall y upgrades contextuales | V6-P1-T2.1 triggers por valor; V6-P1-T2.2 copy ES/EN; V6-P1-T2.3 pruebas A/B | 🚧 | V6-P1-T1 | Upgrade no intrusivo y trazable |
-| V6-P1-T3 | Billing resiliente y recovery | V6-P1-T3.1 fallo de cobro; V6-P1-T3.2 grace period; V6-P1-T3.3 win-back | ⏳ | V6-P1-T2 | Perdida de ingreso controlada |
+| V6-P1-T2 | Paywall y upgrades contextuales | V6-P1-T2.1 triggers por valor; V6-P1-T2.2 copy ES/EN; V6-P1-T2.3 pruebas A/B | ✅ | V6-P1-T1 | Upgrade no intrusivo y trazable |
+| V6-P1-T3 | Billing resiliente y recovery | V6-P1-T3.1 fallo de cobro; V6-P1-T3.2 grace period; V6-P1-T3.3 win-back | 🚧 | V6-P1-T2 | Perdida de ingreso controlada |
 
 ## Fase P2 - Retencion y expansion
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -75,3 +75,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P1_T1_FREEMIUM_PREMIUM_ARCHITECTURE.json`.
 - Siguiente task activa:
   - `V6-P1-T2` (Paywall y upgrades contextuales) en `🚧`.
+- Cierre V6-P1-T2:
+  - triggers de paywall definidos por momento de valor (`advanced_ai`, `full_video_catalog`, `team_workspace`, `audit_export`) con limitación de frecuencia.
+  - microcopy bilingüe ES/EN normalizada para upgrade in-context con énfasis en valor y transparencia de límites del plan actual.
+  - diseño experimental A/B definido con hipótesis, métricas primarias (`upgrade_rate`, `checkout_start_rate`) y guardrails (`bounce`, `support_ticket_spike`).
+  - evidencia publicada: `docs/validation/V6_P1_T2_CONTEXTUAL_PAYWALL_UPGRADES.json`.
+- Siguiente task activa:
+  - `V6-P1-T3` (Billing resiliente y recovery) en `🚧`.
