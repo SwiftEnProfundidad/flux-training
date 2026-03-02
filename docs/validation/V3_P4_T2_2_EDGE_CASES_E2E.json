@@ -1,0 +1,51 @@
+{
+  "cycle": "V3",
+  "phase": "P4",
+  "task": "V3-P4-T2.2",
+  "title": "E2E edge cases cross-platform",
+  "status": "pass",
+  "executedAt": "2026-03-02T19:10:00Z",
+  "scope": {
+    "backend": [
+      "apps/backend/src/application/edge-case-e2e-suite.spec.ts"
+    ],
+    "web": [
+      "apps/web/src/application/edge-case-e2e-suite.spec.ts"
+    ],
+    "ios": [
+      "apps/ios/Tests/FluxTrainingTests/EdgeCaseFlowTests.swift"
+    ]
+  },
+  "commands": [
+    "pnpm test:edge-cases"
+  ],
+  "results": {
+    "backend": {
+      "runner": "vitest",
+      "files": 29,
+      "testsPassed": 59,
+      "testsFailed": 0
+    },
+    "web": {
+      "runner": "vitest",
+      "files": 35,
+      "testsPassed": 84,
+      "testsFailed": 0
+    },
+    "ios": {
+      "runner": "swift-test",
+      "filter": "EdgeCaseFlowTests",
+      "testsPassed": 1,
+      "testsFailed": 0
+    }
+  },
+  "acceptanceCriteria": [
+    "Validaciones negativas y paths de error quedan cubiertos en backend/web/iOS.",
+    "Los rechazos y errores esperados son deterministas y verificables por suite.",
+    "Comando unificado disponible para regresion de edge cases."
+  ],
+  "notes": [
+    "Se agrega script raíz `test:edge-cases` para ejecutar suites de borde en las tres plataformas.",
+    "El subtask V3-P4-T2.3 queda activo para recovery paths."
+  ]
+}

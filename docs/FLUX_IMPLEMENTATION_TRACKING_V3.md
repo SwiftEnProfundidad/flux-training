@@ -47,8 +47,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V3-P4-T1 | Paridad iOS/Web funcional | V3-P4-T1.1 matriz de paridad; V3-P4-T1.2 ajustes de comportamiento; V3-P4-T1.3 smoke cross-platform | ✅ | V3-P1-T3, V3-P2-T3 | Paridad cerrada por dominio |
-| V3-P4-T2 | E2E de flujos criticos | V3-P4-T2.1 happy paths; V3-P4-T2.2 edge cases; V3-P4-T2.3 recovery paths | 🚧 | V3-P4-T1 | Flujos criticos sin roturas |
-| V3-P4-T3 | Gate de calidad V3 | V3-P4-T3.1 `pnpm -r test`; V3-P4-T3.2 `swift test`; V3-P4-T3.3 evidencia docs/validation | ⏳ | V3-P4-T2 | Gate V3 en PASS |
+| V3-P4-T2 | E2E de flujos criticos | V3-P4-T2.1 happy paths; V3-P4-T2.2 edge cases; V3-P4-T2.3 recovery paths | ✅ | V3-P4-T1 | Flujos criticos sin roturas |
+| V3-P4-T3 | Gate de calidad V3 | V3-P4-T3.1 `pnpm -r test`; V3-P4-T3.2 `swift test`; V3-P4-T3.3 evidencia docs/validation | 🚧 | V3-P4-T2 | Gate V3 en PASS |
 
 ## Fase P5 - Cierre V3 y traspaso a V4
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -336,4 +336,29 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
       - `docs/validation/features/v3_p4_t2_1_happy_paths_e2e.feature`
     - verificación técnica en PASS:
       - `pnpm test:happy-paths` (`backend 58/58`, `web 83/83`, `ios 1/1`, `0` fallos)
-  - siguiente subtask activa: `V3-P4-T2.2` (edge cases E2E cross-platform).
+  - subtask `V3-P4-T2.2` cerrada:
+    - suites dedicadas de edge cases añadidas:
+      - backend: `apps/backend/src/application/edge-case-e2e-suite.spec.ts`
+      - web: `apps/web/src/application/edge-case-e2e-suite.spec.ts`
+      - iOS: `apps/ios/Tests/FluxTrainingTests/EdgeCaseFlowTests.swift`
+    - comando unificado publicado:
+      - `pnpm test:edge-cases`
+    - evidencias publicadas:
+      - `docs/validation/V3_P4_T2_2_EDGE_CASES_E2E.json`
+      - `docs/validation/features/v3_p4_t2_2_edge_cases_e2e.feature`
+    - verificación técnica en PASS:
+      - `pnpm test:edge-cases` (`backend 59/59`, `web 84/84`, `ios 1/1`, `0` fallos)
+  - subtask `V3-P4-T2.3` cerrada:
+    - suites dedicadas de recovery paths añadidas:
+      - backend: `apps/backend/src/application/recovery-path-e2e-suite.spec.ts`
+      - web: `apps/web/src/application/recovery-path-e2e-suite.spec.ts`
+      - iOS: `apps/ios/Tests/FluxTrainingTests/RecoveryPathFlowTests.swift`
+    - comando unificado publicado:
+      - `pnpm test:recovery-paths`
+    - evidencias publicadas:
+      - `docs/validation/V3_P4_T2_3_RECOVERY_PATHS_E2E.json`
+      - `docs/validation/features/v3_p4_t2_3_recovery_paths_e2e.feature`
+    - verificación técnica en PASS:
+      - `pnpm test:recovery-paths` (`backend 60/60`, `web 85/85`, `ios 1/1`, `0` fallos)
+  - cierre de task `V3-P4-T2`: happy paths + edge cases + recovery paths en PASS cross-platform.
+  - siguiente task activa: `V3-P4-T3` (gate de calidad V3).

@@ -1,0 +1,51 @@
+{
+  "cycle": "V3",
+  "phase": "P4",
+  "task": "V3-P4-T2.3",
+  "title": "E2E recovery paths cross-platform",
+  "status": "pass",
+  "executedAt": "2026-03-02T20:20:00Z",
+  "scope": {
+    "backend": [
+      "apps/backend/src/application/recovery-path-e2e-suite.spec.ts"
+    ],
+    "web": [
+      "apps/web/src/application/recovery-path-e2e-suite.spec.ts"
+    ],
+    "ios": [
+      "apps/ios/Tests/FluxTrainingTests/RecoveryPathFlowTests.swift"
+    ]
+  },
+  "commands": [
+    "pnpm test:recovery-paths"
+  ],
+  "results": {
+    "backend": {
+      "runner": "vitest",
+      "files": 30,
+      "testsPassed": 60,
+      "testsFailed": 0
+    },
+    "web": {
+      "runner": "vitest",
+      "files": 36,
+      "testsPassed": 85,
+      "testsFailed": 0
+    },
+    "ios": {
+      "runner": "swift-test",
+      "filter": "RecoveryPathFlowTests",
+      "testsPassed": 1,
+      "testsFailed": 0
+    }
+  },
+  "acceptanceCriteria": [
+    "Flujos de recuperación quedan cubiertos en backend/web/iOS.",
+    "El sistema converge de fallo inicial a estado recuperado verificable.",
+    "Comando unificado disponible para regresión de recovery paths."
+  ],
+  "notes": [
+    "Se agrega script raíz `test:recovery-paths` para ejecución determinista cross-platform.",
+    "Con T2.1/T2.2/T2.3 en PASS se cierra `V3-P4-T2` y se activa `V3-P4-T3`."
+  ]
+}

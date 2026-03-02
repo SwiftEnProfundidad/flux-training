@@ -8,6 +8,8 @@
     "test": "pnpm -r test",
     "test:critical": "pnpm --filter @flux/backend test -- src/application/critical-regression-suite.spec.ts && pnpm --filter @flux/web test -- src/application/critical-regression-suite.spec.ts && cd apps/ios && swift test --filter CriticalRegressionFlowTests",
     "test:happy-paths": "pnpm --filter @flux/backend test -- src/application/happy-path-e2e-suite.spec.ts && pnpm --filter @flux/web test -- src/application/happy-path-e2e-suite.spec.ts && cd apps/ios && swift test --filter HappyPathFlowTests",
+    "test:edge-cases": "pnpm --filter @flux/backend test -- src/application/edge-case-e2e-suite.spec.ts && pnpm --filter @flux/web test -- src/application/edge-case-e2e-suite.spec.ts && cd apps/ios && swift test --filter EdgeCaseFlowTests",
+    "test:recovery-paths": "pnpm --filter @flux/backend test -- src/application/recovery-path-e2e-suite.spec.ts && pnpm --filter @flux/web test -- src/application/recovery-path-e2e-suite.spec.ts && cd apps/ios && swift test --filter RecoveryPathFlowTests",
     "release:check": "pnpm check && pnpm test && pnpm test:critical && cd apps/ios && swift test",
     "check": "pnpm -r check",
     "dev:web": "pnpm --filter @flux/web dev",
