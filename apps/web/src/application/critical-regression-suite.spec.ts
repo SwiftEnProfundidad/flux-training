@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
 import type {
+  ActivityLogEntry,
   AIRecommendation,
   AnalyticsEvent,
   CrashReport,
   ExerciseVideo,
+  ForensicAuditExport,
+  ForensicAuditExportRequest,
   NutritionLog,
   ObservabilitySummary,
   OperationalAlert,
   OperationalRunbook,
   ProgressSummary,
+  StructuredLog,
   SyncQueueItem,
   SyncQueueProcessInput,
   SyncQueueProcessResult,
@@ -266,6 +270,29 @@ class InMemoryPlatformGateway
         updatedAt: "2026-03-01T10:31:00.000Z"
       }
     ];
+  }
+
+  async listStructuredLogs(_: string): Promise<StructuredLog[]> {
+    return [];
+  }
+
+  async listActivityLog(_: string): Promise<ActivityLogEntry[]> {
+    return [];
+  }
+
+  async exportForensicAudit(payload: ForensicAuditExportRequest): Promise<ForensicAuditExport> {
+    return {
+      id: "forensic-critical-1",
+      userId: payload.userId,
+      format: payload.format,
+      status: "completed",
+      generatedAt: "2026-03-01T10:35:00.000Z",
+      rowCount: 0,
+      checksum: "forensiccritical1",
+      downloadUrl: "https://cdn.flux.training/forensics/forensic-critical-1.csv",
+      fromDate: payload.fromDate ?? null,
+      toDate: payload.toDate ?? null
+    };
   }
 
   async process(input: SyncQueueProcessInput): Promise<SyncQueueProcessResult> {

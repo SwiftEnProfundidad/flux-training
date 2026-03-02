@@ -38,8 +38,8 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 ## Fase P3 - Release governance
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V4-P3-T1 | Gate de release enterprise | V4-P3-T1.1 checklist tecnico; V4-P3-T1.2 checklist legal; V4-P3-T1.3 checklist operacion | 🚧 | V4-P2-T3 | Go/No-Go auditable |
-| V4-P3-T2 | Plan de rollback y continuidad | V4-P3-T2.1 rollback por capa; V4-P3-T2.2 backup/restore; V4-P3-T2.3 simulacro | ⏳ | V4-P3-T1 | Recuperacion validada |
+| V4-P3-T1 | Gate de release enterprise | V4-P3-T1.1 checklist tecnico; V4-P3-T1.2 checklist legal; V4-P3-T1.3 checklist operacion | ✅ | V4-P2-T3 | Go/No-Go auditable |
+| V4-P3-T2 | Plan de rollback y continuidad | V4-P3-T2.1 rollback por capa; V4-P3-T2.2 backup/restore; V4-P3-T2.3 simulacro | 🚧 | V4-P3-T1 | Recuperacion validada |
 | V4-P3-T3 | Cierre V4 y handoff a V5 | V4-P3-T3.1 reporte residual; V4-P3-T3.2 aprobacion release board; V4-P3-T3.3 apertura V5 | ⏳ | V4-P3-T2 | V4 cerrado para rollout controlado |
 
 ## Bitacora V4 (2026-03-02)
@@ -119,3 +119,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - regresión global validada en verde (`pnpm --filter backend build`, `pnpm --filter backend test`, `pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
 - Siguiente task activa:
   - `V4-P3-T1` (Gate de release enterprise) en `🚧`.
+- Cierre V4-P3-T1:
+  - gate técnico enterprise validado con `pnpm release:check` en verde (`check`, `test`, `test:critical` y `swift test`).
+  - bloqueo detectado durante gate (desalineación de `ObservabilityGateway` en suites web) corregido en los cuatro escenarios E2E.
+  - checklist legal enterprise validado contra evidencia de compliance/acceso (`V4_P0_T2`, `V4_P0_T3`) y checklist operativo validado contra observabilidad/runbooks/audit/load (`V4_P1_*`, `V4_P2_*`).
+  - evidencia publicada: `docs/validation/V4_P3_T1_RELEASE_GATE_ENTERPRISE.json`.
+  - checklist maestro actualizado: `docs/RELEASE_CHECKLIST_V1.md`.
+- Siguiente task activa:
+  - `V4-P3-T2` (Plan de rollback y continuidad) en `🚧`.

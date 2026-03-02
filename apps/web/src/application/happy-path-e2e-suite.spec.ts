@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type {
+  ActivityLogEntry,
   AIRecommendation,
   AccessRole,
   AnalyticsEvent,
@@ -8,6 +9,8 @@ import type {
   DataExportRequest,
   DataExportRequestInput,
   ExerciseVideo,
+  ForensicAuditExport,
+  ForensicAuditExportRequest,
   LegalConsentSubmission,
   NutritionLog,
   ObservabilitySummary,
@@ -15,6 +18,7 @@ import type {
   OperationalRunbook,
   ProgressSummary,
   RoleCapabilities,
+  StructuredLog,
   SyncQueueItem,
   SyncQueueProcessInput,
   SyncQueueProcessResult,
@@ -363,6 +367,29 @@ class InMemoryHappyPathGateway
         updatedAt: "2026-03-02T18:21:00.000Z"
       }
     ];
+  }
+
+  async listStructuredLogs(_: string): Promise<StructuredLog[]> {
+    return [];
+  }
+
+  async listActivityLog(_: string): Promise<ActivityLogEntry[]> {
+    return [];
+  }
+
+  async exportForensicAudit(payload: ForensicAuditExportRequest): Promise<ForensicAuditExport> {
+    return {
+      id: "forensic-happy-1",
+      userId: payload.userId,
+      format: payload.format,
+      status: "completed",
+      generatedAt: "2026-03-02T18:32:00.000Z",
+      rowCount: 0,
+      checksum: "forensichappy1",
+      downloadUrl: "https://cdn.flux.training/forensics/forensic-happy-1.csv",
+      fromDate: payload.fromDate ?? null,
+      toDate: payload.toDate ?? null
+    };
   }
 
   async process(input: SyncQueueProcessInput): Promise<
