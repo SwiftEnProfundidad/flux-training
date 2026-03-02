@@ -1,14 +1,17 @@
 import {
   accessRoleSchema,
   analyticsEventSchema,
+  billingInvoiceSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
   legalConsentSubmissionSchema,
+  supportIncidentSchema,
   roleCapabilitiesSchema,
   syncQueueProcessInputSchema,
   type AccessRole,
   type AIRecommendation,
   type AnalyticsEvent,
+  type BillingInvoice,
   type CrashReport,
   type DataDeletionRequest,
   type ExerciseVideo,
@@ -19,6 +22,7 @@ import {
   type OnboardingResult,
   type ProgressSummary,
   type RoleCapabilities,
+  type SupportIncident,
   type SyncQueueItem,
   type SyncQueueProcessResult,
   type TrainingPlan,
@@ -40,6 +44,8 @@ import { ListNutritionLogsUseCase } from "../application/list-nutrition-logs";
 import { ListTrainingPlansUseCase } from "../application/list-training-plans";
 import { ListWorkoutSessionsUseCase } from "../application/list-workout-sessions";
 import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabilities";
+import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices";
+import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
 import { RequestDataDeletionUseCase } from "../application/request-data-deletion";
@@ -212,6 +218,8 @@ export type DemoApiRuntime = {
   listExerciseVideos(input: ListExerciseVideosInput): Promise<ExerciseVideo[]>;
   listAIRecommendations(input: ListAIRecommendationsInput): Promise<AIRecommendation[]>;
   listRoleCapabilities(role: AccessRole): Promise<RoleCapabilities>;
+  listBillingInvoices(userId: string): Promise<BillingInvoice[]>;
+  listSupportIncidents(userId: string): Promise<SupportIncident[]>;
 };
 
 export function createDemoApiRuntime(): DemoApiRuntime {
@@ -261,6 +269,15 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
   const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
   const listRoleCapabilitiesUseCase = new ListRoleCapabilitiesUseCase();
+  const listBillingInvoicesUseCase = new ListBillingInvoicesUseCase(
+    trainingPlanRepository,
+    workoutSessionRepository,
+    nutritionLogRepository
+  );
+  const listSupportIncidentsUseCase = new ListSupportIncidentsUseCase(
+    analyticsEventRepository,
+    crashReportRepository
+  );
 
   return {
     async createAuthSession(providerToken: string) {
@@ -347,6 +364,16 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     async listRoleCapabilities(role: AccessRole) {
       const parsedRole = accessRoleSchema.parse(role);
       return roleCapabilitiesSchema.parse(listRoleCapabilitiesUseCase.execute(parsedRole));
+    },
+
+    async listBillingInvoices(userId: string) {
+      const invoices = await listBillingInvoicesUseCase.execute(userId);
+      return billingInvoiceSchema.array().parse(invoices);
+    },
+
+    async listSupportIncidents(userId: string) {
+      const incidents = await listSupportIncidentsUseCase.execute(userId);
+      return supportIncidentSchema.array().parse(incidents);
     }
   };
 }

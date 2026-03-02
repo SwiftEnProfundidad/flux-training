@@ -58,7 +58,9 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/requestDataDeletion": "POST",
   "/api/listExerciseVideos": "GET",
   "/api/listAIRecommendations": "GET",
-  "/api/listRoleCapabilities": "GET"
+  "/api/listRoleCapabilities": "GET",
+  "/api/listBillingInvoices": "GET",
+  "/api/listSupportIncidents": "GET"
 };
 
 function mapDomainError(error: unknown, fallbackCode: string): string {
@@ -470,6 +472,32 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: mapDomainError(error, "invalid_role_capabilities_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listBillingInvoices") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const invoices = await runtime.listBillingInvoices(userId);
+      return { statusCode: 200, payload: { invoices } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_billing_invoices_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listSupportIncidents") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const incidents = await runtime.listSupportIncidents(userId);
+      return { statusCode: 200, payload: { incidents } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_support_incidents_payload") }
       };
     }
   }

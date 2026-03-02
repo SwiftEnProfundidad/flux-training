@@ -1,10 +1,12 @@
 import {
   accessRoleSchema,
   analyticsEventSchema,
+  billingInvoiceSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
   goalSchema,
   legalConsentSubmissionSchema,
+  supportIncidentSchema,
   syncQueueProcessInputSchema
 } from "@flux/contracts";
 import { onRequest } from "firebase-functions/v2/https";
@@ -32,6 +34,8 @@ import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { ListExerciseVideosUseCase } from "../application/list-exercise-videos";
 import { GenerateAIRecommendationsUseCase } from "../application/generate-ai-recommendations";
 import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabilities";
+import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices";
+import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
 import { FirebaseAuthTokenVerifier } from "../infrastructure/firebase-auth-token-verifier";
 import { FirestoreAnalyticsEventRepository } from "../infrastructure/firestore-analytics-event-repository";
 import { FirestoreCrashReportRepository } from "../infrastructure/firestore-crash-report-repository";
@@ -70,6 +74,11 @@ const exerciseVideoRepository = new StaticExerciseVideoRepository();
 const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
 const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
 const listRoleCapabilitiesUseCase = new ListRoleCapabilitiesUseCase();
+const listBillingInvoicesUseCase = new ListBillingInvoicesUseCase(
+  trainingPlanRepository,
+  repository,
+  nutritionLogRepository
+);
 const processSyncQueueUseCase = new ProcessSyncQueueUseCase(
   trainingPlanRepository,
   repository,
@@ -85,6 +94,10 @@ const listAnalyticsEventsUseCase = new ListAnalyticsEventsUseCase(
 const crashReportRepository = new FirestoreCrashReportRepository();
 const createCrashReportUseCase = new CreateCrashReportUseCase(crashReportRepository);
 const listCrashReportsUseCase = new ListCrashReportsUseCase(crashReportRepository);
+const listSupportIncidentsUseCase = new ListSupportIncidentsUseCase(
+  analyticsEventRepository,
+  crashReportRepository
+);
 const authTokenVerifier = new FirebaseAuthTokenVerifier();
 const createAuthSessionUseCase = new CreateAuthSessionUseCase(authTokenVerifier);
 const legalConsentRepository = new FirestoreLegalConsentRepository();
@@ -371,6 +384,32 @@ export const listRoleCapabilities = onRequest(async (request, response) => {
     response.status(200).json({ capabilities });
   } catch {
     response.status(400).json({ error: "invalid_list_role_capabilities_payload" });
+  }
+});
+
+export const listBillingInvoices = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const userId = String(request.query.userId ?? "");
+    const invoices = await listBillingInvoicesUseCase.execute(userId);
+    response.status(200).json({ invoices: billingInvoiceSchema.array().parse(invoices) });
+  } catch {
+    response.status(400).json({ error: "invalid_list_billing_invoices_payload" });
+  }
+});
+
+export const listSupportIncidents = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const userId = String(request.query.userId ?? "");
+    const incidents = await listSupportIncidentsUseCase.execute(userId);
+    response.status(200).json({ incidents: supportIncidentSchema.array().parse(incidents) });
+  } catch {
+    response.status(400).json({ error: "invalid_list_support_incidents_payload" });
   }
 });
 

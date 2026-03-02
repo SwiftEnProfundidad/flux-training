@@ -3,6 +3,7 @@ import {
   aiRecommendationSchema,
   analyticsEventSchema,
   authSessionSchema,
+  billingInvoiceSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
   exerciseVideoSchema,
@@ -14,6 +15,7 @@ import {
   nutritionLogSchema,
   progressSummarySchema,
   roleCapabilitiesSchema,
+  supportIncidentSchema,
   syncQueueProcessInputSchema,
   syncQueueProcessResultSchema,
   trainingPlanSchema,
@@ -140,6 +142,40 @@ describe("crashReportSchema", () => {
       stackTrace: "MainViewModel.swift:42",
       severity: "fatal",
       occurredAt: "2026-02-27T10:05:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("billingInvoiceSchema", () => {
+  it("accepts billing invoice payload", () => {
+    const parsed = billingInvoiceSchema.safeParse({
+      id: "INV-0001",
+      userId: "user-1",
+      period: "2026-03",
+      amountEUR: 49,
+      status: "open",
+      source: "auto",
+      issuedAt: "2026-03-02T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("supportIncidentSchema", () => {
+  it("accepts support incident payload", () => {
+    const parsed = supportIncidentSchema.safeParse({
+      id: "INC-0001",
+      userId: "user-1",
+      openedAt: "2026-03-02T10:10:00.000Z",
+      domain: "operations",
+      severity: "high",
+      state: "open",
+      source: "analytics",
+      summary: "dashboard_action_blocked · domain_denied",
+      correlationId: "corr-1"
     });
 
     expect(parsed.success).toBe(true);

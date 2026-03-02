@@ -228,6 +228,55 @@ export const crashReportSchema = z.object({
   occurredAt: z.string().datetime()
 });
 
+export const billingInvoiceStatusSchema = z.enum([
+  "draft",
+  "open",
+  "paid",
+  "overdue"
+]);
+
+export const billingInvoiceSourceSchema = z.enum(["auto", "manual"]);
+
+export const billingInvoiceSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  period: z.string().regex(/^\d{4}-\d{2}$/),
+  amountEUR: z.number().nonnegative(),
+  status: billingInvoiceStatusSchema,
+  source: billingInvoiceSourceSchema,
+  issuedAt: z.string().datetime()
+});
+
+export const supportIncidentSeveritySchema = z.enum([
+  "low",
+  "medium",
+  "high"
+]);
+
+export const supportIncidentStateSchema = z.enum([
+  "open",
+  "in_progress",
+  "resolved"
+]);
+
+export const supportIncidentSourceSchema = z.enum([
+  "analytics",
+  "crash",
+  "operator"
+]);
+
+export const supportIncidentSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  openedAt: z.string().datetime(),
+  domain: z.string().min(1),
+  severity: supportIncidentSeveritySchema,
+  state: supportIncidentStateSchema,
+  source: supportIncidentSourceSchema,
+  summary: z.string().min(1),
+  correlationId: z.string().min(1)
+});
+
 export const aiRecommendationPrioritySchema = z.enum([
   "high",
   "medium",
@@ -331,6 +380,13 @@ export type ObservabilitySource = z.infer<typeof observabilitySourceSchema>;
 export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
 export type CrashSeverity = z.infer<typeof crashSeveritySchema>;
 export type CrashReport = z.infer<typeof crashReportSchema>;
+export type BillingInvoiceStatus = z.infer<typeof billingInvoiceStatusSchema>;
+export type BillingInvoiceSource = z.infer<typeof billingInvoiceSourceSchema>;
+export type BillingInvoice = z.infer<typeof billingInvoiceSchema>;
+export type SupportIncidentSeverity = z.infer<typeof supportIncidentSeveritySchema>;
+export type SupportIncidentState = z.infer<typeof supportIncidentStateSchema>;
+export type SupportIncidentSource = z.infer<typeof supportIncidentSourceSchema>;
+export type SupportIncident = z.infer<typeof supportIncidentSchema>;
 export type AIRecommendationPriority = z.infer<typeof aiRecommendationPrioritySchema>;
 export type AIRecommendationCategory = z.infer<typeof aiRecommendationCategorySchema>;
 export type AIRecommendationImpact = z.infer<typeof aiRecommendationImpactSchema>;

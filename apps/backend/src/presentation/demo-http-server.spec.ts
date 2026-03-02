@@ -99,4 +99,69 @@ describe("DemoHttpServer", () => {
     const payload = (await response.json()) as { error?: string };
     expect(payload.error).toBe("missing_user_id");
   });
+
+  it("serves billing invoices and support incidents endpoints", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    const analyticsResponse = await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_action_blocked",
+        source: "web",
+        occurredAt: "2026-03-02T10:00:00.000Z",
+        attributes: {
+          domain: "operations",
+          reason: "domain_denied",
+          correlationId: "corr-1"
+        }
+      })
+    });
+
+    const crashResponse = await fetch(`${server.baseUrl}/api/createCrashReport`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        source: "backend",
+        message: "fatal worker crash",
+        stackTrace: "worker.ts:44",
+        severity: "fatal",
+        occurredAt: "2026-03-02T10:10:00.000Z"
+      })
+    });
+
+    const invoicesResponse = await fetch(
+      `${server.baseUrl}/api/listBillingInvoices?userId=demo-user`,
+      { headers: clientHeaders }
+    );
+    const incidentsResponse = await fetch(
+      `${server.baseUrl}/api/listSupportIncidents?userId=demo-user`,
+      { headers: clientHeaders }
+    );
+
+    expect(analyticsResponse.status).toBe(201);
+    expect(crashResponse.status).toBe(201);
+    expect(invoicesResponse.status).toBe(200);
+    expect(incidentsResponse.status).toBe(200);
+
+    const invoicesPayload = (await invoicesResponse.json()) as {
+      invoices: Array<{ status?: string }>;
+    };
+    const incidentsPayload = (await incidentsResponse.json()) as {
+      incidents: Array<{ severity?: string }>;
+    };
+
+    expect(invoicesPayload.invoices.length).toBe(4);
+    expect(invoicesPayload.invoices.map((invoice) => invoice.status)).toContain("overdue");
+    expect(incidentsPayload.incidents.length).toBe(2);
+    expect(incidentsPayload.incidents[0]?.severity).toBe("high");
+  });
 });
