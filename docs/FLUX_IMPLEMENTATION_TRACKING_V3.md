@@ -206,3 +206,18 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - `pnpm --filter @flux/backend test` (`26` ficheros, `46` tests, `0` fallos)
 - Inicio V3-P3-T2:
   - foco en expandir endpoints funcionales por dominio para cerrar cobertura backend total del board (`auth/onboarding`, `training/nutrition/progress`, `legal/admin/audit`).
+- Avance V3-P3-T2 (en curso):
+  - subtask `V3-P3-T2.1` cerrada:
+    - contratos de recuperación de acceso añadidos en `@flux/contracts`:
+      - `authRecoveryRequestSchema`
+      - `authRecoveryResultSchema`
+    - backend `auth/onboarding` ampliado con:
+      - use case `RequestAuthRecoveryUseCase`
+      - endpoint `POST /api/requestAuthRecovery` (runtime demo + `http.ts`)
+      - cobertura demo de onboarding precheck con `POST /api/createHealthScreening` en `demo-http-server`
+    - validación en PASS:
+      - `pnpm --filter @flux/contracts check`
+      - `pnpm --filter @flux/contracts test` (`24` tests, `0` fallos)
+      - `pnpm --filter @flux/backend check`
+      - `pnpm --filter @flux/backend test` (`27` ficheros, `53` tests, `0` fallos)
+  - siguiente subtask activa: `V3-P3-T2.2` (`training/nutrition/progress`) para cerrar endpoints funcionales del bloque core operativo.
