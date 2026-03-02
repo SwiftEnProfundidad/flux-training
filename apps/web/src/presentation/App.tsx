@@ -149,6 +149,11 @@ type TrainingStatus =
 type NutritionStatus = ModuleRuntimeStatus;
 type ProgressStatus = ModuleRuntimeStatus;
 type SyncStatus = "idle" | "loading" | "synced" | "error";
+type SyncIdempotencyMetadata = {
+  key: string;
+  replayed: boolean;
+  ttlSeconds: number;
+};
 type ObservabilityStatus =
   | "idle"
   | "loading"
@@ -226,6 +231,8 @@ export function App() {
   const [nutritionStatus, setNutritionStatus] = useState<NutritionStatus>("idle");
   const [progressStatus, setProgressStatus] = useState<ProgressStatus>("idle");
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [lastSyncIdempotency, setLastSyncIdempotency] =
+    useState<SyncIdempotencyMetadata | null>(null);
   const [observabilityStatus, setObservabilityStatus] = useState<ObservabilityStatus>("idle");
   const [releaseCompatibilityStatus, setReleaseCompatibilityStatus] =
     useState<ReleaseCompatibilityStatus>("compatible");
@@ -1158,11 +1165,13 @@ export function App() {
       const result = await offlineSyncQueueUseCase.syncPending(demoUserId);
       await refreshPendingQueue();
       setLastSyncRejectedCount(result.rejected.length);
+      setLastSyncIdempotency(result.idempotency);
       setSyncStatus("synced");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setLastSyncIdempotency(null);
       setSyncStatus("error");
     }
   }
@@ -3095,6 +3104,31 @@ export function App() {
               <StatLine
                 label={translate("rejectedLastSyncLabel")}
                 value={String(lastSyncRejectedCount)}
+                language={language}
+              />
+              <StatLine
+                label={translate("idempotencyKeyLabel")}
+                value={lastSyncIdempotency?.key ?? "-"}
+                language={language}
+              />
+              <StatLine
+                label={translate("idempotencyReplayLabel")}
+                value={
+                  lastSyncIdempotency === null
+                    ? "-"
+                    : lastSyncIdempotency.replayed
+                      ? translate("idempotencyReplayYes")
+                      : translate("idempotencyReplayNo")
+                }
+                language={language}
+              />
+              <StatLine
+                label={translate("idempotencyTTLLabel")}
+                value={
+                  lastSyncIdempotency === null
+                    ? "-"
+                    : `${lastSyncIdempotency.ttlSeconds}s`
+                }
                 language={language}
               />
             </div>

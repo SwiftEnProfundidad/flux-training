@@ -219,6 +219,11 @@ type AppTranslations = {
   refreshQueue: string;
   pendingActionsLabel: string;
   rejectedLastSyncLabel: string;
+  idempotencyKeyLabel: string;
+  idempotencyReplayLabel: string;
+  idempotencyReplayYes: string;
+  idempotencyReplayNo: string;
+  idempotencyTTLLabel: string;
   observabilityTitle: string;
   observabilityStatusLabel: string;
   trackEvent: string;
@@ -480,6 +485,11 @@ const translations: Record<AppLanguage, AppTranslations> = {
     refreshQueue: "Refrescar cola",
     pendingActionsLabel: "Acciones pendientes",
     rejectedLastSyncLabel: "Rechazadas en ultimo sync",
+    idempotencyKeyLabel: "Clave idempotencia",
+    idempotencyReplayLabel: "Replay idempotente",
+    idempotencyReplayYes: "si",
+    idempotencyReplayNo: "no",
+    idempotencyTTLLabel: "TTL idempotencia",
     observabilityTitle: "Observabilidad",
     observabilityStatusLabel: "Observabilidad",
     trackEvent: "Registrar evento",
@@ -739,6 +749,11 @@ const translations: Record<AppLanguage, AppTranslations> = {
     refreshQueue: "Refresh queue",
     pendingActionsLabel: "Pending actions",
     rejectedLastSyncLabel: "Rejected on last sync",
+    idempotencyKeyLabel: "Idempotency key",
+    idempotencyReplayLabel: "Idempotency replay",
+    idempotencyReplayYes: "yes",
+    idempotencyReplayNo: "no",
+    idempotencyTTLLabel: "Idempotency TTL",
     observabilityTitle: "Observability",
     observabilityStatusLabel: "Observability",
     trackEvent: "Track event",

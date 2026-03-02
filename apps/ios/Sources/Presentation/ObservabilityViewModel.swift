@@ -6,6 +6,7 @@ import Observation
 public final class ObservabilityViewModel {
   public private(set) var analyticsEvents: [AnalyticsEvent] = []
   public private(set) var crashReports: [CrashReport] = []
+  public private(set) var supportIncidents: [SupportIncident] = []
   public private(set) var status: String = "idle"
 
   private let createAnalyticsEventUseCase: CreateAnalyticsEventUseCase
@@ -81,9 +82,92 @@ public final class ObservabilityViewModel {
       let (events, reports) = try await (eventsTask, reportsTask)
       analyticsEvents = events
       crashReports = reports
+      supportIncidents = buildSupportIncidents(analyticsEvents: events, crashReports: reports)
       status = "loaded"
     } catch {
       status = "error"
     }
+  }
+}
+
+private func buildSupportIncidents(
+  analyticsEvents: [AnalyticsEvent],
+  crashReports: [CrashReport]
+) -> [SupportIncident] {
+  let analyticsIncidents = analyticsEvents
+    .filter(shouldIncludeAnalyticsEvent)
+    .map { event in
+      let reason = event.attributes["reason"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+      let normalizedReason = reason?.isEmpty == false ? reason! : "runtime_event"
+      let payloadValidation =
+        event.attributes["payloadValidation"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+      let domain = event.attributes["domain"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+      let correlationID =
+        event.attributes["correlationId"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+      let severity = resolveAnalyticsSeverity(
+        reason: normalizedReason,
+        payloadValidation: payloadValidation ?? "ok"
+      )
+      return SupportIncident(
+        id: "INC-\(event.source.rawValue.uppercased())-\(event.occurredAt.timeIntervalSince1970)-\(event.name)",
+        openedAt: event.occurredAt,
+        domain: domain?.isEmpty == false ? domain! : "operations",
+        severity: severity,
+        state: resolveIncidentState(severity: severity),
+        summary: "\(event.name) · \(normalizedReason)",
+        source: .analytics,
+        correlationID: correlationID?.isEmpty == false ? correlationID! : "-"
+      )
+    }
+
+  let crashIncidents = crashReports.map { report in
+    let severity: SupportIncidentSeverity = report.severity == .fatal ? .high : .medium
+    return SupportIncident(
+      id: "INC-CRASH-\(report.source.rawValue.uppercased())-\(report.occurredAt.timeIntervalSince1970)",
+      openedAt: report.occurredAt,
+      domain: "operations",
+      severity: severity,
+      state: resolveIncidentState(severity: severity),
+      summary: report.message,
+      source: .crash,
+      correlationID: "-"
+    )
+  }
+
+  return (analyticsIncidents + crashIncidents).sorted(by: { $0.openedAt > $1.openedAt })
+}
+
+private func shouldIncludeAnalyticsEvent(_ event: AnalyticsEvent) -> Bool {
+  let loweredName = event.name.lowercased()
+  if loweredName.contains("blocked") || loweredName.contains("denied") || loweredName.contains("error") {
+    return true
+  }
+  let payloadValidation = (event.attributes["payloadValidation"] ?? "ok").lowercased()
+  return payloadValidation != "ok"
+}
+
+private func resolveAnalyticsSeverity(
+  reason: String,
+  payloadValidation: String
+) -> SupportIncidentSeverity {
+  let loweredReason = reason.lowercased()
+  if loweredReason.contains("denied")
+    || loweredReason.contains("forbidden")
+    || payloadValidation.lowercased() == "error"
+  {
+    return .high
+  }
+  if loweredReason.contains("validation") || loweredReason.contains("missing") {
+    return .medium
+  }
+  return .low
+}
+
+private func resolveIncidentState(severity: SupportIncidentSeverity) -> SupportIncidentState {
+  switch severity {
+  case .high:
+    return .open
+  case .medium, .low:
+    return .inProgress
   }
 }

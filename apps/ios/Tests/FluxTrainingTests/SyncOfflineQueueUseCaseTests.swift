@@ -35,6 +35,9 @@ final class SyncOfflineQueueUseCaseTests: XCTestCase {
 
     XCTAssertEqual(result.acceptedIDs, ["queue-1"])
     XCTAssertTrue(result.rejected.isEmpty)
+    XCTAssertEqual(result.idempotency?.replayed, false)
+    XCTAssertEqual(result.idempotency?.ttlSeconds, 300)
+    XCTAssertEqual(result.idempotency?.key, "ios-local-sync:user-1:queue-1")
     XCTAssertEqual(pendingItems.count, 0)
   }
 

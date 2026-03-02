@@ -37,6 +37,50 @@ public struct ObservabilityView: View {
         .foregroundStyle(.secondary)
       Text("\(copy.text(.analyticsEventsLabel)): \(viewModel.analyticsEvents.count)")
       Text("\(copy.text(.crashReportsLabel)): \(viewModel.crashReports.count)")
+      Text("\(copy.text(.supportIncidentsLabel)): \(viewModel.supportIncidents.count)")
+
+      if viewModel.supportIncidents.isEmpty {
+        Text(copy.text(.noSupportIncidents))
+          .foregroundStyle(.secondary)
+      } else {
+        VStack(alignment: .leading, spacing: 8) {
+          ForEach(viewModel.supportIncidents) { incident in
+            VStack(alignment: .leading, spacing: 4) {
+              Text(incident.id)
+                .font(.footnote.bold())
+              Text(
+                "\(copy.text(.incidentDomainLabel)): \(incident.domain)"
+              )
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              Text(
+                "\(copy.text(.incidentSeverityLabel)): \(copy.humanStatus(incident.severity.rawValue))"
+              )
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              Text(
+                "\(copy.text(.incidentStateLabel)): \(copy.humanStatus(incident.state.rawValue))"
+              )
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              Text(
+                "\(copy.text(.incidentCorrelationLabel)): \(incident.correlationID)"
+              )
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              Text(
+                "\(copy.text(.incidentSummaryLabel)): \(incident.summary)"
+              )
+              .font(.caption)
+              .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(10)
+            .background(.ultraThinMaterial)
+            .clipShape(.rect(cornerRadius: 10))
+          }
+        }
+      }
     }
     .padding()
   }

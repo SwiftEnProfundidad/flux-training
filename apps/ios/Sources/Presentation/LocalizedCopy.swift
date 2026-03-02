@@ -45,6 +45,11 @@ public enum CopyKey: Sendable {
   case refreshQueue
   case pendingActionsLabel
   case rejectedLastSyncLabel
+  case idempotencyKeyLabel
+  case idempotencyReplayLabel
+  case idempotencyReplayYes
+  case idempotencyReplayNo
+  case idempotencyTTLLabel
   case observabilityTitle
   case trackEvent
   case reportCrash
@@ -52,6 +57,13 @@ public enum CopyKey: Sendable {
   case loadProgress
   case analyticsEventsLabel
   case crashReportsLabel
+  case supportIncidentsLabel
+  case noSupportIncidents
+  case incidentDomainLabel
+  case incidentSeverityLabel
+  case incidentStateLabel
+  case incidentCorrelationLabel
+  case incidentSummaryLabel
   case readinessLabel
   case dailyObjective
   case authenticationTitle
@@ -227,6 +239,9 @@ public struct LocalizedCopy: Sendable {
         "empty": "sin datos",
         "offline": "sin conexion",
         "denied": "sin permiso",
+        "open": "abierta",
+        "in_progress": "en progreso",
+        "resolved": "resuelta",
         "high": "alta",
         "medium": "media",
         "low": "baja"
@@ -255,6 +270,9 @@ public struct LocalizedCopy: Sendable {
         "empty": "empty",
         "offline": "offline",
         "denied": "denied",
+        "open": "open",
+        "in_progress": "in progress",
+        "resolved": "resolved",
         "high": "high",
         "medium": "medium",
         "low": "low"
@@ -349,6 +367,16 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Acciones pendientes"
   case .rejectedLastSyncLabel:
     return "Rechazadas en ultimo sync"
+  case .idempotencyKeyLabel:
+    return "Clave idempotencia"
+  case .idempotencyReplayLabel:
+    return "Replay idempotente"
+  case .idempotencyReplayYes:
+    return "si"
+  case .idempotencyReplayNo:
+    return "no"
+  case .idempotencyTTLLabel:
+    return "TTL idempotencia"
   case .observabilityTitle:
     return "Observabilidad"
   case .trackEvent:
@@ -363,6 +391,20 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Eventos de analitica"
   case .crashReportsLabel:
     return "Crash reports"
+  case .supportIncidentsLabel:
+    return "Incidencias de soporte"
+  case .noSupportIncidents:
+    return "No hay incidencias de soporte cargadas"
+  case .incidentDomainLabel:
+    return "Dominio"
+  case .incidentSeverityLabel:
+    return "Severidad"
+  case .incidentStateLabel:
+    return "Estado"
+  case .incidentCorrelationLabel:
+    return "Correlacion"
+  case .incidentSummaryLabel:
+    return "Resumen"
   case .readinessLabel:
     return "Readiness"
   case .dailyObjective:
@@ -612,6 +654,16 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Pending actions"
   case .rejectedLastSyncLabel:
     return "Rejected on last sync"
+  case .idempotencyKeyLabel:
+    return "Idempotency key"
+  case .idempotencyReplayLabel:
+    return "Idempotency replay"
+  case .idempotencyReplayYes:
+    return "yes"
+  case .idempotencyReplayNo:
+    return "no"
+  case .idempotencyTTLLabel:
+    return "Idempotency TTL"
   case .observabilityTitle:
     return "Observability"
   case .trackEvent:
@@ -626,6 +678,20 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Analytics events"
   case .crashReportsLabel:
     return "Crash reports"
+  case .supportIncidentsLabel:
+    return "Support incidents"
+  case .noSupportIncidents:
+    return "No support incidents loaded"
+  case .incidentDomainLabel:
+    return "Domain"
+  case .incidentSeverityLabel:
+    return "Severity"
+  case .incidentStateLabel:
+    return "State"
+  case .incidentCorrelationLabel:
+    return "Correlation"
+  case .incidentSummaryLabel:
+    return "Summary"
   case .readinessLabel:
     return "Readiness"
   case .dailyObjective:

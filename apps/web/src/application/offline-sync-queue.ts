@@ -16,8 +16,20 @@ export interface OfflineQueueStore {
   remove(ids: string[]): Promise<void>;
 }
 
+export type OfflineSyncIdempotencyMetadata = {
+  key: string;
+  replayed: boolean;
+  ttlSeconds: number;
+};
+
+export type OfflineSyncProcessOutcome = SyncQueueProcessResult & {
+  idempotency: OfflineSyncIdempotencyMetadata | null;
+};
+
 export interface OfflineSyncGateway {
-  process(input: SyncQueueProcessInput): Promise<SyncQueueProcessResult>;
+  process(input: SyncQueueProcessInput): Promise<
+    SyncQueueProcessResult & { idempotency?: unknown }
+  >;
 }
 
 export class OfflineSyncQueueUseCase {
@@ -71,21 +83,57 @@ export class OfflineSyncQueueUseCase {
     return this.store.list(userId);
   }
 
-  async syncPending(userId: string): Promise<SyncQueueProcessResult> {
+  async syncPending(userId: string): Promise<OfflineSyncProcessOutcome> {
     const items = await this.store.list(userId);
     const input = syncQueueProcessInputSchema.parse({ userId, items });
     if (input.items.length === 0) {
-      return syncQueueProcessResultSchema.parse({ acceptedIds: [], rejected: [] });
+      return {
+        ...syncQueueProcessResultSchema.parse({ acceptedIds: [], rejected: [] }),
+        idempotency: null
+      };
     }
 
-    const result = syncQueueProcessResultSchema.parse(
-      await this.gateway.process(input)
-    );
+    const gatewayResponse = await this.gateway.process(input);
+    const result = syncQueueProcessResultSchema.parse(gatewayResponse);
+    const idempotency = parseOfflineSyncIdempotencyMetadata(gatewayResponse.idempotency);
 
     if (result.acceptedIds.length > 0) {
       await this.store.remove(result.acceptedIds);
     }
 
-    return result;
+    return {
+      ...result,
+      idempotency
+    };
   }
+}
+
+function parseOfflineSyncIdempotencyMetadata(
+  input: unknown
+): OfflineSyncIdempotencyMetadata | null {
+  if (typeof input !== "object" || input === null) {
+    return null;
+  }
+
+  const candidate = input as {
+    key?: unknown;
+    replayed?: unknown;
+    ttlSeconds?: unknown;
+  };
+
+  if (
+    typeof candidate.key !== "string" ||
+    candidate.key.length === 0 ||
+    typeof candidate.replayed !== "boolean" ||
+    typeof candidate.ttlSeconds !== "number" ||
+    Number.isFinite(candidate.ttlSeconds) === false
+  ) {
+    return null;
+  }
+
+  return {
+    key: candidate.key,
+    replayed: candidate.replayed,
+    ttlSeconds: candidate.ttlSeconds
+  };
 }

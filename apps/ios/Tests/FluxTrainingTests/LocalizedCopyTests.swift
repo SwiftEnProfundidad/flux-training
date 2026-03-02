@@ -20,6 +20,13 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.text(.runtimeStateSectionTitle), "Estado enterprise por dominio")
     XCTAssertEqual(copy.text(.runtimeStateModeLabel), "Modo runtime")
     XCTAssertEqual(copy.text(.runtimeStateRecoveryAction), "Recuperar dominio")
+    XCTAssertEqual(copy.text(.idempotencyKeyLabel), "Clave idempotencia")
+    XCTAssertEqual(copy.text(.idempotencyReplayLabel), "Replay idempotente")
+    XCTAssertEqual(copy.text(.idempotencyReplayYes), "si")
+    XCTAssertEqual(copy.text(.idempotencyReplayNo), "no")
+    XCTAssertEqual(copy.text(.idempotencyTTLLabel), "TTL idempotencia")
+    XCTAssertEqual(copy.text(.supportIncidentsLabel), "Incidencias de soporte")
+    XCTAssertEqual(copy.text(.incidentCorrelationLabel), "Correlacion")
     XCTAssertEqual(copy.text(.roleLabel), "Rol")
     XCTAssertEqual(copy.text(.roleAthlete), "Atleta")
     XCTAssertEqual(copy.text(.roleCoach), "Coach")
@@ -44,6 +51,9 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.humanStatus("empty"), "sin datos")
     XCTAssertEqual(copy.humanStatus("offline"), "sin conexion")
     XCTAssertEqual(copy.humanStatus("denied"), "sin permiso")
+    XCTAssertEqual(copy.humanStatus("open"), "abierta")
+    XCTAssertEqual(copy.humanStatus("in_progress"), "en progreso")
+    XCTAssertEqual(copy.humanStatus("resolved"), "resuelta")
   }
 
   func test_englishTranslationsAreAvailable() {
@@ -64,6 +74,13 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.text(.runtimeStateSectionTitle), "Enterprise runtime state by domain")
     XCTAssertEqual(copy.text(.runtimeStateModeLabel), "Runtime mode")
     XCTAssertEqual(copy.text(.runtimeStateRecoveryAction), "Recover domain")
+    XCTAssertEqual(copy.text(.idempotencyKeyLabel), "Idempotency key")
+    XCTAssertEqual(copy.text(.idempotencyReplayLabel), "Idempotency replay")
+    XCTAssertEqual(copy.text(.idempotencyReplayYes), "yes")
+    XCTAssertEqual(copy.text(.idempotencyReplayNo), "no")
+    XCTAssertEqual(copy.text(.idempotencyTTLLabel), "Idempotency TTL")
+    XCTAssertEqual(copy.text(.supportIncidentsLabel), "Support incidents")
+    XCTAssertEqual(copy.text(.incidentCorrelationLabel), "Correlation")
     XCTAssertEqual(copy.text(.roleLabel), "Role")
     XCTAssertEqual(copy.text(.roleAthlete), "Athlete")
     XCTAssertEqual(copy.text(.roleCoach), "Coach")
@@ -88,5 +105,8 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.humanStatus("empty"), "empty")
     XCTAssertEqual(copy.humanStatus("offline"), "offline")
     XCTAssertEqual(copy.humanStatus("denied"), "denied")
+    XCTAssertEqual(copy.humanStatus("open"), "open")
+    XCTAssertEqual(copy.humanStatus("in_progress"), "in progress")
+    XCTAssertEqual(copy.humanStatus("resolved"), "resolved")
   }
 }

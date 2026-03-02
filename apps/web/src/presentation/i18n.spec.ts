@@ -36,6 +36,11 @@ describe("i18n", () => {
     expect(translate("billingInvoiceStatusFilterLabel")).toBe("invoice status");
     expect(translate("billingIncidentsSectionTitle")).toBe("Support incidents");
     expect(translate("billingIncidentStateResolved")).toBe("resolved");
+    expect(translate("idempotencyKeyLabel")).toBe("Idempotency key");
+    expect(translate("idempotencyReplayLabel")).toBe("Idempotency replay");
+    expect(translate("idempotencyReplayYes")).toBe("yes");
+    expect(translate("idempotencyReplayNo")).toBe("no");
+    expect(translate("idempotencyTTLLabel")).toBe("Idempotency TTL");
     expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
     expect(translate("progressFiltersLabel")).toBe("Progress filters");
     expect(translate("effortMetric")).toBe("Effort");
@@ -81,6 +86,11 @@ describe("i18n", () => {
     expect(translate("billingInvoiceStatusFilterLabel")).toBe("estado factura");
     expect(translate("billingIncidentsSectionTitle")).toBe("Incidencias de soporte");
     expect(translate("billingIncidentStateResolved")).toBe("resuelta");
+    expect(translate("idempotencyKeyLabel")).toBe("Clave idempotencia");
+    expect(translate("idempotencyReplayLabel")).toBe("Replay idempotente");
+    expect(translate("idempotencyReplayYes")).toBe("si");
+    expect(translate("idempotencyReplayNo")).toBe("no");
+    expect(translate("idempotencyTTLLabel")).toBe("TTL idempotencia");
     expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
     expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
     expect(translate("effortMetric")).toBe("Esfuerzo");

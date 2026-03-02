@@ -32,6 +32,11 @@ public struct OfflineSyncView: View {
 
       Text("\(copy.text(.pendingActionsLabel)): \(viewModel.pendingCount)")
       Text("\(copy.text(.rejectedLastSyncLabel)): \(viewModel.lastRejectedCount)")
+      Text("\(copy.text(.idempotencyKeyLabel)): \(viewModel.lastIdempotencyKey)")
+      Text(
+        "\(copy.text(.idempotencyReplayLabel)): \(copy.text(viewModel.lastIdempotencyReplay ? .idempotencyReplayYes : .idempotencyReplayNo))"
+      )
+      Text("\(copy.text(.idempotencyTTLLabel)): \(viewModel.lastIdempotencyTTLSeconds)s")
       Text("\(copy.text(.statusLabel)): \(copy.humanStatus(viewModel.syncStatus))")
         .foregroundStyle(.secondary)
     }
