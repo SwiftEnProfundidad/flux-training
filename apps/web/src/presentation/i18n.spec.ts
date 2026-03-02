@@ -22,6 +22,9 @@ describe("i18n", () => {
     expect(translate("retryRoleCapabilities")).toBe("Retry capabilities");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
+    expect(translate("rowsShownLabel")).toBe("Visible rows");
+    expect(translate("loadMoreRows")).toBe("Load more rows");
+    expect(translate("showAllRows")).toBe("Show all");
     expect(translate("athleteColumn")).toBe("Athlete");
     expect(translate("governanceTitle")).toBe("Users + roles + RBAC");
     expect(translate("governanceLoadCapabilities")).toBe("Load RBAC matrix");
@@ -79,6 +82,9 @@ describe("i18n", () => {
     expect(translate("retryRoleCapabilities")).toBe("Reintentar capacidades");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
+    expect(translate("rowsShownLabel")).toBe("Filas visibles");
+    expect(translate("loadMoreRows")).toBe("Cargar mas filas");
+    expect(translate("showAllRows")).toBe("Ver todas");
     expect(translate("athleteColumn")).toBe("Atleta");
     expect(translate("governanceTitle")).toBe("Usuarios + roles + RBAC");
     expect(translate("governanceLoadCapabilities")).toBe("Cargar matriz RBAC");

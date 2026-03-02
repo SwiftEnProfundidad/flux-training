@@ -43,18 +43,20 @@ public struct ProgressSummaryView: View {
           Text("\(copy.text(.progressAverageFatsLabel)): \(summary.averageFatsGrams, format: .number.precision(.fractionLength(0...2)))")
         }
 
-        ForEach(summary.history) { entry in
-          VStack(alignment: .leading, spacing: 4) {
-            Text(entry.date)
-              .font(.headline)
-            Text("\(copy.text(.progressEntrySessionsLabel)): \(entry.workoutSessions)")
-            Text("\(copy.text(.progressEntryMinutesLabel)): \(entry.trainingMinutes, format: .number.precision(.fractionLength(0...2)))")
-            Text("\(copy.text(.progressEntrySetsLabel)): \(entry.completedSets)")
-            Text("\(copy.text(.progressEntryCaloriesLabel)): \(entry.calories ?? 0, format: .number.precision(.fractionLength(0...2)))")
+        LazyVStack(alignment: .leading, spacing: 8) {
+          ForEach(summary.history) { entry in
+            VStack(alignment: .leading, spacing: 4) {
+              Text(entry.date)
+                .font(.headline)
+              Text("\(copy.text(.progressEntrySessionsLabel)): \(entry.workoutSessions)")
+              Text("\(copy.text(.progressEntryMinutesLabel)): \(entry.trainingMinutes, format: .number.precision(.fractionLength(0...2)))")
+              Text("\(copy.text(.progressEntrySetsLabel)): \(entry.completedSets)")
+              Text("\(copy.text(.progressEntryCaloriesLabel)): \(entry.calories ?? 0, format: .number.precision(.fractionLength(0...2)))")
+            }
+            .padding(10)
+            .background(.thinMaterial)
+            .clipShape(.rect(cornerRadius: 12))
           }
-          .padding(10)
-          .background(.thinMaterial)
-          .clipShape(.rect(cornerRadius: 12))
         }
       } else {
         Text(copy.text(.noProgressLoaded))

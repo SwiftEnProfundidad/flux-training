@@ -54,8 +54,15 @@ public final class TrainingFlowViewModel {
   public func refreshDashboard(userID: String, now: Date = Date()) async {
     status = "loading"
     do {
-      try await refreshPlans(userID: userID)
-      try await refreshSessions(userID: userID, now: now)
+      let planID = selectedPlanID.isEmpty ? nil : selectedPlanID
+      async let plansTask = listTrainingPlansUseCase.execute(userID: userID)
+      async let sessionsTask = listWorkoutSessionsUseCase.execute(userID: userID, planID: planID)
+      let (loadedPlans, loadedSessions) = try await (plansTask, sessionsTask)
+      plans = loadedPlans
+      if selectedPlanID.isEmpty, let firstPlan = loadedPlans.first {
+        selectedPlanID = firstPlan.id
+      }
+      applyLoadedSessions(loadedSessions, now: now)
       status = plans.isEmpty ? "empty" : "loaded"
     } catch {
       status = resolveStatus(for: error)
@@ -129,8 +136,13 @@ public final class TrainingFlowViewModel {
 
   public func refreshSessions(userID: String, now: Date = Date()) async throws {
     let planID = selectedPlanID.isEmpty ? nil : selectedPlanID
-    sessions = try await listWorkoutSessionsUseCase.execute(userID: userID, planID: planID)
-    let sortedSessions = sessions.sorted { $0.endedAt > $1.endedAt }
+    let loadedSessions = try await listWorkoutSessionsUseCase.execute(userID: userID, planID: planID)
+    applyLoadedSessions(loadedSessions, now: now)
+  }
+
+  private func applyLoadedSessions(_ loadedSessions: [WorkoutSession], now: Date) {
+    sessions = loadedSessions
+    let sortedSessions = loadedSessions.sorted { $0.endedAt > $1.endedAt }
     latestSessionEndedAt = sortedSessions.first?.endedAt
     todaySessionsCount = sortedSessions.filter { Calendar.current.isDateInToday($0.endedAt) }.count
     if sortedSessions.isEmpty {

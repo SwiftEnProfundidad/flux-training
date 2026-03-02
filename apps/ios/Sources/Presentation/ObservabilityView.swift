@@ -43,7 +43,7 @@ public struct ObservabilityView: View {
         Text(copy.text(.noSupportIncidents))
           .foregroundStyle(.secondary)
       } else {
-        VStack(alignment: .leading, spacing: 8) {
+        LazyVStack(alignment: .leading, spacing: 8) {
           ForEach(viewModel.supportIncidents) { incident in
             VStack(alignment: .leading, spacing: 4) {
               Text(incident.id)

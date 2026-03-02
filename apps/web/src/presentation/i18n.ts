@@ -55,6 +55,9 @@ type AppTranslations = {
   athletesSelectedLabel: string;
   bulkAssignStarterPlan: string;
   clearAthleteSelection: string;
+  rowsShownLabel: string;
+  loadMoreRows: string;
+  showAllRows: string;
   noAthletesFound: string;
   athleteColumn: string;
   plansColumn: string;
@@ -332,6 +335,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     athletesSelectedLabel: "Atletas seleccionados",
     bulkAssignStarterPlan: "Asignar starter plan",
     clearAthleteSelection: "Limpiar seleccion",
+    rowsShownLabel: "Filas visibles",
+    loadMoreRows: "Cargar mas filas",
+    showAllRows: "Ver todas",
     noAthletesFound: "No hay atletas para este filtro.",
     athleteColumn: "Atleta",
     plansColumn: "Planes",
@@ -607,6 +613,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     athletesSelectedLabel: "Athletes selected",
     bulkAssignStarterPlan: "Assign starter plan",
     clearAthleteSelection: "Clear selection",
+    rowsShownLabel: "Visible rows",
+    loadMoreRows: "Load more rows",
+    showAllRows: "Show all",
     noAthletesFound: "No athletes match this filter.",
     athleteColumn: "Athlete",
     plansColumn: "Plans",

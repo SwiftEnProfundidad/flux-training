@@ -175,7 +175,7 @@ public struct ExperienceHubView: View {
   private var todayTab: some View {
     NavigationStack {
       ScrollView {
-        VStack(alignment: .leading, spacing: 16) {
+        LazyVStack(alignment: .leading, spacing: 16) {
           domainFilterSection
           runtimeStateSection
           if activeDomainRuntimeState == .success {
@@ -213,7 +213,7 @@ public struct ExperienceHubView: View {
   private var progressTab: some View {
     NavigationStack {
       ScrollView {
-        VStack(spacing: 16) {
+        LazyVStack(spacing: 16) {
           domainFilterSection
           runtimeStateSection
           if activeDomainRuntimeState == .success {
@@ -237,7 +237,7 @@ public struct ExperienceHubView: View {
   private var operationsTab: some View {
     NavigationStack {
       ScrollView {
-        VStack(spacing: 16) {
+        LazyVStack(spacing: 16) {
           domainFilterSection
           runtimeStateSection
           if activeDomainRuntimeState == .success {

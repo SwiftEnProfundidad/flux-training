@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   AccessRole,
   ActivityLogEntry,
@@ -182,11 +182,22 @@ type SettingsStatus = "idle" | "loading" | "saved";
 type VideoStatus = "idle" | "loading" | "loaded" | "error";
 type RecommendationsStatus = "idle" | "loading" | "loaded" | "empty" | "error";
 type OperationsStatus = ModuleRuntimeStatus;
+type ObservabilityCollectionsPayload = {
+  events: AnalyticsEvent[];
+  crashReports: CrashReport[];
+  summary: ObservabilitySummary;
+  alerts: OperationalAlert[];
+  runbooks: OperationalRunbook[];
+  structuredLogs: StructuredLog[];
+  activityLog: ActivityLogEntry[];
+};
 
 const demoUserId = "demo-user";
 const languageStorageKey = "flux_training_language";
 const dashboardDomainStorageKey = "flux_training_dashboard_domain";
 const dashboardRoleStorageKey = "flux_training_dashboard_role";
+const denseTableInitialRows = 24;
+const denseTableRowsStep = 24;
 
 export function App() {
   const createAuthSessionUseCase = useMemo(
@@ -358,6 +369,17 @@ export function App() {
     Record<string, SupportIncidentState>
   >({});
   const [billingHasValidationError, setBillingHasValidationError] = useState(false);
+  const [athleteRowsVisibleCount, setAthleteRowsVisibleCount] = useState(denseTableInitialRows);
+  const [governanceRowsVisibleCount, setGovernanceRowsVisibleCount] = useState(
+    denseTableInitialRows
+  );
+  const [auditRowsVisibleCount, setAuditRowsVisibleCount] = useState(denseTableInitialRows);
+  const [billingInvoiceRowsVisibleCount, setBillingInvoiceRowsVisibleCount] = useState(
+    denseTableInitialRows
+  );
+  const [billingIncidentRowsVisibleCount, setBillingIncidentRowsVisibleCount] = useState(
+    denseTableInitialRows
+  );
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -377,8 +399,22 @@ export function App() {
   const isInitialDomainRender = useRef(true);
   const isInitialRoleRender = useRef(true);
   const runtimeObservabilitySessionRef = useRef(createRuntimeObservabilitySession());
+  const observabilityCollectionsCacheRef = useRef<{
+    loadedAt: number;
+    payload: ObservabilityCollectionsPayload;
+  } | null>(null);
 
   const translate = useMemo(() => createTranslator(language), [language]);
+  const deferredAthleteSearch = useDeferredValue(athleteSearch);
+  const deferredGovernanceSearch = useDeferredValue(governanceSearch);
+  const deferredAuditQuery = useDeferredValue(auditQuery);
+  const deferredAuditDomainFilter = useDeferredValue(auditDomainFilter);
+  const deferredBillingSupportSearch = useDeferredValue(billingSupportSearch);
+  const deferredBillingDomainFilter = useDeferredValue(billingDomainFilter);
+  const deferredNutritionDateFilter = useDeferredValue(nutritionDateFilter);
+  const deferredNutritionMinProteinFilter = useDeferredValue(nutritionMinProteinFilter);
+  const deferredNutritionMaxCaloriesFilter = useDeferredValue(nutritionMaxCaloriesFilter);
+  const deferredProgressMinSessionsFilter = useDeferredValue(progressMinSessionsFilter);
 
   const readiness = buildUXReadinessSnapshot({
     authStatus,
@@ -417,10 +453,10 @@ export function App() {
   const athleteOperationRows = useMemo(
     () =>
       sortAthleteOperationsRows(
-        filterAthleteOperationsRows(athleteOperationRowsBase, athleteSearch),
+        filterAthleteOperationsRows(athleteOperationRowsBase, deferredAthleteSearch),
         athleteSortMode
       ),
-    [athleteOperationRowsBase, athleteSearch, athleteSortMode]
+    [athleteOperationRowsBase, athleteSortMode, deferredAthleteSearch]
   );
   const governancePrincipalsBase = useMemo(
     () =>
@@ -438,10 +474,10 @@ export function App() {
     () =>
       filterGovernancePrincipals(
         governancePrincipalsBase,
-        governanceSearch,
+        deferredGovernanceSearch,
         governanceRoleFilter
       ),
-    [governancePrincipalsBase, governanceSearch, governanceRoleFilter]
+    [deferredGovernanceSearch, governancePrincipalsBase, governanceRoleFilter]
   );
   const governanceRoleCoverage = useMemo(
     () => buildRoleCapabilityCoverage(capabilitiesByRole),
@@ -454,19 +490,19 @@ export function App() {
   const auditTimelineRows = useMemo(
     () =>
       filterAuditTimelineRows(auditTimelineRowsBase, {
-        query: auditQuery,
+        query: deferredAuditQuery,
         source: auditSourceFilter,
         category: auditCategoryFilter,
         severity: auditSeverityFilter,
-        domain: auditDomainFilter
+        domain: deferredAuditDomainFilter
       }),
     [
       auditCategoryFilter,
-      auditDomainFilter,
-      auditQuery,
       auditSeverityFilter,
       auditSourceFilter,
-      auditTimelineRowsBase
+      auditTimelineRowsBase,
+      deferredAuditDomainFilter,
+      deferredAuditQuery
     ]
   );
   const billingInvoiceRowsBase = useMemo(
@@ -476,10 +512,10 @@ export function App() {
   const billingInvoiceRows = useMemo(
     () =>
       filterBillingInvoiceRows(billingInvoiceRowsBase, {
-        query: billingSupportSearch,
+        query: deferredBillingSupportSearch,
         invoiceStatus: billingInvoiceStatusFilter
       }),
-    [billingInvoiceRowsBase, billingInvoiceStatusFilter, billingSupportSearch]
+    [billingInvoiceRowsBase, billingInvoiceStatusFilter, deferredBillingSupportSearch]
   );
   const supportIncidentRowsBase = useMemo(
     () => buildSupportIncidentRows(analyticsEvents, crashReports),
@@ -491,44 +527,44 @@ export function App() {
       billingIncidentStateOverrides
     );
     return filterSupportIncidentRows(withOverrides, {
-      query: billingSupportSearch,
-      domain: billingDomainFilter,
+      query: deferredBillingSupportSearch,
+      domain: deferredBillingDomainFilter,
       state: billingIncidentStateFilter,
       severity: billingIncidentSeverityFilter
     });
   }, [
-    billingDomainFilter,
     billingIncidentSeverityFilter,
     billingIncidentStateFilter,
     billingIncidentStateOverrides,
-    billingSupportSearch,
+    deferredBillingDomainFilter,
+    deferredBillingSupportSearch,
     supportIncidentRowsBase
   ]);
   const nutritionMinProteinFilterParsed = useMemo(
-    () => parseOptionalNumber(nutritionMinProteinFilter),
-    [nutritionMinProteinFilter]
+    () => parseOptionalNumber(deferredNutritionMinProteinFilter),
+    [deferredNutritionMinProteinFilter]
   );
   const nutritionMaxCaloriesFilterParsed = useMemo(
-    () => parseOptionalNumber(nutritionMaxCaloriesFilter),
-    [nutritionMaxCaloriesFilter]
+    () => parseOptionalNumber(deferredNutritionMaxCaloriesFilter),
+    [deferredNutritionMaxCaloriesFilter]
   );
   const progressMinSessionsFilterParsed = useMemo(
-    () => parseOptionalNumber(progressMinSessionsFilter),
-    [progressMinSessionsFilter]
+    () => parseOptionalNumber(deferredProgressMinSessionsFilter),
+    [deferredProgressMinSessionsFilter]
   );
   const hasNutritionFilterValidationError =
     !nutritionMinProteinFilterParsed.isValid || !nutritionMaxCaloriesFilterParsed.isValid;
   const hasProgressFilterValidationError = !progressMinSessionsFilterParsed.isValid;
   const filteredNutritionLogs = useMemo(() => {
     const filtered = filterNutritionLogs(nutritionLogs, {
-      queryDate: nutritionDateFilter,
+      queryDate: deferredNutritionDateFilter,
       minProteinGrams: nutritionMinProteinFilterParsed.value,
       maxCalories: nutritionMaxCaloriesFilterParsed.value
     });
     return sortNutritionLogs(filtered, nutritionSortMode);
   }, [
+    deferredNutritionDateFilter,
     nutritionLogs,
-    nutritionDateFilter,
     nutritionMinProteinFilterParsed.value,
     nutritionMaxCaloriesFilterParsed.value,
     nutritionSortMode
@@ -538,6 +574,42 @@ export function App() {
     const filtered = filterProgressHistoryRows(rows, progressMinSessionsFilterParsed.value);
     return sortProgressHistoryRows(filtered, progressSortMode);
   }, [progressSummary, progressMinSessionsFilterParsed.value, progressSortMode]);
+  const selectedAthleteIdSet = useMemo(() => new Set(selectedAthleteIds), [selectedAthleteIds]);
+  const selectedGovernancePrincipalIdSet = useMemo(
+    () => new Set(governanceSelectedPrincipalIds),
+    [governanceSelectedPrincipalIds]
+  );
+  const selectedBillingIncidentIdSet = useMemo(
+    () => new Set(billingSelectedIncidentIds),
+    [billingSelectedIncidentIds]
+  );
+  const visibleAthleteRows = useMemo(
+    () => athleteOperationRows.slice(0, athleteRowsVisibleCount),
+    [athleteOperationRows, athleteRowsVisibleCount]
+  );
+  const visibleGovernanceRows = useMemo(
+    () => governancePrincipals.slice(0, governanceRowsVisibleCount),
+    [governancePrincipals, governanceRowsVisibleCount]
+  );
+  const visibleAuditRows = useMemo(
+    () => auditTimelineRows.slice(0, auditRowsVisibleCount),
+    [auditRowsVisibleCount, auditTimelineRows]
+  );
+  const visibleBillingInvoiceRows = useMemo(
+    () => billingInvoiceRows.slice(0, billingInvoiceRowsVisibleCount),
+    [billingInvoiceRows, billingInvoiceRowsVisibleCount]
+  );
+  const visibleBillingIncidentRows = useMemo(
+    () => supportIncidentRows.slice(0, billingIncidentRowsVisibleCount),
+    [billingIncidentRowsVisibleCount, supportIncidentRows]
+  );
+  const hasMoreAthleteRows = visibleAthleteRows.length < athleteOperationRows.length;
+  const hasMoreGovernanceRows = visibleGovernanceRows.length < governancePrincipals.length;
+  const hasMoreAuditRows = visibleAuditRows.length < auditTimelineRows.length;
+  const hasMoreBillingInvoiceRows =
+    visibleBillingInvoiceRows.length < billingInvoiceRows.length;
+  const hasMoreBillingIncidentRows =
+    visibleBillingIncidentRows.length < supportIncidentRows.length;
 
   async function refreshPendingQueue(): Promise<void> {
     const pending = await offlineSyncQueueUseCase.listPending(demoUserId);
@@ -777,6 +849,34 @@ export function App() {
     hasProgressFilterValidationError,
     progressSummary?.history.length
   ]);
+
+  useEffect(() => {
+    setAthleteRowsVisibleCount((current) =>
+      normalizeVisibleRows(current, athleteOperationRows.length)
+    );
+  }, [athleteOperationRows.length]);
+
+  useEffect(() => {
+    setGovernanceRowsVisibleCount((current) =>
+      normalizeVisibleRows(current, governancePrincipals.length)
+    );
+  }, [governancePrincipals.length]);
+
+  useEffect(() => {
+    setAuditRowsVisibleCount((current) => normalizeVisibleRows(current, auditTimelineRows.length));
+  }, [auditTimelineRows.length]);
+
+  useEffect(() => {
+    setBillingInvoiceRowsVisibleCount((current) =>
+      normalizeVisibleRows(current, billingInvoiceRows.length)
+    );
+  }, [billingInvoiceRows.length]);
+
+  useEffect(() => {
+    setBillingIncidentRowsVisibleCount((current) =>
+      normalizeVisibleRows(current, supportIncidentRows.length)
+    );
+  }, [supportIncidentRows.length]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -1215,7 +1315,31 @@ export function App() {
     }
   }
 
-  async function loadObservabilityCollections(): Promise<void> {
+  function applyObservabilityCollections(payload: ObservabilityCollectionsPayload): void {
+    setAnalyticsEvents(payload.events);
+    setCrashReports(payload.crashReports);
+    setObservabilitySummary(payload.summary);
+    setOperationalAlerts(payload.alerts);
+    setOperationalRunbooks(payload.runbooks);
+    setStructuredLogs(payload.structuredLogs);
+    setActivityLogEntries(payload.activityLog);
+  }
+
+  async function loadObservabilityCollections(options?: { force?: boolean }): Promise<void> {
+    const forceReload = options?.force ?? false;
+    const cacheTtlMs = 30_000;
+    const now = Date.now();
+    const cachedPayload = observabilityCollectionsCacheRef.current;
+
+    if (
+      forceReload === false &&
+      cachedPayload !== null &&
+      now - cachedPayload.loadedAt < cacheTtlMs
+    ) {
+      applyObservabilityCollections(cachedPayload.payload);
+      return;
+    }
+
     const [
       loadedEvents,
       loadedCrashReports,
@@ -1224,8 +1348,7 @@ export function App() {
       loadedRunbooks,
       loadedStructuredLogs,
       loadedActivityLog
-    ] =
-      await Promise.all([
+    ] = await Promise.all([
       manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
       manageObservabilityUseCase.listCrashReports(demoUserId),
       manageObservabilityUseCase.listObservabilitySummary(demoUserId),
@@ -1234,13 +1357,17 @@ export function App() {
       manageObservabilityUseCase.listStructuredLogs(demoUserId),
       manageObservabilityUseCase.listActivityLog(demoUserId)
     ]);
-    setAnalyticsEvents(loadedEvents);
-    setCrashReports(loadedCrashReports);
-    setObservabilitySummary(loadedSummary);
-    setOperationalAlerts(loadedAlerts);
-    setOperationalRunbooks(loadedRunbooks);
-    setStructuredLogs(loadedStructuredLogs);
-    setActivityLogEntries(loadedActivityLog);
+    const payload: ObservabilityCollectionsPayload = {
+      events: loadedEvents,
+      crashReports: loadedCrashReports,
+      summary: loadedSummary,
+      alerts: loadedAlerts,
+      runbooks: loadedRunbooks,
+      structuredLogs: loadedStructuredLogs,
+      activityLog: loadedActivityLog
+    };
+    observabilityCollectionsCacheRef.current = { loadedAt: now, payload };
+    applyObservabilityCollections(payload);
   }
 
   async function handleTrackAnalyticsEvent() {
@@ -1256,6 +1383,7 @@ export function App() {
           selectedPlan: selectedPlanId.length > 0
         }
       });
+      observabilityCollectionsCacheRef.current = null;
       setObservabilityStatus("event_saved");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
@@ -1282,6 +1410,7 @@ export function App() {
           occurredAt: new Date().toISOString()
         });
       }
+      observabilityCollectionsCacheRef.current = null;
       setObservabilityStatus("crash_saved");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
@@ -1294,7 +1423,7 @@ export function App() {
   async function handleLoadObservabilityData() {
     setObservabilityStatus("loading");
     try {
-      await loadObservabilityCollections();
+      await loadObservabilityCollections({ force: true });
       setObservabilityStatus("loaded");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
@@ -1482,6 +1611,56 @@ export function App() {
     setBillingInvoiceStatusFilter("all");
     setBillingIncidentStateFilter("all");
     setBillingIncidentSeverityFilter("all");
+  }
+
+  function handleShowMoreAthleteRows() {
+    setAthleteRowsVisibleCount((current) =>
+      increaseVisibleRows(current, athleteOperationRows.length)
+    );
+  }
+
+  function handleShowAllAthleteRows() {
+    setAthleteRowsVisibleCount(athleteOperationRows.length);
+  }
+
+  function handleShowMoreGovernanceRows() {
+    setGovernanceRowsVisibleCount((current) =>
+      increaseVisibleRows(current, governancePrincipals.length)
+    );
+  }
+
+  function handleShowAllGovernanceRows() {
+    setGovernanceRowsVisibleCount(governancePrincipals.length);
+  }
+
+  function handleShowMoreAuditRows() {
+    setAuditRowsVisibleCount((current) =>
+      increaseVisibleRows(current, auditTimelineRows.length)
+    );
+  }
+
+  function handleShowAllAuditRows() {
+    setAuditRowsVisibleCount(auditTimelineRows.length);
+  }
+
+  function handleShowMoreBillingInvoiceRows() {
+    setBillingInvoiceRowsVisibleCount((current) =>
+      increaseVisibleRows(current, billingInvoiceRows.length)
+    );
+  }
+
+  function handleShowAllBillingInvoiceRows() {
+    setBillingInvoiceRowsVisibleCount(billingInvoiceRows.length);
+  }
+
+  function handleShowMoreBillingIncidentRows() {
+    setBillingIncidentRowsVisibleCount((current) =>
+      increaseVisibleRows(current, supportIncidentRows.length)
+    );
+  }
+
+  function handleShowAllBillingIncidentRows() {
+    setBillingIncidentRowsVisibleCount(supportIncidentRows.length);
   }
 
   function handleToggleBillingIncidentSelection(incidentId: string) {
@@ -2438,39 +2617,56 @@ export function App() {
               {athleteOperationRows.length === 0 ? (
                 <p className="empty-state">{translate("noAthletesFound")}</p>
               ) : (
-                <div className="operations-table">
-                  <header className="operations-table-row operations-table-header">
-                    <span>{translate("athleteColumn")}</span>
-                    <span>{translate("plansColumn")}</span>
-                    <span>{translate("sessionsColumn")}</span>
-                    <span>{translate("nutritionColumn")}</span>
-                    <span>{translate("lastSessionColumn")}</span>
-                    <span>{translate("riskColumn")}</span>
-                  </header>
-                  {athleteOperationRows.map((row) => (
-                    <label key={row.athleteId} className="operations-table-row">
-                      <div className="operations-athlete-cell">
-                        <input
-                          type="checkbox"
-                          checked={selectedAthleteIds.includes(row.athleteId)}
-                          onChange={() => handleToggleAthleteSelection(row.athleteId)}
-                        />
-                        <strong>{row.athleteId}</strong>
-                      </div>
-                      <span>{row.plansCount}</span>
-                      <span>{row.sessionsCount}</span>
-                      <span>{row.nutritionLogsCount}</span>
-                      <span>{row.lastSessionDate}</span>
-                      <span
-                        className={`status-pill status-${riskToStatusClass(row.riskLevel)}`}
-                      >
-                        {row.riskLevel === "normal"
-                          ? translate("riskNormal")
-                          : translate("riskAttention")}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <>
+                  <DenseRowsInfo
+                    visibleRows={visibleAthleteRows.length}
+                    totalRows={athleteOperationRows.length}
+                    language={language}
+                  />
+                  <div className="operations-table">
+                    <header className="operations-table-row operations-table-header">
+                      <span>{translate("athleteColumn")}</span>
+                      <span>{translate("plansColumn")}</span>
+                      <span>{translate("sessionsColumn")}</span>
+                      <span>{translate("nutritionColumn")}</span>
+                      <span>{translate("lastSessionColumn")}</span>
+                      <span>{translate("riskColumn")}</span>
+                    </header>
+                    {visibleAthleteRows.map((row) => (
+                      <label key={row.athleteId} className="operations-table-row">
+                        <div className="operations-athlete-cell">
+                          <input
+                            type="checkbox"
+                            checked={selectedAthleteIdSet.has(row.athleteId)}
+                            onChange={() => handleToggleAthleteSelection(row.athleteId)}
+                          />
+                          <strong>{row.athleteId}</strong>
+                        </div>
+                        <span>{row.plansCount}</span>
+                        <span>{row.sessionsCount}</span>
+                        <span>{row.nutritionLogsCount}</span>
+                        <span>{row.lastSessionDate}</span>
+                        <span
+                          className={`status-pill status-${riskToStatusClass(row.riskLevel)}`}
+                        >
+                          {row.riskLevel === "normal"
+                            ? translate("riskNormal")
+                            : translate("riskAttention")}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {hasMoreAthleteRows ? (
+                    <div className="dense-table-actions">
+                      <button className="button ghost" onClick={handleShowMoreAthleteRows} type="button">
+                        {translate("loadMoreRows")}
+                      </button>
+                      <button className="button ghost" onClick={handleShowAllAthleteRows} type="button">
+                        {translate("showAllRows")}
+                      </button>
+                    </div>
+                  ) : null}
+                </>
               )}
             </div>
             </article>
@@ -2543,54 +2739,72 @@ export function App() {
               {governancePrincipals.length === 0 ? (
                 <p className="empty-state">{translate("governanceNoUsers")}</p>
               ) : (
-                <div className="operations-table">
-                  <header className="operations-table-row operations-table-header">
-                    <span>{translate("governancePrincipalColumn")}</span>
-                    <span>{translate("governanceRoleColumn")}</span>
-                    <span>{translate("governanceSourceColumn")}</span>
-                    <span>{translate("governanceCountsColumn")}</span>
-                    <span>{translate("governanceAllowedDomainsLabel")}</span>
-                    <span>{translate("riskColumn")}</span>
-                  </header>
-                  {governancePrincipals.map((principal) => (
-                    <label key={principal.userId} className="operations-table-row">
-                      <div className="operations-athlete-cell">
-                        <input
-                          type="checkbox"
-                          checked={governanceSelectedPrincipalIds.includes(principal.userId)}
-                          onChange={() => handleToggleGovernancePrincipalSelection(principal.userId)}
-                        />
-                        <strong>{principal.userId}</strong>
-                      </div>
-                      <span>{toHumanStatus(principal.assignedRole, language)}</span>
-                      <span>
-                        {principal.source === "operator"
-                          ? translate("governanceSourceOperator")
-                          : translate("governanceSourceActivity")}
-                      </span>
-                      <span>
-                        {principal.plansCount}/{principal.sessionsCount}/{principal.nutritionLogsCount}
-                      </span>
-                      <span>
-                        {
-                          (capabilitiesByRole[principal.assignedRole]?.allowedDomains.length ??
-                            0)
-                        }
-                      </span>
-                      <span
-                        className={`status-pill status-${toStatusClass(
-                          principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
-                            ? "medium"
-                            : "low"
-                        )}`}
-                      >
-                        {principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
-                          ? translate("riskAttention")
-                          : translate("riskNormal")}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <>
+                  <DenseRowsInfo
+                    visibleRows={visibleGovernanceRows.length}
+                    totalRows={governancePrincipals.length}
+                    language={language}
+                  />
+                  <div className="operations-table">
+                    <header className="operations-table-row operations-table-header">
+                      <span>{translate("governancePrincipalColumn")}</span>
+                      <span>{translate("governanceRoleColumn")}</span>
+                      <span>{translate("governanceSourceColumn")}</span>
+                      <span>{translate("governanceCountsColumn")}</span>
+                      <span>{translate("governanceAllowedDomainsLabel")}</span>
+                      <span>{translate("riskColumn")}</span>
+                    </header>
+                    {visibleGovernanceRows.map((principal) => (
+                      <label key={principal.userId} className="operations-table-row">
+                        <div className="operations-athlete-cell">
+                          <input
+                            type="checkbox"
+                            checked={selectedGovernancePrincipalIdSet.has(principal.userId)}
+                            onChange={() =>
+                              handleToggleGovernancePrincipalSelection(principal.userId)
+                            }
+                          />
+                          <strong>{principal.userId}</strong>
+                        </div>
+                        <span>{toHumanStatus(principal.assignedRole, language)}</span>
+                        <span>
+                          {principal.source === "operator"
+                            ? translate("governanceSourceOperator")
+                            : translate("governanceSourceActivity")}
+                        </span>
+                        <span>
+                          {principal.plansCount}/{principal.sessionsCount}/
+                          {principal.nutritionLogsCount}
+                        </span>
+                        <span>
+                          {(capabilitiesByRole[principal.assignedRole]?.allowedDomains.length ??
+                            0)}
+                        </span>
+                        <span
+                          className={`status-pill status-${toStatusClass(
+                            principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
+                              ? "medium"
+                              : "low"
+                          )}`}
+                        >
+                          {principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
+                            ? translate("riskAttention")
+                            : translate("riskNormal")}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {hasMoreGovernanceRows ? (
+                    <div className="dense-table-actions">
+                      <button className="button ghost" onClick={handleShowMoreGovernanceRows} type="button">
+                        {translate("loadMoreRows")}
+                      </button>
+                      <button className="button ghost" onClick={handleShowAllGovernanceRows} type="button">
+                        {translate("showAllRows")}
+                      </button>
+                    </div>
+                  ) : null}
+                </>
               )}
               <p className="section-subtitle">{translate("governanceCoverageTitle")}</p>
               <div className="history-list">
@@ -2719,40 +2933,57 @@ export function App() {
               {auditTimelineRows.length === 0 ? (
                 <p className="empty-state">{translate("auditNoRows")}</p>
               ) : (
-                <div className="operations-table">
-                  <header className="operations-table-row operations-table-header">
-                    <span>{translate("auditOccurredAtColumn")}</span>
-                    <span>{translate("auditSourceColumn")}</span>
-                    <span>{translate("auditCategoryColumn")}</span>
-                    <span>{translate("auditSeverityColumn")}</span>
-                    <span>{translate("auditNameColumn")}</span>
-                    <span>{translate("auditDomainColumn")}</span>
-                    <span>{translate("auditCorrelationColumn")}</span>
-                    <span>{translate("auditSummaryColumn")}</span>
-                  </header>
-                  {auditTimelineRows.map((row) => (
-                    <div key={row.id} className="operations-table-row audit-table-row">
-                      <span>{row.occurredAt}</span>
-                      <span>{row.source}</span>
-                      <span>{row.category}</span>
-                      <span
-                        className={`status-pill status-${toStatusClass(
-                          row.severity === "fatal"
-                            ? "high"
-                            : row.severity === "warning"
-                              ? "medium"
-                              : "low"
-                        )}`}
-                      >
-                        {toHumanStatus(row.severity, language)}
-                      </span>
-                      <span>{row.name}</span>
-                      <span>{row.domain}</span>
-                      <span>{row.correlationId}</span>
-                      <span>{row.summary}</span>
+                <>
+                  <DenseRowsInfo
+                    visibleRows={visibleAuditRows.length}
+                    totalRows={auditTimelineRows.length}
+                    language={language}
+                  />
+                  <div className="operations-table">
+                    <header className="operations-table-row operations-table-header">
+                      <span>{translate("auditOccurredAtColumn")}</span>
+                      <span>{translate("auditSourceColumn")}</span>
+                      <span>{translate("auditCategoryColumn")}</span>
+                      <span>{translate("auditSeverityColumn")}</span>
+                      <span>{translate("auditNameColumn")}</span>
+                      <span>{translate("auditDomainColumn")}</span>
+                      <span>{translate("auditCorrelationColumn")}</span>
+                      <span>{translate("auditSummaryColumn")}</span>
+                    </header>
+                    {visibleAuditRows.map((row) => (
+                      <div key={row.id} className="operations-table-row audit-table-row">
+                        <span>{row.occurredAt}</span>
+                        <span>{row.source}</span>
+                        <span>{row.category}</span>
+                        <span
+                          className={`status-pill status-${toStatusClass(
+                            row.severity === "fatal"
+                              ? "high"
+                              : row.severity === "warning"
+                                ? "medium"
+                                : "low"
+                          )}`}
+                        >
+                          {toHumanStatus(row.severity, language)}
+                        </span>
+                        <span>{row.name}</span>
+                        <span>{row.domain}</span>
+                        <span>{row.correlationId}</span>
+                        <span>{row.summary}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {hasMoreAuditRows ? (
+                    <div className="dense-table-actions">
+                      <button className="button ghost" onClick={handleShowMoreAuditRows} type="button">
+                        {translate("loadMoreRows")}
+                      </button>
+                      <button className="button ghost" onClick={handleShowAllAuditRows} type="button">
+                        {translate("showAllRows")}
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  ) : null}
+                </>
               )}
             </div>
             </article>
@@ -2866,78 +3097,112 @@ export function App() {
               {billingInvoiceRows.length === 0 ? (
                 <p className="empty-state">{translate("billingNoInvoices")}</p>
               ) : (
-                <div className="operations-table">
-                  <header className="operations-table-row operations-table-header billing-table-row">
-                    <span>{translate("billingInvoiceIdColumn")}</span>
-                    <span>{translate("billingAccountColumn")}</span>
-                    <span>{translate("billingPeriodColumn")}</span>
-                    <span>{translate("billingAmountColumn")}</span>
-                    <span>{translate("billingInvoiceStatusColumn")}</span>
-                    <span>{translate("billingSourceColumn")}</span>
-                  </header>
-                  {billingInvoiceRows.map((invoice) => (
-                    <div key={invoice.id} className="operations-table-row billing-table-row">
-                      <span>{invoice.id}</span>
-                      <span>{invoice.accountId}</span>
-                      <span>{invoice.period}</span>
-                      <span>{invoice.amountEUR.toFixed(2)}</span>
-                      <span className={`status-pill status-${toStatusClass(invoice.status)}`}>
-                        {invoiceStatusLabel(invoice.status)}
-                      </span>
-                      <span>{toHumanStatus(invoice.source, language)}</span>
+                <>
+                  <DenseRowsInfo
+                    visibleRows={visibleBillingInvoiceRows.length}
+                    totalRows={billingInvoiceRows.length}
+                    language={language}
+                  />
+                  <div className="operations-table">
+                    <header className="operations-table-row operations-table-header billing-table-row">
+                      <span>{translate("billingInvoiceIdColumn")}</span>
+                      <span>{translate("billingAccountColumn")}</span>
+                      <span>{translate("billingPeriodColumn")}</span>
+                      <span>{translate("billingAmountColumn")}</span>
+                      <span>{translate("billingInvoiceStatusColumn")}</span>
+                      <span>{translate("billingSourceColumn")}</span>
+                    </header>
+                    {visibleBillingInvoiceRows.map((invoice) => (
+                      <div key={invoice.id} className="operations-table-row billing-table-row">
+                        <span>{invoice.id}</span>
+                        <span>{invoice.accountId}</span>
+                        <span>{invoice.period}</span>
+                        <span>{invoice.amountEUR.toFixed(2)}</span>
+                        <span className={`status-pill status-${toStatusClass(invoice.status)}`}>
+                          {invoiceStatusLabel(invoice.status)}
+                        </span>
+                        <span>{toHumanStatus(invoice.source, language)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {hasMoreBillingInvoiceRows ? (
+                    <div className="dense-table-actions">
+                      <button className="button ghost" onClick={handleShowMoreBillingInvoiceRows} type="button">
+                        {translate("loadMoreRows")}
+                      </button>
+                      <button className="button ghost" onClick={handleShowAllBillingInvoiceRows} type="button">
+                        {translate("showAllRows")}
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  ) : null}
+                </>
               )}
               <p className="section-subtitle">{translate("billingIncidentsSectionTitle")}</p>
               {supportIncidentRows.length === 0 ? (
                 <p className="empty-state">{translate("billingNoIncidents")}</p>
               ) : (
-                <div className="operations-table">
-                  <header className="operations-table-row operations-table-header support-table-row">
-                    <span>{translate("billingIncidentIdColumn")}</span>
-                    <span>{translate("billingOpenedAtColumn")}</span>
-                    <span>{translate("billingIncidentDomainColumn")}</span>
-                    <span>{translate("billingIncidentSeverityColumn")}</span>
-                    <span>{translate("billingIncidentStateColumn")}</span>
-                    <span>{translate("billingIncidentCorrelationColumn")}</span>
-                    <span>{translate("billingIncidentSummaryColumn")}</span>
-                  </header>
-                  {supportIncidentRows.map((incident) => (
-                    <label key={incident.id} className="operations-table-row support-table-row">
-                      <div className="operations-athlete-cell">
-                        <input
-                          type="checkbox"
-                          checked={billingSelectedIncidentIds.includes(incident.id)}
-                          onChange={() => handleToggleBillingIncidentSelection(incident.id)}
-                        />
-                        <strong>{incident.id}</strong>
-                      </div>
-                      <span>{incident.openedAt}</span>
-                      <span>{incident.domain}</span>
-                      <span
-                        className={`status-pill status-${toStatusClass(
-                          incident.severity
-                        )}`}
-                      >
-                        {incidentSeverityLabel(incident.severity)}
-                      </span>
-                      <span
-                        className={`status-pill status-${toStatusClass(
-                          incident.state === "resolved"
-                            ? "low"
-                            : incident.state === "in_progress"
-                              ? "medium"
-                              : "high"
-                        )}`}
-                      >
-                        {incidentStateLabel(incident.state)}
-                      </span>
-                      <span>{incident.correlationId}</span>
-                      <span>{incident.summary}</span>
-                    </label>
-                  ))}
-                </div>
+                <>
+                  <DenseRowsInfo
+                    visibleRows={visibleBillingIncidentRows.length}
+                    totalRows={supportIncidentRows.length}
+                    language={language}
+                  />
+                  <div className="operations-table">
+                    <header className="operations-table-row operations-table-header support-table-row">
+                      <span>{translate("billingIncidentIdColumn")}</span>
+                      <span>{translate("billingOpenedAtColumn")}</span>
+                      <span>{translate("billingIncidentDomainColumn")}</span>
+                      <span>{translate("billingIncidentSeverityColumn")}</span>
+                      <span>{translate("billingIncidentStateColumn")}</span>
+                      <span>{translate("billingIncidentCorrelationColumn")}</span>
+                      <span>{translate("billingIncidentSummaryColumn")}</span>
+                    </header>
+                    {visibleBillingIncidentRows.map((incident) => (
+                      <label key={incident.id} className="operations-table-row support-table-row">
+                        <div className="operations-athlete-cell">
+                          <input
+                            type="checkbox"
+                            checked={selectedBillingIncidentIdSet.has(incident.id)}
+                            onChange={() => handleToggleBillingIncidentSelection(incident.id)}
+                          />
+                          <strong>{incident.id}</strong>
+                        </div>
+                        <span>{incident.openedAt}</span>
+                        <span>{incident.domain}</span>
+                        <span
+                          className={`status-pill status-${toStatusClass(
+                            incident.severity
+                          )}`}
+                        >
+                          {incidentSeverityLabel(incident.severity)}
+                        </span>
+                        <span
+                          className={`status-pill status-${toStatusClass(
+                            incident.state === "resolved"
+                              ? "low"
+                              : incident.state === "in_progress"
+                                ? "medium"
+                                : "high"
+                          )}`}
+                        >
+                          {incidentStateLabel(incident.state)}
+                        </span>
+                        <span>{incident.correlationId}</span>
+                        <span>{incident.summary}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {hasMoreBillingIncidentRows ? (
+                    <div className="dense-table-actions">
+                      <button className="button ghost" onClick={handleShowMoreBillingIncidentRows} type="button">
+                        {translate("loadMoreRows")}
+                      </button>
+                      <button className="button ghost" onClick={handleShowAllBillingIncidentRows} type="button">
+                        {translate("showAllRows")}
+                      </button>
+                    </div>
+                  ) : null}
+                </>
               )}
             </div>
             </article>
@@ -3422,7 +3687,12 @@ type SectionHeaderProps = {
   language: AppLanguage;
 };
 
-function SectionHeader({ title, statusLabel, status, language }: SectionHeaderProps) {
+const SectionHeader = memo(function SectionHeader({
+  title,
+  statusLabel,
+  status,
+  language
+}: SectionHeaderProps) {
   return (
     <header className="module-header">
       <h2>{title}</h2>
@@ -3434,21 +3704,21 @@ function SectionHeader({ title, statusLabel, status, language }: SectionHeaderPr
       </p>
     </header>
   );
-}
+});
 
 type MetricProps = {
   title: string;
   value: string;
 };
 
-function Metric({ title, value }: MetricProps) {
+const Metric = memo(function Metric({ title, value }: MetricProps) {
   return (
     <article className="metric-item">
       <p>{title}</p>
       <strong>{value}</strong>
     </article>
   );
-}
+});
 
 type StatLineProps = {
   label: string;
@@ -3456,14 +3726,33 @@ type StatLineProps = {
   language: AppLanguage;
 };
 
-function StatLine({ label, value, language }: StatLineProps) {
+const StatLine = memo(function StatLine({ label, value, language }: StatLineProps) {
   return (
     <p className="stat-line">
       <span>{label}</span>
       <strong>{toHumanStatus(value, language)}</strong>
     </p>
   );
-}
+});
+
+type DenseRowsInfoProps = {
+  visibleRows: number;
+  totalRows: number;
+  language: AppLanguage;
+};
+
+const DenseRowsInfo = memo(function DenseRowsInfo({
+  visibleRows,
+  totalRows,
+  language
+}: DenseRowsInfoProps) {
+  const translate = createTranslator(language);
+  return (
+    <p className="dense-table-info">
+      {translate("rowsShownLabel")} {visibleRows}/{totalRows}
+    </p>
+  );
+});
 
 function toHumanStatus(status: string, language: AppLanguage): string {
   return humanizeStatus(status, language);
@@ -3498,6 +3787,21 @@ function toStatusClass(status: string): string {
     return "warning";
   }
   return "neutral";
+}
+
+function normalizeVisibleRows(current: number, totalRows: number): number {
+  if (totalRows <= 0) {
+    return denseTableInitialRows;
+  }
+  const boundedCurrent = Math.max(denseTableInitialRows, current);
+  return Math.min(boundedCurrent, totalRows);
+}
+
+function increaseVisibleRows(current: number, totalRows: number): number {
+  if (totalRows <= 0) {
+    return denseTableInitialRows;
+  }
+  return Math.min(totalRows, current + denseTableRowsStep);
 }
 
 function riskToStatusClass(riskLevel: "normal" | "attention"): string {

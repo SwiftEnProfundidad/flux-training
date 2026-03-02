@@ -66,12 +66,14 @@ public struct TrainingFlowView: View {
         Text(copy.text(.noPlansYet))
           .foregroundStyle(.secondary)
       } else {
-        ForEach(viewModel.plans, id: \.id) { plan in
-          HStack {
-            Text(plan.name)
-            Spacer()
-            Text("\(plan.weeks)w")
-              .foregroundStyle(.secondary)
+        LazyVStack(spacing: 6) {
+          ForEach(viewModel.plans, id: \.id) { plan in
+            HStack {
+              Text(plan.name)
+              Spacer()
+              Text("\(plan.weeks)w")
+                .foregroundStyle(.secondary)
+            }
           }
         }
       }
@@ -131,18 +133,20 @@ public struct TrainingFlowView: View {
           Text(copy.text(.noVideosLoaded))
             .foregroundStyle(.secondary)
         } else {
-          ForEach(viewModel.exerciseVideos, id: \.id) { video in
-            VStack(alignment: .leading, spacing: 4) {
-              Text(video.title)
-                .font(.subheadline.bold())
-              Text("\(video.coach) · \(video.difficulty.rawValue) · \(video.durationSeconds / 60)m")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-              Link(copy.text(.openVideo), destination: video.videoURL)
+          LazyVStack(spacing: 8) {
+            ForEach(viewModel.exerciseVideos, id: \.id) { video in
+              VStack(alignment: .leading, spacing: 4) {
+                Text(video.title)
+                  .font(.subheadline.bold())
+                Text("\(video.coach) · \(video.difficulty.rawValue) · \(video.durationSeconds / 60)m")
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
+                Link(copy.text(.openVideo), destination: video.videoURL)
+              }
+              .padding(12)
+              .background(Color(red: 0.13, green: 0.14, blue: 0.18))
+              .clipShape(.rect(cornerRadius: 10))
             }
-            .padding(12)
-            .background(Color(red: 0.13, green: 0.14, blue: 0.18))
-            .clipShape(.rect(cornerRadius: 10))
           }
         }
       }

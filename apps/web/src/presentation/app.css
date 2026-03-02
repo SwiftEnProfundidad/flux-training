@@ -566,6 +566,18 @@ input::placeholder {
   overflow-x: auto;
 }
 
+.dense-table-info {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+
+.dense-table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .operations-table-row {
   display: grid;
   grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(70px, 1fr)) minmax(120px, 1fr);
