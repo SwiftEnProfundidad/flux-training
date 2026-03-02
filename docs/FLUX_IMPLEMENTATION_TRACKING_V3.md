@@ -55,7 +55,7 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 |---|---|---|---|---|---|
 | V3-P5-T1 | Checklist de cierre de implementacion | V3-P5-T1.1 cobertura por modulo; V3-P5-T1.2 deuda explicita; V3-P5-T1.3 riesgos abiertos | ✅ | V3-P4-T3 | Cierre V3 completo y auditable |
 | V3-P5-T2 | Congelar baseline release candidate | V3-P5-T2.1 snapshot tecnico; V3-P5-T2.2 snapshot funcional; V3-P5-T2.3 docs actualizadas | ✅ | V3-P5-T1 | RC estable para hardening |
-| V3-P5-T3 | Abrir ciclo V4 formalmente | V3-P5-T3.1 handoff de riesgos; V3-P5-T3.2 task activa V4; V3-P5-T3.3 cierre ejecutivo V3 | 🚧 | V3-P5-T2 | Transicion controlada a production readiness |
+| V3-P5-T3 | Abrir ciclo V4 formalmente | V3-P5-T3.1 handoff de riesgos; V3-P5-T3.2 task activa V4; V3-P5-T3.3 cierre ejecutivo V3 | ✅ | V3-P5-T2 | Transicion controlada a production readiness |
 
 ## Bitacora V3 (2026-03-02)
 - Inicio V3-P0-T1:
@@ -398,3 +398,12 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - `docs/validation/features/v3_p5_t2_release_candidate_snapshot.feature`
   - resultado: `V3-P5-T2` cerrado en `✅`.
   - siguiente task activa: `V3-P5-T3` (abrir ciclo V4 formalmente).
+- Inicio V3-P5-T3:
+  - foco en cerrar ejecutivamente V3 y abrir V4 con traspaso explícito de riesgos/deuda.
+- Cierre V3-P5-T3:
+  - paquete de handoff V3->V4 publicado:
+    - `docs/validation/V3_P5_T3_V4_HANDOFF.json`
+    - `docs/validation/features/v3_p5_t3_v4_handoff.feature`
+  - task inicial de V4 activada:
+    - `docs/FLUX_PRODUCTION_READINESS_TRACKING_V4.md` con `V4-P0-T1` en `🚧`.
+  - resultado: ciclo V3 cerrado en `✅`.

@@ -17,15 +17,15 @@
 - Estado V2: fases `A0..C7-T3` cerradas en `✅`; ciclo V2 sin tareas pendientes.
 - Seguimiento maestro de remediación enterprise: `docs/FLUX_ENTERPRISE_REMEDIATION_TRACKING_V1.md`.
 - Task activa de remediación enterprise: Ninguna (residuales `R1/R2/R3` cerradas en `✅`).
-- Task activa de ejecución UI/UX: `V3-P5-T3` en `docs/FLUX_IMPLEMENTATION_TRACKING_V3.md`.
+- Task activa de ejecución UI/UX: `V4-P0-T1` en `docs/FLUX_PRODUCTION_READINESS_TRACKING_V4.md`.
 
 ## Ciclos documentados (fuente de verdad)
 | Orden | Ciclo | Documento | Estado | Task activa |
 |---|---|---|---|---|
 | 1 | V1 - Enterprise remediation | `docs/FLUX_ENTERPRISE_REMEDIATION_TRACKING_V1.md` | ✅ Cerrado | Ninguna |
 | 2 | V2 - UI/UX execution | `docs/FLUX_UIUX_EXECUTION_TRACKING_V2.md` | ✅ Cerrado | Ninguna |
-| 3 | V3 - Implementacion producto end-to-end | `docs/FLUX_IMPLEMENTATION_TRACKING_V3.md` | 🚧 En ejecucion | `V3-P5-T3` |
-| 4 | V4 - Production readiness & hardening | `docs/FLUX_PRODUCTION_READINESS_TRACKING_V4.md` | ⏳ Pendiente | Ninguna |
+| 3 | V3 - Implementacion producto end-to-end | `docs/FLUX_IMPLEMENTATION_TRACKING_V3.md` | ✅ Cerrado | Ninguna |
+| 4 | V4 - Production readiness & hardening | `docs/FLUX_PRODUCTION_READINESS_TRACKING_V4.md` | 🚧 En ejecucion | `V4-P0-T1` |
 | 5 | V5 - Rollout, adopcion y scale ops | `docs/FLUX_ROLLOUT_SCALE_TRACKING_V5.md` | ⏳ Pendiente | Ninguna |
 
 ## Fase 0 - Gobierno y arranque
