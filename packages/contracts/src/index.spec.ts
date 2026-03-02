@@ -245,8 +245,17 @@ describe("authSessionSchema", () => {
   it("accepts a valid auth session", () => {
     const parsed = authSessionSchema.safeParse({
       userId: "user-1",
+      sessionId: "session-1",
       token: "jwt-token",
+      issuedAt: "2026-02-25T11:30:00.000Z",
       expiresAt: "2026-02-25T12:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T11:40:00.000Z",
+      absoluteExpiresAt: "2026-02-25T23:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 1800,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
       identity: {
         provider: "apple",
         providerUserId: "apple-user-123",
@@ -256,6 +265,31 @@ describe("authSessionSchema", () => {
     });
 
     expect(parsed.success).toBe(true);
+  });
+
+  it("rejects invalid session policy values", () => {
+    const parsed = authSessionSchema.safeParse({
+      userId: "user-1",
+      sessionId: "session-1",
+      token: "jwt-token",
+      issuedAt: "2026-02-25T11:30:00.000Z",
+      expiresAt: "2026-02-25T12:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T11:40:00.000Z",
+      absoluteExpiresAt: "2026-02-25T23:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 0,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
+      identity: {
+        provider: "apple",
+        providerUserId: "apple-user-123",
+        email: "user@example.com",
+        displayName: "User One"
+      }
+    });
+
+    expect(parsed.success).toBe(false);
   });
 });
 

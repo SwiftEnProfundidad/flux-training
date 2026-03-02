@@ -181,10 +181,21 @@ export const authIdentitySchema = z.object({
   displayName: z.string().min(1).optional()
 });
 
+export const authSessionPolicySchema = z.object({
+  maxIdleSeconds: z.number().int().positive(),
+  rotationIntervalSeconds: z.number().int().positive(),
+  absoluteTtlSeconds: z.number().int().positive()
+});
+
 export const authSessionSchema = z.object({
   userId: z.string().min(1),
+  sessionId: z.string().min(1),
   token: z.string().min(1),
+  issuedAt: z.string().datetime(),
   expiresAt: z.string().datetime(),
+  rotationRequiredAt: z.string().datetime(),
+  absoluteExpiresAt: z.string().datetime(),
+  sessionPolicy: authSessionPolicySchema,
   identity: authIdentitySchema
 });
 
@@ -393,6 +404,7 @@ export type ProgressHistoryEntry = z.infer<typeof progressHistoryEntrySchema>;
 export type ProgressSummary = z.infer<typeof progressSummarySchema>;
 export type AuthProvider = z.infer<typeof authProviderSchema>;
 export type AuthIdentity = z.infer<typeof authIdentitySchema>;
+export type AuthSessionPolicy = z.infer<typeof authSessionPolicySchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
 export type AuthRecoveryChannel = z.infer<typeof authRecoveryChannelSchema>;
 export type AuthRecoveryRequest = z.infer<typeof authRecoveryRequestSchema>;
