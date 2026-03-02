@@ -221,3 +221,15 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
       - `pnpm --filter @flux/backend check`
       - `pnpm --filter @flux/backend test` (`27` ficheros, `53` tests, `0` fallos)
   - siguiente subtask activa: `V3-P3-T2.2` (`training/nutrition/progress`) para cerrar endpoints funcionales del bloque core operativo.
+  - subtask `V3-P3-T2.2` cerrada:
+    - endpoints `training/nutrition/progress` endurecidos con filtros operativos:
+      - `GET /api/listWorkoutSessions`: `fromDate`, `toDate`, `limit`.
+      - `GET /api/listNutritionLogs`: `fromDate`, `toDate`, `limit`.
+      - `GET /api/getProgressSummary`: `generatedAt`.
+    - paridad de runtime demo reforzada:
+      - `demo-api-runtime` amplía firmas para filtros/rango y `generatedAt`.
+      - `demo-http-server` soporta parsing robusto de rango/limit y validaciones de query.
+    - validación en PASS:
+      - `pnpm --filter @flux/backend check`
+      - `pnpm --filter @flux/backend test` (`27` ficheros, `54` tests, `0` fallos)
+  - siguiente subtask activa: `V3-P3-T2.3` (`legal/admin/audit`) para cerrar `V3-P3-T2`.
