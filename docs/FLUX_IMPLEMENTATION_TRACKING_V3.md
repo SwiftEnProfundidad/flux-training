@@ -296,4 +296,19 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - BDD de evidencia cross-platform añadida:
       - `docs/validation/features/v3_p4_t1_ios_web_parity.feature`
     - resultado: paridad de estados `PASS` en dominios core y `REVIEW` focalizado en `OBSERVABILITY_AND_CRASH` para ajuste de comportamiento.
-  - siguiente subtask activa: `V3-P4-T1.2` (ajustes de comportamiento iOS/Web sobre gaps de paridad detectados).
+  - subtask `V3-P4-T1.2` cerrada:
+    - iOS observability alineado con web:
+      - tabla de incidencias en `ObservabilityView` con labels de `dominio`, `severidad`, `estado`, `correlacion` y `resumen`.
+      - derivación de incidencias en `ObservabilityViewModel` desde `analytics + crash`.
+    - diagnóstico de idempotencia habilitado cross-platform:
+      - web consume `idempotency` en `sync-client/offline-sync-queue` y lo muestra en módulo `Offline + Sync`.
+      - iOS propaga metadata de idempotencia en `OfflineSyncResult` y la muestra en `OfflineSyncView`.
+    - i18n ES/EN consolidada para labels nuevos (`idempotencia` e `incidencias`) en web+iOS.
+    - evidencias publicadas:
+      - `docs/validation/V3_P4_T1_2_BEHAVIOR_ALIGNMENT.json`
+      - `docs/validation/features/v3_p4_t1_2_behavior_alignment.feature`
+    - verificación técnica en PASS:
+      - `pnpm --filter @flux/web check`
+      - `pnpm --filter @flux/web test` (`33` ficheros, `82` tests, `0` fallos)
+      - `cd apps/ios && swift test` (`80` tests, `0` fallos)
+  - siguiente subtask activa: `V3-P4-T1.3` (smoke cross-platform de paridad cerrada por dominio).
