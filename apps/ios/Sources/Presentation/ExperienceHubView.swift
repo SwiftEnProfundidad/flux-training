@@ -396,28 +396,39 @@ public struct ExperienceHubView: View {
       }
       .buttonStyle(.borderedProminent)
       .tint(.orange)
+      .accessibilityIdentifier("auth.signInApple")
       TextField(copy.text(.emailField), text: $email)
         .fluxEmailFieldBehavior()
+        .textContentType(.emailAddress)
+        .submitLabel(.next)
         .textFieldStyle(RoundedBorderTextFieldStyle())
+        .accessibilityIdentifier("auth.email")
       SecureField(copy.text(.passwordField), text: $password)
+        .textContentType(.password)
+        .submitLabel(.go)
         .textFieldStyle(RoundedBorderTextFieldStyle())
+        .accessibilityIdentifier("auth.password")
       Button(copy.text(.signInWithEmail)) {
         Task { await authViewModel.signInWithEmail(email: email, password: password) }
       }
       .buttonStyle(.bordered)
+      .accessibilityIdentifier("auth.signInEmail")
       HStack {
         Button(copy.text(.recoverByEmail)) {
           authViewModel.requestRecovery(email: email, channel: .email)
         }
         .buttonStyle(.bordered)
+        .accessibilityIdentifier("auth.recoverEmail")
         Button(copy.text(.recoverBySMS)) {
           authViewModel.requestRecovery(email: email, channel: .sms)
         }
         .buttonStyle(.bordered)
+        .accessibilityIdentifier("auth.recoverSMS")
       }
       Text("\(copy.text(.authStatusLabel)): \(copy.humanStatus(authViewModel.authStatus))")
         .foregroundStyle(.secondary)
         .font(.footnote)
+        .accessibilityIdentifier("auth.status")
     }
     .cardSurface()
   }
@@ -429,7 +440,10 @@ public struct ExperienceHubView: View {
       Text(copy.text(.onboardingTitle))
         .font(.title3.bold())
       TextField(copy.text(.displayName), text: $bindableViewModel.displayName)
+        .textContentType(.name)
+        .submitLabel(.next)
         .textFieldStyle(RoundedBorderTextFieldStyle())
+        .accessibilityIdentifier("onboarding.displayName")
       HStack {
         TextField(
           copy.text(.age),
@@ -437,15 +451,19 @@ public struct ExperienceHubView: View {
           format: .number
         )
         .textFieldStyle(RoundedBorderTextFieldStyle())
+        .accessibilityIdentifier("onboarding.age")
         TextField(
           copy.text(.days),
           value: $bindableViewModel.availableDaysPerWeek,
           format: .number
         )
         .textFieldStyle(RoundedBorderTextFieldStyle())
+        .accessibilityIdentifier("onboarding.days")
       }
       Toggle(copy.text(.chestPainQuestion), isOn: $parQQuestionOne)
+        .accessibilityIdentifier("onboarding.parq1")
       Toggle(copy.text(.dizzinessQuestion), isOn: $parQQuestionTwo)
+        .accessibilityIdentifier("onboarding.parq2")
       Button(copy.text(.completeOnboarding)) {
         onboardingViewModel.parQResponses = [
           ParQResponse(questionID: "parq-1", answer: parQQuestionOne),
@@ -464,9 +482,11 @@ public struct ExperienceHubView: View {
       }
       .buttonStyle(.borderedProminent)
       .tint(.orange)
+      .accessibilityIdentifier("onboarding.complete")
       Text("\(copy.text(.onboardingStatusLabel)): \(copy.humanStatus(onboardingViewModel.onboardingStatus))")
         .foregroundStyle(.secondary)
         .font(.footnote)
+        .accessibilityIdentifier("onboarding.status")
     }
     .cardSurface()
   }
@@ -633,31 +653,39 @@ public struct ExperienceHubView: View {
       Text(copy.text(.legalSectionTitle))
         .font(.title3.bold())
       Toggle(copy.text(.acceptPrivacyPolicy), isOn: $privacyPolicyAccepted)
+        .accessibilityIdentifier("legal.acceptPrivacy")
       Toggle(copy.text(.acceptTerms), isOn: $termsAccepted)
+        .accessibilityIdentifier("legal.acceptTerms")
       Toggle(copy.text(.acceptMedicalDisclaimer), isOn: $medicalDisclaimerAccepted)
+        .accessibilityIdentifier("legal.acceptMedicalDisclaimer")
       Text(
         "\(copy.text(.legalSummaryLabel)): \(copy.humanStatus(privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"))"
       )
       .foregroundStyle(.secondary)
       .font(.footnote)
+      .accessibilityIdentifier("legal.summary")
       HStack {
         Button(copy.text(.saveConsent)) {
           legalStatus = "saved"
         }
         .buttonStyle(.borderedProminent)
         .tint(.orange)
+        .accessibilityIdentifier("legal.saveConsent")
         Button(copy.text(.exportData)) {
           legalStatus = "exported"
         }
         .buttonStyle(.bordered)
+        .accessibilityIdentifier("legal.exportData")
         Button(copy.text(.requestDeletion)) {
           legalStatus = "deletion_requested"
         }
         .buttonStyle(.bordered)
+        .accessibilityIdentifier("legal.requestDeletion")
       }
       Text("\(copy.text(.legalStatusLabel)): \(copy.humanStatus(legalStatus))")
         .foregroundStyle(.secondary)
         .font(.footnote)
+        .accessibilityIdentifier("legal.status")
     }
     .cardSurface()
   }
