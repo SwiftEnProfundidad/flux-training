@@ -24,8 +24,8 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 ## Fase P1 - Observabilidad y operacion
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V4-P1-T1 | Telemetria unificada iOS/Web/Backend | V4-P1-T1.1 eventos canonicos; V4-P1-T1.2 correlacion cross-layer; V4-P1-T1.3 dashboard operativo | 🚧 | V4-P0-T3 | Trazabilidad end-to-end estable |
-| V4-P1-T2 | Alerting y runbooks | V4-P1-T2.1 alertas por SLO; V4-P1-T2.2 playbooks; V4-P1-T2.3 ownership on-call | ⏳ | V4-P1-T1 | Incidentes operables sin ambiguedad |
+| V4-P1-T1 | Telemetria unificada iOS/Web/Backend | V4-P1-T1.1 eventos canonicos; V4-P1-T1.2 correlacion cross-layer; V4-P1-T1.3 dashboard operativo | ✅ | V4-P0-T3 | Trazabilidad end-to-end estable |
+| V4-P1-T2 | Alerting y runbooks | V4-P1-T2.1 alertas por SLO; V4-P1-T2.2 playbooks; V4-P1-T2.3 ownership on-call | 🚧 | V4-P1-T1 | Incidentes operables sin ambiguedad |
 | V4-P1-T3 | Logging/audit trail completo | V4-P1-T3.1 logs estructurados; V4-P1-T3.2 activity log; V4-P1-T3.3 export forense | ⏳ | V4-P1-T2 | Auditoria enterprise lista |
 
 ## Fase P2 - Performance y escalabilidad
@@ -70,3 +70,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
 - Siguiente task activa:
   - `V4-P1-T1` (Telemetría unificada iOS/Web/Backend) en `🚧`.
+- Cierre V4-P1-T1:
+  - contratos ampliados con taxonomía canónica de eventos y schema de resumen operativo de observabilidad.
+  - backend alineado con normalización de telemetría, correlación cross-layer y endpoint de resumen agregado.
+  - web e iOS alineados al modelo canónico con consumo de resumen operativo y regresión funcional en verde.
+  - evidencia publicada: `docs/validation/V4_P1_T1_UNIFIED_TELEMETRY.json`.
+  - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
+- Siguiente task activa:
+  - `V4-P1-T2` (Alerting y runbooks) en `🚧`.
