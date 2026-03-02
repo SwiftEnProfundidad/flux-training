@@ -244,6 +244,7 @@ export const crashReportSchema = z.object({
   source: observabilitySourceSchema,
   message: z.string().min(1),
   stackTrace: z.string().optional(),
+  correlationId: z.string().min(1).optional(),
   severity: crashSeveritySchema,
   occurredAt: z.string().datetime()
 });

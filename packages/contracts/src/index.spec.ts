@@ -142,11 +142,25 @@ describe("crashReportSchema", () => {
       source: "ios",
       message: "Unexpected nil value",
       stackTrace: "MainViewModel.swift:42",
+      correlationId: "corr-123",
       severity: "fatal",
       occurredAt: "2026-02-27T10:05:00.000Z"
     });
 
     expect(parsed.success).toBe(true);
+  });
+
+  it("rejects empty correlation identifier", () => {
+    const parsed = crashReportSchema.safeParse({
+      userId: "user-1",
+      source: "ios",
+      message: "Unexpected nil value",
+      severity: "warning",
+      correlationId: "",
+      occurredAt: "2026-02-27T10:05:00.000Z"
+    });
+
+    expect(parsed.success).toBe(false);
   });
 });
 

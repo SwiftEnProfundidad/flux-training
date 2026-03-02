@@ -127,6 +127,71 @@ describe("DemoHttpServer", () => {
     expect(smsPayload.recovery?.status).toBe("recovery_sent_sms");
   });
 
+  it("propagates request correlation id into analytics and crash traces", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    const correlationHeaders = {
+      ...clientHeaders,
+      "content-type": "application/json",
+      "x-correlation-id": "trace-demo-123"
+    };
+
+    const analyticsResponse = await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: correlationHeaders,
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_timeout",
+        source: "web",
+        occurredAt: "2026-03-02T11:00:00.000Z",
+        attributes: {
+          domain: "operations",
+          reason: "timeout"
+        }
+      })
+    });
+
+    const crashResponse = await fetch(`${server.baseUrl}/api/createCrashReport`, {
+      method: "POST",
+      headers: correlationHeaders,
+      body: JSON.stringify({
+        userId: "demo-user",
+        source: "backend",
+        message: "background worker timeout",
+        severity: "warning",
+        occurredAt: "2026-03-02T11:01:00.000Z"
+      })
+    });
+
+    const eventsByQuery = await fetch(
+      `${server.baseUrl}/api/listAnalyticsEvents?userId=demo-user&query=trace-demo-123`,
+      { headers: clientHeaders }
+    );
+    const crashesByQuery = await fetch(
+      `${server.baseUrl}/api/listCrashReports?userId=demo-user&query=trace-demo-123`,
+      { headers: clientHeaders }
+    );
+
+    expect(analyticsResponse.status).toBe(201);
+    expect(crashResponse.status).toBe(201);
+    expect(eventsByQuery.status).toBe(200);
+    expect(crashesByQuery.status).toBe(200);
+
+    const analyticsPayload = (await analyticsResponse.json()) as {
+      event?: { attributes?: Record<string, string | number | boolean> };
+    };
+    const crashPayload = (await crashResponse.json()) as {
+      report?: { correlationId?: string };
+    };
+    const filteredEventsPayload = (await eventsByQuery.json()) as { events: unknown[] };
+    const filteredCrashesPayload = (await crashesByQuery.json()) as { reports: unknown[] };
+
+    expect(analyticsPayload.event?.attributes?.correlationId).toBe("trace-demo-123");
+    expect(crashPayload.report?.correlationId).toBe("trace-demo-123");
+    expect(filteredEventsPayload.events.length).toBe(1);
+    expect(filteredCrashesPayload.reports.length).toBe(1);
+  });
+
   it("serves createHealthScreening endpoint for onboarding precheck", async () => {
     server = await startDemoHttpServer({ port: 0 });
 

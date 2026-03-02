@@ -559,8 +559,19 @@ export const createAnalyticsEvent = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
-    const event = analyticsEventSchema.parse(request.body);
-    const payload = await createAnalyticsEventUseCase.execute(event);
+    const baseEvent = analyticsEventSchema.parse(request.body);
+    const requestCorrelationId = resolveCorrelationId(request);
+    const payload = await createAnalyticsEventUseCase.execute({
+      ...baseEvent,
+      attributes: {
+        ...baseEvent.attributes,
+        correlationId:
+          typeof baseEvent.attributes.correlationId === "string" &&
+          baseEvent.attributes.correlationId.trim().length > 0
+            ? baseEvent.attributes.correlationId
+            : requestCorrelationId
+      }
+    });
     response.status(201).json({ event: payload });
   } catch {
     sendStandardError(request, response, 400, "invalid_analytics_event_payload");
@@ -616,7 +627,14 @@ export const createCrashReport = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
-    const report = crashReportSchema.parse(request.body);
+    const parsedInput = crashReportSchema.parse(request.body);
+    const report = {
+      ...parsedInput,
+      correlationId:
+        typeof parsedInput.correlationId === "string" && parsedInput.correlationId.trim().length > 0
+          ? parsedInput.correlationId
+          : resolveCorrelationId(request)
+    };
     const payload = await createCrashReportUseCase.execute(report);
     response.status(201).json({ report: payload });
   } catch {
@@ -654,9 +672,11 @@ export const listCrashReports = onRequest(async (request, response) => {
         ? reportsFilteredBySeverity
         : reportsFilteredBySeverity.filter((report) => {
             const stackTrace = (report.stackTrace ?? "").toLowerCase();
+            const correlationId = (report.correlationId ?? "").toLowerCase();
             return (
               report.message.toLowerCase().includes(queryFilter) ||
-              stackTrace.includes(queryFilter)
+              stackTrace.includes(queryFilter) ||
+              correlationId.includes(queryFilter)
             );
           });
     const payloadReports =

@@ -50,6 +50,7 @@ describe("ListSupportIncidentsUseCase", () => {
           source: "backend",
           message: "fatal worker crash",
           stackTrace: "Worker.ts:22",
+          correlationId: "corr-crash-1",
           severity: "fatal",
           occurredAt: "2026-03-02T10:05:00.000Z"
         }
@@ -60,7 +61,9 @@ describe("ListSupportIncidentsUseCase", () => {
 
     expect(incidents).toHaveLength(2);
     expect(incidents[0]?.severity).toBe("high");
+    expect(incidents[0]?.correlationId).toBe("corr-crash-1");
     expect(incidents[1]?.source).toBe("analytics");
+    expect(incidents[1]?.correlationId).toBe("corr-1");
   });
 
   it("throws when user id is empty", async () => {

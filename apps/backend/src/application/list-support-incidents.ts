@@ -60,7 +60,7 @@ function buildSupportIncidents(
     state: report.severity === "fatal" ? "open" : "in_progress",
     source: "crash",
     summary: report.message,
-    correlationId: "-"
+    correlationId: asOptionalNonEmptyString(report.correlationId, "-")
   } satisfies SupportIncident));
 
   return [...eventIncidents, ...crashIncidents].sort((left, right) =>
@@ -101,6 +101,13 @@ function asString(value: string | number | boolean | undefined, fallback: string
   }
   if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
+  }
+  return fallback;
+}
+
+function asOptionalNonEmptyString(value: string | undefined, fallback: string): string {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value;
   }
   return fallback;
 }
