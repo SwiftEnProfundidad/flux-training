@@ -33,13 +33,13 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 |---|---|---|---|---|---|
 | V5-P2-T1 | Soporte enterprise y SLA | V5-P2-T1.1 catalogo de incidencias; V5-P2-T1.2 tiempos objetivo; V5-P2-T1.3 flujo de escalado | ✅ | V5-P1-T1 | Soporte con SLA definido |
 | V5-P2-T2 | Knowledge base y autoservicio | V5-P2-T2.1 ayuda por modulo; V5-P2-T2.2 FAQ; V5-P2-T2.3 runbooks usuario/admin | ✅ | V5-P2-T1 | Reduccion de tickets repetitivos |
-| V5-P2-T3 | Calidad continua post-release | V5-P2-T3.1 regression schedule; V5-P2-T3.2 deuda tecnica priorizada; V5-P2-T3.3 health review mensual | 🚧 | V5-P2-T2 | Operacion estable y mejora continua |
+| V5-P2-T3 | Calidad continua post-release | V5-P2-T3.1 regression schedule; V5-P2-T3.2 deuda tecnica priorizada; V5-P2-T3.3 health review mensual | ✅ | V5-P2-T2 | Operacion estable y mejora continua |
 
 ## Fase P3 - Roadmap siguiente ciclo
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V5-P3-T1 | Consolidar aprendizaje V5 | V5-P3-T1.1 insights producto; V5-P3-T1.2 insights operacion; V5-P3-T1.3 riesgos residuales | ⏳ | V5-P2-T3 | Base objetiva para roadmap |
-| V5-P3-T2 | Definir backlog V6 | V5-P3-T2.1 priorizacion impacto/esfuerzo; V5-P3-T2.2 dependencias; V5-P3-T2.3 capacidad | ⏳ | V5-P3-T1 | Backlog V6 listo |
+| V5-P3-T1 | Consolidar aprendizaje V5 | V5-P3-T1.1 insights producto; V5-P3-T1.2 insights operacion; V5-P3-T1.3 riesgos residuales | ✅ | V5-P2-T3 | Base objetiva para roadmap |
+| V5-P3-T2 | Definir backlog V6 | V5-P3-T2.1 priorizacion impacto/esfuerzo; V5-P3-T2.2 dependencias; V5-P3-T2.3 capacidad | 🚧 | V5-P3-T1 | Backlog V6 listo |
 | V5-P3-T3 | Cierre ejecutivo V5 | V5-P3-T3.1 reporte final; V5-P3-T3.2 decision de continuidad; V5-P3-T3.3 apertura V6 | ⏳ | V5-P3-T2 | Ciclo V5 formalmente cerrado |
 
 ## Bitacora V5 (2026-03-02)
@@ -103,3 +103,17 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - evidencia publicada: `docs/validation/V5_P2_T2_KB_SELF_SERVICE.json`.
 - Siguiente task activa:
   - `V5-P2-T3` (Calidad continua post-release) en `🚧`.
+- Cierre V5-P2-T3:
+  - calendario de regresión continua definido (`daily smoke`, `weekly critical`, `monthly full`) con responsables por dominio.
+  - registro de deuda técnica priorizada definido con severidad/impacto/esfuerzo y regla de recorte por release.
+  - ritual de health review mensual definido con KPIs operativos, riesgos abiertos y decisiones de remediación.
+  - evidencia publicada: `docs/validation/V5_P2_T3_CONTINUOUS_QUALITY.json`.
+- Siguiente task activa:
+  - `V5-P3-T1` (Consolidar aprendizaje V5) en `🚧`.
+- Cierre V5-P3-T1:
+  - insights de producto consolidados con foco en conversion de onboarding, retencion D7 y adopcion de modulos de entrenamiento/nutricion.
+  - insights de operacion consolidados con foco en SLA de soporte, estabilidad de sync y cobertura de autoservicio por perfil.
+  - riesgos residuales priorizados por severidad/probabilidad con mitigaciones propuestas y ownership operativo.
+  - evidencia publicada: `docs/validation/V5_P3_T1_CONSOLIDATED_LEARNINGS.json`.
+- Siguiente task activa:
+  - `V5-P3-T2` (Definir backlog V6) en `🚧`.
