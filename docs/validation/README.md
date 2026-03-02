@@ -96,6 +96,8 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V3_P1_T3_IOS_NUTRITION_PROGRESS_AI_SETTINGS_GATE.json`: consolidado de cierre de task V3-P1-T3 con gate iOS y evidencia por subtask.
 - `V3_P2_T1_WEB_SHELL_ACCESS_DASHBOARD_COVERAGE.csv`: cobertura de subtasks en shell web, acceso por rol y estados runtime enterprise del dashboard.
 - `V3_P2_T1_WEB_SHELL_ACCESS_DASHBOARD_GATE.json`: consolidado de cierre de task V3-P2-T1 con evidencias por subtask y resultados de quality checks web.
+- `V3_P2_T2_WEB_CORE_OPERATIONS_COVERAGE.csv`: cobertura de subtasks en operaciones core web (operations hub, nutrition/progress ops y estados enterprise).
+- `V3_P2_T2_WEB_CORE_OPERATIONS_GATE.json`: consolidado de cierre de task V3-P2-T2 con evidencias por subtask y resultados de quality checks web.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -154,6 +156,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v3_p1_t2_ios_today_training_video.feature`
 - `features/v3_p1_t3_ios_nutrition_progress_ai_settings.feature`
 - `features/v3_p2_t1_web_shell_access_dashboard.feature`
+- `features/v3_p2_t2_web_core_operations.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

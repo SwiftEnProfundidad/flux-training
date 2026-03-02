@@ -33,8 +33,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V3-P2-T1 | Shell + acceso + dashboard web | V3-P2-T1.1 app shell y navegacion; V3-P2-T1.2 acceso por rol; V3-P2-T1.3 dashboard operativo | ✅ | V3-P0-T3 | Entrada web robusta por rol |
-| V3-P2-T2 | Operaciones core web | V3-P2-T2.1 athletes/plans/sessions; V3-P2-T2.2 nutrition/progress ops; V3-P2-T2.3 estados enterprise | 🚧 | V3-P2-T1 | Operacion core web completa |
-| V3-P2-T3 | Admin + governance web | V3-P2-T3.1 users/roles/RBAC; V3-P2-T3.2 audit/compliance; V3-P2-T3.3 billing/support | ⏳ | V3-P2-T2 | Modulos enterprise web cerrados |
+| V3-P2-T2 | Operaciones core web | V3-P2-T2.1 athletes/plans/sessions; V3-P2-T2.2 nutrition/progress ops; V3-P2-T2.3 estados enterprise | ✅ | V3-P2-T1 | Operacion core web completa |
+| V3-P2-T3 | Admin + governance web | V3-P2-T3.1 users/roles/RBAC; V3-P2-T3.2 audit/compliance; V3-P2-T3.3 billing/support | 🚧 | V3-P2-T2 | Modulos enterprise web cerrados |
 
 ## Fase P3 - Backend y contratos
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -137,16 +137,16 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - `pnpm --filter @flux/web test` en PASS (`26` ficheros, `59` tests, `0` fallos).
 - Inicio V3-P2-T2:
   - foco en operaciones core web (athletes/plans/sessions + nutrition/progress ops) y cierre de estados enterprise por módulo.
-- Avance V3-P2-T2 (en curso):
-  - subtask `V3-P2-T2.1` iniciada con `operationsHub` en web: roster operativo de atletas derivado de planes/sesiones/nutrición, filtro por atleta, ordenación y selección múltiple con acción masiva.
-  - módulo conectado al dominio `operations` con estado enterprise propio (`idle/loading/saved/empty/validation_error/error`) y microcopy ES/EN.
-  - subtask `V3-P2-T2.2` iniciada: operaciones de `nutrition/progress` con utilidades tipadas de filtrado/ordenación y cálculo de `effortScore`.
-  - UI web extendida con filtros operativos de nutrición (fecha/proteína/calorías + sort) y progreso (sesiones mínimas + sort), incluyendo contadores de resultados filtrados y empty states dedicados.
-  - cobertura técnica añadida:
-    - `apps/web/src/presentation/core-operations.spec.ts`
-    - actualización de `apps/web/src/presentation/dashboard-domains.spec.ts`
-    - `apps/web/src/presentation/nutrition-progress-operations.spec.ts`
-    - actualización de `apps/web/src/presentation/i18n.spec.ts`
-  - validación parcial en PASS:
-    - `pnpm --filter @flux/web check`
-    - `pnpm --filter @flux/web test`
+- Cierre V3-P2-T2:
+  - `V3-P2-T2.1`: operations hub implementado en web con roster de atletas derivado de planes/sesiones/nutrición, búsqueda, ordenación, selección y acción masiva.
+  - `V3-P2-T2.2`: operaciones `nutrition/progress` reforzadas con filtros y ordenación operativa; historial con métrica derivada `effortScore` y contadores de resultados filtrados.
+  - `V3-P2-T2.3`: motor unificado de estados enterprise por módulo (`deriveModuleRuntimeStatus`) aplicado a operaciones, nutrición y progreso con prioridad de estados por dominio (`offline/denied/error`) y validación de filtros.
+  - evidencias publicadas:
+    - `docs/validation/V3_P2_T2_WEB_CORE_OPERATIONS_COVERAGE.csv`
+    - `docs/validation/V3_P2_T2_WEB_CORE_OPERATIONS_GATE.json`
+    - `docs/validation/features/v3_p2_t2_web_core_operations.feature`
+  - verificación técnica:
+    - `pnpm --filter @flux/web check` en PASS.
+    - `pnpm --filter @flux/web test` en PASS (`29` ficheros, `68` tests, `0` fallos).
+- Inicio V3-P2-T3:
+  - foco en módulos web de administración/gobernanza (`users/roles/RBAC`, `audit/compliance`, `billing/support`) para cierre enterprise del bloque P2.

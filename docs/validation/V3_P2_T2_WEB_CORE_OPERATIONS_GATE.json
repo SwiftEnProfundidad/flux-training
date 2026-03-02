@@ -1,0 +1,50 @@
+{
+  "taskId": "V3-P2-T2",
+  "title": "web core operations",
+  "status": "done",
+  "subtasks": {
+    "V3-P2-T2.1": {
+      "name": "athletes/plans/sessions",
+      "result": "PASS",
+      "evidence": [
+        "apps/web/src/presentation/App.tsx",
+        "apps/web/src/presentation/core-operations.ts",
+        "apps/web/src/presentation/core-operations.spec.ts"
+      ]
+    },
+    "V3-P2-T2.2": {
+      "name": "nutrition/progress ops",
+      "result": "PASS",
+      "evidence": [
+        "apps/web/src/presentation/nutrition-progress-operations.ts",
+        "apps/web/src/presentation/nutrition-progress-operations.spec.ts",
+        "apps/web/src/presentation/i18n.spec.ts"
+      ]
+    },
+    "V3-P2-T2.3": {
+      "name": "estados enterprise",
+      "result": "PASS",
+      "evidence": [
+        "apps/web/src/presentation/module-runtime-status.ts",
+        "apps/web/src/presentation/module-runtime-status.spec.ts",
+        "apps/web/src/presentation/App.tsx"
+      ]
+    }
+  },
+  "qualityChecks": [
+    {
+      "command": "pnpm --filter @flux/web check",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm --filter @flux/web test",
+      "result": "PASS",
+      "details": {
+        "testFiles": 29,
+        "totalTests": 68,
+        "failures": 0
+      }
+    }
+  ],
+  "nextTask": "V3-P2-T3"
+}
