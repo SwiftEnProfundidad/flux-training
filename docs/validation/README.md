@@ -127,6 +127,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V5_P0_T2_ENV_FLAGS_STRATEGY.json`: evidencia de matriz de entornos, catálogo de feature flags por módulo y rollback por flag con kill-switch.
 - `V5_P0_T3_CHANGE_COMMUNICATION.json`: evidencia de comunicación de cambio (release notes, soporte interno y mensajes in-app por audiencia).
 - `V5_P1_T1_ADOPTION_KPI_FRAMEWORK.json`: evidencia de framework KPI de adopción (north-star, guardrails, eventos de negocio y panel ejecutivo).
+- `V5_P1_T2_FUNNELS_RETENTION.json`: evidencia de embudos canónicos de adopción, cohortes de retención y alertas de caída por segmento.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -212,6 +213,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v5_p0_t2_env_flags_strategy.feature`
 - `features/v5_p0_t3_change_communication.feature`
 - `features/v5_p1_t1_adoption_kpi_framework.feature`
+- `features/v5_p1_t2_funnels_retention.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
