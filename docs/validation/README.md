@@ -143,6 +143,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V6_P1_T3_BILLING_RECOVERY_RESILIENCE.json`: evidencia de resiliencia de billing y recovery (fallos de cobro, grace period y flujo win-back).
 - `V6_P2_T1_WEEKLY_ACTIVATION_LOOPS.json`: evidencia de loops de activación semanal (24h first value, continuidad D7 y nudges de coaching).
 - `V6_P2_T2_MULTICHANNEL_CRM_OPERATIONS.json`: evidencia de CRM operativo multicanal (in-app/push/email, segmentación de riesgo y journeys de re-engagement).
+- `V6_P2_T3_CHURN_PREVENTION_WINBACK.json`: evidencia de prevención de churn y win-back (scoring de riesgo, playbooks de intervención y lift incremental).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -244,6 +245,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v6_p1_t3_billing_recovery_resilience.feature`
 - `features/v6_p2_t1_weekly_activation_loops.feature`
 - `features/v6_p2_t2_multichannel_crm_operations.feature`
+- `features/v6_p2_t3_churn_prevention_winback.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

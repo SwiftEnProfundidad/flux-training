@@ -33,12 +33,12 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 |---|---|---|---|---|---|
 | V6-P2-T1 | Loops de activacion semanal | V6-P2-T1.1 primer valor en 24h; V6-P2-T1.2 continuidad D7; V6-P2-T1.3 coaching nudges | ✅ | V6-P0-T2 | Activacion semanal en alza |
 | V6-P2-T2 | CRM operativo multicanal | V6-P2-T2.1 in-app; V6-P2-T2.2 email/push; V6-P2-T2.3 segmentacion por riesgo | ✅ | V6-P2-T1 | Re-engagement automatizado |
-| V6-P2-T3 | Prevencion de churn y win-back | V6-P2-T3.1 score de churn; V6-P2-T3.2 intervenciones; V6-P2-T3.3 medicion incremental | 🚧 | V6-P2-T2 | Churn contenido por cohortes |
+| V6-P2-T3 | Prevencion de churn y win-back | V6-P2-T3.1 score de churn; V6-P2-T3.2 intervenciones; V6-P2-T3.3 medicion incremental | ✅ | V6-P2-T2 | Churn contenido por cohortes |
 
 ## Fase P3 - Cierre y gobierno V6
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V6-P3-T1 | Consolidar resultados V6 | V6-P3-T1.1 impacto negocio; V6-P3-T1.2 impacto operacion; V6-P3-T1.3 riesgos residuales | ⏳ | V6-P2-T3 | Resultado ejecutivo auditable |
+| V6-P3-T1 | Consolidar resultados V6 | V6-P3-T1.1 impacto negocio; V6-P3-T1.2 impacto operacion; V6-P3-T1.3 riesgos residuales | 🚧 | V6-P2-T3 | Resultado ejecutivo auditable |
 | V6-P3-T2 | Definir backlog V7 | V6-P3-T2.1 priorizacion; V6-P3-T2.2 dependencias; V6-P3-T2.3 capacidad | ⏳ | V6-P3-T1 | Backlog V7 listo |
 | V6-P3-T3 | Cierre ejecutivo V6 | V6-P3-T3.1 reporte final; V6-P3-T3.2 decision continuidad; V6-P3-T3.3 handoff | ⏳ | V6-P3-T2 | V6 cerrado formalmente |
 
@@ -103,3 +103,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P2_T2_MULTICHANNEL_CRM_OPERATIONS.json`.
 - Siguiente task activa:
   - `V6-P2-T3` (Prevencion de churn y win-back) en `🚧`.
+- Cierre V6-P2-T3:
+  - score de churn definido con señales combinadas (`inactive_days`, `adherence_decline`, `billing_risk`, `negative_support_signal`) y umbrales de riesgo.
+  - playbooks de intervención definidos por tier de riesgo (`low`, `medium`, `high`) con canal, frecuencia y owner operativo.
+  - medición incremental definida para win-back (`reactivation_30d_lift`, `net_revenue_retained`, `intervention_cost`) con grupo de control.
+  - evidencia publicada: `docs/validation/V6_P2_T3_CHURN_PREVENTION_WINBACK.json`.
+- Siguiente task activa:
+  - `V6-P3-T1` (Consolidar resultados V6) en `🚧`.
