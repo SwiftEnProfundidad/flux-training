@@ -114,6 +114,17 @@ import {
   type AuditSourceFilter
 } from "./audit-compliance";
 import {
+  applySupportIncidentStateOverrides,
+  buildBillingInvoiceRows,
+  buildSupportIncidentRows,
+  filterBillingInvoiceRows,
+  filterSupportIncidentRows,
+  type BillingInvoiceStatusFilter,
+  type SupportIncidentSeverityFilter,
+  type SupportIncidentState,
+  type SupportIncidentStateFilter
+} from "./billing-support";
+import {
   deriveModuleRuntimeStatus,
   type ModuleRuntimeStatus
 } from "./module-runtime-status";
@@ -304,6 +315,20 @@ export function App() {
   const [auditCategoryFilter, setAuditCategoryFilter] = useState<AuditCategoryFilter>("all");
   const [auditSeverityFilter, setAuditSeverityFilter] = useState<AuditSeverityFilter>("all");
   const [auditDomainFilter, setAuditDomainFilter] = useState("");
+  const [billingSupportStatus, setBillingSupportStatus] = useState<ModuleRuntimeStatus>("idle");
+  const [billingSupportSearch, setBillingSupportSearch] = useState("");
+  const [billingDomainFilter, setBillingDomainFilter] = useState("");
+  const [billingInvoiceStatusFilter, setBillingInvoiceStatusFilter] =
+    useState<BillingInvoiceStatusFilter>("all");
+  const [billingIncidentStateFilter, setBillingIncidentStateFilter] =
+    useState<SupportIncidentStateFilter>("all");
+  const [billingIncidentSeverityFilter, setBillingIncidentSeverityFilter] =
+    useState<SupportIncidentSeverityFilter>("all");
+  const [billingSelectedIncidentIds, setBillingSelectedIncidentIds] = useState<string[]>([]);
+  const [billingIncidentStateOverrides, setBillingIncidentStateOverrides] = useState<
+    Record<string, SupportIncidentState>
+  >({});
+  const [billingHasValidationError, setBillingHasValidationError] = useState(false);
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -415,6 +440,41 @@ export function App() {
       auditTimelineRowsBase
     ]
   );
+  const billingInvoiceRowsBase = useMemo(
+    () => buildBillingInvoiceRows(plans, sessions, nutritionLogs),
+    [nutritionLogs, plans, sessions]
+  );
+  const billingInvoiceRows = useMemo(
+    () =>
+      filterBillingInvoiceRows(billingInvoiceRowsBase, {
+        query: billingSupportSearch,
+        invoiceStatus: billingInvoiceStatusFilter
+      }),
+    [billingInvoiceRowsBase, billingInvoiceStatusFilter, billingSupportSearch]
+  );
+  const supportIncidentRowsBase = useMemo(
+    () => buildSupportIncidentRows(analyticsEvents, crashReports),
+    [analyticsEvents, crashReports]
+  );
+  const supportIncidentRows = useMemo(() => {
+    const withOverrides = applySupportIncidentStateOverrides(
+      supportIncidentRowsBase,
+      billingIncidentStateOverrides
+    );
+    return filterSupportIncidentRows(withOverrides, {
+      query: billingSupportSearch,
+      domain: billingDomainFilter,
+      state: billingIncidentStateFilter,
+      severity: billingIncidentSeverityFilter
+    });
+  }, [
+    billingDomainFilter,
+    billingIncidentSeverityFilter,
+    billingIncidentStateFilter,
+    billingIncidentStateOverrides,
+    billingSupportSearch,
+    supportIncidentRowsBase
+  ]);
   const nutritionMinProteinFilterParsed = useMemo(
     () => parseOptionalNumber(nutritionMinProteinFilter),
     [nutritionMinProteinFilter]
@@ -477,6 +537,47 @@ export function App() {
       return { value: numericValue, isValid: true };
     }
     return { value: null, isValid: false };
+  }
+
+  function invoiceStatusLabel(status: BillingInvoiceStatusFilter): string {
+    switch (status) {
+      case "draft":
+        return translate("billingInvoiceStatusDraft");
+      case "open":
+        return translate("billingInvoiceStatusOpen");
+      case "paid":
+        return translate("billingInvoiceStatusPaid");
+      case "overdue":
+        return translate("billingInvoiceStatusOverdue");
+      default:
+        return translate("billingFilterAllInvoiceStatuses");
+    }
+  }
+
+  function incidentStateLabel(status: SupportIncidentStateFilter): string {
+    switch (status) {
+      case "open":
+        return translate("billingIncidentStateOpen");
+      case "in_progress":
+        return translate("billingIncidentStateInProgress");
+      case "resolved":
+        return translate("billingIncidentStateResolved");
+      default:
+        return translate("billingFilterAllIncidentStates");
+    }
+  }
+
+  function incidentSeverityLabel(status: SupportIncidentSeverityFilter): string {
+    switch (status) {
+      case "high":
+        return translate("billingIncidentSeverityHigh");
+      case "medium":
+        return translate("billingIncidentSeverityMedium");
+      case "low":
+        return translate("billingIncidentSeverityLow");
+      default:
+        return translate("billingFilterAllIncidentSeverities");
+    }
   }
 
   useEffect(() => {
@@ -579,6 +680,33 @@ export function App() {
     activeDomainRuntimeState,
     auditTimelineRows.length,
     auditTimelineRowsBase.length
+  ]);
+
+  useEffect(() => {
+    setBillingSelectedIncidentIds((current) =>
+      current.filter((incidentId) =>
+        supportIncidentRows.some((incident) => incident.id === incidentId)
+      )
+    );
+    setBillingSupportStatus((current) =>
+      deriveModuleRuntimeStatus({
+        activeDomain,
+        moduleDomain: "operations",
+        activeDomainRuntimeState,
+        hasValidationError: billingHasValidationError,
+        totalItems: billingInvoiceRowsBase.length + supportIncidentRowsBase.length,
+        filteredItems: billingInvoiceRows.length + supportIncidentRows.length,
+        currentStatus: current
+      })
+    );
+  }, [
+    activeDomain,
+    activeDomainRuntimeState,
+    billingHasValidationError,
+    billingInvoiceRows.length,
+    billingInvoiceRowsBase.length,
+    supportIncidentRows,
+    supportIncidentRowsBase.length
   ]);
 
   useEffect(() => {
@@ -1122,6 +1250,20 @@ export function App() {
     }
   }
 
+  async function handleLoadBillingSupportData() {
+    setBillingHasValidationError(false);
+    setBillingSupportStatus("loading");
+    try {
+      await loadObservabilityCollections();
+      setBillingSupportStatus("loaded");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setBillingSupportStatus("error");
+    }
+  }
+
   async function handleExportAuditCSV() {
     if (auditTimelineRows.length === 0) {
       setAuditStatus("empty");
@@ -1243,6 +1385,68 @@ export function App() {
     setAuditCategoryFilter("all");
     setAuditSeverityFilter("all");
     setAuditDomainFilter("");
+  }
+
+  function handleClearBillingSupportFilters() {
+    setBillingHasValidationError(false);
+    setBillingSupportSearch("");
+    setBillingDomainFilter("");
+    setBillingInvoiceStatusFilter("all");
+    setBillingIncidentStateFilter("all");
+    setBillingIncidentSeverityFilter("all");
+  }
+
+  function handleToggleBillingIncidentSelection(incidentId: string) {
+    setBillingHasValidationError(false);
+    setBillingSelectedIncidentIds((current) =>
+      current.includes(incidentId)
+        ? current.filter((item) => item !== incidentId)
+        : [...current, incidentId]
+    );
+  }
+
+  function handleClearBillingIncidentSelection() {
+    setBillingHasValidationError(false);
+    setBillingSelectedIncidentIds([]);
+    setBillingSupportStatus(
+      billingInvoiceRows.length === 0 && supportIncidentRows.length === 0 ? "empty" : "idle"
+    );
+  }
+
+  async function handleResolveBillingIncidents() {
+    if (billingSelectedIncidentIds.length === 0) {
+      setBillingHasValidationError(true);
+      setBillingSupportStatus("validation_error");
+      return;
+    }
+    setBillingHasValidationError(false);
+    setBillingSupportStatus("loading");
+    setBillingIncidentStateOverrides((current) => {
+      const next = { ...current };
+      for (const incidentId of billingSelectedIncidentIds) {
+        next[incidentId] = "resolved";
+      }
+      return next;
+    });
+    try {
+      const runtimeAttributes = nextEventAttributes(
+        runtimeObservabilitySessionRef.current,
+        "operations"
+      );
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: demoUserId,
+        name: "billing_support_incidents_resolved",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          selectedIncidents: String(billingSelectedIncidentIds.length),
+          ...runtimeAttributes
+        }
+      });
+      setBillingSupportStatus("saved");
+    } catch {
+      setBillingSupportStatus("error");
+    }
   }
 
   function handleToggleGovernancePrincipalSelection(principalId: string) {
@@ -2412,6 +2616,191 @@ export function App() {
             </article>
           ) : null}
 
+          {isModuleVisible("billingSupport", activeDomain) ? (
+            <article className="module-card">
+            <SectionHeader
+              title={translate("billingSupportTitle")}
+              status={billingSupportStatus}
+              statusLabel={translate("billingSupportStatusLabel")}
+              language={language}
+            />
+            <div className="form-grid">
+              <div className="inline-inputs">
+                <button className="button ghost" onClick={handleLoadBillingSupportData} type="button">
+                  {translate("billingSupportLoadData")}
+                </button>
+                <button className="button primary" onClick={handleResolveBillingIncidents} type="button">
+                  {translate("billingSupportResolveSelected")}
+                </button>
+                <button className="button ghost" onClick={handleClearBillingIncidentSelection} type="button">
+                  {translate("billingSupportClearSelection")}
+                </button>
+                <button className="button ghost" onClick={handleClearBillingSupportFilters} type="button">
+                  {translate("billingSupportClearFilters")}
+                </button>
+              </div>
+              <div className="inline-inputs">
+                <input
+                  aria-label={translate("billingSupportSearchPlaceholder")}
+                  placeholder={translate("billingSupportSearchPlaceholder")}
+                  value={billingSupportSearch}
+                  onChange={(event) => setBillingSupportSearch(event.target.value)}
+                />
+                <input
+                  aria-label={translate("billingDomainFilterPlaceholder")}
+                  placeholder={translate("billingDomainFilterPlaceholder")}
+                  value={billingDomainFilter}
+                  onChange={(event) => setBillingDomainFilter(event.target.value)}
+                />
+              </div>
+              <div className="inline-inputs">
+                <label className="compact-label">
+                  {translate("billingInvoiceStatusFilterLabel")}
+                  <select
+                    aria-label={translate("billingInvoiceStatusFilterLabel")}
+                    value={billingInvoiceStatusFilter}
+                    onChange={(event) =>
+                      setBillingInvoiceStatusFilter(event.target.value as BillingInvoiceStatusFilter)
+                    }
+                  >
+                    <option value="all">{translate("billingFilterAllInvoiceStatuses")}</option>
+                    <option value="draft">{translate("billingInvoiceStatusDraft")}</option>
+                    <option value="open">{translate("billingInvoiceStatusOpen")}</option>
+                    <option value="paid">{translate("billingInvoiceStatusPaid")}</option>
+                    <option value="overdue">{translate("billingInvoiceStatusOverdue")}</option>
+                  </select>
+                </label>
+                <label className="compact-label">
+                  {translate("billingIncidentStateFilterLabel")}
+                  <select
+                    aria-label={translate("billingIncidentStateFilterLabel")}
+                    value={billingIncidentStateFilter}
+                    onChange={(event) =>
+                      setBillingIncidentStateFilter(event.target.value as SupportIncidentStateFilter)
+                    }
+                  >
+                    <option value="all">{translate("billingFilterAllIncidentStates")}</option>
+                    <option value="open">{translate("billingIncidentStateOpen")}</option>
+                    <option value="in_progress">
+                      {translate("billingIncidentStateInProgress")}
+                    </option>
+                    <option value="resolved">{translate("billingIncidentStateResolved")}</option>
+                  </select>
+                </label>
+                <label className="compact-label">
+                  {translate("billingIncidentSeverityFilterLabel")}
+                  <select
+                    aria-label={translate("billingIncidentSeverityFilterLabel")}
+                    value={billingIncidentSeverityFilter}
+                    onChange={(event) =>
+                      setBillingIncidentSeverityFilter(
+                        event.target.value as SupportIncidentSeverityFilter
+                      )
+                    }
+                  >
+                    <option value="all">{translate("billingFilterAllIncidentSeverities")}</option>
+                    <option value="high">{translate("billingIncidentSeverityHigh")}</option>
+                    <option value="medium">{translate("billingIncidentSeverityMedium")}</option>
+                    <option value="low">{translate("billingIncidentSeverityLow")}</option>
+                  </select>
+                </label>
+              </div>
+              <StatLine
+                label={translate("billingInvoicesLoadedLabel")}
+                value={String(billingInvoiceRows.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("billingIncidentsLoadedLabel")}
+                value={String(supportIncidentRows.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("billingIncidentsSelectedLabel")}
+                value={String(billingSelectedIncidentIds.length)}
+                language={language}
+              />
+              <p className="section-subtitle">{translate("billingInvoicesSectionTitle")}</p>
+              {billingInvoiceRows.length === 0 ? (
+                <p className="empty-state">{translate("billingNoInvoices")}</p>
+              ) : (
+                <div className="operations-table">
+                  <header className="operations-table-row operations-table-header billing-table-row">
+                    <span>{translate("billingInvoiceIdColumn")}</span>
+                    <span>{translate("billingAccountColumn")}</span>
+                    <span>{translate("billingPeriodColumn")}</span>
+                    <span>{translate("billingAmountColumn")}</span>
+                    <span>{translate("billingInvoiceStatusColumn")}</span>
+                    <span>{translate("billingSourceColumn")}</span>
+                  </header>
+                  {billingInvoiceRows.map((invoice) => (
+                    <div key={invoice.id} className="operations-table-row billing-table-row">
+                      <span>{invoice.id}</span>
+                      <span>{invoice.accountId}</span>
+                      <span>{invoice.period}</span>
+                      <span>{invoice.amountEUR.toFixed(2)}</span>
+                      <span className={`status-pill status-${toStatusClass(invoice.status)}`}>
+                        {invoiceStatusLabel(invoice.status)}
+                      </span>
+                      <span>{toHumanStatus(invoice.source, language)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="section-subtitle">{translate("billingIncidentsSectionTitle")}</p>
+              {supportIncidentRows.length === 0 ? (
+                <p className="empty-state">{translate("billingNoIncidents")}</p>
+              ) : (
+                <div className="operations-table">
+                  <header className="operations-table-row operations-table-header support-table-row">
+                    <span>{translate("billingIncidentIdColumn")}</span>
+                    <span>{translate("billingOpenedAtColumn")}</span>
+                    <span>{translate("billingIncidentDomainColumn")}</span>
+                    <span>{translate("billingIncidentSeverityColumn")}</span>
+                    <span>{translate("billingIncidentStateColumn")}</span>
+                    <span>{translate("billingIncidentCorrelationColumn")}</span>
+                    <span>{translate("billingIncidentSummaryColumn")}</span>
+                  </header>
+                  {supportIncidentRows.map((incident) => (
+                    <label key={incident.id} className="operations-table-row support-table-row">
+                      <div className="operations-athlete-cell">
+                        <input
+                          type="checkbox"
+                          checked={billingSelectedIncidentIds.includes(incident.id)}
+                          onChange={() => handleToggleBillingIncidentSelection(incident.id)}
+                        />
+                        <strong>{incident.id}</strong>
+                      </div>
+                      <span>{incident.openedAt}</span>
+                      <span>{incident.domain}</span>
+                      <span
+                        className={`status-pill status-${toStatusClass(
+                          incident.severity
+                        )}`}
+                      >
+                        {incidentSeverityLabel(incident.severity)}
+                      </span>
+                      <span
+                        className={`status-pill status-${toStatusClass(
+                          incident.state === "resolved"
+                            ? "low"
+                            : incident.state === "in_progress"
+                              ? "medium"
+                              : "high"
+                        )}`}
+                      >
+                        {incidentStateLabel(incident.state)}
+                      </span>
+                      <span>{incident.correlationId}</span>
+                      <span>{incident.summary}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+            </article>
+          ) : null}
+
           {isModuleVisible("recommendations", activeDomain) ? (
             <article className="module-card">
             <SectionHeader
@@ -2877,6 +3266,15 @@ function toHumanStatus(status: string, language: AppLanguage): string {
 }
 
 function toStatusClass(status: string): string {
+  if (status === "overdue" || status === "open") {
+    return "critical";
+  }
+  if (status === "paid" || status === "resolved") {
+    return "positive";
+  }
+  if (status === "draft" || status === "in_progress") {
+    return "warning";
+  }
   if (status === "high") {
     return "critical";
   }

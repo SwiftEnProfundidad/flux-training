@@ -112,6 +112,50 @@ type AppTranslations = {
   auditDomainColumn: string;
   auditCorrelationColumn: string;
   auditSummaryColumn: string;
+  billingSupportTitle: string;
+  billingSupportStatusLabel: string;
+  billingSupportLoadData: string;
+  billingSupportResolveSelected: string;
+  billingSupportClearSelection: string;
+  billingSupportClearFilters: string;
+  billingSupportSearchPlaceholder: string;
+  billingInvoiceStatusFilterLabel: string;
+  billingIncidentStateFilterLabel: string;
+  billingIncidentSeverityFilterLabel: string;
+  billingDomainFilterPlaceholder: string;
+  billingInvoicesLoadedLabel: string;
+  billingIncidentsLoadedLabel: string;
+  billingIncidentsSelectedLabel: string;
+  billingInvoicesSectionTitle: string;
+  billingIncidentsSectionTitle: string;
+  billingNoInvoices: string;
+  billingNoIncidents: string;
+  billingInvoiceIdColumn: string;
+  billingAccountColumn: string;
+  billingPeriodColumn: string;
+  billingAmountColumn: string;
+  billingInvoiceStatusColumn: string;
+  billingSourceColumn: string;
+  billingIncidentIdColumn: string;
+  billingOpenedAtColumn: string;
+  billingIncidentDomainColumn: string;
+  billingIncidentSeverityColumn: string;
+  billingIncidentStateColumn: string;
+  billingIncidentSummaryColumn: string;
+  billingIncidentCorrelationColumn: string;
+  billingFilterAllInvoiceStatuses: string;
+  billingFilterAllIncidentStates: string;
+  billingFilterAllIncidentSeverities: string;
+  billingInvoiceStatusDraft: string;
+  billingInvoiceStatusOpen: string;
+  billingInvoiceStatusPaid: string;
+  billingInvoiceStatusOverdue: string;
+  billingIncidentStateOpen: string;
+  billingIncidentStateInProgress: string;
+  billingIncidentStateResolved: string;
+  billingIncidentSeverityHigh: string;
+  billingIncidentSeverityMedium: string;
+  billingIncidentSeverityLow: string;
   createPlan: string;
   loadPlans: string;
   logWorkout: string;
@@ -329,6 +373,50 @@ const translations: Record<AppLanguage, AppTranslations> = {
     auditDomainColumn: "Dominio",
     auditCorrelationColumn: "Correlacion",
     auditSummaryColumn: "Resumen",
+    billingSupportTitle: "Billing + soporte",
+    billingSupportStatusLabel: "Billing",
+    billingSupportLoadData: "Cargar billing/soporte",
+    billingSupportResolveSelected: "Resolver incidencias seleccionadas",
+    billingSupportClearSelection: "Limpiar seleccion incidencias",
+    billingSupportClearFilters: "Limpiar filtros billing",
+    billingSupportSearchPlaceholder: "buscar factura o incidencia",
+    billingInvoiceStatusFilterLabel: "estado factura",
+    billingIncidentStateFilterLabel: "estado incidencia",
+    billingIncidentSeverityFilterLabel: "severidad incidencia",
+    billingDomainFilterPlaceholder: "filtrar dominio incidencia",
+    billingInvoicesLoadedLabel: "Facturas cargadas",
+    billingIncidentsLoadedLabel: "Incidencias cargadas",
+    billingIncidentsSelectedLabel: "Incidencias seleccionadas",
+    billingInvoicesSectionTitle: "Resumen de facturacion",
+    billingIncidentsSectionTitle: "Incidencias de soporte",
+    billingNoInvoices: "No hay facturas para este filtro.",
+    billingNoIncidents: "No hay incidencias para este filtro.",
+    billingInvoiceIdColumn: "Factura",
+    billingAccountColumn: "Cuenta",
+    billingPeriodColumn: "Periodo",
+    billingAmountColumn: "Importe EUR",
+    billingInvoiceStatusColumn: "Estado factura",
+    billingSourceColumn: "Origen",
+    billingIncidentIdColumn: "Incidencia",
+    billingOpenedAtColumn: "Abierta",
+    billingIncidentDomainColumn: "Dominio",
+    billingIncidentSeverityColumn: "Severidad",
+    billingIncidentStateColumn: "Estado incidencia",
+    billingIncidentSummaryColumn: "Resumen",
+    billingIncidentCorrelationColumn: "Correlacion",
+    billingFilterAllInvoiceStatuses: "todos los estados",
+    billingFilterAllIncidentStates: "todos los estados incidencia",
+    billingFilterAllIncidentSeverities: "todas las severidades incidencia",
+    billingInvoiceStatusDraft: "borrador",
+    billingInvoiceStatusOpen: "abierta",
+    billingInvoiceStatusPaid: "pagada",
+    billingInvoiceStatusOverdue: "vencida",
+    billingIncidentStateOpen: "abierta",
+    billingIncidentStateInProgress: "en curso",
+    billingIncidentStateResolved: "resuelta",
+    billingIncidentSeverityHigh: "alta",
+    billingIncidentSeverityMedium: "media",
+    billingIncidentSeverityLow: "baja",
     createPlan: "Crear plan",
     loadPlans: "Cargar planes",
     logWorkout: "Registrar sesion demo",
@@ -544,6 +632,50 @@ const translations: Record<AppLanguage, AppTranslations> = {
     auditDomainColumn: "Domain",
     auditCorrelationColumn: "Correlation",
     auditSummaryColumn: "Summary",
+    billingSupportTitle: "Billing + support",
+    billingSupportStatusLabel: "Billing",
+    billingSupportLoadData: "Load billing/support",
+    billingSupportResolveSelected: "Resolve selected incidents",
+    billingSupportClearSelection: "Clear incident selection",
+    billingSupportClearFilters: "Clear billing filters",
+    billingSupportSearchPlaceholder: "search invoice or incident",
+    billingInvoiceStatusFilterLabel: "invoice status",
+    billingIncidentStateFilterLabel: "incident state",
+    billingIncidentSeverityFilterLabel: "incident severity",
+    billingDomainFilterPlaceholder: "filter incident domain",
+    billingInvoicesLoadedLabel: "Invoices loaded",
+    billingIncidentsLoadedLabel: "Incidents loaded",
+    billingIncidentsSelectedLabel: "Incidents selected",
+    billingInvoicesSectionTitle: "Billing overview",
+    billingIncidentsSectionTitle: "Support incidents",
+    billingNoInvoices: "No invoices match this filter.",
+    billingNoIncidents: "No incidents match this filter.",
+    billingInvoiceIdColumn: "Invoice",
+    billingAccountColumn: "Account",
+    billingPeriodColumn: "Period",
+    billingAmountColumn: "Amount EUR",
+    billingInvoiceStatusColumn: "Invoice status",
+    billingSourceColumn: "Source",
+    billingIncidentIdColumn: "Incident",
+    billingOpenedAtColumn: "Opened at",
+    billingIncidentDomainColumn: "Domain",
+    billingIncidentSeverityColumn: "Severity",
+    billingIncidentStateColumn: "Incident state",
+    billingIncidentSummaryColumn: "Summary",
+    billingIncidentCorrelationColumn: "Correlation",
+    billingFilterAllInvoiceStatuses: "all invoice statuses",
+    billingFilterAllIncidentStates: "all incident states",
+    billingFilterAllIncidentSeverities: "all incident severities",
+    billingInvoiceStatusDraft: "draft",
+    billingInvoiceStatusOpen: "open",
+    billingInvoiceStatusPaid: "paid",
+    billingInvoiceStatusOverdue: "overdue",
+    billingIncidentStateOpen: "open",
+    billingIncidentStateInProgress: "in progress",
+    billingIncidentStateResolved: "resolved",
+    billingIncidentSeverityHigh: "high",
+    billingIncidentSeverityMedium: "medium",
+    billingIncidentSeverityLow: "low",
     createPlan: "Create plan",
     loadPlans: "Load plans",
     logWorkout: "Log demo workout",
@@ -726,6 +858,14 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     high: "alta",
     medium: "media",
     low: "baja",
+    draft: "borrador",
+    open: "abierta",
+    paid: "pagada",
+    overdue: "vencida",
+    in_progress: "en curso",
+    resolved: "resuelta",
+    auto: "automatico",
+    manual: "manual",
     signed_in: "sesion iniciada",
     apple: "apple",
     email: "email"
@@ -756,6 +896,14 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     high: "high",
     medium: "medium",
     low: "low",
+    draft: "draft",
+    open: "open",
+    paid: "paid",
+    overdue: "overdue",
+    in_progress: "in progress",
+    resolved: "resolved",
+    auto: "automatic",
+    manual: "manual",
     signed_in: "signed in",
     apple: "apple",
     email: "email"

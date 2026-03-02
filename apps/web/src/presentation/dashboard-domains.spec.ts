@@ -16,6 +16,7 @@ describe("dashboard domain navigation", () => {
       "operationsHub",
       "adminGovernance",
       "auditCompliance",
+      "billingSupport",
       "recommendations",
       "nutrition",
       "progress",
@@ -38,6 +39,7 @@ describe("dashboard domain navigation", () => {
       "operationsHub",
       "adminGovernance",
       "auditCompliance",
+      "billingSupport",
       "recommendations",
       "settings",
       "legal",
@@ -47,6 +49,7 @@ describe("dashboard domain navigation", () => {
     expect(isModuleVisible("operationsHub", "operations")).toBe(true);
     expect(isModuleVisible("adminGovernance", "operations")).toBe(true);
     expect(isModuleVisible("auditCompliance", "operations")).toBe(true);
+    expect(isModuleVisible("billingSupport", "operations")).toBe(true);
     expect(isModuleVisible("recommendations", "operations")).toBe(true);
     expect(isModuleVisible("settings", "operations")).toBe(true);
     expect(isModuleVisible("legal", "operations")).toBe(true);

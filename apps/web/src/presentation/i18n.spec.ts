@@ -30,6 +30,12 @@ describe("i18n", () => {
     expect(translate("auditLoadTimeline")).toBe("Load audit timeline");
     expect(translate("auditClearFilters")).toBe("Clear audit filters");
     expect(translate("auditSummaryColumn")).toBe("Summary");
+    expect(translate("billingSupportTitle")).toBe("Billing + support");
+    expect(translate("billingSupportLoadData")).toBe("Load billing/support");
+    expect(translate("billingSupportClearSelection")).toBe("Clear incident selection");
+    expect(translate("billingInvoiceStatusFilterLabel")).toBe("invoice status");
+    expect(translate("billingIncidentsSectionTitle")).toBe("Support incidents");
+    expect(translate("billingIncidentStateResolved")).toBe("resolved");
     expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
     expect(translate("progressFiltersLabel")).toBe("Progress filters");
     expect(translate("effortMetric")).toBe("Effort");
@@ -69,6 +75,12 @@ describe("i18n", () => {
     expect(translate("auditLoadTimeline")).toBe("Cargar timeline audit");
     expect(translate("auditClearFilters")).toBe("Limpiar filtros audit");
     expect(translate("auditSummaryColumn")).toBe("Resumen");
+    expect(translate("billingSupportTitle")).toBe("Billing + soporte");
+    expect(translate("billingSupportLoadData")).toBe("Cargar billing/soporte");
+    expect(translate("billingSupportClearSelection")).toBe("Limpiar seleccion incidencias");
+    expect(translate("billingInvoiceStatusFilterLabel")).toBe("estado factura");
+    expect(translate("billingIncidentsSectionTitle")).toBe("Incidencias de soporte");
+    expect(translate("billingIncidentStateResolved")).toBe("resuelta");
     expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
     expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
     expect(translate("effortMetric")).toBe("Esfuerzo");
