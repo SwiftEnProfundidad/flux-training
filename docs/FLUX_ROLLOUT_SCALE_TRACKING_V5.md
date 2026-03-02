@@ -24,8 +24,8 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 ## Fase P1 - Adopcion y valor de negocio
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V5-P1-T1 | KPI framework de adopcion | V5-P1-T1.1 norte y guardrails; V5-P1-T1.2 eventos de negocio; V5-P1-T1.3 panel ejecutivo | 🚧 | V5-P0-T3 | KPI accionables y visibles |
-| V5-P1-T2 | Embudos y retencion | V5-P1-T2.1 funnel acceso->uso; V5-P1-T2.2 cohortes de retencion; V5-P1-T2.3 alertas de caida | ⏳ | V5-P1-T1 | Decisiones de producto basadas en datos |
+| V5-P1-T1 | KPI framework de adopcion | V5-P1-T1.1 norte y guardrails; V5-P1-T1.2 eventos de negocio; V5-P1-T1.3 panel ejecutivo | ✅ | V5-P0-T3 | KPI accionables y visibles |
+| V5-P1-T2 | Embudos y retencion | V5-P1-T2.1 funnel acceso->uso; V5-P1-T2.2 cohortes de retencion; V5-P1-T2.3 alertas de caida | 🚧 | V5-P1-T1 | Decisiones de producto basadas en datos |
 | V5-P1-T3 | Experimentacion controlada | V5-P1-T3.1 backlog de experimentos; V5-P1-T3.2 criterios estadisticos; V5-P1-T3.3 cierre de aprendizaje | ⏳ | V5-P1-T2 | Experimentos ejecutables y trazables |
 
 ## Fase P2 - Operacion y soporte a escala
@@ -68,3 +68,10 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - evidencia publicada: `docs/validation/V5_P0_T3_CHANGE_COMMUNICATION.json`.
 - Siguiente task activa:
   - `V5-P1-T1` (KPI framework de adopcion) en `🚧`.
+- Cierre V5-P1-T1:
+  - north-star KPI definido como `weekly_active_athletes_with_completed_plan` con guardrails de estabilidad (crash-free, error-rate, soporte P1).
+  - taxonomía de eventos de negocio definida para onboarding, adherencia de entrenamiento, nutrición y recurrencia semanal.
+  - panel ejecutivo definido con vistas de adopción (activation, engagement, retention, reliability) y thresholds de alerta.
+  - evidencia publicada: `docs/validation/V5_P1_T1_ADOPTION_KPI_FRAMEWORK.json`.
+- Siguiente task activa:
+  - `V5-P1-T2` (Embudos y retencion) en `🚧`.
