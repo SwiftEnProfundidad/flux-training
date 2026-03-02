@@ -97,6 +97,10 @@ import {
   type NutritionSortMode,
   type ProgressSortMode
 } from "./nutrition-progress-operations";
+import {
+  deriveModuleRuntimeStatus,
+  type ModuleRuntimeStatus
+} from "./module-runtime-status";
 import "./app.css";
 
 type SessionStatus = "idle" | "loading" | "saved" | "queued" | "validation_error" | "error";
@@ -115,16 +119,8 @@ type TrainingStatus =
   | "queued"
   | "validation_error"
   | "error";
-type NutritionStatus =
-  | "idle"
-  | "loading"
-  | "saved"
-  | "loaded"
-  | "empty"
-  | "queued"
-  | "validation_error"
-  | "error";
-type ProgressStatus = "idle" | "loading" | "loaded" | "empty" | "validation_error" | "error";
+type NutritionStatus = ModuleRuntimeStatus;
+type ProgressStatus = ModuleRuntimeStatus;
 type SyncStatus = "idle" | "loading" | "synced" | "error";
 type ObservabilityStatus =
   | "idle"
@@ -145,7 +141,7 @@ type LegalStatus =
 type SettingsStatus = "idle" | "loading" | "saved";
 type VideoStatus = "idle" | "loading" | "loaded" | "error";
 type RecommendationsStatus = "idle" | "loading" | "loaded" | "empty" | "error";
-type OperationsStatus = "idle" | "loading" | "saved" | "empty" | "validation_error" | "error";
+type OperationsStatus = ModuleRuntimeStatus;
 
 const demoUserId = "demo-user";
 const languageStorageKey = "flux_training_language";
@@ -326,35 +322,52 @@ export function App() {
     activeDomain,
     domainRuntimeStates
   );
-  const athleteOperationRows = useMemo(() => {
-    const rows = buildAthleteOperationsRows(plans, sessions, nutritionLogs, progressSummary);
-    return sortAthleteOperationsRows(
-      filterAthleteOperationsRows(rows, athleteSearch),
-      athleteSortMode
-    );
-  }, [plans, sessions, nutritionLogs, progressSummary, athleteSearch, athleteSortMode]);
+  const athleteOperationRowsBase = useMemo(
+    () => buildAthleteOperationsRows(plans, sessions, nutritionLogs, progressSummary),
+    [plans, sessions, nutritionLogs, progressSummary]
+  );
+  const athleteOperationRows = useMemo(
+    () =>
+      sortAthleteOperationsRows(
+        filterAthleteOperationsRows(athleteOperationRowsBase, athleteSearch),
+        athleteSortMode
+      ),
+    [athleteOperationRowsBase, athleteSearch, athleteSortMode]
+  );
+  const nutritionMinProteinFilterParsed = useMemo(
+    () => parseOptionalNumber(nutritionMinProteinFilter),
+    [nutritionMinProteinFilter]
+  );
+  const nutritionMaxCaloriesFilterParsed = useMemo(
+    () => parseOptionalNumber(nutritionMaxCaloriesFilter),
+    [nutritionMaxCaloriesFilter]
+  );
+  const progressMinSessionsFilterParsed = useMemo(
+    () => parseOptionalNumber(progressMinSessionsFilter),
+    [progressMinSessionsFilter]
+  );
+  const hasNutritionFilterValidationError =
+    !nutritionMinProteinFilterParsed.isValid || !nutritionMaxCaloriesFilterParsed.isValid;
+  const hasProgressFilterValidationError = !progressMinSessionsFilterParsed.isValid;
   const filteredNutritionLogs = useMemo(() => {
     const filtered = filterNutritionLogs(nutritionLogs, {
       queryDate: nutritionDateFilter,
-      minProteinGrams: parseOptionalNumber(nutritionMinProteinFilter),
-      maxCalories: parseOptionalNumber(nutritionMaxCaloriesFilter)
+      minProteinGrams: nutritionMinProteinFilterParsed.value,
+      maxCalories: nutritionMaxCaloriesFilterParsed.value
     });
     return sortNutritionLogs(filtered, nutritionSortMode);
   }, [
     nutritionLogs,
     nutritionDateFilter,
-    nutritionMinProteinFilter,
-    nutritionMaxCaloriesFilter,
+    nutritionMinProteinFilterParsed.value,
+    nutritionMaxCaloriesFilterParsed.value,
     nutritionSortMode
   ]);
   const filteredProgressHistory = useMemo(() => {
     const rows = buildProgressHistoryRows(progressSummary);
-    const filtered = filterProgressHistoryRows(
-      rows,
-      parseOptionalNumber(progressMinSessionsFilter)
-    );
+    const filtered = filterProgressHistoryRows(rows, progressMinSessionsFilterParsed.value);
     return sortProgressHistoryRows(filtered, progressSortMode);
-  }, [progressSummary, progressMinSessionsFilter, progressSortMode]);
+  }, [progressSummary, progressMinSessionsFilterParsed.value, progressSortMode]);
 
   async function refreshPendingQueue(): Promise<void> {
     const pending = await offlineSyncQueueUseCase.listPending(demoUserId);
@@ -373,13 +386,16 @@ export function App() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
-  function parseOptionalNumber(value: string): number | null {
+  function parseOptionalNumber(value: string): { value: number | null; isValid: boolean } {
     const trimmedValue = value.trim();
     if (trimmedValue.length === 0) {
-      return null;
+      return { value: null, isValid: true };
     }
     const numericValue = Number(trimmedValue);
-    return Number.isFinite(numericValue) ? numericValue : null;
+    if (Number.isFinite(numericValue)) {
+      return { value: numericValue, isValid: true };
+    }
+    return { value: null, isValid: false };
   }
 
   useEffect(() => {
@@ -422,12 +438,63 @@ export function App() {
         athleteOperationRows.some((row) => row.athleteId === athleteId)
       )
     );
-    if (athleteOperationRows.length === 0) {
-      setOperationsStatus("empty");
-      return;
-    }
-    setOperationsStatus((current) => (current === "empty" ? "idle" : current));
-  }, [athleteOperationRows]);
+    setOperationsStatus((current) =>
+      deriveModuleRuntimeStatus({
+        activeDomain,
+        moduleDomain: "operations",
+        activeDomainRuntimeState,
+        hasValidationError: false,
+        totalItems: athleteOperationRowsBase.length,
+        filteredItems: athleteOperationRows.length,
+        currentStatus: current
+      })
+    );
+  }, [
+    activeDomain,
+    activeDomainRuntimeState,
+    athleteOperationRowsBase.length,
+    athleteOperationRows
+  ]);
+
+  useEffect(() => {
+    setNutritionStatus((current) =>
+      deriveModuleRuntimeStatus({
+        activeDomain,
+        moduleDomain: "nutrition",
+        activeDomainRuntimeState,
+        hasValidationError: hasNutritionFilterValidationError,
+        totalItems: nutritionLogs.length,
+        filteredItems: filteredNutritionLogs.length,
+        currentStatus: current
+      })
+    );
+  }, [
+    activeDomain,
+    activeDomainRuntimeState,
+    filteredNutritionLogs.length,
+    hasNutritionFilterValidationError,
+    nutritionLogs.length
+  ]);
+
+  useEffect(() => {
+    setProgressStatus((current) =>
+      deriveModuleRuntimeStatus({
+        activeDomain,
+        moduleDomain: "progress",
+        activeDomainRuntimeState,
+        hasValidationError: hasProgressFilterValidationError,
+        totalItems: progressSummary?.history.length ?? 0,
+        filteredItems: filteredProgressHistory.length,
+        currentStatus: current
+      })
+    );
+  }, [
+    activeDomain,
+    activeDomainRuntimeState,
+    filteredProgressHistory.length,
+    hasProgressFilterValidationError,
+    progressSummary?.history.length
+  ]);
 
   useEffect(() => {
     let isCancelled = false;
