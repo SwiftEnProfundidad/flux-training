@@ -1,0 +1,43 @@
+{
+  "taskId": "V3-P1-T2",
+  "title": "iOS today training and video gate",
+  "status": "done",
+  "subtasks": {
+    "V3-P1-T2.1": {
+      "name": "Cockpit diario",
+      "result": "PASS",
+      "evidence": [
+        "apps/ios/Sources/Presentation/TrainingFlowView.swift",
+        "apps/ios/Sources/Presentation/TrainingFlowViewModel.swift"
+      ]
+    },
+    "V3-P1-T2.2": {
+      "name": "Sesion activa",
+      "result": "PASS",
+      "evidence": [
+        "apps/ios/Sources/Presentation/TrainingFlowViewModel.swift",
+        "apps/ios/Tests/FluxTrainingTests/TrainingFlowViewModelTests.swift"
+      ]
+    },
+    "V3-P1-T2.3": {
+      "name": "Video fallback/offline",
+      "result": "PASS",
+      "evidence": [
+        "apps/ios/Sources/Presentation/TrainingFlowView.swift",
+        "apps/ios/Sources/Presentation/TrainingFlowViewModel.swift",
+        "apps/ios/Tests/FluxTrainingTests/TrainingFlowViewModelTests.swift"
+      ]
+    }
+  },
+  "qualityChecks": [
+    {
+      "command": "cd apps/ios && swift test",
+      "result": "PASS",
+      "details": {
+        "totalTests": 73,
+        "failures": 0
+      }
+    }
+  ],
+  "nextTask": "V3-P1-T3"
+}

@@ -26,8 +26,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V3-P1-T1 | Auth + onboarding + consent (iOS) | V3-P1-T1.1 pantallas/estados; V3-P1-T1.2 validaciones y recovery; V3-P1-T1.3 i18n/a11y | ✅ | V3-P0-T3 | Flujos de acceso iOS completos y testeados |
-| V3-P1-T2 | Today + training + video (iOS) | V3-P1-T2.1 cockpit diario; V3-P1-T2.2 sesion activa; V3-P1-T2.3 video/fallback/offline | 🚧 | V3-P1-T1 | Dominio diario iOS operativo |
-| V3-P1-T3 | Nutrition + progress + AI + settings (iOS) | V3-P1-T3.1 nutricion/progreso; V3-P1-T3.2 recomendaciones IA; V3-P1-T3.3 settings/legal GDPR | ⏳ | V3-P1-T2 | iOS completo por dominios core y legales |
+| V3-P1-T2 | Today + training + video (iOS) | V3-P1-T2.1 cockpit diario; V3-P1-T2.2 sesion activa; V3-P1-T2.3 video/fallback/offline | ✅ | V3-P1-T1 | Dominio diario iOS operativo |
+| V3-P1-T3 | Nutrition + progress + AI + settings (iOS) | V3-P1-T3.1 nutricion/progreso; V3-P1-T3.2 recomendaciones IA; V3-P1-T3.3 settings/legal GDPR | 🚧 | V3-P1-T2 | iOS completo por dominios core y legales |
 
 ## Fase P2 - Implementacion Web por dominios
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -100,3 +100,15 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - verificación técnica: `cd apps/ios && swift test` en PASS (`68` tests, `0` fallos).
 - Inicio V3-P1-T2:
   - foco en dominio diario iOS (`today + training + video`) incluyendo estados de sesión activa, fallback de video y continuidad offline.
+- Cierre V3-P1-T2:
+  - cockpit diario implementado en `TrainingFlowView` con refresh explícito, métricas de planes/sesiones y estados de runtime.
+  - `TrainingFlowViewModel` reforzado con `refreshDashboard`, `sessionStatus`, `todaySessionsCount` y `screenContract`.
+  - paths de video robustecidos con fallback locale (`fallback_loaded`) y manejo offline (`offline`) para continuidad operativa.
+  - i18n ES/EN extendida para dominio daily/training/video y estados nuevos (`session_active`, `fallback_loaded`).
+  - evidencias publicadas:
+    - `docs/validation/V3_P1_T2_IOS_TODAY_TRAINING_VIDEO_COVERAGE.csv`
+    - `docs/validation/V3_P1_T2_IOS_TODAY_TRAINING_VIDEO_GATE.json`
+    - `docs/validation/features/v3_p1_t2_ios_today_training_video.feature`
+  - verificación técnica: `cd apps/ios && swift test` en PASS (`73` tests, `0` fallos).
+- Inicio V3-P1-T3:
+  - foco en dominio iOS `nutrition + progress + AI + settings` para cerrar el bloque P1 completo.
