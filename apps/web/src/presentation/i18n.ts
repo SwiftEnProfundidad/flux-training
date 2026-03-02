@@ -64,6 +64,27 @@ type AppTranslations = {
   riskColumn: string;
   riskNormal: string;
   riskAttention: string;
+  governanceTitle: string;
+  governanceStatusLabel: string;
+  governanceSearchPlaceholder: string;
+  governanceRoleFilterLabel: string;
+  governanceAllRoles: string;
+  governanceLoadCapabilities: string;
+  governanceAssignAthlete: string;
+  governanceAssignCoach: string;
+  governanceAssignAdmin: string;
+  governanceClearSelection: string;
+  governanceUsersLoadedLabel: string;
+  governanceUsersSelectedLabel: string;
+  governanceNoUsers: string;
+  governancePrincipalColumn: string;
+  governanceRoleColumn: string;
+  governanceSourceColumn: string;
+  governanceCountsColumn: string;
+  governanceCoverageTitle: string;
+  governanceAllowedDomainsLabel: string;
+  governanceSourceOperator: string;
+  governanceSourceActivity: string;
   createPlan: string;
   loadPlans: string;
   logWorkout: string;
@@ -233,6 +254,27 @@ const translations: Record<AppLanguage, AppTranslations> = {
     riskColumn: "Riesgo",
     riskNormal: "Normal",
     riskAttention: "Atencion",
+    governanceTitle: "Usuarios + roles + RBAC",
+    governanceStatusLabel: "Governance",
+    governanceSearchPlaceholder: "buscar usuario",
+    governanceRoleFilterLabel: "filtro de rol",
+    governanceAllRoles: "todos los roles",
+    governanceLoadCapabilities: "Cargar matriz RBAC",
+    governanceAssignAthlete: "Asignar atleta",
+    governanceAssignCoach: "Asignar coach",
+    governanceAssignAdmin: "Asignar admin",
+    governanceClearSelection: "Limpiar seleccion governance",
+    governanceUsersLoadedLabel: "Usuarios cargados",
+    governanceUsersSelectedLabel: "Usuarios seleccionados",
+    governanceNoUsers: "No hay usuarios para este filtro.",
+    governancePrincipalColumn: "Usuario",
+    governanceRoleColumn: "Rol asignado",
+    governanceSourceColumn: "Origen",
+    governanceCountsColumn: "Carga",
+    governanceCoverageTitle: "Cobertura RBAC por rol",
+    governanceAllowedDomainsLabel: "Dominios permitidos",
+    governanceSourceOperator: "operador",
+    governanceSourceActivity: "actividad",
     createPlan: "Crear plan",
     loadPlans: "Cargar planes",
     logWorkout: "Registrar sesion demo",
@@ -400,6 +442,27 @@ const translations: Record<AppLanguage, AppTranslations> = {
     riskColumn: "Risk",
     riskNormal: "Normal",
     riskAttention: "Attention",
+    governanceTitle: "Users + roles + RBAC",
+    governanceStatusLabel: "Governance",
+    governanceSearchPlaceholder: "search user",
+    governanceRoleFilterLabel: "role filter",
+    governanceAllRoles: "all roles",
+    governanceLoadCapabilities: "Load RBAC matrix",
+    governanceAssignAthlete: "Assign athlete",
+    governanceAssignCoach: "Assign coach",
+    governanceAssignAdmin: "Assign admin",
+    governanceClearSelection: "Clear governance selection",
+    governanceUsersLoadedLabel: "Users loaded",
+    governanceUsersSelectedLabel: "Users selected",
+    governanceNoUsers: "No users match this filter.",
+    governancePrincipalColumn: "User",
+    governanceRoleColumn: "Assigned role",
+    governanceSourceColumn: "Source",
+    governanceCountsColumn: "Load",
+    governanceCoverageTitle: "RBAC coverage by role",
+    governanceAllowedDomainsLabel: "Allowed domains",
+    governanceSourceOperator: "operator",
+    governanceSourceActivity: "activity",
     createPlan: "Create plan",
     loadPlans: "Load plans",
     logWorkout: "Log demo workout",

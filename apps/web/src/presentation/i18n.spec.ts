@@ -23,6 +23,9 @@ describe("i18n", () => {
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("athleteColumn")).toBe("Athlete");
+    expect(translate("governanceTitle")).toBe("Users + roles + RBAC");
+    expect(translate("governanceLoadCapabilities")).toBe("Load RBAC matrix");
+    expect(translate("governancePrincipalColumn")).toBe("User");
     expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
     expect(translate("progressFiltersLabel")).toBe("Progress filters");
     expect(translate("effortMetric")).toBe("Effort");
@@ -55,6 +58,9 @@ describe("i18n", () => {
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("athleteColumn")).toBe("Atleta");
+    expect(translate("governanceTitle")).toBe("Usuarios + roles + RBAC");
+    expect(translate("governanceLoadCapabilities")).toBe("Cargar matriz RBAC");
+    expect(translate("governancePrincipalColumn")).toBe("Usuario");
     expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
     expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
     expect(translate("effortMetric")).toBe("Esfuerzo");

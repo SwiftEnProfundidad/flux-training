@@ -45,6 +45,7 @@ import {
 } from "./i18n";
 import {
   applyDashboardDomainToURL,
+  dashboardRoles,
   getVisibleModules,
   isModuleVisible,
   readDashboardDomainFromURL,
@@ -88,6 +89,13 @@ import {
   sortAthleteOperationsRows,
   type AthleteSortMode
 } from "./core-operations";
+import {
+  buildGovernancePrincipals,
+  buildRoleCapabilityCoverage,
+  filterGovernancePrincipals,
+  isAdminRole,
+  type GovernanceRoleFilter
+} from "./admin-governance";
 import {
   buildProgressHistoryRows,
   filterNutritionLogs,
@@ -270,6 +278,18 @@ export function App() {
   const [athleteSearch, setAthleteSearch] = useState("");
   const [athleteSortMode, setAthleteSortMode] = useState<AthleteSortMode>("sessions");
   const [selectedAthleteIds, setSelectedAthleteIds] = useState<string[]>([]);
+  const [governanceStatus, setGovernanceStatus] = useState<ModuleRuntimeStatus>("idle");
+  const [governanceSearch, setGovernanceSearch] = useState("");
+  const [governanceRoleFilter, setGovernanceRoleFilter] =
+    useState<GovernanceRoleFilter>("all");
+  const [governanceSelectedPrincipalIds, setGovernanceSelectedPrincipalIds] = useState<string[]>([]);
+  const [governanceHasValidationError, setGovernanceHasValidationError] = useState(false);
+  const [assignedRolesByPrincipal, setAssignedRolesByPrincipal] = useState<
+    Record<string, DashboardRole>
+  >({});
+  const [capabilitiesByRole, setCapabilitiesByRole] = useState<
+    Partial<Record<DashboardRole, RoleCapabilities | null>>
+  >({});
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -333,6 +353,31 @@ export function App() {
         athleteSortMode
       ),
     [athleteOperationRowsBase, athleteSearch, athleteSortMode]
+  );
+  const governancePrincipalsBase = useMemo(
+    () =>
+      buildGovernancePrincipals({
+        operatorId: demoUserId,
+        activeRole,
+        plans,
+        sessions,
+        nutritionLogs,
+        assignedRolesByPrincipal
+      }),
+    [activeRole, assignedRolesByPrincipal, nutritionLogs, plans, sessions]
+  );
+  const governancePrincipals = useMemo(
+    () =>
+      filterGovernancePrincipals(
+        governancePrincipalsBase,
+        governanceSearch,
+        governanceRoleFilter
+      ),
+    [governancePrincipalsBase, governanceSearch, governanceRoleFilter]
+  );
+  const governanceRoleCoverage = useMemo(
+    () => buildRoleCapabilityCoverage(capabilitiesByRole),
+    [capabilitiesByRole]
   );
   const nutritionMinProteinFilterParsed = useMemo(
     () => parseOptionalNumber(nutritionMinProteinFilter),
@@ -454,6 +499,31 @@ export function App() {
     activeDomainRuntimeState,
     athleteOperationRowsBase.length,
     athleteOperationRows
+  ]);
+
+  useEffect(() => {
+    setGovernanceSelectedPrincipalIds((current) =>
+      current.filter((principalId) =>
+        governancePrincipals.some((principal) => principal.userId === principalId)
+      )
+    );
+    setGovernanceStatus((current) =>
+      deriveModuleRuntimeStatus({
+        activeDomain,
+        moduleDomain: "operations",
+        activeDomainRuntimeState,
+        hasValidationError: governanceHasValidationError,
+        totalItems: governancePrincipalsBase.length,
+        filteredItems: governancePrincipals.length,
+        currentStatus: current
+      })
+    );
+  }, [
+    activeDomain,
+    activeDomainRuntimeState,
+    governanceHasValidationError,
+    governancePrincipals,
+    governancePrincipalsBase.length
   ]);
 
   useEffect(() => {
@@ -1057,6 +1127,92 @@ export function App() {
   function handleClearProgressFilters() {
     setProgressMinSessionsFilter("");
     setProgressSortMode("date_desc");
+  }
+
+  function handleToggleGovernancePrincipalSelection(principalId: string) {
+    setGovernanceHasValidationError(false);
+    setGovernanceSelectedPrincipalIds((current) =>
+      current.includes(principalId)
+        ? current.filter((item) => item !== principalId)
+        : [...current, principalId]
+    );
+  }
+
+  function handleClearGovernanceSelection() {
+    setGovernanceHasValidationError(false);
+    setGovernanceSelectedPrincipalIds([]);
+    setGovernanceStatus(
+      governancePrincipals.length === 0 || governancePrincipalsBase.length === 0
+        ? "empty"
+        : "idle"
+    );
+  }
+
+  async function handleLoadGovernanceRoleCoverage() {
+    setGovernanceHasValidationError(false);
+    setGovernanceStatus("loading");
+    try {
+      const roleCapabilityPairs = await Promise.all(
+        dashboardRoles.map(async (role) => {
+          const capabilities = await manageRoleCapabilitiesUseCase.listRoleCapabilities(
+            role as AccessRole
+          );
+          return [role, capabilities] as const;
+        })
+      );
+      setCapabilitiesByRole(Object.fromEntries(roleCapabilityPairs));
+      setGovernanceStatus("loaded");
+    } catch {
+      setGovernanceStatus("error");
+    }
+  }
+
+  async function handleAssignGovernanceRole(targetRole: DashboardRole) {
+    if (!isAdminRole(activeRole)) {
+      const correlationId = nextCorrelationId(
+        runtimeObservabilitySessionRef.current,
+        "operations",
+        "runtime_state_change"
+      );
+      setGovernanceStatus("denied");
+      await trackBlockedAction("operations", "runtime_state_change", "domain_denied", correlationId);
+      return;
+    }
+    if (governanceSelectedPrincipalIds.length === 0) {
+      setGovernanceHasValidationError(true);
+      setGovernanceStatus("validation_error");
+      return;
+    }
+    setGovernanceHasValidationError(false);
+    setGovernanceStatus("loading");
+    setAssignedRolesByPrincipal((current) => {
+      const next = { ...current };
+      for (const principalId of governanceSelectedPrincipalIds) {
+        next[principalId] = targetRole;
+      }
+      return next;
+    });
+    try {
+      const runtimeAttributes = nextEventAttributes(
+        runtimeObservabilitySessionRef.current,
+        "operations"
+      );
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: demoUserId,
+        name: "governance_bulk_role_assignment_saved",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          operatorRole: activeRole,
+          targetRole,
+          selectedPrincipals: String(governanceSelectedPrincipalIds.length),
+          ...runtimeAttributes
+        }
+      });
+      setGovernanceStatus("saved");
+    } catch {
+      setGovernanceStatus("error");
+    }
   }
 
   async function trackDomainChange(domain: DashboardDomain) {
@@ -1872,6 +2028,140 @@ export function App() {
                   ))}
                 </div>
               )}
+            </div>
+            </article>
+          ) : null}
+
+          {isModuleVisible("adminGovernance", activeDomain) ? (
+            <article className="module-card">
+            <SectionHeader
+              title={translate("governanceTitle")}
+              status={governanceStatus}
+              statusLabel={translate("governanceStatusLabel")}
+              language={language}
+            />
+            <div className="form-grid">
+              {!isAdminRole(activeRole) ? (
+                <p className="empty-state">{translate("runtimeStateDeniedDescription")}</p>
+              ) : null}
+              <div className="inline-inputs">
+                <input
+                  aria-label={translate("governanceSearchPlaceholder")}
+                  placeholder={translate("governanceSearchPlaceholder")}
+                  value={governanceSearch}
+                  onChange={(event) => setGovernanceSearch(event.target.value)}
+                />
+                <label className="compact-label">
+                  {translate("governanceRoleFilterLabel")}
+                  <select
+                    aria-label={translate("governanceRoleFilterLabel")}
+                    value={governanceRoleFilter}
+                    onChange={(event) =>
+                      setGovernanceRoleFilter(event.target.value as GovernanceRoleFilter)
+                    }
+                  >
+                    <option value="all">{translate("governanceAllRoles")}</option>
+                    {roleOptions.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="inline-inputs">
+                <button className="button ghost" onClick={handleLoadGovernanceRoleCoverage} type="button">
+                  {translate("governanceLoadCapabilities")}
+                </button>
+                <button className="button primary" onClick={() => void handleAssignGovernanceRole("athlete")} type="button">
+                  {translate("governanceAssignAthlete")}
+                </button>
+                <button className="button primary" onClick={() => void handleAssignGovernanceRole("coach")} type="button">
+                  {translate("governanceAssignCoach")}
+                </button>
+                <button className="button primary" onClick={() => void handleAssignGovernanceRole("admin")} type="button">
+                  {translate("governanceAssignAdmin")}
+                </button>
+                <button className="button ghost" onClick={handleClearGovernanceSelection} type="button">
+                  {translate("governanceClearSelection")}
+                </button>
+              </div>
+              <StatLine
+                label={translate("governanceUsersLoadedLabel")}
+                value={String(governancePrincipals.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("governanceUsersSelectedLabel")}
+                value={String(governanceSelectedPrincipalIds.length)}
+                language={language}
+              />
+              {governancePrincipals.length === 0 ? (
+                <p className="empty-state">{translate("governanceNoUsers")}</p>
+              ) : (
+                <div className="operations-table">
+                  <header className="operations-table-row operations-table-header">
+                    <span>{translate("governancePrincipalColumn")}</span>
+                    <span>{translate("governanceRoleColumn")}</span>
+                    <span>{translate("governanceSourceColumn")}</span>
+                    <span>{translate("governanceCountsColumn")}</span>
+                    <span>{translate("governanceAllowedDomainsLabel")}</span>
+                    <span>{translate("riskColumn")}</span>
+                  </header>
+                  {governancePrincipals.map((principal) => (
+                    <label key={principal.userId} className="operations-table-row">
+                      <div className="operations-athlete-cell">
+                        <input
+                          type="checkbox"
+                          checked={governanceSelectedPrincipalIds.includes(principal.userId)}
+                          onChange={() => handleToggleGovernancePrincipalSelection(principal.userId)}
+                        />
+                        <strong>{principal.userId}</strong>
+                      </div>
+                      <span>{toHumanStatus(principal.assignedRole, language)}</span>
+                      <span>
+                        {principal.source === "operator"
+                          ? translate("governanceSourceOperator")
+                          : translate("governanceSourceActivity")}
+                      </span>
+                      <span>
+                        {principal.plansCount}/{principal.sessionsCount}/{principal.nutritionLogsCount}
+                      </span>
+                      <span>
+                        {
+                          (capabilitiesByRole[principal.assignedRole]?.allowedDomains.length ??
+                            0)
+                        }
+                      </span>
+                      <span
+                        className={`status-pill status-${toStatusClass(
+                          principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
+                            ? "medium"
+                            : "low"
+                        )}`}
+                      >
+                        {principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
+                          ? translate("riskAttention")
+                          : translate("riskNormal")}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+              <p className="section-subtitle">{translate("governanceCoverageTitle")}</p>
+              <div className="history-list">
+                {governanceRoleCoverage.map((coverage) => (
+                  <article key={coverage.role} className="history-item">
+                    <strong>{toHumanStatus(coverage.role, language)}</strong>
+                    <div className="history-values">
+                      <span>
+                        {translate("governanceAllowedDomainsLabel")} {coverage.allowedDomainsCount}
+                      </span>
+                      <span>{coverage.allowedDomains.length === 0 ? "-" : coverage.allowedDomains}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
             </article>
           ) : null}
