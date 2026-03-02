@@ -140,9 +140,13 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 - Avance V3-P2-T2 (en curso):
   - subtask `V3-P2-T2.1` iniciada con `operationsHub` en web: roster operativo de atletas derivado de planes/sesiones/nutrición, filtro por atleta, ordenación y selección múltiple con acción masiva.
   - módulo conectado al dominio `operations` con estado enterprise propio (`idle/loading/saved/empty/validation_error/error`) y microcopy ES/EN.
+  - subtask `V3-P2-T2.2` iniciada: operaciones de `nutrition/progress` con utilidades tipadas de filtrado/ordenación y cálculo de `effortScore`.
+  - UI web extendida con filtros operativos de nutrición (fecha/proteína/calorías + sort) y progreso (sesiones mínimas + sort), incluyendo contadores de resultados filtrados y empty states dedicados.
   - cobertura técnica añadida:
     - `apps/web/src/presentation/core-operations.spec.ts`
     - actualización de `apps/web/src/presentation/dashboard-domains.spec.ts`
+    - `apps/web/src/presentation/nutrition-progress-operations.spec.ts`
+    - actualización de `apps/web/src/presentation/i18n.spec.ts`
   - validación parcial en PASS:
     - `pnpm --filter @flux/web check`
     - `pnpm --filter @flux/web test`
