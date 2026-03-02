@@ -35,9 +35,27 @@ final class ProgressViewModelTests: XCTestCase {
 
     await viewModel.refresh(userID: "user-1")
 
-    XCTAssertEqual(viewModel.status, "loaded")
+    XCTAssertEqual(viewModel.status, NutritionProgressAIScreenStatus.loaded.rawValue)
     XCTAssertEqual(viewModel.summary?.workoutSessionsCount, 1)
     XCTAssertEqual(viewModel.summary?.nutritionLogsCount, 1)
+    XCTAssertEqual(viewModel.screenStatus, .loaded)
+  }
+
+  func test_refresh_setsEmptyStatusWhenNoDataIsAvailable() async {
+    let workoutRepository = InMemoryWorkoutSessionRepository()
+    let nutritionRepository = InMemoryNutritionLogRepository()
+    let useCase = BuildProgressSummaryUseCase(
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutRepository),
+      listNutritionLogsUseCase: ListNutritionLogsUseCase(repository: nutritionRepository)
+    )
+    let viewModel = ProgressViewModel(buildProgressSummaryUseCase: useCase)
+
+    await viewModel.refresh(userID: "user-empty")
+
+    XCTAssertEqual(viewModel.status, NutritionProgressAIScreenStatus.empty.rawValue)
+    XCTAssertEqual(viewModel.summary?.workoutSessionsCount, 0)
+    XCTAssertEqual(viewModel.summary?.nutritionLogsCount, 0)
+    XCTAssertEqual(viewModel.screenStatus, .empty)
   }
 
   func test_refresh_setsErrorStatusWhenUserIDIsEmpty() async {
@@ -51,8 +69,9 @@ final class ProgressViewModelTests: XCTestCase {
 
     await viewModel.refresh(userID: "")
 
-    XCTAssertEqual(viewModel.status, "error")
+    XCTAssertEqual(viewModel.status, NutritionProgressAIScreenStatus.validationError.rawValue)
     XCTAssertNil(viewModel.summary)
+    XCTAssertEqual(viewModel.screenStatus, .validationError)
   }
 
   private func makeDate(_ raw: String) -> Date {

@@ -4,51 +4,60 @@ import SwiftUI
 public struct ProgressSummaryView: View {
   @State private var viewModel: ProgressViewModel
   private let userID: String
+  private let copy: LocalizedCopy
 
-  public init(viewModel: ProgressViewModel, userID: String = "demo-user") {
+  public init(
+    viewModel: ProgressViewModel,
+    userID: String = "demo-user",
+    copy: LocalizedCopy = LocalizedCopy(language: .es)
+  ) {
     _viewModel = State(initialValue: viewModel)
     self.userID = userID
+    self.copy = copy
   }
 
   public var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text("Progress")
+      Text(copy.text(.progressTitle))
         .font(.title2)
+        .accessibilityIdentifier("progress.title")
 
-      Button("Load Progress") {
+      Button(copy.text(.loadProgress)) {
         Task { await viewModel.refresh(userID: userID) }
       }
+      .accessibilityIdentifier("progress.load")
 
-      Text("Status: \(viewModel.status)")
+      Text("\(copy.text(.statusLabel)): \(copy.humanStatus(viewModel.status))")
         .foregroundStyle(.secondary)
+        .accessibilityIdentifier("progress.status")
 
       if let summary = viewModel.summary {
         VStack(alignment: .leading, spacing: 8) {
-          Text("Workouts: \(summary.workoutSessionsCount)")
-          Text("Minutes: \(summary.totalTrainingMinutes, format: .number.precision(.fractionLength(0...2)))")
-          Text("Sets: \(summary.totalCompletedSets)")
-          Text("Nutrition logs: \(summary.nutritionLogsCount)")
-          Text("Avg calories: \(summary.averageCalories, format: .number.precision(.fractionLength(0...2)))")
-          Text("Avg protein: \(summary.averageProteinGrams, format: .number.precision(.fractionLength(0...2)))")
-          Text("Avg carbs: \(summary.averageCarbsGrams, format: .number.precision(.fractionLength(0...2)))")
-          Text("Avg fats: \(summary.averageFatsGrams, format: .number.precision(.fractionLength(0...2)))")
+          Text("\(copy.text(.progressWorkoutsLabel)): \(summary.workoutSessionsCount)")
+          Text("\(copy.text(.progressMinutesLabel)): \(summary.totalTrainingMinutes, format: .number.precision(.fractionLength(0...2)))")
+          Text("\(copy.text(.progressSetsLabel)): \(summary.totalCompletedSets)")
+          Text("\(copy.text(.progressNutritionLogsLabel)): \(summary.nutritionLogsCount)")
+          Text("\(copy.text(.progressAverageCaloriesLabel)): \(summary.averageCalories, format: .number.precision(.fractionLength(0...2)))")
+          Text("\(copy.text(.progressAverageProteinLabel)): \(summary.averageProteinGrams, format: .number.precision(.fractionLength(0...2)))")
+          Text("\(copy.text(.progressAverageCarbsLabel)): \(summary.averageCarbsGrams, format: .number.precision(.fractionLength(0...2)))")
+          Text("\(copy.text(.progressAverageFatsLabel)): \(summary.averageFatsGrams, format: .number.precision(.fractionLength(0...2)))")
         }
 
         ForEach(summary.history) { entry in
           VStack(alignment: .leading, spacing: 4) {
             Text(entry.date)
               .font(.headline)
-            Text("sessions: \(entry.workoutSessions)")
-            Text("minutes: \(entry.trainingMinutes, format: .number.precision(.fractionLength(0...2)))")
-            Text("sets: \(entry.completedSets)")
-            Text("calories: \(entry.calories ?? 0, format: .number.precision(.fractionLength(0...2)))")
+            Text("\(copy.text(.progressEntrySessionsLabel)): \(entry.workoutSessions)")
+            Text("\(copy.text(.progressEntryMinutesLabel)): \(entry.trainingMinutes, format: .number.precision(.fractionLength(0...2)))")
+            Text("\(copy.text(.progressEntrySetsLabel)): \(entry.completedSets)")
+            Text("\(copy.text(.progressEntryCaloriesLabel)): \(entry.calories ?? 0, format: .number.precision(.fractionLength(0...2)))")
           }
           .padding(10)
           .background(.thinMaterial)
           .clipShape(.rect(cornerRadius: 12))
         }
       } else {
-        Text("No progress loaded")
+        Text(copy.text(.noProgressLoaded))
           .foregroundStyle(.secondary)
       }
     }

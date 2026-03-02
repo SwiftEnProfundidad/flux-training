@@ -106,6 +106,30 @@ public struct ExperienceHubView: View {
     runtimeStateStore.state(for: sectionShell.activeDomain)
   }
 
+  private var nutritionProgressAIScreenContract: NutritionProgressAIScreenContract {
+    NutritionProgressAIScreenContract(
+      nutritionLogs: nutritionViewModel.logs,
+      progressSummary: progressViewModel.summary,
+      recommendations: recommendations,
+      nutritionStatus: nutritionViewModel.screenStatus,
+      progressStatus: progressViewModel.screenStatus,
+      recommendationsStatus: NutritionProgressAIScreenStatus.fromRuntimeStatus(recommendationsStatus)
+    )
+  }
+
+  private var settingsLegalScreenContract: SettingsLegalScreenContract {
+    SettingsLegalScreenContract(
+      notificationsEnabled: notificationsEnabled,
+      watchSyncEnabled: watchSyncEnabled,
+      calendarSyncEnabled: calendarSyncEnabled,
+      privacyPolicyAccepted: privacyPolicyAccepted,
+      termsAccepted: termsAccepted,
+      medicalDisclaimerAccepted: medicalDisclaimerAccepted,
+      settingsStatus: SettingsLegalScreenStatus.fromRuntimeStatus(settingsStatus),
+      legalStatus: SettingsLegalScreenStatus.fromRuntimeStatus(legalStatus)
+    )
+  }
+
   public var body: some View {
     TabView {
       todayTab
@@ -194,7 +218,7 @@ public struct ExperienceHubView: View {
           runtimeStateSection
           if activeDomainRuntimeState == .success {
             if moduleVisible(.progress) {
-              ProgressSummaryView(viewModel: progressViewModel, userID: userID)
+              ProgressSummaryView(viewModel: progressViewModel, userID: userID, copy: copy)
                 .cardSurface()
             } else {
               noModulesSection
@@ -522,12 +546,16 @@ public struct ExperienceHubView: View {
         }
         .buttonStyle(.bordered)
       }
-      Text("\(copy.text(.nutritionStatusLabel)): \(copy.humanStatus(nutritionViewModel.status))")
+      Text(
+        "\(copy.text(.nutritionStatusLabel)): \(copy.humanStatus(nutritionProgressAIScreenContract.nutritionStatus.rawValue))"
+      )
+      .foregroundStyle(.secondary)
+      .font(.footnote)
+      .accessibilityIdentifier("nutrition.status")
+      Text("\(copy.text(.nutritionLogsLoaded)): \(nutritionProgressAIScreenContract.nutritionLogs.count)")
         .foregroundStyle(.secondary)
         .font(.footnote)
-      Text("\(copy.text(.nutritionLogsLoaded)): \(nutritionViewModel.logs.count)")
-        .foregroundStyle(.secondary)
-        .font(.footnote)
+        .accessibilityIdentifier("nutrition.logsCount")
     }
     .cardSurface()
   }
@@ -552,9 +580,14 @@ public struct ExperienceHubView: View {
       }
       .buttonStyle(.borderedProminent)
       .tint(.orange)
-      Text("\(copy.text(.recommendationsStatusLabel)): \(copy.humanStatus(recommendationsStatus))")
+      .accessibilityIdentifier("recommendations.load")
+      .disabled(recommendationsStatus == NutritionProgressAIScreenStatus.loading.rawValue)
+      Text(
+        "\(copy.text(.recommendationsStatusLabel)): \(copy.humanStatus(nutritionProgressAIScreenContract.recommendationsStatus.rawValue))"
+      )
         .foregroundStyle(.secondary)
         .font(.footnote)
+        .accessibilityIdentifier("recommendations.status")
       if recommendations.isEmpty {
         Text(copy.text(.noRecommendations))
           .foregroundStyle(.secondary)
@@ -565,7 +598,7 @@ public struct ExperienceHubView: View {
               Text(recommendation.title)
                 .font(.subheadline.bold())
               Spacer()
-              Text(recommendation.priority.rawValue)
+              Text(copy.humanStatus(recommendation.priority.rawValue).uppercased())
                 .font(.caption)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -589,19 +622,29 @@ public struct ExperienceHubView: View {
   }
 
   private func loadRecommendations() async {
+    let resolvedUserID = userID.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard resolvedUserID.isEmpty == false else {
+      recommendations = []
+      recommendationsStatus = NutritionProgressAIScreenStatus.validationError.rawValue
+      return
+    }
+
+    recommendationsStatus = NutritionProgressAIScreenStatus.loading.rawValue
     let estimatedDaysSinceWorkout = trainingViewModel.sessions.isEmpty ? 3 : 0
     let estimatedCompletionRate: Double = trainingViewModel.plans.isEmpty
       ? 0.4
       : min(1, Double(trainingViewModel.sessions.count) / Double(max(1, trainingViewModel.plans.count * 2)))
     recommendations = await generateAIRecommendationsUseCase.execute(
-      userID: userID,
+      userID: resolvedUserID,
       goal: onboardingViewModel.selectedGoal,
       pendingQueueCount: offlineSyncViewModel.pendingCount,
       daysSinceLastWorkout: estimatedDaysSinceWorkout,
       recentCompletionRate: estimatedCompletionRate,
       locale: copy.recommendationLocale
     )
-    recommendationsStatus = recommendations.isEmpty ? "idle" : "loaded"
+    recommendationsStatus = recommendations.isEmpty
+      ? NutritionProgressAIScreenStatus.empty.rawValue
+      : NutritionProgressAIScreenStatus.loaded.rawValue
   }
 
   private var backgroundGradient: some View {
@@ -634,16 +677,23 @@ public struct ExperienceHubView: View {
       Text(copy.text(.settingsTitle))
         .font(.title3.bold())
       Toggle(copy.text(.notificationsPreference), isOn: $notificationsEnabled)
+        .accessibilityIdentifier("settings.notifications")
       Toggle(copy.text(.watchPreference), isOn: $watchSyncEnabled)
+        .accessibilityIdentifier("settings.watchSync")
       Toggle(copy.text(.calendarPreference), isOn: $calendarSyncEnabled)
+        .accessibilityIdentifier("settings.calendarSync")
       Button(copy.text(.saveSettings)) {
-        settingsStatus = "saved"
+        saveSettings()
       }
       .buttonStyle(.borderedProminent)
       .tint(.orange)
-      Text("\(copy.text(.settingsStatusLabel)): \(copy.humanStatus(settingsStatus))")
+      .accessibilityIdentifier("settings.save")
+      Text(
+        "\(copy.text(.settingsStatusLabel)): \(copy.humanStatus(settingsLegalScreenContract.settingsStatus.rawValue))"
+      )
         .foregroundStyle(.secondary)
         .font(.footnote)
+        .accessibilityIdentifier("settings.status")
     }
     .cardSurface()
   }
@@ -659,35 +709,65 @@ public struct ExperienceHubView: View {
       Toggle(copy.text(.acceptMedicalDisclaimer), isOn: $medicalDisclaimerAccepted)
         .accessibilityIdentifier("legal.acceptMedicalDisclaimer")
       Text(
-        "\(copy.text(.legalSummaryLabel)): \(copy.humanStatus(privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"))"
+        "\(copy.text(.legalSummaryLabel)): \(copy.humanStatus(privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? SettingsLegalScreenStatus.saved.rawValue : SettingsLegalScreenStatus.idle.rawValue))"
       )
       .foregroundStyle(.secondary)
       .font(.footnote)
       .accessibilityIdentifier("legal.summary")
       HStack {
         Button(copy.text(.saveConsent)) {
-          legalStatus = "saved"
+          saveConsent()
         }
         .buttonStyle(.borderedProminent)
         .tint(.orange)
         .accessibilityIdentifier("legal.saveConsent")
         Button(copy.text(.exportData)) {
-          legalStatus = "exported"
+          exportLegalData()
         }
         .buttonStyle(.bordered)
         .accessibilityIdentifier("legal.exportData")
         Button(copy.text(.requestDeletion)) {
-          legalStatus = "deletion_requested"
+          requestDeletion()
         }
         .buttonStyle(.bordered)
         .accessibilityIdentifier("legal.requestDeletion")
       }
-      Text("\(copy.text(.legalStatusLabel)): \(copy.humanStatus(legalStatus))")
+      Text("\(copy.text(.legalStatusLabel)): \(copy.humanStatus(settingsLegalScreenContract.legalStatus.rawValue))")
         .foregroundStyle(.secondary)
         .font(.footnote)
         .accessibilityIdentifier("legal.status")
     }
     .cardSurface()
+  }
+
+  private func saveSettings() {
+    settingsStatus = SettingsLegalScreenStatus.loading.rawValue
+    settingsStatus = SettingsLegalScreenStatus.saved.rawValue
+  }
+
+  private func saveConsent() {
+    legalStatus = SettingsLegalScreenStatus.loading.rawValue
+    legalStatus = allLegalConsentsAccepted
+      ? SettingsLegalScreenStatus.saved.rawValue
+      : SettingsLegalScreenStatus.consentRequired.rawValue
+  }
+
+  private func exportLegalData() {
+    legalStatus = SettingsLegalScreenStatus.loading.rawValue
+    legalStatus = (privacyPolicyAccepted && termsAccepted)
+      ? SettingsLegalScreenStatus.exported.rawValue
+      : SettingsLegalScreenStatus.consentRequired.rawValue
+  }
+
+  private func requestDeletion() {
+    legalStatus = SettingsLegalScreenStatus.loading.rawValue
+    legalStatus = allLegalConsentsAccepted
+      ? SettingsLegalScreenStatus.deletionRequested.rawValue
+      : SettingsLegalScreenStatus.consentRequired.rawValue
+  }
+
+  private var allLegalConsentsAccepted: Bool {
+    privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted
   }
 
   private func moduleVisible(_ module: ExperienceModule) -> Bool {

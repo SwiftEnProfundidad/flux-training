@@ -12,4 +12,16 @@ final class NutritionProgressAIScreenContractTests: XCTestCase {
     XCTAssertEqual(contract.progressStatus, .idle)
     XCTAssertEqual(contract.recommendationsStatus, .idle)
   }
+
+  func test_fromRuntimeStatus_mapsEnterpriseStatuses() {
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("loading"), .loading)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("empty"), .empty)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("saved"), .saved)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("loaded"), .loaded)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("fallback_loaded"), .loaded)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("validation_error"), .validationError)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("offline"), .offline)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("denied"), .denied)
+    XCTAssertEqual(NutritionProgressAIScreenStatus.fromRuntimeStatus("unknown"), .idle)
+  }
 }

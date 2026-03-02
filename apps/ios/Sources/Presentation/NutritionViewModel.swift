@@ -15,6 +15,10 @@ public final class NutritionViewModel {
   private let createNutritionLogUseCase: CreateNutritionLogUseCase
   private let listNutritionLogsUseCase: ListNutritionLogsUseCase
 
+  public var screenStatus: NutritionProgressAIScreenStatus {
+    NutritionProgressAIScreenStatus.fromRuntimeStatus(status)
+  }
+
   public init(
     createNutritionLogUseCase: CreateNutritionLogUseCase,
     listNutritionLogsUseCase: ListNutritionLogsUseCase
@@ -24,10 +28,17 @@ public final class NutritionViewModel {
   }
 
   public func saveLog(userID: String) async {
+    let resolvedUserID = userID.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard resolvedUserID.isEmpty == false else {
+      status = NutritionProgressAIScreenStatus.validationError.rawValue
+      return
+    }
+
+    status = NutritionProgressAIScreenStatus.loading.rawValue
     do {
       let _ = try await createNutritionLogUseCase.execute(
         log: NutritionLog(
-          userID: userID,
+          userID: resolvedUserID,
           date: date,
           calories: calories,
           proteinGrams: proteinGrams,
@@ -35,19 +46,38 @@ public final class NutritionViewModel {
           fatsGrams: fatsGrams
         )
       )
-      status = "saved"
+      status = NutritionProgressAIScreenStatus.saved.rawValue
     } catch {
-      status = "error"
+      status = resolveStatus(for: error)
     }
   }
 
   public func refreshLogs(userID: String) async {
+    let resolvedUserID = userID.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard resolvedUserID.isEmpty == false else {
+      logs = []
+      status = NutritionProgressAIScreenStatus.validationError.rawValue
+      return
+    }
+
+    status = NutritionProgressAIScreenStatus.loading.rawValue
     do {
-      logs = try await listNutritionLogsUseCase.execute(userID: userID)
-      status = "loaded"
+      logs = try await listNutritionLogsUseCase.execute(userID: resolvedUserID)
+      status = logs.isEmpty
+        ? NutritionProgressAIScreenStatus.empty.rawValue
+        : NutritionProgressAIScreenStatus.loaded.rawValue
     } catch {
-      status = "error"
+      status = resolveStatus(for: error)
     }
   }
-}
 
+  private func resolveStatus(for error: Error) -> String {
+    if error is CreateNutritionLogError {
+      return NutritionProgressAIScreenStatus.validationError.rawValue
+    }
+    if let urlError = error as? URLError, urlError.code == .notConnectedToInternet {
+      return NutritionProgressAIScreenStatus.offline.rawValue
+    }
+    return NutritionProgressAIScreenStatus.error.rawValue
+  }
+}

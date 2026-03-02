@@ -10,6 +10,7 @@ public enum CopyKey: Sendable {
   case heroTitle
   case todayTab
   case progressTab
+  case progressTitle
   case operationsTab
   case progressNavigationTitle
   case operationsNavigationTitle
@@ -48,6 +49,7 @@ public enum CopyKey: Sendable {
   case trackEvent
   case reportCrash
   case loadData
+  case loadProgress
   case analyticsEventsLabel
   case crashReportsLabel
   case readinessLabel
@@ -81,6 +83,19 @@ public enum CopyKey: Sendable {
   case loadLogs
   case nutritionStatusLabel
   case nutritionLogsLoaded
+  case noProgressLoaded
+  case progressWorkoutsLabel
+  case progressMinutesLabel
+  case progressSetsLabel
+  case progressNutritionLogsLabel
+  case progressAverageCaloriesLabel
+  case progressAverageProteinLabel
+  case progressAverageCarbsLabel
+  case progressAverageFatsLabel
+  case progressEntrySessionsLabel
+  case progressEntryMinutesLabel
+  case progressEntrySetsLabel
+  case progressEntryCaloriesLabel
   case recommendationsTitle
   case loadRecommendations
   case recommendationsStatusLabel
@@ -264,6 +279,8 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Hoy"
   case .progressTab:
     return "Progreso"
+  case .progressTitle:
+    return "Resumen de progreso"
   case .operationsTab:
     return "Ops"
   case .progressNavigationTitle:
@@ -340,6 +357,8 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Reportar crash"
   case .loadData:
     return "Cargar datos"
+  case .loadProgress:
+    return "Cargar progreso"
   case .analyticsEventsLabel:
     return "Eventos de analitica"
   case .crashReportsLabel:
@@ -406,6 +425,32 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Nutricion"
   case .nutritionLogsLoaded:
     return "Registros cargados"
+  case .noProgressLoaded:
+    return "Todavia no hay progreso cargado"
+  case .progressWorkoutsLabel:
+    return "Entrenamientos"
+  case .progressMinutesLabel:
+    return "Minutos"
+  case .progressSetsLabel:
+    return "Series"
+  case .progressNutritionLogsLabel:
+    return "Registros de nutricion"
+  case .progressAverageCaloriesLabel:
+    return "Calorias promedio"
+  case .progressAverageProteinLabel:
+    return "Proteina promedio"
+  case .progressAverageCarbsLabel:
+    return "Carbohidratos promedio"
+  case .progressAverageFatsLabel:
+    return "Grasas promedio"
+  case .progressEntrySessionsLabel:
+    return "sesiones"
+  case .progressEntryMinutesLabel:
+    return "minutos"
+  case .progressEntrySetsLabel:
+    return "series"
+  case .progressEntryCaloriesLabel:
+    return "calorias"
   case .recommendationsTitle:
     return "Recomendaciones IA"
   case .loadRecommendations:
@@ -497,6 +542,8 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Today"
   case .progressTab:
     return "Progress"
+  case .progressTitle:
+    return "Progress summary"
   case .operationsTab:
     return "Ops"
   case .progressNavigationTitle:
@@ -573,6 +620,8 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Report crash"
   case .loadData:
     return "Load data"
+  case .loadProgress:
+    return "Load progress"
   case .analyticsEventsLabel:
     return "Analytics events"
   case .crashReportsLabel:
@@ -639,6 +688,32 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Nutrition"
   case .nutritionLogsLoaded:
     return "Logs loaded"
+  case .noProgressLoaded:
+    return "No progress loaded yet"
+  case .progressWorkoutsLabel:
+    return "Workouts"
+  case .progressMinutesLabel:
+    return "Minutes"
+  case .progressSetsLabel:
+    return "Sets"
+  case .progressNutritionLogsLabel:
+    return "Nutrition logs"
+  case .progressAverageCaloriesLabel:
+    return "Avg calories"
+  case .progressAverageProteinLabel:
+    return "Avg protein"
+  case .progressAverageCarbsLabel:
+    return "Avg carbs"
+  case .progressAverageFatsLabel:
+    return "Avg fats"
+  case .progressEntrySessionsLabel:
+    return "sessions"
+  case .progressEntryMinutesLabel:
+    return "minutes"
+  case .progressEntrySetsLabel:
+    return "sets"
+  case .progressEntryCaloriesLabel:
+    return "calories"
   case .recommendationsTitle:
     return "AI recommendations"
   case .loadRecommendations:
