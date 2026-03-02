@@ -53,8 +53,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 ## Fase P5 - Cierre V3 y traspaso a V4
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P5-T1 | Checklist de cierre de implementacion | V3-P5-T1.1 cobertura por modulo; V3-P5-T1.2 deuda explicita; V3-P5-T1.3 riesgos abiertos | 🚧 | V3-P4-T3 | Cierre V3 completo y auditable |
-| V3-P5-T2 | Congelar baseline release candidate | V3-P5-T2.1 snapshot tecnico; V3-P5-T2.2 snapshot funcional; V3-P5-T2.3 docs actualizadas | ⏳ | V3-P5-T1 | RC estable para hardening |
+| V3-P5-T1 | Checklist de cierre de implementacion | V3-P5-T1.1 cobertura por modulo; V3-P5-T1.2 deuda explicita; V3-P5-T1.3 riesgos abiertos | ✅ | V3-P4-T3 | Cierre V3 completo y auditable |
+| V3-P5-T2 | Congelar baseline release candidate | V3-P5-T2.1 snapshot tecnico; V3-P5-T2.2 snapshot funcional; V3-P5-T2.3 docs actualizadas | 🚧 | V3-P5-T1 | RC estable para hardening |
 | V3-P5-T3 | Abrir ciclo V4 formalmente | V3-P5-T3.1 handoff de riesgos; V3-P5-T3.2 task activa V4; V3-P5-T3.3 cierre ejecutivo V3 | ⏳ | V3-P5-T2 | Transicion controlada a production readiness |
 
 ## Bitacora V3 (2026-03-02)
@@ -376,3 +376,14 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - `docs/validation/features/v3_p4_t3_quality_gate.feature`
   - resultado: fase P4 cerrada en `✅`.
   - siguiente task activa: `V3-P5-T1` (checklist de cierre de implementación).
+- Inicio V3-P5-T1:
+  - foco en cierre auditable de implementación V3: cobertura por módulo, deuda explícita y riesgos abiertos.
+- Cierre V3-P5-T1:
+  - cobertura por módulo consolidada:
+    - `docs/validation/V3_P5_T1_MODULE_COVERAGE.csv`
+  - deuda técnica explícita y riesgos abiertos consolidados:
+    - `docs/validation/V3_P5_T1_DEBT_RISK_REGISTER.json`
+  - evidencia BDD de checklist de cierre:
+    - `docs/validation/features/v3_p5_t1_closure_checklist.feature`
+  - resultado: `V3-P5-T1` cerrado en `✅`.
+  - siguiente task activa: `V3-P5-T2` (congelar baseline release candidate).

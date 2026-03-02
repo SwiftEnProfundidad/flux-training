@@ -106,6 +106,8 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V3_P4_T2_2_EDGE_CASES_E2E.json`: ejecución de edge cases cross-platform (backend/web/iOS) para endurecer paths negativos de `V3-P4-T2`.
 - `V3_P4_T2_3_RECOVERY_PATHS_E2E.json`: ejecución de recovery paths cross-platform (backend/web/iOS) para cierre completo de `V3-P4-T2`.
 - `V3_P4_T3_QUALITY_GATE.json`: consolidado final del gate de calidad V3 (`pnpm -r test` + `swift test`) para cierre de fase P4.
+- `V3_P5_T1_MODULE_COVERAGE.csv`: cobertura por módulo de implementación V3 con evidencia de pruebas y deuda residual.
+- `V3_P5_T1_DEBT_RISK_REGISTER.json`: registro explícito de deuda técnica y riesgos abiertos para cierre V3.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -172,6 +174,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v3_p4_t2_2_edge_cases_e2e.feature`
 - `features/v3_p4_t2_3_recovery_paths_e2e.feature`
 - `features/v3_p4_t3_quality_gate.feature`
+- `features/v3_p5_t1_closure_checklist.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
