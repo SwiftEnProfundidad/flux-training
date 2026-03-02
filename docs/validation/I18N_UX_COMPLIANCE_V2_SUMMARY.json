@@ -1,0 +1,12 @@
+{
+  "totalScreens": 121,
+  "screensPass": 121,
+  "screensReview": 0,
+  "screensBrandOnly": 10,
+  "allowedTerms": [
+    "Apple",
+    "Google",
+    "Email"
+  ],
+  "gate": "PASS"
+}

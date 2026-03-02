@@ -1,0 +1,6 @@
+group,required,present,missing
+training_dark,IOS-100_TODAY|IOS-110_PLAN_ACTIVE|IOS-120_SESSION_SETUP|IOS-130_WORKOUT_ACTIVE|IOS-140_EXERCISE_VIDEO|IOS-150_SESSION_SUMMARY,IOS-100_TODAY|IOS-110_PLAN_ACTIVE|IOS-120_SESSION_SETUP|IOS-130_WORKOUT_ACTIVE|IOS-140_EXERCISE_VIDEO|IOS-150_SESSION_SUMMARY,
+training_light,IOS-L-100_TODAY|IOS-L-110_PLAN_ACTIVE|IOS-L-120_SESSION_SETUP|IOS-L-130_WORKOUT_ACTIVE|IOS-L-140_EXERCISE_VIDEO|IOS-L-150_SESSION_SUMMARY,IOS-L-100_TODAY|IOS-L-110_PLAN_ACTIVE|IOS-L-120_SESSION_SETUP|IOS-L-130_WORKOUT_ACTIVE|IOS-L-140_EXERCISE_VIDEO|IOS-L-150_SESSION_SUMMARY,
+video_dark,IOS-005a_InWorkout_Setup|IOS-005b_RPE_Rating|IOS-006_Substitution|IOS-007a_ExerciseLibrary|IOS-007b_VideoPlayer,IOS-005a_InWorkout_Setup|IOS-005b_RPE_Rating|IOS-006_Substitution|IOS-007a_ExerciseLibrary|IOS-007b_VideoPlayer,
+video_light,IOS-L-005a_InWorkout_Setup|IOS-L-005b_RPE_Rating|IOS-L-006_Substitution|IOS-L-007a_ExerciseLibrary|IOS-L-007b_VideoPlayer,IOS-L-005a_InWorkout_Setup|IOS-L-005b_RPE_Rating|IOS-L-006_Substitution|IOS-L-007a_ExerciseLibrary|IOS-L-007b_VideoPlayer,
+training_states,state_loading|state_empty|state_error|state_offline|state_success,state_loading|state_empty|state_error|state_offline|state_success,

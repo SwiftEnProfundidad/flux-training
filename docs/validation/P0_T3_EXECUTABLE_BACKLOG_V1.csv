@@ -1,0 +1,25 @@
+backlog_item_id,hallazgo_id,hallazgo_resumen,severidad,impacto,probabilidad,platform_scope,target_phase_task,depends_on,execution_wave,acceptance_gate,status
+BL-001,H-BOARD-001,Board contaminado con bloques no-producto y ruido documental,alta,alto,alta,ambas,P1-T1,P0-T2,W1,Board solo contiene secciones/pantallas de producto,pending
+BL-002,H-IA-001,Arquitectura de informacion mezclada entre dominios core y admin,alta,alto,media,ambas,P1-T2,P1-T1,W1,Jerarquia por dominio sin ambiguedad,pending
+BL-003,H-FLOW-001,Flujo E2E incompleto y sin loops de recuperacion cerrados,critica,muy_alto,alta,ambas,P1-T3,P1-T2,W1,Flujos por plataforma cerrados sin huerfanas,pending
+BL-004,H-IOS-ACCESS-001,Acceso iOS incompleto en error/recovery/session-expired,alta,alto,alta,ios,P2-T1,P1-T3,W2,Auth+onboarding+consent iOS completo,pending
+BL-005,H-IOS-TRAIN-001,Falta de continuidad diaria en today->plan->sesion->video,alta,alto,media,ios,P2-T2,P2-T1,W2,Flujo diario iOS operativo sin gaps,pending
+BL-006,H-IOS-CORE-001,Dominios nutricion/progreso/IA/settings sin consolidacion final,media,alto,media,ios,P2-T3,P2-T2,W2,iOS core y ajustes conectados,pending
+BL-007,H-WEB-SHELL-001,Entrada web y shell por rol no estandarizada,alta,alto,alta,web,P3-T1,P1-T3,W3,Shell dashboard por rol listo,pending
+BL-008,H-WEB-OPS-001,Operaciones core web dispersas y no normalizadas,alta,alto,media,web,P3-T2,P3-T1,W3,Operaciones core cerradas,pending
+BL-009,H-WEB-ADMIN-001,Gobernanza web (RBAC/settings) incompleta,critica,muy_alto,media,web,P3-T3,P3-T2,W3,Flujos admin trazables y consistentes,pending
+BL-010,H-TABLE-001,Ausencia de patrones enterprise para tablas densas,critica,muy_alto,alta,web,P4-T1,P3-T2,W4,Tabla enterprise reusable validada,pending
+BL-011,H-CRUD-001,CRUD y acciones masivas sin patron unico de validacion,critica,muy_alto,alta,web,P4-T2,P4-T1,W4,CRUD+bulk con confirmaciones y rollback UX,pending
+BL-012,H-AUDIT-001,Falta de workflow de aprobacion con audit trail completo,critica,muy_alto,media,ambas,P4-T3,P4-T2,W4,Timeline actor/motivo/export listo,pending
+BL-013,H-STATE-001,Cobertura incompleta de estados criticos por seccion,critica,muy_alto,alta,ambas,P5-T1,P4-T3,W5,7 estados por seccion cubiertos,pending
+BL-014,H-ERR-001,Recovery UX no consistente para errores tecnicos y validaciones,alta,alto,alta,ambas,P5-T2,P5-T1,W5,Errores accionables y trazables,pending
+BL-015,H-SESSION-001,Continuidad de sesion y conflictos de sync sin cierre,alta,alto,media,ambas,P5-T3,P5-T2,W5,Timeout/retry/conflict cubiertos,pending
+BL-016,H-PARITY-001,Paridad funcional iOS/Web no verificada por dominio,critica,muy_alto,media,ambas,P6-T1,P5-T3,W6,Matriz de paridad cerrada,pending
+BL-017,H-A11Y-001,Accesibilidad AA incompleta en pantallas reales,alta,alto,alta,ambas,P6-T2,P6-T1,W6,Checklist AA verificable en iOS/web,pending
+BL-018,H-I18N-001,Localizacion ES/EN incompleta con riesgo de truncado,alta,alto,alta,ambas,P6-T3,P6-T2,W6,Copy bilingue robusta sin roturas,pending
+BL-019,H-DS-001,Componentes sin estandar reusable a escala,alta,alto,media,ambas,P7-T1,P6-T3,W7,Libreria de componentes reutilizable,pending
+BL-020,H-TOKENS-001,Tokens visuales no consolidados para dark/light/plataformas,media,media,media,ambas,P7-T2,P7-T1,W7,Reglas visuales transversales cerradas,pending
+BL-021,H-HANDOFF-001,Handoff tecnico por seccion incompleto para implementacion,alta,alto,media,ambas,P7-T3,P7-T2,W7,Specs de implementacion sin ambiguedad,pending
+BL-022,H-QA-001,QA final con riesgo de clipping/huerfanas sin barrido total,alta,alto,media,ambas,P8-T1,P7-T3,W8,QA visual+flujo completo sin roturas,pending
+BL-023,H-COMPLETE-001,Completitud enterprise no demostrada con evidencia consolidada,critica,muy_alto,media,ambas,P8-T2,P8-T1,W8,Cobertura 100% verificable,pending
+BL-024,H-GONO-001,No existe dictamen final de madurez enterprise,alta,alto,media,ambas,P8-T3,P8-T2,W8,Go/No-Go enterprise emitido,pending

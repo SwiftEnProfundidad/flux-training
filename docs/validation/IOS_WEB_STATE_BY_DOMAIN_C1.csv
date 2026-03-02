@@ -1,0 +1,8 @@
+domain,state_default,state_loading,state_empty,state_error,state_offline,state_denied,state_success,gap,status
+all,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"sin gap crítico",PASS
+onboarding,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"iOS incluye pre-auth/readiness como subestado del dominio",PASS
+training,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"videos embebidos en bloque training en ambos clientes",PASS
+nutrition,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"sin gap crítico",PASS
+progress,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"sin gap crítico",PASS
+operations,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"offlineSync/recommendations/observability alineados",PASS
+persistence_reload,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"dominio activo restaurado tras reload/relanzado en iOS y web",PASS

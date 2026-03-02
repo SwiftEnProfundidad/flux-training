@@ -1,0 +1,154 @@
+{
+  "generatedAt": "2026-03-01T21:27:00.420Z",
+  "task": "P5-T3",
+  "duplicates": [],
+  "sectionsChecked": 10,
+  "sectionRows": [
+    {
+      "board": "BOARD_IOS_APP",
+      "sectionId": "VRMek",
+      "sectionName": "IOS_D1_ACCESS_IDENTITY",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_IOS_APP",
+      "sectionId": "TICgl",
+      "sectionName": "IOS_D2_TRAINING_EXECUTION",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_IOS_APP",
+      "sectionId": "9OgKn",
+      "sectionName": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_IOS_APP",
+      "sectionId": "x8FBK",
+      "sectionName": "IOS_D4_NUTRITION_PROGRESS",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_IOS_APP",
+      "sectionId": "201eP",
+      "sectionName": "IOS_D5_AI_SETTINGS_LEGAL",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_WEB_APP",
+      "sectionId": "AUNCE",
+      "sectionName": "WEB_D1_ACCESS_DASHBOARD",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_WEB_APP",
+      "sectionId": "9fpUM",
+      "sectionName": "WEB_D2_ATHLETE_OPERATIONS",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_WEB_APP",
+      "sectionId": "sN8uH",
+      "sectionName": "WEB_D3_PLAN_SESSION_CMS",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_WEB_APP",
+      "sectionId": "TttWF",
+      "sectionName": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    },
+    {
+      "board": "BOARD_WEB_APP",
+      "sectionId": "x63xh",
+      "sectionName": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "hasStateError": true,
+      "hasStateOffline": true,
+      "hasTokenRefresh": true,
+      "hasConflictHandling": true,
+      "hasRetrySync": true
+    }
+  ],
+  "accessScreens": {
+    "iosDarkStates": [
+      "state_default",
+      "state_loading",
+      "state_empty",
+      "state_error",
+      "state_offline",
+      "state_denied",
+      "state_success",
+      "IOS-060_OTP_VERIFY",
+      "IOS-070_RECOVER_ACCOUNT",
+      "IOS-080_SESSION_EXPIRED"
+    ],
+    "iosLightStates": [
+      "IOS-L-060_OTP_VERIFY",
+      "IOS-L-070_RECOVER_ACCOUNT",
+      "IOS-L-080_SESSION_EXPIRED"
+    ],
+    "webAccessMain": [
+      "WEB-000_ACCESS_GATE",
+      "WEB-010_SIGN_IN",
+      "WEB-020_DASHBOARD_HOME",
+      "WEB-030_QUICK_ACTIONS",
+      "WEB-040_ALERT_CENTER",
+      "WEB-050_SYSTEM_STATUS",
+      "WEB-055_SESSION_TIMEOUT"
+    ],
+    "webAccessLight": [
+      "WEB-L-000_ACCESS_GATE",
+      "WEB-L-010_SIGN_IN",
+      "WEB-L-020_DASHBOARD_HOME",
+      "WEB-L-030_QUICK_ACTIONS",
+      "WEB-L-040_ALERT_CENTER",
+      "WEB-L-050_SYSTEM_STATUS",
+      "WEB-L-055_SESSION_TIMEOUT"
+    ]
+  },
+  "pass": {
+    "duplicateIdsZero": true,
+    "sectionContinuityCoverage": true,
+    "iosSessionTimeoutScreen": true,
+    "webSessionTimeoutScreen": true,
+    "iosFlowMentionsContinuity": true,
+    "webFlowMentionsContinuity": true
+  },
+  "overallPass": true
+}

@@ -1,0 +1,6 @@
+domain,screen_group,web_status,ios_status,result,evidence
+onboarding,auth_onboarding_contract,pass,pass,PASS,apps/web/src/presentation/auth-onboarding-contract.spec.ts|apps/ios/Tests/FluxTrainingTests/AuthOnboardingScreenContractTests.swift
+training,daily_training_video_contract,pass,pass,PASS,apps/web/src/presentation/daily-training-video-contract.spec.ts|apps/ios/Tests/FluxTrainingTests/DailyTrainingVideoScreenContractTests.swift
+nutrition,nutrition_progress_ai_contract,pass,pass,PASS,apps/web/src/presentation/nutrition-progress-ai-contract.spec.ts|apps/ios/Tests/FluxTrainingTests/NutritionProgressAIScreenContractTests.swift
+operations,settings_legal_contract,pass,pass,PASS,apps/web/src/presentation/settings-legal-contract.spec.ts|apps/ios/Tests/FluxTrainingTests/SettingsLegalScreenContractTests.swift
+operations,domain_visibility_settings_legal,pass,pass,PASS,apps/web/src/presentation/dashboard-domains.spec.ts|apps/ios/Tests/FluxTrainingTests/ExperienceSectionShellTests.swift

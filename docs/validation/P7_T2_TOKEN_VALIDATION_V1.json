@@ -1,0 +1,196 @@
+{
+  "generatedAt": "2026-03-01T22:00:42.132Z",
+  "task": "P7-T2",
+  "styleGuide": "mobile-03-darkbold_light",
+  "checks": [
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D1_ACCESS_IDENTITY",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D2_TRAINING_EXECUTION",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D3_EXERCISE_VIDEO_LIBRARY_CRITICAL_STATES",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D4_NUTRITION_PROGRESS",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D4_NUTRITION_PROGRESS_CRITICAL_STATES",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D5_AI_SETTINGS_LEGAL",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_D5_AI_SETTINGS_LEGAL_CRITICAL_STATES",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "IOS_DX_GLOBAL_FLOW",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D0_SHELL_NAV",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D1_ACCESS_DASHBOARD",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D2_ATHLETE_OPERATIONS",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D3_PLAN_SESSION_CMS",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D3_PLAN_SESSION_CMS_CRITICAL_STATES",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D4_NUTRITION_PROGRESS_OPS_CRITICAL_STATES",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "result": "PASS",
+      "detail": "hasDark=true;hasLight=true;exempt=false"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_D5_ANALYTICS_AI_GOVERNANCE_CRITICAL_STATES",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "section_dual_lane_dark_light",
+      "target": "WEB_DX_GLOBAL_FLOW",
+      "result": "PASS",
+      "detail": "hasDark=false;hasLight=false;exempt=true"
+    },
+    {
+      "rule": "token_palette_core_size",
+      "target": "global",
+      "result": "PASS",
+      "detail": "coreColors=10"
+    },
+    {
+      "rule": "token_typography_families",
+      "target": "global",
+      "result": "PASS",
+      "detail": "families=Manrope|Space Mono|Space Grotesk"
+    },
+    {
+      "rule": "token_spacing_scale",
+      "target": "global",
+      "result": "PASS",
+      "detail": "spacingSteps=12"
+    },
+    {
+      "rule": "color_outliers_low_usage",
+      "target": "global",
+      "result": "PASS",
+      "detail": "outliers=12"
+    }
+  ],
+  "lowUsageColorOutliers": [
+    {
+      "color": "#A07820",
+      "count": 2
+    },
+    {
+      "color": "#C03030",
+      "count": 2
+    },
+    {
+      "color": "#FFF0F0",
+      "count": 1
+    },
+    {
+      "color": "#F0C8C8",
+      "count": 1
+    },
+    {
+      "color": "#5C1010",
+      "count": 1
+    },
+    {
+      "color": "#B05050",
+      "count": 1
+    },
+    {
+      "color": "#FFFFF0",
+      "count": 1
+    },
+    {
+      "color": "#D8D080",
+      "count": 1
+    },
+    {
+      "color": "#404010",
+      "count": 1
+    },
+    {
+      "color": "#806820",
+      "count": 1
+    },
+    {
+      "color": "#F59308",
+      "count": 2
+    },
+    {
+      "color": "#D4A017",
+      "count": 1
+    }
+  ],
+  "overallPass": true
+}

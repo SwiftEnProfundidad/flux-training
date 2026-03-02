@@ -1,0 +1,13 @@
+screen,node_id,status,allowed_terms,disallowed_terms,text
+"IOS-000_WELCOME","hvsKi","OK_BRAND","Apple","","Iniciar con Apple"
+"IOS-010_EMAIL_LOGIN","doFuR","OK_BRAND","Apple","","Apple"
+"IOS-010_EMAIL_LOGIN","qKa6j","OK_BRAND","Google","","Google"
+"IOS-020_APPLE_HANDOFF","ma018","OK_BRAND","Apple","","Permisos Apple"
+"IOS-L-000_WELCOME","7dqJB","OK_BRAND","Apple","","Iniciar con Apple"
+"IOS-L-010_EMAIL_LOGIN","Rmscv","OK_BRAND","Apple","","Apple"
+"IOS-L-010_EMAIL_LOGIN","AsHKA","OK_BRAND","Google","","Google"
+"IOS-L-020_APPLE_HANDOFF","lZpiw","OK_BRAND","Apple","","Permisos Apple"
+"IOS-310_ACCOUNT_PROFILE","jFDLg","OK_BRAND","Apple","","Reloj Apple: conectado"
+"IOS-L-310_ACCOUNT_PROFILE","NZWUc","OK_BRAND","Apple","","Reloj Apple: conectado"
+"WEB-000_ACCESS_GATE","Y9jBW","OK_BRAND","Google","","Continuar con cuenta Google"
+"WEB-L-010_SIGN_IN","r4hkd","OK_BRAND","Apple","","Acceso con Apple/Correo y alternativa segura."

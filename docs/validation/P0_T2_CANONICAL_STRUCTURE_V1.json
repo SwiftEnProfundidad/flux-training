@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-03-01T20:18:17.312Z",
+  "topLevel": {
+    "expectedBoards": [
+      "BOARD_IOS_APP",
+      "BOARD_WEB_APP"
+    ],
+    "actualBoards": [
+      "BOARD_IOS_APP",
+      "BOARD_WEB_APP"
+    ],
+    "pass": true
+  },
+  "sections": {
+    "total": 17,
+    "standardSections": 15,
+    "flowSections": 2,
+    "layoutViolations": []
+  },
+  "naming": {
+    "totalScreenNodesChecked": 121,
+    "screenNameViolations": [],
+    "laneVariantViolations": []
+  },
+  "pass": true
+}

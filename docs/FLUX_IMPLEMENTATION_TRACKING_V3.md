@@ -1,0 +1,89 @@
+# FLUX_IMPLEMENTATION_TRACKING_V3
+
+## Leyenda
+- ✅ Hecho
+- 🚧 En construccion (maximo 1)
+- ⏳ Pendiente
+- ⛔ Bloqueado
+
+## Reglas operativas
+- Solo puede haber 1 task en `🚧`.
+- Al cerrar una task: pasarla a `✅` y mover la siguiente a `🚧`.
+- Si hay bloqueo tecnico o de decision: marcar `⛔` con causa y desbloqueo requerido.
+- Este documento gobierna el ciclo V3 de implementacion real a codigo.
+
+## Objetivo del ciclo V3
+Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funcional del board canónico `flux.pen`, con paridad de comportamiento, estados enterprise y evidencia de calidad ejecutable.
+
+## Fase P0 - Baseline de implementacion y control de alcance
+| ID | Task | Subtasks | Estado | Criterio de aceptacion |
+|---|---|---|---|---|
+| V3-P0-T1 | Congelar inventario funcional codificable | V3-P0-T1.1 mapear seccion->pantallas->componentes por plataforma; V3-P0-T1.2 validar dependencias con backend/contracts; V3-P0-T1.3 registrar gaps de codigo vs board | ✅ | Inventario codificable firmado y sin ambiguedad |
+| V3-P0-T2 | Definir matriz de ownership por modulo | V3-P0-T2.1 iOS ownership; V3-P0-T2.2 Web ownership; V3-P0-T2.3 Backend/contracts ownership | ✅ | Owner y criterios de done por modulo definidos |
+| V3-P0-T3 | Definir gate V3 de calidad tecnica | V3-P0-T3.1 tests minimos por capa; V3-P0-T3.2 smoke E2E; V3-P0-T3.3 checklist de evidencias | ✅ | Gate V3 publicado y aplicable |
+
+## Fase P1 - Implementacion iOS por dominios
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V3-P1-T1 | Auth + onboarding + consent (iOS) | V3-P1-T1.1 pantallas/estados; V3-P1-T1.2 validaciones y recovery; V3-P1-T1.3 i18n/a11y | 🚧 | V3-P0-T3 | Flujos de acceso iOS completos y testeados |
+| V3-P1-T2 | Today + training + video (iOS) | V3-P1-T2.1 cockpit diario; V3-P1-T2.2 sesion activa; V3-P1-T2.3 video/fallback/offline | ⏳ | V3-P1-T1 | Dominio diario iOS operativo |
+| V3-P1-T3 | Nutrition + progress + AI + settings (iOS) | V3-P1-T3.1 nutricion/progreso; V3-P1-T3.2 recomendaciones IA; V3-P1-T3.3 settings/legal GDPR | ⏳ | V3-P1-T2 | iOS completo por dominios core y legales |
+
+## Fase P2 - Implementacion Web por dominios
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V3-P2-T1 | Shell + acceso + dashboard web | V3-P2-T1.1 app shell y navegacion; V3-P2-T1.2 acceso por rol; V3-P2-T1.3 dashboard operativo | ⏳ | V3-P0-T3 | Entrada web robusta por rol |
+| V3-P2-T2 | Operaciones core web | V3-P2-T2.1 athletes/plans/sessions; V3-P2-T2.2 nutrition/progress ops; V3-P2-T2.3 estados enterprise | ⏳ | V3-P2-T1 | Operacion core web completa |
+| V3-P2-T3 | Admin + governance web | V3-P2-T3.1 users/roles/RBAC; V3-P2-T3.2 audit/compliance; V3-P2-T3.3 billing/support | ⏳ | V3-P2-T2 | Modulos enterprise web cerrados |
+
+## Fase P3 - Backend y contratos
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V3-P3-T1 | Alineacion contracts<->backend | V3-P3-T1.1 versionado de contratos; V3-P3-T1.2 compatibilidad de payloads; V3-P3-T1.3 tests de contrato | ⏳ | V3-P0-T3 | Contratos coherentes y estables |
+| V3-P3-T2 | Endpoints funcionales por dominio | V3-P3-T2.1 auth/onboarding; V3-P3-T2.2 training/nutrition/progress; V3-P3-T2.3 legal/admin/audit | ⏳ | V3-P3-T1 | Backend cubre flujos del board |
+| V3-P3-T3 | Resiliencia backend operativa | V3-P3-T3.1 errores estandarizados; V3-P3-T3.2 trazabilidad; V3-P3-T3.3 politicas de retry/idempotencia | ⏳ | V3-P3-T2 | Backend listo para carga operativa |
+
+## Fase P4 - Integracion cruzada y QA
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V3-P4-T1 | Paridad iOS/Web funcional | V3-P4-T1.1 matriz de paridad; V3-P4-T1.2 ajustes de comportamiento; V3-P4-T1.3 smoke cross-platform | ⏳ | V3-P1-T3, V3-P2-T3 | Paridad cerrada por dominio |
+| V3-P4-T2 | E2E de flujos criticos | V3-P4-T2.1 happy paths; V3-P4-T2.2 edge cases; V3-P4-T2.3 recovery paths | ⏳ | V3-P4-T1 | Flujos criticos sin roturas |
+| V3-P4-T3 | Gate de calidad V3 | V3-P4-T3.1 `pnpm -r test`; V3-P4-T3.2 `swift test`; V3-P4-T3.3 evidencia docs/validation | ⏳ | V3-P4-T2 | Gate V3 en PASS |
+
+## Fase P5 - Cierre V3 y traspaso a V4
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V3-P5-T1 | Checklist de cierre de implementacion | V3-P5-T1.1 cobertura por modulo; V3-P5-T1.2 deuda explicita; V3-P5-T1.3 riesgos abiertos | ⏳ | V3-P4-T3 | Cierre V3 completo y auditable |
+| V3-P5-T2 | Congelar baseline release candidate | V3-P5-T2.1 snapshot tecnico; V3-P5-T2.2 snapshot funcional; V3-P5-T2.3 docs actualizadas | ⏳ | V3-P5-T1 | RC estable para hardening |
+| V3-P5-T3 | Abrir ciclo V4 formalmente | V3-P5-T3.1 handoff de riesgos; V3-P5-T3.2 task activa V4; V3-P5-T3.3 cierre ejecutivo V3 | ⏳ | V3-P5-T2 | Transicion controlada a production readiness |
+
+## Bitacora V3 (2026-03-02)
+- Inicio V3-P0-T1:
+  - arranque de baseline V3 con foco en inventario codificable y trazabilidad de dependencias reales.
+- Cierre V3-P0-T1:
+  - inventario de implementación generado en `docs/validation/V3_P0_T1_IMPLEMENTATION_INVENTORY.csv`.
+  - matriz capability->contract->route->consumer generada en `docs/validation/V3_P0_T1_DEPENDENCY_MATRIX.csv`.
+  - registro de gaps generado en `docs/validation/V3_P0_T1_GAP_REGISTER.json`.
+  - BDD de baseline V3 agregado en `docs/validation/features/v3_p0_t1_implementation_inventory.feature`.
+  - cobertura board anclada a IDs canónicos:
+    - iOS: `VRMek=20`, `TICgl=12`, `9OgKn=10`, `x8FBK=12`, `201eP=12` pantallas.
+    - web: `AUNCE=12`, `9fpUM=12`, `sN8uH=14`, `TttWF=12`, `x63xh=18` pantallas.
+- Inicio V3-P0-T2:
+  - foco en ownership por módulo y criterios de done por capa (`iOS/Web/Backend/contracts`) para ejecución paralela controlada.
+- Cierre V3-P0-T2:
+  - matriz de ownership por módulo creada en `docs/validation/V3_P0_T2_OWNERSHIP_MATRIX.csv`.
+  - definición de done por capa y criterios de aceptación registrada en `docs/validation/V3_P0_T2_DONE_CRITERIA.json`.
+  - BDD de ownership/governance agregado en `docs/validation/features/v3_p0_t2_ownership_matrix.feature`.
+  - ownership cerrado sobre `12` módulos operativos (`M01..M12`) con owners por capa.
+- Inicio V3-P0-T3:
+  - foco en gate técnico de ejecución V3 (tests mínimos por capa, smoke E2E y checklist de evidencias).
+- Cierre V3-P0-T3:
+  - matriz de gate mínimo por capa registrada en `docs/validation/V3_P0_T3_MIN_TEST_MATRIX.csv`.
+  - consolidado de evidencias del gate técnico en `docs/validation/V3_P0_T3_QUALITY_GATE.json`.
+  - ejecución de calidad en verde:
+    - `pnpm -r test` (`contracts 20/20`, `backend 40/40`, `web 55/55`).
+    - `cd apps/ios && swift test` (`63` tests en verde).
+    - `pnpm test:critical` (suite crítica cross-layer en verde).
+  - feature BDD de gate V3 publicado en `docs/validation/features/v3_p0_t3_quality_gate.feature`.
+- Inicio V3-P1-T1:
+  - foco en implementar en código el dominio iOS de acceso (`auth + onboarding + consent`) con cobertura de estados enterprise, i18n ES/EN y a11y.

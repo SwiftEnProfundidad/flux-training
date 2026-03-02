@@ -1,0 +1,10 @@
+{
+  "generatedAt": "2026-03-01T22:02:43.100Z",
+  "task": "R3",
+  "legalAutoControlsBefore": 146,
+  "legalAutoControlsAfter": 0,
+  "renamed": 146,
+  "a11yOverallPass": true,
+  "handoffOverallPass": true,
+  "overallPass": true
+}

@@ -1,0 +1,120 @@
+{
+  "generatedAt": "2026-03-01T20:53:34.452Z",
+  "task": "P2-T2",
+  "sections": [
+    {
+      "id": "TICgl",
+      "name": "IOS_D2_TRAINING_EXECUTION"
+    },
+    {
+      "id": "9OgKn",
+      "name": "IOS_D3_EXERCISE_VIDEO_LIBRARY"
+    }
+  ],
+  "required": {
+    "trainingDark": [
+      "IOS-100_TODAY",
+      "IOS-110_PLAN_ACTIVE",
+      "IOS-120_SESSION_SETUP",
+      "IOS-130_WORKOUT_ACTIVE",
+      "IOS-140_EXERCISE_VIDEO",
+      "IOS-150_SESSION_SUMMARY"
+    ],
+    "trainingLight": [
+      "IOS-L-100_TODAY",
+      "IOS-L-110_PLAN_ACTIVE",
+      "IOS-L-120_SESSION_SETUP",
+      "IOS-L-130_WORKOUT_ACTIVE",
+      "IOS-L-140_EXERCISE_VIDEO",
+      "IOS-L-150_SESSION_SUMMARY"
+    ],
+    "videoDark": [
+      "IOS-005a_InWorkout_Setup",
+      "IOS-005b_RPE_Rating",
+      "IOS-006_Substitution",
+      "IOS-007a_ExerciseLibrary",
+      "IOS-007b_VideoPlayer"
+    ],
+    "videoLight": [
+      "IOS-L-005a_InWorkout_Setup",
+      "IOS-L-005b_RPE_Rating",
+      "IOS-L-006_Substitution",
+      "IOS-L-007a_ExerciseLibrary",
+      "IOS-L-007b_VideoPlayer"
+    ],
+    "trainingStates": [
+      "state_loading",
+      "state_empty",
+      "state_error",
+      "state_offline",
+      "state_success"
+    ]
+  },
+  "present": {
+    "trainingDark": [
+      "IOS-100_TODAY",
+      "IOS-110_PLAN_ACTIVE",
+      "IOS-120_SESSION_SETUP",
+      "IOS-130_WORKOUT_ACTIVE",
+      "IOS-140_EXERCISE_VIDEO",
+      "IOS-150_SESSION_SUMMARY"
+    ],
+    "trainingLight": [
+      "IOS-L-100_TODAY",
+      "IOS-L-110_PLAN_ACTIVE",
+      "IOS-L-120_SESSION_SETUP",
+      "IOS-L-130_WORKOUT_ACTIVE",
+      "IOS-L-140_EXERCISE_VIDEO",
+      "IOS-L-150_SESSION_SUMMARY"
+    ],
+    "videoDark": [
+      "IOS-005a_InWorkout_Setup",
+      "IOS-005b_RPE_Rating",
+      "IOS-006_Substitution",
+      "IOS-007a_ExerciseLibrary",
+      "IOS-007b_VideoPlayer"
+    ],
+    "videoLight": [
+      "IOS-L-005a_InWorkout_Setup",
+      "IOS-L-005b_RPE_Rating",
+      "IOS-L-006_Substitution",
+      "IOS-L-007a_ExerciseLibrary",
+      "IOS-L-007b_VideoPlayer"
+    ],
+    "trainingStates": [
+      "state_loading",
+      "state_empty",
+      "state_error",
+      "state_offline",
+      "state_success"
+    ],
+    "trainFlowNames": [
+      "flow_title",
+      "flow_row",
+      "state_line"
+    ],
+    "videoFlowNames": [
+      "flow_title",
+      "flow_desc",
+      "flow_states"
+    ]
+  },
+  "missing": {
+    "trainingDark": [],
+    "trainingLight": [],
+    "videoDark": [],
+    "videoLight": [],
+    "trainingStates": []
+  },
+  "pass": {
+    "trainingDarkComplete": true,
+    "trainingLightComplete": true,
+    "videoDarkComplete": true,
+    "videoLightComplete": true,
+    "trainingStatesComplete": true,
+    "trainingFlowConnected": true,
+    "videoFlowConnected": true,
+    "fallbackCovered": true
+  },
+  "overallPass": true
+}

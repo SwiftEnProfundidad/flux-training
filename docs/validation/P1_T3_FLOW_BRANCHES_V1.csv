@@ -1,0 +1,8 @@
+board,flowSectionId,flowSectionName,rowName,textSequence
+BOARD_IOS_APP,lPj2M,IOS_DX_GLOBAL_FLOW,global_flow_row,Bienvenida | -> | Acceso Email/Apple | -> | OTP/Recuperación | -> | Onboarding | -> | Hoy | -> | Entreno | -> | Nutrición | -> | Progreso | -> | AI | -> | Ajustes
+BOARD_IOS_APP,lPj2M,IOS_DX_GLOBAL_FLOW,ios_decision_flows,
+BOARD_WEB_APP,YDt6Z,WEB_DX_GLOBAL_FLOW,web_flow_row,Acceso + Panel | -> | Atletas + Historial | -> | Planes + CMS | -> | Analítica + Administración
+BOARD_WEB_APP,YDt6Z,WEB_DX_GLOBAL_FLOW,admin_flow_row,→ | Acceso | → | Panel | → | Atletas | → | Planes+CMS | → | Analítica+NutOps | → | AI | → | Admin+Soporte+Audit+Billing+Incidentes
+BOARD_WEB_APP,YDt6Z,WEB_DX_GLOBAL_FLOW,coach_flow_row,→ | Acceso | → | Panel | → | Atletas | → | Planes (edición) | → | Biblioteca de ejercicios | → | Progreso+NutOps | → | Insights IA | ⊘ Admin
+BOARD_WEB_APP,YDt6Z,WEB_DX_GLOBAL_FLOW,athlete_flow_row,→ | Acceso (propio) | → | Progreso (propio) | → | Nutrición (propio) | → | Insights IA (propio) | ⊘ Admin ⊘ Ops Coach
+BOARD_WEB_APP,YDt6Z,WEB_DX_GLOBAL_FLOW,web_decision_flows,

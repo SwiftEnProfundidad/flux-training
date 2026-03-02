@@ -12,6 +12,22 @@
 - Si una task no puede avanzar por dependencia o decision, marcar `⛔` y documentar bloqueo.
 - Este documento es la fuente de verdad del estado de ejecucion.
 
+## Estado de tracking UI/UX (2026-03-02)
+- Seguimiento operativo canónico de diseño movido a: `docs/FLUX_UIUX_EXECUTION_TRACKING_V2.md`.
+- Estado V2: fases `A0..C7-T3` cerradas en `✅`; ciclo V2 sin tareas pendientes.
+- Seguimiento maestro de remediación enterprise: `docs/FLUX_ENTERPRISE_REMEDIATION_TRACKING_V1.md`.
+- Task activa de remediación enterprise: Ninguna (residuales `R1/R2/R3` cerradas en `✅`).
+- Task activa de ejecución UI/UX: `V3-P1-T1` en `docs/FLUX_IMPLEMENTATION_TRACKING_V3.md`.
+
+## Ciclos documentados (fuente de verdad)
+| Orden | Ciclo | Documento | Estado | Task activa |
+|---|---|---|---|---|
+| 1 | V1 - Enterprise remediation | `docs/FLUX_ENTERPRISE_REMEDIATION_TRACKING_V1.md` | ✅ Cerrado | Ninguna |
+| 2 | V2 - UI/UX execution | `docs/FLUX_UIUX_EXECUTION_TRACKING_V2.md` | ✅ Cerrado | Ninguna |
+| 3 | V3 - Implementacion producto end-to-end | `docs/FLUX_IMPLEMENTATION_TRACKING_V3.md` | 🚧 En ejecucion | `V3-P1-T1` |
+| 4 | V4 - Production readiness & hardening | `docs/FLUX_PRODUCTION_READINESS_TRACKING_V4.md` | ⏳ Pendiente | Ninguna |
+| 5 | V5 - Rollout, adopcion y scale ops | `docs/FLUX_ROLLOUT_SCALE_TRACKING_V5.md` | ⏳ Pendiente | Ninguna |
+
 ## Fase 0 - Gobierno y arranque
 | ID | Task | Estado | Notas |
 |---|---|---|---|
@@ -63,7 +79,7 @@
 | F6-T1 | QA visual end-to-end + checklist de demo funcional | ✅ | QA visual rerun con runtime local activo: auth/videos/recommendations en loaded + evidencia Playwright |
 | F6-T2 | Runtime local de demo (API + host iOS opcional) | ✅ | Servidor local `/api` operativo + host app iOS generado/build+run en simulador |
 | F6-T3 | Rediseno UI/UX profesional + base bilingue ES/EN (web+iOS) | ✅ | Prompt Pencil MCP + rediseno visual en web/iOS + capa i18n con tests en verde |
-| F6-T4 | Hardening de demo local (assets/CDN y polish final) | 🚧 | Task activa para eliminar errores de assets remotos y cerrar continuidad sin warnings visibles. Prompt maestro de flujo/pantallas alineado a `FLUX_TRACKING.md` aplicado para continuidad de diseño. 2026-02-28: auditoría enterprise completa y arranque formal del plan de refactor transversal (split paralelo por dominios + kickoff ejecutivo). Inicio de cambios reales Wave 1: hardening HTTP backend demo (`method_not_allowed` + propagación de errores de dominio) y nuevas pruebas de regresión en presentation. |
+| F6-T4 | Hardening de demo local (assets/CDN y polish final) | ✅ | Bloque de continuidad histórica cerrado y sustituido por tracking canónico V2 (`C1+`) para ejecución UI por dominios. |
 
 ## Actualizacion de estabilidad enterprise (2026-02-28)
 - Auditoria transversal Lead Designer ejecutada sobre iOS/web/backend/contratos/docs.

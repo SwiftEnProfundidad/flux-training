@@ -1,0 +1,185 @@
+{
+  "generatedAt": "2026-03-01T22:00:42.129Z",
+  "task": "P7-T2",
+  "styleGuide": "mobile-03-darkbold_light",
+  "colors": {
+    "core": [
+      {
+        "value": "#27272A",
+        "count": 952
+      },
+      {
+        "value": "#C4F82A",
+        "count": 929
+      },
+      {
+        "value": "#71717A",
+        "count": 751
+      },
+      {
+        "value": "#18181B",
+        "count": 533
+      },
+      {
+        "value": "#52525B",
+        "count": 489
+      },
+      {
+        "value": "#0A0A0A",
+        "count": 473
+      },
+      {
+        "value": "#A1A1AA",
+        "count": 403
+      },
+      {
+        "value": "#F8FAFD",
+        "count": 331
+      },
+      {
+        "value": "#D4D4D8",
+        "count": 291
+      },
+      {
+        "value": "#F2F7FF",
+        "count": 187
+      }
+    ],
+    "extended": [
+      {
+        "value": "#3F3F46",
+        "count": 186
+      },
+      {
+        "value": "#111111",
+        "count": 177
+      },
+      {
+        "value": "#EF4444",
+        "count": 176
+      },
+      {
+        "value": "#F4F4F5",
+        "count": 167
+      }
+    ]
+  },
+  "typography": {
+    "families": [
+      {
+        "value": "Manrope",
+        "count": 2873
+      },
+      {
+        "value": "Space Mono",
+        "count": 1025
+      },
+      {
+        "value": "Space Grotesk",
+        "count": 710
+      }
+    ],
+    "scale": [
+      {
+        "value": "9",
+        "count": 24
+      },
+      {
+        "value": "10",
+        "count": 822
+      },
+      {
+        "value": "11",
+        "count": 876
+      },
+      {
+        "value": "12",
+        "count": 1110
+      },
+      {
+        "value": "13",
+        "count": 655
+      },
+      {
+        "value": "14",
+        "count": 618
+      },
+      {
+        "value": "15",
+        "count": 142
+      },
+      {
+        "value": "16",
+        "count": 30
+      },
+      {
+        "value": "18",
+        "count": 130
+      },
+      {
+        "value": "20",
+        "count": 47
+      },
+      {
+        "value": "22",
+        "count": 65
+      },
+      {
+        "value": "24",
+        "count": 13
+      }
+    ]
+  },
+  "spacing": {
+    "scale": [
+      {
+        "value": "0",
+        "count": 1162
+      },
+      {
+        "value": "2",
+        "count": 156
+      },
+      {
+        "value": "3",
+        "count": 66
+      },
+      {
+        "value": "4",
+        "count": 225
+      },
+      {
+        "value": "6",
+        "count": 286
+      },
+      {
+        "value": "8",
+        "count": 1010
+      },
+      {
+        "value": "10",
+        "count": 749
+      },
+      {
+        "value": "12",
+        "count": 920
+      },
+      {
+        "value": "14",
+        "count": 212
+      },
+      {
+        "value": "16",
+        "count": 611
+      },
+      {
+        "value": "18",
+        "count": 2
+      },
+      {
+        "value": "20",
+        "count": 283
+      }
+    ]
+  }
+}

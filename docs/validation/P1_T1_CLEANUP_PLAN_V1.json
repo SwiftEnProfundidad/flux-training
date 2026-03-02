@@ -1,0 +1,60 @@
+{
+  "generatedAt": "2026-03-01T20:41:00Z",
+  "sourcePen": "flux.pen",
+  "task": "P1-T1",
+  "objective": "Remove non-product sections from iOS/Web boards while preserving product screens and flows",
+  "phase": {
+    "status": "completed",
+    "appliedAt": "2026-03-01T20:40:00Z",
+    "inputs": [
+      "docs/validation/P1_T1_NOISE_AUDIT_V1.csv",
+      "docs/validation/P1_T1_NOISE_SUMMARY_V1.json"
+    ],
+    "operationsApplied": [
+      {
+        "board": "BOARD_IOS_APP",
+        "nodeId": "DYJyI",
+        "sectionName": "IOS_SECTION_COPY_I18N",
+        "action": "deleted"
+      },
+      {
+        "board": "BOARD_IOS_APP",
+        "nodeId": "vRCVB",
+        "sectionName": "IOS_SECTION_A11Y_CHECKLIST",
+        "action": "deleted"
+      },
+      {
+        "board": "BOARD_WEB_APP",
+        "nodeId": "KjC7D",
+        "sectionName": "WEB_SECTION_COPY_I18N",
+        "action": "deleted"
+      },
+      {
+        "board": "BOARD_WEB_APP",
+        "nodeId": "7vu79",
+        "sectionName": "WEB_SECTION_HANDOFF_NOTES",
+        "action": "deleted"
+      }
+    ]
+  },
+  "retainedBoardMetadata": [
+    {
+      "board": "BOARD_IOS_APP",
+      "nodeId": "mtHNQ",
+      "sectionName": "IOS_BOARD_HEADER",
+      "reason": "metadata header"
+    },
+    {
+      "board": "BOARD_WEB_APP",
+      "nodeId": "kWs9m",
+      "sectionName": "WEB_BOARD_HEADER",
+      "reason": "metadata header"
+    }
+  ],
+  "postChecks": {
+    "artifact": "docs/validation/P1_T1_POST_CLEANUP_VALIDATION_V1.json",
+    "topLevelExactlyTwoBoards": true,
+    "supportNoiseRemoved": true,
+    "supportNoiseRemainingCount": 0
+  }
+}

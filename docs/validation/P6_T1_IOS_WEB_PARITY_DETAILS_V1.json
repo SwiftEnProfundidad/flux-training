@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-03-01T21:29:58.277Z",
+  "task": "P6-T1",
+  "requiredStates": [
+    "state_default",
+    "state_loading",
+    "state_empty",
+    "state_error",
+    "state_offline",
+    "state_denied",
+    "state_success"
+  ],
+  "rows": [
+    {
+      "domain": "access",
+      "iosScreens": 20,
+      "webScreens": 22,
+      "requiredShared": "ACCESS|SESSION",
+      "sharedFound": "ACCESS|SESSION",
+      "iosHasScreens": true,
+      "webHasScreens": true,
+      "iosStateCoverage": true,
+      "webStateCoverage": true,
+      "requiredSharedActions": true,
+      "domainPass": true,
+      "iosTags": "000|WELCOME|010|EMAIL|LOGIN|020|APPLE|HANDOFF|030|ONBOARDING|STEP1|035|GOAL|SETUP|040|PARQ|050|CONSENT|060|OTP|VERIFY|070|RECOVER|ACCOUNT|080|SESSION|EXPIRED|ACCESS|IDENTITY",
+      "webTags": "000|ACCESS|GATE|010|SIGN|020|DASHBOARD|HOME|030|QUICK|ACTIONS|040|ALERT|CENTER|050|SYSTEM|STATUS|055|SESSION|TIMEOUT|200|KPIS|210|READINESS|MONITOR|220|ALERTS|FULL|230|RECENT|ACTIVITY|240|SHORTCUTS|TABLET"
+    },
+    {
+      "domain": "training",
+      "iosScreens": 22,
+      "webScreens": 32,
+      "requiredShared": "PLAN|SESSION",
+      "sharedFound": "PLAN|SESSION",
+      "iosHasScreens": true,
+      "webHasScreens": true,
+      "iosStateCoverage": true,
+      "webStateCoverage": true,
+      "requiredSharedActions": true,
+      "domainPass": true,
+      "iosTags": "100|TODAY|110|PLAN|ACTIVE|120|SESSION|SETUP|130|WORKOUT|140|EXERCISE|VIDEO|150|SUMMARY|005A|INWORKOUT|005B|RPE|RATING|006|SUBSTITUTION|007A|EXERCISELIBRARY|007B|VIDEOPLAYER|TRAINING|EXECUTION|LIBRARY",
+      "webTags": "100|ATHLETES|LIST|110|ATHLETE|FILTERS|120|DETAIL|130|SESSION|HISTORY|140|COMPARE|PROGRESS|150|COACH|NOTES|160|TABLE|VIEWS|170|SORT|PAGINATION|180|CONTEXT|190|CREATE|EDIT|191|DELETE|CONFIRM|192|BULK|ACTIONS|300|PLAN|310|BUILDER|320|330|ASSIGNMENT|400|EXERCISE|LIBRARY|410|360|370|380|390|391|392|340|TEMPLATES|350|PUBLISH|REVIEW|OPS|CMS"
+    },
+    {
+      "domain": "nutrition_progress",
+      "iosScreens": 12,
+      "webScreens": 12,
+      "requiredShared": "NUTRITION|PROGRESS",
+      "sharedFound": "NUTRITION|PROGRESS",
+      "iosHasScreens": true,
+      "webHasScreens": true,
+      "iosStateCoverage": true,
+      "webStateCoverage": true,
+      "requiredSharedActions": true,
+      "domainPass": true,
+      "iosTags": "200|NUTRITION|HUB|210|LOG|MEAL|220|PROGRESS|230|GOAL|ADJUST|240|COACH|250|WEEKLY|REVIEW",
+      "webTags": "NUTRITION|OVERVIEW|DAILY|LOG|REVIEW|DEVIATION|ALERTS|COACH|VIEW|TABLE|FILTERS|VIEWS|SORT|PAGINATION|DETAIL|CONTEXT|CORRECTION|EDIT|DELETE|CONFIRM|BULK|ACTIONS|COHORT|PROGRESS|OPS"
+    },
+    {
+      "domain": "governance_settings",
+      "iosScreens": 12,
+      "webScreens": 18,
+      "requiredShared": "LEGAL|EXPORT",
+      "sharedFound": "LEGAL|EXPORT",
+      "iosHasScreens": true,
+      "webHasScreens": true,
+      "iosStateCoverage": true,
+      "webStateCoverage": true,
+      "requiredSharedActions": true,
+      "domainPass": true,
+      "iosTags": "300|SETTING|HOME|310|ACCOUNT|PROFILE|320|NOTIFICATIONS|330|PRIVACY|CONSENT|340|EXPORT|DATA|350|DELETE|LEGAL",
+      "webTags": "500|ANALYTICS|OVERVIEW|510|PROGRESS|TRENDS|520|COHORT|ANALYSIS|600|INSIGHTS|700|ADMIN|USERS|701|ROLES|702|PERMISSION|MATRIX|710|AUDIT|TRAIL|800|LEGAL|730|BILLING|740|SUPPORT|INCIDENTS|750|GLOBAL|SETTING|760|MODULE|720|APPROVAL|QUEUE|721|DETAIL|722|DECISION|723|TIMELINE|724|EXPORT|LOGS|GOVERNANCE"
+    }
+  ],
+  "overallPass": true
+}

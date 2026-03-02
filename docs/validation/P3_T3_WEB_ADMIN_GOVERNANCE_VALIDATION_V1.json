@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-03-01T21:07:16.100Z",
+  "task": "P3-T3",
+  "section": {
+    "id": "x63xh",
+    "name": "WEB_D5_ANALYTICS_AI_GOVERNANCE"
+  },
+  "required": {
+    "main": [
+      "WEB-500_ANALYTICS_OVERVIEW",
+      "WEB-510_PROGRESS_TRENDS",
+      "WEB-520_COHORT_ANALYSIS",
+      "WEB-600_AI_INSIGHTS",
+      "WEB-700_ADMIN_USERS",
+      "WEB-701_ADMIN_ROLES",
+      "WEB-702_PERMISSION_MATRIX"
+    ],
+    "secondary": [
+      "WEB-710_AUDIT_TRAIL",
+      "WEB-800_LEGAL_COMPLIANCE",
+      "WEB-730_BILLING_OVERVIEW",
+      "WEB-740_SUPPORT_INCIDENTS",
+      "WEB-750_GLOBAL_SETTINGS",
+      "WEB-760_MODULE_SETTINGS"
+    ]
+  },
+  "present": {
+    "main": [
+      "WEB-500_ANALYTICS_OVERVIEW",
+      "WEB-510_PROGRESS_TRENDS",
+      "WEB-520_COHORT_ANALYSIS",
+      "WEB-600_AI_INSIGHTS",
+      "WEB-700_ADMIN_USERS",
+      "WEB-701_ADMIN_ROLES",
+      "WEB-702_PERMISSION_MATRIX"
+    ],
+    "secondary": [
+      "WEB-710_AUDIT_TRAIL",
+      "WEB-800_LEGAL_COMPLIANCE",
+      "WEB-730_BILLING_OVERVIEW",
+      "WEB-740_SUPPORT_INCIDENTS",
+      "WEB-750_GLOBAL_SETTINGS",
+      "WEB-760_MODULE_SETTINGS"
+    ],
+    "flow": [
+      "flow_title",
+      "flow_row",
+      "state_line"
+    ]
+  },
+  "missing": {
+    "main": [],
+    "secondary": []
+  },
+  "pass": {
+    "mainComplete": true,
+    "secondaryComplete": true,
+    "rbacCoverage": true,
+    "settingsCoverage": true,
+    "auditCoverage": true,
+    "flowConnected": true,
+    "flowMentionsRBACAndDenied": true
+  },
+  "overallPass": true
+}

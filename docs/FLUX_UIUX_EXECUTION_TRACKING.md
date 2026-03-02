@@ -1,5 +1,8 @@
 # Seguimiento Maestro UI/UX Flux (Pencil)
 
+> Estado: **HISTORICO**.  
+> Fuente de verdad operativa actual: `docs/FLUX_UIUX_EXECUTION_TRACKING_V2.md`.
+
 ## Leyenda
 - ✅ Hecho
 - 🚧 En construccion (maximo 1)

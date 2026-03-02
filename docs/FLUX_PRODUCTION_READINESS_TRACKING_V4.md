@@ -1,0 +1,43 @@
+# FLUX_PRODUCTION_READINESS_TRACKING_V4
+
+## Leyenda
+- ✅ Hecho
+- 🚧 En construccion (maximo 1)
+- ⏳ Pendiente
+- ⛔ Bloqueado
+
+## Reglas operativas
+- Solo puede haber 1 task en `🚧`.
+- Este ciclo arranca cuando V3 se cierre en `✅`.
+- Cualquier bloqueo de seguridad/compliance se marca `⛔` con decision requerida.
+
+## Objetivo del ciclo V4
+Endurecer el producto para entorno productivo enterprise: seguridad, compliance, observabilidad, rendimiento y operacion estable.
+
+## Fase P0 - Security + compliance base
+| ID | Task | Subtasks | Estado | Criterio de aceptacion |
+|---|---|---|---|---|
+| V4-P0-T1 | Hardening de autenticacion/sesion | V4-P0-T1.1 politicas de sesion; V4-P0-T1.2 rotacion/expiracion; V4-P0-T1.3 pruebas de abuso | ⏳ | Sesion endurecida y trazable |
+| V4-P0-T2 | Compliance legal y datos | V4-P0-T2.1 consent/auditoria; V4-P0-T2.2 export/delete; V4-P0-T2.3 retention policy | ⏳ | Flujos GDPR y retencion auditables |
+| V4-P0-T3 | Control de acceso enterprise | V4-P0-T3.1 RBAC por recurso; V4-P0-T3.2 permisos condicionales; V4-P0-T3.3 auditoria de denegaciones | ⏳ | Permisos consistentes y verificables |
+
+## Fase P1 - Observabilidad y operacion
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V4-P1-T1 | Telemetria unificada iOS/Web/Backend | V4-P1-T1.1 eventos canonicos; V4-P1-T1.2 correlacion cross-layer; V4-P1-T1.3 dashboard operativo | ⏳ | V4-P0-T3 | Trazabilidad end-to-end estable |
+| V4-P1-T2 | Alerting y runbooks | V4-P1-T2.1 alertas por SLO; V4-P1-T2.2 playbooks; V4-P1-T2.3 ownership on-call | ⏳ | V4-P1-T1 | Incidentes operables sin ambiguedad |
+| V4-P1-T3 | Logging/audit trail completo | V4-P1-T3.1 logs estructurados; V4-P1-T3.2 activity log; V4-P1-T3.3 export forense | ⏳ | V4-P1-T2 | Auditoria enterprise lista |
+
+## Fase P2 - Performance y escalabilidad
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V4-P2-T1 | Performance de frontend (iOS/Web) | V4-P2-T1.1 tiempos de carga; V4-P2-T1.2 listas densas/tablas; V4-P2-T1.3 optimizacion render | ⏳ | V4-P1-T1 | UX estable bajo carga realista |
+| V4-P2-T2 | Performance backend/API | V4-P2-T2.1 perfiles por endpoint; V4-P2-T2.2 caching/colas; V4-P2-T2.3 tuning DB | ⏳ | V4-P2-T1 | API dentro de SLO acordado |
+| V4-P2-T3 | Pruebas de carga y degradacion | V4-P2-T3.1 carga base; V4-P2-T3.2 stress; V4-P2-T3.3 criterios de degradacion controlada | ⏳ | V4-P2-T2 | Comportamiento predecible en picos |
+
+## Fase P3 - Release governance
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V4-P3-T1 | Gate de release enterprise | V4-P3-T1.1 checklist tecnico; V4-P3-T1.2 checklist legal; V4-P3-T1.3 checklist operacion | ⏳ | V4-P2-T3 | Go/No-Go auditable |
+| V4-P3-T2 | Plan de rollback y continuidad | V4-P3-T2.1 rollback por capa; V4-P3-T2.2 backup/restore; V4-P3-T2.3 simulacro | ⏳ | V4-P3-T1 | Recuperacion validada |
+| V4-P3-T3 | Cierre V4 y handoff a V5 | V4-P3-T3.1 reporte residual; V4-P3-T3.2 aprobacion release board; V4-P3-T3.3 apertura V5 | ⏳ | V4-P3-T2 | V4 cerrado para rollout controlado |

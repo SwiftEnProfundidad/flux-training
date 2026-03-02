@@ -1,0 +1,331 @@
+{
+  "generatedAt": "2026-03-01T21:24:12.092Z",
+  "changesCount": 65,
+  "changes": [
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "state": "state_offline",
+      "action": "add_offline_hint"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "state": "state_denied",
+      "action": "add_go_back_cta"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "state": "state_offline",
+      "action": "add_offline_hint"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "state": "state_denied",
+      "action": "add_go_back_cta"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "state": "state_offline",
+      "action": "add_offline_hint"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "state": "state_denied",
+      "action": "add_go_back_cta"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "state": "state_offline",
+      "action": "add_offline_hint"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "state": "state_denied",
+      "action": "add_go_back_cta"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "state": "state_error",
+      "action": "update_body_copy"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "state": "state_error",
+      "action": "add_secondary_cta"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "state": "state_error",
+      "action": "add_support_hint"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "state": "state_offline",
+      "action": "add_retry_sync_cta"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "state": "state_offline",
+      "action": "add_offline_hint"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "state": "state_denied",
+      "action": "add_request_access_cta"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "state": "state_denied",
+      "action": "add_go_back_cta"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "taskId": "V3-P0-T3",
+  "title": "V3 technical quality gate",
+  "generatedAt": "2026-03-02T00:00:00Z",
+  "status": "done",
+  "subtasks": {
+    "V3-P0-T3.1": {
+      "name": "Tests minimos por capa",
+      "status": "pass",
+      "evidence": [
+        {
+          "command": "pnpm -r test",
+          "result": "PASS",
+          "details": {
+            "packages/contracts": "20/20",
+            "apps/backend": "40/40",
+            "apps/web": "55/55",
+            "exitCode": 0
+          }
+        },
+        {
+          "command": "cd apps/ios && swift test",
+          "result": "PASS",
+          "details": {
+            "apps/ios": "63 tests",
+            "exitCode": 0
+          }
+        }
+      ]
+    },
+    "V3-P0-T3.2": {
+      "name": "Smoke E2E cross-layer",
+      "status": "pass",
+      "evidence": [
+        {
+          "command": "pnpm test:critical",
+          "result": "PASS",
+          "details": {
+            "backend": "24 files, 40 tests",
+            "web": "25 files, 55 tests",
+            "ios": "CriticalRegressionFlowTests: 1 test",
+            "exitCode": 0
+          }
+        }
+      ]
+    },
+    "V3-P0-T3.3": {
+      "name": "Checklist de evidencias",
+      "status": "pass",
+      "evidence": [
+        {
+          "artifact": "docs/validation/V3_P0_T3_MIN_TEST_MATRIX.csv",
+          "check": "Matriz de capas y comandos mínimos registrada",
+          "result": "PASS"
+        },
+        {
+          "artifact": "docs/FLUX_IMPLEMENTATION_TRACKING_V3.md",
+          "check": "Task V3-P0-T3 cerrada y siguiente task abierta",
+          "result": "PASS"
+        }
+      ]
+    }
+  },
+  "readyForNextTask": {
+    "nextTaskId": "V3-P1-T1",
+    "reason": "Gate técnico base completado, sin bloqueos críticos abiertos para iniciar implementación iOS por dominios."
+  }
+}

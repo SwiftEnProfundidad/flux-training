@@ -1,0 +1,11 @@
+board,sectionId,sectionName,hasStateError,hasStateOffline,hasStateDenied,technicalErrorCopy,validationCopy,errorRecoveryCta,fieldRecoveryCta,supportCta,offlineRecoveryCta,deniedRecoveryCta,deniedBackCta,missing,pass
+BOARD_IOS_APP,VRMek,IOS_D1_ACCESS_IDENTITY,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_IOS_APP,TICgl,IOS_D2_TRAINING_EXECUTION,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_IOS_APP,9OgKn,IOS_D3_EXERCISE_VIDEO_LIBRARY,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_IOS_APP,x8FBK,IOS_D4_NUTRITION_PROGRESS,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_IOS_APP,201eP,IOS_D5_AI_SETTINGS_LEGAL,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_WEB_APP,AUNCE,WEB_D1_ACCESS_DASHBOARD,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_WEB_APP,9fpUM,WEB_D2_ATHLETE_OPERATIONS,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_WEB_APP,sN8uH,WEB_D3_PLAN_SESSION_CMS,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_WEB_APP,TttWF,WEB_D4_NUTRITION_PROGRESS_OPS,true,true,true,true,true,true,true,true,true,true,true,,true
+BOARD_WEB_APP,x63xh,WEB_D5_ANALYTICS_AI_GOVERNANCE,true,true,true,true,true,true,true,true,true,true,true,,true

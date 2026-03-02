@@ -1,0 +1,14 @@
+platform,sectionId,canonicalName,domain,boardOrder
+ios,VRMek,IOS_D1_ACCESS_IDENTITY,access_identity,1
+ios,TICgl,IOS_D2_TRAINING_EXECUTION,training_execution,2
+ios,9OgKn,IOS_D3_EXERCISE_VIDEO_LIBRARY,exercise_video,3
+ios,x8FBK,IOS_D4_NUTRITION_PROGRESS,nutrition_progress,4
+ios,201eP,IOS_D5_AI_SETTINGS_LEGAL,ai_settings_legal,5
+ios,lPj2M,IOS_DX_GLOBAL_FLOW,global_flow,6
+web,c6gg9,WEB_D0_SHELL_NAV,shell_nav,1
+web,AUNCE,WEB_D1_ACCESS_DASHBOARD,access_dashboard,2
+web,9fpUM,WEB_D2_ATHLETE_OPERATIONS,athlete_ops,3
+web,sN8uH,WEB_D3_PLAN_SESSION_CMS,plan_session_cms,4
+web,TttWF,WEB_D4_NUTRITION_PROGRESS_OPS,nutrition_progress_ops,5
+web,x63xh,WEB_D5_ANALYTICS_AI_GOVERNANCE,analytics_ai_governance,6
+web,YDt6Z,WEB_DX_GLOBAL_FLOW,global_flow,7

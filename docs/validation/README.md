@@ -2,6 +2,98 @@
 
 This folder contains BDD scenarios and execution validation artifacts used during development.
 
+## Validation artifacts
+- `ID_MIGRATION_MAP_V2.csv`: canonical old->new id migration map for iOS/Web screens in `flux.pen`.
+- `LAYOUT_QA_V2.csv`: static layout QA (boards + sections) with overflow/bounds checks.
+- `FLOW_STATE_COVERAGE_V2.csv`: per-screen flow/state coverage matrix for iOS/Web.
+- `I18N_UX_COMPLIANCE_V2.csv`: per-screen i18n/UX compliance audit (ES base vs strings pending review).
+- `I18N_UX_COMPLIANCE_V2_SUMMARY.json`: summary counters + compliance checks for legal/AI/a11y sections.
+- `I18N_UX_COMPLIANCE_V2_DETAILS.csv`: node-level audit with allowed brand terms and disallowed terms.
+- `FINAL_GATE_REPORT_V2.json`: final 5/5 gate report + canonical `flux.pen` SHA256 freeze.
+- `IOS_WEB_DOMAIN_PARITY_C1.csv`: matriz de paridad iOS/Web para navegación por dominio en fase C1.
+- `IOS_WEB_STATE_BY_DOMAIN_C1.csv`: cobertura de estados por dominio para paridad iOS/Web en fase C1.
+- `IOS_WEB_SCREEN_PARITY_C2.csv`: matriz de paridad iOS/Web por grupos de pantallas C2.
+- `P0_T1_SCREEN_INVENTORY_V1.csv`: inventario forense jerárquico de nodos del board canónico.
+- `P0_T1_SECTION_COVERAGE_V1.csv`: cobertura de pantallas por sección/subsección y variante.
+- `P0_T1_INVENTORY_SUMMARY_V1.json`: resumen de cobertura, duplicados y huérfanas para baseline V1.
+- `P0_T2_CANONICAL_STRUCTURE_V1.json`: verificación de top-level canónico + reglas de naming/layout por sección.
+- `P0_T2_NAMING_VIOLATIONS_V1.csv`: reporte de violaciones de naming/lane en pantallas de board.
+- `P0_T3_EXECUTABLE_BACKLOG_V1.csv`: matriz ejecutable hallazgo->task con severidad, dependencias y olas.
+- `P0_T3_EXECUTION_WAVES_V1.json`: priorización en olas W1..W8 con criterios de salida por ola.
+- `P1_T1_NOISE_AUDIT_V1.csv`: inventario de secciones no-producto candidatas a limpieza en boards iOS/Web.
+- `P1_T1_NOISE_SUMMARY_V1.json`: resumen de candidatos de limpieza por board e IDs implicados.
+- `P1_T1_CLEANUP_PLAN_V1.json`: plan de limpieza de ruido con operaciones de borrado pendientes de confirmación explícita.
+- `P1_T1_STRUCTURE_AFTER_CLEANUP_V1.csv`: estructura de secciones por board tras aplicar cleanup P1-T1.
+- `P1_T1_POST_CLEANUP_VALIDATION_V1.json`: validación post-cleanup de top-level y ruido residual.
+- `P1_T2_DOMAIN_IA_MAP_V1.csv`: mapa de dominios funcionales y orden canónico por sección iOS/Web.
+- `P1_T2_IA_VALIDATION_V1.json`: validación de orden y naming IA por dominio tras reestructuración P1-T2.
+- `P1_T3_FLOW_BRANCHES_V1.csv`: extracción de ramas de flujo E2E desde secciones globales iOS/Web.
+- `P1_T3_E2E_FLOW_VALIDATION_V1.json`: validación de flujo global, bifurcaciones y pantallas huérfanas (0).
+- `P2_T1_IOS_AUTH_ONBOARDING_CONSENT_COVERAGE_V1.csv`: cobertura de pantallas/estados requeridos en la sección iOS de acceso.
+- `P2_T1_IOS_AUTH_ONBOARDING_CONSENT_VALIDATION_V1.json`: validación de completitud y conectividad de flujo en Auth+Onboarding+Consent iOS.
+- `P2_T2_IOS_TRAINING_VIDEO_COVERAGE_V1.csv`: cobertura de pantallas y estados en Today+Training+Exercise Video iOS.
+- `P2_T2_IOS_TRAINING_VIDEO_VALIDATION_V1.json`: validación de completitud, fallback y conectividad de flujo en sección iOS de entrenamiento/video.
+- `P2_T3_IOS_NUTRITION_PROGRESS_AI_SETTINGS_COVERAGE_V1.csv`: cobertura de pantallas en dominios iOS de nutrición/progreso y settings/legal.
+- `P2_T3_IOS_NUTRITION_PROGRESS_AI_SETTINGS_VALIDATION_V1.json`: validación de completitud y flujo conectado para iOS core + settings.
+- `P3_T1_WEB_SHELL_DASHBOARD_COVERAGE_V1.csv`: cobertura de pantallas en shell/acceso/dashboard web.
+- `P3_T1_WEB_SHELL_DASHBOARD_VALIDATION_V1.json`: validación de completitud de shell, dashboard y estados críticos web.
+- `P3_T2_WEB_CORE_OPERATIONS_COVERAGE_V1.csv`: cobertura de operaciones core web (athletes, plans/sessions, nutrition/progress ops).
+- `P3_T2_WEB_CORE_OPERATIONS_VALIDATION_V1.json`: validación de completitud y conectividad de flujos core web.
+- `P3_T3_WEB_ADMIN_GOVERNANCE_COVERAGE_V1.csv`: cobertura de módulos de administración y gobernanza web (RBAC, settings, audit/compliance).
+- `P3_T3_WEB_ADMIN_GOVERNANCE_VALIDATION_V1.json`: validación de completitud y conectividad del dominio web de governance.
+- `P4_T1_ENTERPRISE_TABLE_PATTERNS_COVERAGE_V1.csv`: cobertura de patrones de tabla enterprise en módulos web clave.
+- `P4_T1_ENTERPRISE_TABLE_PATTERNS_VALIDATION_V1.json`: validación de filtros/vistas, sorting/paginación y detalle in-context.
+- `P4_T2_CRUD_BULK_ACTIONS_COVERAGE_V1.csv`: cobertura de pantallas CRUD y acciones masivas en módulos core web.
+- `P4_T2_CRUD_BULK_ACTIONS_VALIDATION_V1.json`: validación de create/edit/delete/confirm/bulk en operaciones web.
+- `P4_T3_APPROVAL_AUDIT_COVERAGE_V1.csv`: cobertura de pantallas de aprobación y audit trail en governance web.
+- `P4_T3_APPROVAL_AUDIT_VALIDATION_V1.json`: validación de workflow draft/submitted/approved/rejected y export de logs.
+- `P5_T1_STATE_AUTOFIX_LOG_V1.json`: log de normalización automática de estados críticos por sección.
+- `P5_T1_STATE_COVERAGE_V1.csv`: matriz de cobertura de 7 estados por sección iOS/Web.
+- `P5_T1_STATE_VALIDATION_V1.json`: validación de cobertura completa (default/loading/empty/error/offline/denied/success).
+- `P5_T2_ERROR_RECOVERY_AUTOFIX_LOG_V1.json`: log de normalización de microcopy y CTAs de recovery en estados error/offline/denied.
+- `P5_T2_ERROR_RECOVERY_COVERAGE_V1.csv`: matriz de cobertura semántica de error UX (technical/validation/recovery).
+- `P5_T2_ERROR_RECOVERY_VALIDATION_V1.json`: validación global de error UX y recovery por sección.
+- `P5_T3_SESSION_CONTINUITY_AUTOFIX_LOG_V1.json`: log de ajustes de continuidad de sesión/sync/conflicto en flujos y estados.
+- `P5_T3_SESSION_CONTINUITY_COVERAGE_V1.csv`: cobertura de señales de continuidad por sección (token refresh, retry sync, conflict handling).
+- `P5_T3_SESSION_CONTINUITY_VALIDATION_V1.json`: validación global de continuidad operativa en iOS/web.
+- `P6_T1_IOS_WEB_PARITY_MATRIX_V1.csv`: matriz de paridad funcional iOS/web por dominio (pantallas/estados/acciones compartidas).
+- `P6_T1_IOS_WEB_PARITY_DETAILS_V1.json`: detalle de validación de paridad por dominio con criterio de aceptación.
+- `P6_T2_A11Y_AA_SCREEN_AUDIT_V1.csv`: auditoría A11y AA por pantalla (controles, semántica, foco y pass/fail por screen).
+- `P6_T2_A11Y_AA_VALIDATION_V1.json`: validación consolidada de cumplimiento P6-T2 (`screensChecked`, `screensPassing`, `overallPass`).
+- `P6_T2_A11Y_SEMANTIC_AUTONAME_LOG_V1.json`: log de autoasignación semántica sobre controles sin nombre explícito.
+- `P6_T2_A11Y_CONTRAST_AUTOFIX_LOG_V1.json`: log del autofix de contraste aplicado en controles críticos.
+- `P6_T2_A11Y_DUPLICATE_CONTROL_RENAME_LOG_V1.json`: log de renombrado de controles duplicados para foco determinista por pantalla.
+- `P6_T3_I18N_ES_EN_COVERAGE_V1.csv`: cobertura i18n por sección (lang hint, fallback, riesgo de truncado y pass/fail).
+- `P6_T3_I18N_ES_EN_VALIDATION_V1.json`: validación consolidada de localización robusta ES/EN en secciones iOS/Web.
+- `P6_T3_I18N_AUTOFIX_LOG_V1.json`: log de normalización automática i18n (inserción de `lang_hint` y `i18n_fallback_note`).
+- `P7_T1_COMPONENT_INVENTORY_V1.csv`: inventario de componentes base reutilizables (component/category/source node/section/screen).
+- `P7_T1_COMPONENT_VALIDATION_V1.json`: validación de cobertura mínima de categorías de componentes para handoff enterprise.
+- `P7_T2_TOKEN_SET_V1.json`: set de tokens derivados del board (`color`, `typography`, `spacing`) alineado con style guide.
+- `P7_T2_TOKEN_AUDIT_V1.csv`: checks de consistencia visual por sección y por reglas globales de tokenización.
+- `P7_T2_TOKEN_VALIDATION_V1.json`: resultado consolidado de validación de tokens/consistencia para P7-T2.
+- `P7_T3_HANDOFF_SCREEN_SPECS_V1.csv`: especificación por pantalla (acciones primarias, estados requeridos y readiness de implementación).
+- `P7_T3_HANDOFF_INTERACTIONS_V1.csv`: matriz de triggers/interacciones esperadas por pantalla y regla QA asociada.
+- `P7_T3_HANDOFF_QA_CHECKLIST_V1.json`: checklist técnico de handoff con cobertura i18n/a11y/estados por pantalla.
+- `P8_T1_VISUAL_FLOW_QA_V1.csv`: checks de QA visual y estructural (boards requeridos, huérfanas y overflows numéricos).
+- `P8_T1_VISUAL_FLOW_QA_V1.json`: resultado consolidado de QA visual/flujo para gate de cierre enterprise.
+- `P8_T2_COMPLETENESS_CHECKLIST_V1.csv`: checklist de completitud final (pantallas, estados, parity, a11y, i18n, QA visual).
+- `P8_T2_COMPLETENESS_VALIDATION_V1.json`: validación consolidada de cobertura total con criterios de salida enterprise.
+- `P8_T3_GO_NO_GO_REPORT_V1.json`: dictamen final Go/No-Go enterprise con estado de gates y racional de decisión.
+- `P8_T3_RESIDUAL_RISK_REGISTER_V1.csv`: registro de riesgos residuales con severidad, estado y mitigación.
+- `C7_T3_EXECUTIVE_CHECKLIST.json`: checklist ejecutivo del gate C7 (smoke global, paridad operativa y estado de cierre de ciclo).
+- `V3_P0_T1_IMPLEMENTATION_INVENTORY.csv`: inventario codificable V3 por dominio/plataforma con cobertura board vs código.
+- `V3_P0_T1_DEPENDENCY_MATRIX.csv`: matriz de dependencias capability->contracts->backend route->consumidor web/iOS para arranque V3.
+- `V3_P0_T1_GAP_REGISTER.json`: registro formal de gaps abiertos del baseline V3 con severidad, evidencia y tareas destino.
+- `V3_P0_T2_OWNERSHIP_MATRIX.csv`: matriz de ownership por módulo y capa (`contracts/backend/ios/web/qa`) para ejecución V3.
+- `V3_P0_T2_DONE_CRITERIA.json`: definición de done por capa y checklist de aceptación para cierre de módulos V3.
+- `V3_P0_T3_MIN_TEST_MATRIX.csv`: matriz ejecutada de calidad mínima por capa con comandos, resultados y evidencia del gate V3.
+- `V3_P0_T3_QUALITY_GATE.json`: consolidado auditable del gate técnico V3 (`tests mínimos`, `smoke crítico`, `checklist de evidencia`) y transición a P1.
+- `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
+- `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
+- `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
+- `R3_LEGAL_SEMANTIC_HARDENING_V1.json`: log de hardening semántico en controles legal/privacy (iOS D5 + Web D5).
+- `R3_LEGAL_SEMANTIC_VALIDATION_V1.json`: validación de cierre R3 y revalidación cruzada A11y/Handoff.
+
 ## Feature files
 - `features/foundation_workspace.feature`
 - `features/contracts.feature`
@@ -17,6 +109,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/beta_stabilization.feature`
 - `features/legal_hardening.feature`
 - `features/release_checklist_v1.feature`
+- `features/critical_regression_suite.feature`
 - `features/roadmap_v1_1.feature`
 - `features/ux_foundation_modernization.feature`
 - `features/exercise_videos_integration.feature`
@@ -24,3 +117,58 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/qa_visual_demo_checklist.feature`
 - `features/runtime_local_demo.feature`
 - `features/uiux_bilingual_redesign.feature`
+- `features/web_domain_navigation.feature`
+- `features/ios_domain_shell_navigation.feature`
+- `features/cross_platform_domain_state_parity.feature`
+- `features/auth_onboarding_screen_contract_c2.feature`
+- `features/c2_daily_training_videos.feature`
+- `features/c2_nutrition_progress_ai.feature`
+- `features/c2_settings_legal.feature`
+- `features/c2_cross_platform_integration.feature`
+- `features/c3_t1_ios_auth_i18n_hardening.feature`
+- `features/c3_t2_web_microcopy_a11y_hardening.feature`
+- `features/c4_t1_runtime_contract_navigation.feature`
+- `features/c4_t2_runtime_enterprise_states.feature`
+- `features/c4_t3_runtime_gate_readiness.feature`
+- `features/c5_t1_role_based_domain_access.feature`
+- `features/c5_t2_role_persistence_telemetry.feature`
+- `features/c5_t3_rbac_gate_readiness.feature`
+- `features/c6_t1_backend_role_capabilities_alignment.feature`
+- `features/c6_t2_denied_access_audit_tracing.feature`
+- `features/c6_t3_gate_readiness.feature`
+- `features/c7_t1_blocked_actions_backend_integration.feature`
+- `features/c7_t2_operational_observability_loop.feature`
+- `features/c7_t3_gate_readiness.feature`
+- `features/v3_p0_t1_implementation_inventory.feature`
+- `features/v3_p0_t2_ownership_matrix.feature`
+- `features/v3_p0_t3_quality_gate.feature`
+- `features/p0_t1_forensic_inventory.feature`
+- `features/p0_t3_executable_backlog.feature`
+- `features/p1_t1_board_noise_cleanup.feature`
+- `features/p1_t1_cleanup_completion.feature`
+- `features/p1_t2_domain_ia_restructure.feature`
+- `features/p1_t3_global_flow_e2e.feature`
+- `features/p2_t1_ios_auth_onboarding_consent.feature`
+- `features/p2_t2_ios_training_video.feature`
+- `features/p2_t3_ios_nutrition_progress_ai_settings.feature`
+- `features/p3_t1_web_shell_dashboard.feature`
+- `features/p3_t2_web_core_operations.feature`
+- `features/p3_t3_web_admin_governance.feature`
+- `features/p4_t1_enterprise_table_patterns.feature`
+- `features/p4_t2_crud_bulk_actions.feature`
+- `features/p4_t3_approval_audit.feature`
+- `features/p5_t1_state_coverage.feature`
+- `features/p5_t2_error_recovery.feature`
+- `features/p5_t3_session_continuity.feature`
+- `features/p6_t1_ios_web_functional_parity.feature`
+- `features/p6_t2_a11y_aa.feature`
+- `features/p6_t3_localization_es_en.feature`
+- `features/p7_t1_componentization_reusable.feature`
+- `features/p7_t2_tokens_consistency.feature`
+- `features/p7_t3_handoff_by_section.feature`
+- `features/p8_t1_visual_flow_qa.feature`
+- `features/p8_t2_completeness_checklist.feature`
+- `features/p8_t3_go_no_go_enterprise.feature`
+- `features/r1_mcp_layout_evidence.feature`
+- `features/r2_color_outlier_normalization.feature`
+- `features/r3_legal_semantic_hardening.feature`

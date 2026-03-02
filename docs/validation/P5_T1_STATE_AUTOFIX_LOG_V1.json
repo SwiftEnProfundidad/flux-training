@@ -1,0 +1,111 @@
+{
+  "generatedAt": "2026-03-01T21:13:43.024Z",
+  "changesCount": 21,
+  "changes": [
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "action": "add_state",
+      "state": "state_default"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "action": "add_state",
+      "state": "state_loading"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "action": "add_state",
+      "state": "state_empty"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "action": "add_state",
+      "state": "state_error"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "action": "add_state",
+      "state": "state_offline"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "action": "add_state",
+      "state": "state_denied"
+    },
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "action": "add_state",
+      "state": "state_success"
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "action": "add_state",
+      "state": "state_default"
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "action": "add_state",
+      "state": "state_denied"
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "action": "add_state_container",
+      "container": "IOS_D3_EXERCISE_VIDEO_LIBRARY_CRITICAL_STATES"
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "action": "add_state",
+      "state": "state_default"
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "action": "add_state_container",
+      "container": "IOS_D4_NUTRITION_PROGRESS_CRITICAL_STATES"
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "action": "add_state",
+      "state": "state_default"
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "action": "add_state_container",
+      "container": "IOS_D5_AI_SETTINGS_LEGAL_CRITICAL_STATES"
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "action": "add_state",
+      "state": "state_default"
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "action": "add_state",
+      "state": "state_default"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "action": "add_state",
+      "state": "state_default"
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "action": "add_state",
+      "state": "state_denied"
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "action": "add_state_container",
+      "container": "WEB_D3_PLAN_SESSION_CMS_CRITICAL_STATES"
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "action": "add_state_container",
+      "container": "WEB_D4_NUTRITION_PROGRESS_OPS_CRITICAL_STATES"
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "action": "add_state_container",
+      "container": "WEB_D5_ANALYTICS_AI_GOVERNANCE_CRITICAL_STATES"
+    }
+  ]
+}

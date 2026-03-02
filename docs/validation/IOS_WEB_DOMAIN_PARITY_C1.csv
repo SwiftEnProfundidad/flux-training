@@ -1,0 +1,8 @@
+domain,web_modules,ios_modules,gap,status
+all,"onboarding|training|recommendations|nutrition|progress|offlineSync|observability","readiness|auth|onboarding|training|nutrition|progress|offlineSync|observability|recommendations","diferencia aceptada: iOS mantiene módulos nativos previos (auth/readiness) dentro del mismo dominio",PASS
+onboarding,"onboarding","readiness|auth|onboarding","diferencia aceptada: iOS incorpora precondición de acceso/readiness dentro del dominio onboarding",PASS
+training,"training","training","sin gap crítico",PASS
+nutrition,"nutrition","nutrition","sin gap crítico",PASS
+progress,"progress","progress","sin gap crítico",PASS
+operations,"recommendations|offlineSync|observability","offlineSync|observability|recommendations","sin gap crítico",PASS
+persistence_reload,"dominio training restaurado tras reload runtime","dominio training restaurado desde AppStorage al relanzar","sin gap crítico",PASS

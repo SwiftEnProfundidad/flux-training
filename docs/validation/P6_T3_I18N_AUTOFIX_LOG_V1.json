@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-03-01T21:44:22.217Z",
+  "task": "P6-T3",
+  "sectionsScanned": 19,
+  "langHintInserted": 11,
+  "fallbackInserted": 19,
+  "touchedSections": [
+    {
+      "section": "IOS_D1_ACCESS_IDENTITY",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_D2_TRAINING_EXECUTION",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_D3_EXERCISE_VIDEO_LIBRARY_CRITICAL_STATES",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_D4_NUTRITION_PROGRESS_CRITICAL_STATES",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_D5_AI_SETTINGS_LEGAL_CRITICAL_STATES",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "IOS_DX_GLOBAL_FLOW",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D0_SHELL_NAV",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D1_ACCESS_DASHBOARD",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D2_ATHLETE_OPERATIONS",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D3_PLAN_SESSION_CMS_CRITICAL_STATES",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D4_NUTRITION_PROGRESS_OPS_CRITICAL_STATES",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE",
+      "langHintInserted": false,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_D5_ANALYTICS_AI_GOVERNANCE_CRITICAL_STATES",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    },
+    {
+      "section": "WEB_DX_GLOBAL_FLOW",
+      "langHintInserted": true,
+      "fallbackInserted": true
+    }
+  ],
+  "revalidatedAt": "2026-03-01T21:44:59.703Z"
+}

@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-03-01T20:57:04.594Z",
+  "task": "P3-T1",
+  "sections": [
+    {
+      "id": "c6gg9",
+      "name": "WEB_D0_SHELL_NAV"
+    },
+    {
+      "id": "AUNCE",
+      "name": "WEB_D1_ACCESS_DASHBOARD"
+    }
+  ],
+  "required": {
+    "accessMain": [
+      "WEB-000_ACCESS_GATE",
+      "WEB-010_SIGN_IN",
+      "WEB-020_DASHBOARD_HOME",
+      "WEB-030_QUICK_ACTIONS",
+      "WEB-040_ALERT_CENTER",
+      "WEB-050_SYSTEM_STATUS"
+    ],
+    "accessSecondary": [
+      "WEB-L-000_ACCESS_GATE",
+      "WEB-L-010_SIGN_IN",
+      "WEB-L-020_DASHBOARD_HOME",
+      "WEB-L-030_QUICK_ACTIONS",
+      "WEB-L-040_ALERT_CENTER",
+      "WEB-L-050_SYSTEM_STATUS"
+    ],
+    "dashboardMain": [
+      "WEB-200_DASHBOARD_KPIS",
+      "WEB-210_READINESS_MONITOR",
+      "WEB-220_ALERTS_FULL",
+      "WEB-230_RECENT_ACTIVITY",
+      "WEB-240_SHORTCUTS"
+    ],
+    "dashboardSecondary": [
+      "WEB-L-200_DASHBOARD_TABLET",
+      "WEB-L-210_READINESS_TABLET",
+      "WEB-L-220_ALERTS_TABLET"
+    ],
+    "dashboardStates": [
+      "state_loading",
+      "state_empty",
+      "state_error",
+      "state_offline",
+      "state_denied",
+      "state_success"
+    ]
+  },
+  "present": {
+    "shellFrames": [
+      "sidebar",
+      "main_area"
+    ],
+    "shellNotes": [
+      "shell_note_roles",
+      "shell_note_modules"
+    ],
+    "accessMain": [
+      "WEB-000_ACCESS_GATE",
+      "WEB-010_SIGN_IN",
+      "WEB-020_DASHBOARD_HOME",
+      "WEB-030_QUICK_ACTIONS",
+      "WEB-040_ALERT_CENTER",
+      "WEB-050_SYSTEM_STATUS"
+    ],
+    "accessSecondary": [
+      "WEB-L-000_ACCESS_GATE",
+      "WEB-L-010_SIGN_IN",
+      "WEB-L-020_DASHBOARD_HOME",
+      "WEB-L-030_QUICK_ACTIONS",
+      "WEB-L-040_ALERT_CENTER",
+      "WEB-L-050_SYSTEM_STATUS"
+    ],
+    "accessFlow": [
+      "flow_title",
+      "flow_row",
+      "state_line"
+    ],
+    "dashboardMain": [
+      "WEB-200_DASHBOARD_KPIS",
+      "WEB-210_READINESS_MONITOR",
+      "WEB-220_ALERTS_FULL",
+      "WEB-230_RECENT_ACTIVITY",
+      "WEB-240_SHORTCUTS"
+    ],
+    "dashboardSecondary": [
+      "WEB-L-200_DASHBOARD_TABLET",
+      "WEB-L-210_READINESS_TABLET",
+      "WEB-L-220_ALERTS_TABLET"
+    ],
+    "dashboardStates": [
+      "state_loading",
+      "state_empty",
+      "state_error",
+      "state_offline",
+      "state_denied",
+      "state_success"
+    ]
+  },
+  "missing": {
+    "accessMain": [],
+    "accessSecondary": [],
+    "dashboardMain": [],
+    "dashboardSecondary": [],
+    "dashboardStates": []
+  },
+  "pass": {
+    "shellHasSidebarAndMain": true,
+    "shellNotesNamed": true,
+    "accessMainComplete": true,
+    "accessSecondaryComplete": true,
+    "dashboardMainComplete": true,
+    "dashboardSecondaryComplete": true,
+    "dashboardStatesComplete": true,
+    "accessFlowConnected": true
+  },
+  "overallPass": true
+}
