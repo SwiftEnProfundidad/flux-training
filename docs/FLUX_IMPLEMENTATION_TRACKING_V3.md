@@ -137,3 +137,12 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - `pnpm --filter @flux/web test` en PASS (`26` ficheros, `59` tests, `0` fallos).
 - Inicio V3-P2-T2:
   - foco en operaciones core web (athletes/plans/sessions + nutrition/progress ops) y cierre de estados enterprise por módulo.
+- Avance V3-P2-T2 (en curso):
+  - subtask `V3-P2-T2.1` iniciada con `operationsHub` en web: roster operativo de atletas derivado de planes/sesiones/nutrición, filtro por atleta, ordenación y selección múltiple con acción masiva.
+  - módulo conectado al dominio `operations` con estado enterprise propio (`idle/loading/saved/empty/validation_error/error`) y microcopy ES/EN.
+  - cobertura técnica añadida:
+    - `apps/web/src/presentation/core-operations.spec.ts`
+    - actualización de `apps/web/src/presentation/dashboard-domains.spec.ts`
+  - validación parcial en PASS:
+    - `pnpm --filter @flux/web check`
+    - `pnpm --filter @flux/web test`
