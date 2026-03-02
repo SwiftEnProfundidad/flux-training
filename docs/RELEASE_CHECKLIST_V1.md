@@ -69,3 +69,21 @@
 | Legal: cadena de compliance (consent + access control + GDPR export/delete) | ✅ PASS | `docs/validation/V4_P0_T2_COMPLIANCE_LEGAL_DATA.json`, `docs/validation/V4_P0_T3_ENTERPRISE_ACCESS_CONTROL.json` |
 | Operacion: observabilidad + runbooks + audit trail + carga/degradacion | ✅ PASS | `docs/validation/V4_P1_T1_UNIFIED_TELEMETRY.json`, `docs/validation/V4_P1_T2_ALERTING_RUNBOOKS.json`, `docs/validation/V4_P1_T3_LOGGING_AUDIT_TRAIL.json`, `docs/validation/V4_P2_T3_LOAD_DEGRADATION.json` |
 | Bloqueos de gate resueltos (contrato `ObservabilityGateway` en suites web) | ✅ PASS | `apps/web/src/application/happy-path-e2e-suite.spec.ts`, `apps/web/src/application/critical-regression-suite.spec.ts`, `apps/web/src/application/edge-case-e2e-suite.spec.ts`, `apps/web/src/application/recovery-path-e2e-suite.spec.ts` |
+
+## 10) Plan Rollback + Continuidad V4-P3-T2 (2026-03-02)
+| Capa | Trigger de rollback | Accion de rollback | Validacion de continuidad |
+|---|---|---|---|
+| Web | Incremento de error UX crítico o regresión funcional masiva | Subir `MIN_WEB_CLIENT_VERSION` para bloquear clientes incompatibles y servir build estable previa | `pnpm --filter @flux/web test -- src/presentation/runtime-states.spec.ts` |
+| iOS | Crash spike o incompatibilidad en runtime iOS | Subir `MIN_IOS_CLIENT_VERSION` para exigir actualización y mantener versión estable | `cd apps/ios && swift test --filter RecoveryPathFlowTests` |
+| Backend API | Degradación de disponibilidad o rutas críticas inestables | Revert de despliegue backend al commit estable previo y reinicio del runtime demo/API | `pnpm --filter @flux/backend test -- src/presentation/demo-http-server.spec.ts` |
+| Datos + auditoría | Incidente de seguridad/compliance o necesidad de reconstrucción forense | Ejecutar export forense y preservar trazabilidad antes de corrección | `pnpm --filter @flux/backend test -- src/application/recovery-path-e2e-suite.spec.ts` |
+| Backup/restore operativo | Pérdida parcial de estado o rollback incompleto | Generar snapshot forense de actividad/logs y ejecutar restauración controlada antes de reabrir tráfico | `pnpm --filter @flux/backend test -- src/application/export-forensic-audit.spec.ts` |
+
+## 11) Simulacro de continuidad V4-P3-T2 (2026-03-02)
+| Simulacro | Resultado | Evidencia |
+|---|---|---|
+| Backend recuperación/continuidad (`RecoveryPath`) | ✅ PASS | `pnpm --filter @flux/backend test -- src/application/recovery-path-e2e-suite.spec.ts` |
+| Backend runtime API estable en escenarios críticos | ✅ PASS | `pnpm --filter @flux/backend test -- src/presentation/demo-http-server.spec.ts` |
+| Backup + export forense operativo | ✅ PASS | `pnpm --filter @flux/backend test -- src/application/export-forensic-audit.spec.ts` |
+| Web recuperación de flujo y estados runtime | ✅ PASS | `pnpm --filter @flux/web test -- src/application/recovery-path-e2e-suite.spec.ts` + `pnpm --filter @flux/web test -- src/presentation/runtime-states.spec.ts` |
+| iOS recuperación de flujo crítico | ✅ PASS | `cd apps/ios && swift test --filter RecoveryPathFlowTests` |

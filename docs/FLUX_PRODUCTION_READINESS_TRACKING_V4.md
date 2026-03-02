@@ -39,8 +39,8 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V4-P3-T1 | Gate de release enterprise | V4-P3-T1.1 checklist tecnico; V4-P3-T1.2 checklist legal; V4-P3-T1.3 checklist operacion | ✅ | V4-P2-T3 | Go/No-Go auditable |
-| V4-P3-T2 | Plan de rollback y continuidad | V4-P3-T2.1 rollback por capa; V4-P3-T2.2 backup/restore; V4-P3-T2.3 simulacro | 🚧 | V4-P3-T1 | Recuperacion validada |
-| V4-P3-T3 | Cierre V4 y handoff a V5 | V4-P3-T3.1 reporte residual; V4-P3-T3.2 aprobacion release board; V4-P3-T3.3 apertura V5 | ⏳ | V4-P3-T2 | V4 cerrado para rollout controlado |
+| V4-P3-T2 | Plan de rollback y continuidad | V4-P3-T2.1 rollback por capa; V4-P3-T2.2 backup/restore; V4-P3-T2.3 simulacro | ✅ | V4-P3-T1 | Recuperacion validada |
+| V4-P3-T3 | Cierre V4 y handoff a V5 | V4-P3-T3.1 reporte residual; V4-P3-T3.2 aprobacion release board; V4-P3-T3.3 apertura V5 | 🚧 | V4-P3-T2 | V4 cerrado para rollout controlado |
 
 ## Bitacora V4 (2026-03-02)
 - Inicio V4-P0-T1:
@@ -125,5 +125,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - checklist legal enterprise validado contra evidencia de compliance/acceso (`V4_P0_T2`, `V4_P0_T3`) y checklist operativo validado contra observabilidad/runbooks/audit/load (`V4_P1_*`, `V4_P2_*`).
   - evidencia publicada: `docs/validation/V4_P3_T1_RELEASE_GATE_ENTERPRISE.json`.
   - checklist maestro actualizado: `docs/RELEASE_CHECKLIST_V1.md`.
+- Cierre V4-P3-T2:
+  - plan de rollback por capa (web, iOS, backend y datos/auditoría) documentado con triggers y acciones operativas concretas.
+  - cobertura explícita de backup/restore operativo añadida al checklist maestro con validación forense.
+  - simulacro de continuidad multi-plataforma ejecutado en verde (backend/web/iOS) con evidencia de recuperación de flujo crítico.
+  - evidencia publicada: `docs/validation/V4_P3_T2_ROLLBACK_CONTINUITY.json`.
+  - checklist maestro actualizado: `docs/RELEASE_CHECKLIST_V1.md`.
 - Siguiente task activa:
-  - `V4-P3-T2` (Plan de rollback y continuidad) en `🚧`.
+  - `V4-P3-T3` (Cierre V4 y handoff a V5) en `🚧`.

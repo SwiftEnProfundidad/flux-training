@@ -121,6 +121,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V4_P2_T2_BACKEND_API_PERFORMANCE.json`: evidencia de perfilado runtime por endpoint, caching con invalidación explícita y optimización de acceso en API backend.
 - `V4_P2_T3_LOAD_DEGRADATION.json`: evidencia de suites de carga base/estrés con criterios de degradación controlada, alerting operativo y guardrails de p95.
 - `V4_P3_T1_RELEASE_GATE_ENTERPRISE.json`: evidencia del gate enterprise técnico/legal/operación con consolidación GO/NO-GO auditable para release.
+- `V4_P3_T2_ROLLBACK_CONTINUITY.json`: evidencia del plan de rollback por capa, backup/restore operativo y simulacro de continuidad multi-plataforma.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -200,6 +201,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v4_p2_t2_backend_api_performance.feature`
 - `features/v4_p2_t3_load_degradation.feature`
 - `features/v4_p3_t1_release_gate_enterprise.feature`
+- `features/v4_p3_t2_rollback_continuity.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
