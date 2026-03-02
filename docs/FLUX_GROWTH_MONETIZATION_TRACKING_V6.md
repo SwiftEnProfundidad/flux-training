@@ -31,8 +31,8 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 ## Fase P2 - Retencion y expansion
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V6-P2-T1 | Loops de activacion semanal | V6-P2-T1.1 primer valor en 24h; V6-P2-T1.2 continuidad D7; V6-P2-T1.3 coaching nudges | 🚧 | V6-P0-T2 | Activacion semanal en alza |
-| V6-P2-T2 | CRM operativo multicanal | V6-P2-T2.1 in-app; V6-P2-T2.2 email/push; V6-P2-T2.3 segmentacion por riesgo | ⏳ | V6-P2-T1 | Re-engagement automatizado |
+| V6-P2-T1 | Loops de activacion semanal | V6-P2-T1.1 primer valor en 24h; V6-P2-T1.2 continuidad D7; V6-P2-T1.3 coaching nudges | ✅ | V6-P0-T2 | Activacion semanal en alza |
+| V6-P2-T2 | CRM operativo multicanal | V6-P2-T2.1 in-app; V6-P2-T2.2 email/push; V6-P2-T2.3 segmentacion por riesgo | 🚧 | V6-P2-T1 | Re-engagement automatizado |
 | V6-P2-T3 | Prevencion de churn y win-back | V6-P2-T3.1 score de churn; V6-P2-T3.2 intervenciones; V6-P2-T3.3 medicion incremental | ⏳ | V6-P2-T2 | Churn contenido por cohortes |
 
 ## Fase P3 - Cierre y gobierno V6
@@ -89,3 +89,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P1_T3_BILLING_RECOVERY_RESILIENCE.json`.
 - Siguiente task activa:
   - `V6-P2-T1` (Loops de activacion semanal) en `🚧`.
+- Cierre V6-P2-T1:
+  - loop de activación de 24h definido (`sign-in -> onboarding completion -> first plan -> first session`) con ownership por etapa.
+  - estrategia de continuidad D7 definida con checkpoints (`day1`, `day3`, `day5`, `day7`) y nudges de recuperación temprana.
+  - coaching nudges definidos por contexto de riesgo (`drop in adherence`, `missed nutrition logs`, `session skip`) con reglas de frecuencia.
+  - evidencia publicada: `docs/validation/V6_P2_T1_WEEKLY_ACTIVATION_LOOPS.json`.
+- Siguiente task activa:
+  - `V6-P2-T2` (CRM operativo multicanal) en `🚧`.

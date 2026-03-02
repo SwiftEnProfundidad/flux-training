@@ -19,6 +19,6 @@
 - Estado de implementación producto: `FLUX_IMPLEMENTATION_TRACKING_V3.md` cerrado en `✅`.
 - Estado de hardening enterprise: `FLUX_PRODUCTION_READINESS_TRACKING_V4.md` cerrado en `✅`.
 - Estado de rollout/adopción: `FLUX_ROLLOUT_SCALE_TRACKING_V5.md` cerrado en `✅`.
-- Estado activo actual: `FLUX_GROWTH_MONETIZATION_TRACKING_V6.md` con `V6-P2-T1` en `🚧`.
+- Estado activo actual: `FLUX_GROWTH_MONETIZATION_TRACKING_V6.md` con `V6-P2-T2` en `🚧`.
 - Evidencia visual local (Playwright): `output/playwright/`.
 - Evidencia iOS host simulador: `output/ios/`.
