@@ -102,6 +102,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V3_P4_T1_IOS_WEB_PARITY_SUMMARY.json`: resumen ejecutivo de paridad V3-P4-T1.1 con contadores PASS/REVIEW y gaps abiertos para remediación.
 - `V3_P4_T1_2_BEHAVIOR_ALIGNMENT.json`: consolidado de cierre V3-P4-T1.2 con ajustes de comportamiento iOS/Web para observabilidad e idempotencia.
 - `V3_P4_T1_3_CROSS_PLATFORM_SMOKE.json`: resultado de smoke cross-platform (web, iOS y suite crítica) para cierre de `V3-P4-T1`.
+- `V3_P4_T2_1_HAPPY_PATH_E2E.json`: ejecución de happy paths cross-platform (backend/web/iOS) para arranque de `V3-P4-T2`.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -164,6 +165,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v3_p4_t1_ios_web_parity.feature`
 - `features/v3_p4_t1_2_behavior_alignment.feature`
 - `features/v3_p4_t1_3_cross_platform_smoke.feature`
+- `features/v3_p4_t2_1_happy_paths_e2e.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

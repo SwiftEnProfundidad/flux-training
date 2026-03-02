@@ -321,3 +321,19 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
       - `docs/validation/features/v3_p4_t1_3_cross_platform_smoke.feature`
     - resultado: `V3-P4-T1` cerrado con paridad funcional iOS/Web validada por dominio.
   - siguiente task activa: `V3-P4-T2` (arranque E2E de flujos críticos).
+- Inicio V3-P4-T2:
+  - foco en validar flujos E2E críticos por capas, empezando por `happy paths` multi-plataforma antes de endurecer edge cases y recovery.
+- Avance V3-P4-T2 (en curso):
+  - subtask `V3-P4-T2.1` cerrada:
+    - suites dedicadas de happy path añadidas:
+      - backend: `apps/backend/src/application/happy-path-e2e-suite.spec.ts`
+      - web: `apps/web/src/application/happy-path-e2e-suite.spec.ts`
+      - iOS: `apps/ios/Tests/FluxTrainingTests/HappyPathFlowTests.swift`
+    - comando unificado publicado:
+      - `pnpm test:happy-paths`
+    - evidencias publicadas:
+      - `docs/validation/V3_P4_T2_1_HAPPY_PATH_E2E.json`
+      - `docs/validation/features/v3_p4_t2_1_happy_paths_e2e.feature`
+    - verificación técnica en PASS:
+      - `pnpm test:happy-paths` (`backend 58/58`, `web 83/83`, `ios 1/1`, `0` fallos)
+  - siguiente subtask activa: `V3-P4-T2.2` (edge cases E2E cross-platform).
