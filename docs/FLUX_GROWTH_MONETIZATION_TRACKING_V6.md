@@ -24,8 +24,8 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 ## Fase P1 - Monetizacion y pricing
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V6-P1-T1 | Arquitectura de planes freemium/premium | V6-P1-T1.1 packaging; V6-P1-T1.2 limites por rol; V6-P1-T1.3 upgrade paths | 🚧 | V6-P0-T2 | Planes consistentes y accionables |
-| V6-P1-T2 | Paywall y upgrades contextuales | V6-P1-T2.1 triggers por valor; V6-P1-T2.2 copy ES/EN; V6-P1-T2.3 pruebas A/B | ⏳ | V6-P1-T1 | Upgrade no intrusivo y trazable |
+| V6-P1-T1 | Arquitectura de planes freemium/premium | V6-P1-T1.1 packaging; V6-P1-T1.2 limites por rol; V6-P1-T1.3 upgrade paths | ✅ | V6-P0-T2 | Planes consistentes y accionables |
+| V6-P1-T2 | Paywall y upgrades contextuales | V6-P1-T2.1 triggers por valor; V6-P1-T2.2 copy ES/EN; V6-P1-T2.3 pruebas A/B | 🚧 | V6-P1-T1 | Upgrade no intrusivo y trazable |
 | V6-P1-T3 | Billing resiliente y recovery | V6-P1-T3.1 fallo de cobro; V6-P1-T3.2 grace period; V6-P1-T3.3 win-back | ⏳ | V6-P1-T2 | Perdida de ingreso controlada |
 
 ## Fase P2 - Retencion y expansion
@@ -68,3 +68,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P0_T3_GROWTH_OPERATING_MODEL.json`.
 - Siguiente task activa:
   - `V6-P1-T1` (Arquitectura de planes freemium/premium) en `🚧`.
+- Cierre V6-P1-T1:
+  - arquitectura de planes definida con 3 tiers (`free`, `pro`, `enterprise-coach`) y capacidades claramente delimitadas por dominio.
+  - límites por rol formalizados (`athlete`, `coach`, `admin`, `ops`) con reglas explícitas de visibilidad y bloqueo de acciones premium.
+  - rutas de upgrade definidas por contexto de valor (training insights, nutrition AI, reporting export) con fallback y trazabilidad de conversión.
+  - evidencia publicada: `docs/validation/V6_P1_T1_FREEMIUM_PREMIUM_ARCHITECTURE.json`.
+- Siguiente task activa:
+  - `V6-P1-T2` (Paywall y upgrades contextuales) en `🚧`.
