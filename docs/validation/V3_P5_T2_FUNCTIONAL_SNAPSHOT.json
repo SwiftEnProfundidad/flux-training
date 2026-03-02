@@ -1,0 +1,37 @@
+{
+  "cycle": "V3",
+  "phase": "P5",
+  "task": "V3-P5-T2.2",
+  "title": "Functional snapshot release candidate",
+  "capturedAt": "2026-03-02T16:49:04Z",
+  "sourceCoverageFile": "docs/validation/V3_P5_T1_MODULE_COVERAGE.csv",
+  "moduleCoverage": {
+    "totalModules": 12,
+    "implemented": 12,
+    "partial": 0,
+    "gaps": 0
+  },
+  "crossPlatformE2E": {
+    "happyPaths": "PASS",
+    "edgeCases": "PASS",
+    "recoveryPaths": "PASS",
+    "references": [
+      "docs/validation/V3_P4_T2_1_HAPPY_PATH_E2E.json",
+      "docs/validation/V3_P4_T2_2_EDGE_CASES_E2E.json",
+      "docs/validation/V3_P4_T2_3_RECOVERY_PATHS_E2E.json"
+    ]
+  },
+  "residualDebtAndRisk": {
+    "reference": "docs/validation/V3_P5_T1_DEBT_RISK_REGISTER.json",
+    "debtItems": 3,
+    "openRisks": 3
+  },
+  "releaseCandidateReadiness": {
+    "status": "ready_for_v3_closure",
+    "notes": [
+      "Implementación funcional completa por módulos.",
+      "Sin bloqueos activos en suites críticas.",
+      "Queda pendiente handoff y apertura formal de V4."
+    ]
+  }
+}
