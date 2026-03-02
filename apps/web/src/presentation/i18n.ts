@@ -44,6 +44,26 @@ type AppTranslations = {
   requestDeletion: string;
   trainingSectionTitle: string;
   planStatusLabel: string;
+  operationsHubTitle: string;
+  operationsHubStatusLabel: string;
+  athleteSearchPlaceholder: string;
+  athleteSortLabel: string;
+  athleteSortByName: string;
+  athleteSortBySessions: string;
+  athleteSortByLastSession: string;
+  athletesLoadedLabel: string;
+  athletesSelectedLabel: string;
+  bulkAssignStarterPlan: string;
+  clearAthleteSelection: string;
+  noAthletesFound: string;
+  athleteColumn: string;
+  plansColumn: string;
+  sessionsColumn: string;
+  nutritionColumn: string;
+  lastSessionColumn: string;
+  riskColumn: string;
+  riskNormal: string;
+  riskAttention: string;
   createPlan: string;
   loadPlans: string;
   logWorkout: string;
@@ -172,6 +192,26 @@ const translations: Record<AppLanguage, AppTranslations> = {
     requestDeletion: "Solicitar borrado",
     trainingSectionTitle: "Entrenamiento",
     planStatusLabel: "Plan",
+    operationsHubTitle: "Operaciones core",
+    operationsHubStatusLabel: "Operaciones",
+    athleteSearchPlaceholder: "buscar atleta",
+    athleteSortLabel: "ordenar por",
+    athleteSortByName: "nombre",
+    athleteSortBySessions: "sesiones",
+    athleteSortByLastSession: "ultima sesion",
+    athletesLoadedLabel: "Atletas cargados",
+    athletesSelectedLabel: "Atletas seleccionados",
+    bulkAssignStarterPlan: "Asignar starter plan",
+    clearAthleteSelection: "Limpiar seleccion",
+    noAthletesFound: "No hay atletas para este filtro.",
+    athleteColumn: "Atleta",
+    plansColumn: "Planes",
+    sessionsColumn: "Sesiones",
+    nutritionColumn: "Nutricion",
+    lastSessionColumn: "Ultima sesion",
+    riskColumn: "Riesgo",
+    riskNormal: "Normal",
+    riskAttention: "Atencion",
     createPlan: "Crear plan",
     loadPlans: "Cargar planes",
     logWorkout: "Registrar sesion demo",
@@ -298,6 +338,26 @@ const translations: Record<AppLanguage, AppTranslations> = {
     requestDeletion: "Request deletion",
     trainingSectionTitle: "Training",
     planStatusLabel: "Plan",
+    operationsHubTitle: "Core operations",
+    operationsHubStatusLabel: "Operations",
+    athleteSearchPlaceholder: "search athlete",
+    athleteSortLabel: "sort by",
+    athleteSortByName: "name",
+    athleteSortBySessions: "sessions",
+    athleteSortByLastSession: "last session",
+    athletesLoadedLabel: "Athletes loaded",
+    athletesSelectedLabel: "Athletes selected",
+    bulkAssignStarterPlan: "Assign starter plan",
+    clearAthleteSelection: "Clear selection",
+    noAthletesFound: "No athletes match this filter.",
+    athleteColumn: "Athlete",
+    plansColumn: "Plans",
+    sessionsColumn: "Sessions",
+    nutritionColumn: "Nutrition",
+    lastSessionColumn: "Last session",
+    riskColumn: "Risk",
+    riskNormal: "Normal",
+    riskAttention: "Attention",
     createPlan: "Create plan",
     loadPlans: "Load plans",
     logWorkout: "Log demo workout",

@@ -82,6 +82,12 @@ import {
   resolveDomainAccessDecision,
   type RoleCapabilitiesStatus
 } from "./role-domain-access";
+import {
+  buildAthleteOperationsRows,
+  filterAthleteOperationsRows,
+  sortAthleteOperationsRows,
+  type AthleteSortMode
+} from "./core-operations";
 import "./app.css";
 
 type SessionStatus = "idle" | "loading" | "saved" | "queued" | "validation_error" | "error";
@@ -130,6 +136,7 @@ type LegalStatus =
 type SettingsStatus = "idle" | "loading" | "saved";
 type VideoStatus = "idle" | "loading" | "loaded" | "error";
 type RecommendationsStatus = "idle" | "loading" | "loaded" | "empty" | "error";
+type OperationsStatus = "idle" | "loading" | "saved" | "empty" | "validation_error" | "error";
 
 const demoUserId = "demo-user";
 const languageStorageKey = "flux_training_language";
@@ -248,6 +255,10 @@ export function App() {
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>(
     nutritionProgressAIDefaults.recommendations
   );
+  const [operationsStatus, setOperationsStatus] = useState<OperationsStatus>("idle");
+  const [athleteSearch, setAthleteSearch] = useState("");
+  const [athleteSortMode, setAthleteSortMode] = useState<AthleteSortMode>("sessions");
+  const [selectedAthleteIds, setSelectedAthleteIds] = useState<string[]>([]);
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -300,6 +311,13 @@ export function App() {
     activeDomain,
     domainRuntimeStates
   );
+  const athleteOperationRows = useMemo(() => {
+    const rows = buildAthleteOperationsRows(plans, sessions, nutritionLogs, progressSummary);
+    return sortAthleteOperationsRows(
+      filterAthleteOperationsRows(rows, athleteSearch),
+      athleteSortMode
+    );
+  }, [plans, sessions, nutritionLogs, progressSummary, athleteSearch, athleteSortMode]);
 
   async function refreshPendingQueue(): Promise<void> {
     const pending = await offlineSyncQueueUseCase.listPending(demoUserId);
@@ -351,6 +369,19 @@ export function App() {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
+
+  useEffect(() => {
+    setSelectedAthleteIds((current) =>
+      current.filter((athleteId) =>
+        athleteOperationRows.some((row) => row.athleteId === athleteId)
+      )
+    );
+    if (athleteOperationRows.length === 0) {
+      setOperationsStatus("empty");
+      return;
+    }
+    setOperationsStatus((current) => (current === "empty" ? "idle" : current));
+  }, [athleteOperationRows]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -878,6 +909,29 @@ export function App() {
       }
       setRecommendationsStatus("error");
     }
+  }
+
+  function handleToggleAthleteSelection(athleteId: string) {
+    setSelectedAthleteIds((current) =>
+      current.includes(athleteId)
+        ? current.filter((item) => item !== athleteId)
+        : [...current, athleteId]
+    );
+  }
+
+  function handleClearAthleteSelection() {
+    setSelectedAthleteIds([]);
+    setOperationsStatus(athleteOperationRows.length === 0 ? "empty" : "idle");
+  }
+
+  function handleBulkAssignStarterPlan() {
+    if (selectedAthleteIds.length === 0) {
+      setOperationsStatus("validation_error");
+      return;
+    }
+    setOperationsStatus("loading");
+    setPlanName("Starter Plan");
+    setOperationsStatus("saved");
   }
 
   async function trackDomainChange(domain: DashboardDomain) {
@@ -1609,6 +1663,94 @@ export function App() {
             </article>
           ) : null}
 
+          {isModuleVisible("operationsHub", activeDomain) ? (
+            <article className="module-card">
+            <SectionHeader
+              title={translate("operationsHubTitle")}
+              status={operationsStatus}
+              statusLabel={translate("operationsHubStatusLabel")}
+              language={language}
+            />
+            <div className="form-grid">
+              <div className="inline-inputs">
+                <input
+                  aria-label={translate("athleteSearchPlaceholder")}
+                  placeholder={translate("athleteSearchPlaceholder")}
+                  value={athleteSearch}
+                  onChange={(event) => setAthleteSearch(event.target.value)}
+                />
+                <label className="compact-label">
+                  {translate("athleteSortLabel")}
+                  <select
+                    aria-label={translate("athleteSortLabel")}
+                    value={athleteSortMode}
+                    onChange={(event) => setAthleteSortMode(event.target.value as AthleteSortMode)}
+                  >
+                    <option value="sessions">{translate("athleteSortBySessions")}</option>
+                    <option value="athlete">{translate("athleteSortByName")}</option>
+                    <option value="lastSession">{translate("athleteSortByLastSession")}</option>
+                  </select>
+                </label>
+              </div>
+              <div className="inline-inputs">
+                <button className="button primary" onClick={handleBulkAssignStarterPlan} type="button">
+                  {translate("bulkAssignStarterPlan")}
+                </button>
+                <button className="button ghost" onClick={handleClearAthleteSelection} type="button">
+                  {translate("clearAthleteSelection")}
+                </button>
+              </div>
+              <StatLine
+                label={translate("athletesLoadedLabel")}
+                value={String(athleteOperationRows.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("athletesSelectedLabel")}
+                value={String(selectedAthleteIds.length)}
+                language={language}
+              />
+              {athleteOperationRows.length === 0 ? (
+                <p className="empty-state">{translate("noAthletesFound")}</p>
+              ) : (
+                <div className="operations-table">
+                  <header className="operations-table-row operations-table-header">
+                    <span>{translate("athleteColumn")}</span>
+                    <span>{translate("plansColumn")}</span>
+                    <span>{translate("sessionsColumn")}</span>
+                    <span>{translate("nutritionColumn")}</span>
+                    <span>{translate("lastSessionColumn")}</span>
+                    <span>{translate("riskColumn")}</span>
+                  </header>
+                  {athleteOperationRows.map((row) => (
+                    <label key={row.athleteId} className="operations-table-row">
+                      <div className="operations-athlete-cell">
+                        <input
+                          type="checkbox"
+                          checked={selectedAthleteIds.includes(row.athleteId)}
+                          onChange={() => handleToggleAthleteSelection(row.athleteId)}
+                        />
+                        <strong>{row.athleteId}</strong>
+                      </div>
+                      <span>{row.plansCount}</span>
+                      <span>{row.sessionsCount}</span>
+                      <span>{row.nutritionLogsCount}</span>
+                      <span>{row.lastSessionDate}</span>
+                      <span
+                        className={`status-pill status-${riskToStatusClass(row.riskLevel)}`}
+                      >
+                        {row.riskLevel === "normal"
+                          ? translate("riskNormal")
+                          : translate("riskAttention")}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+            </article>
+          ) : null}
+
           {isModuleVisible("recommendations", activeDomain) ? (
             <article className="module-card">
             <SectionHeader
@@ -1995,6 +2137,10 @@ function toStatusClass(status: string): string {
     return "warning";
   }
   return "neutral";
+}
+
+function riskToStatusClass(riskLevel: "normal" | "attention"): string {
+  return riskLevel === "normal" ? "positive" : "critical";
 }
 
 function runtimeStateDescription(

@@ -22,6 +22,7 @@ export const dashboardRoles: DashboardRole[] = ["athlete", "coach", "admin"];
 export type DashboardModule =
   | "onboarding"
   | "training"
+  | "operationsHub"
   | "recommendations"
   | "nutrition"
   | "progress"
@@ -36,6 +37,7 @@ const domainModules: Record<DashboardDomain, DashboardModule[]> = {
   all: [
     "onboarding",
     "training",
+    "operationsHub",
     "recommendations",
     "nutrition",
     "progress",
@@ -48,7 +50,14 @@ const domainModules: Record<DashboardDomain, DashboardModule[]> = {
   training: ["training"],
   nutrition: ["nutrition"],
   progress: ["progress"],
-  operations: ["recommendations", "settings", "legal", "offlineSync", "observability"]
+  operations: [
+    "operationsHub",
+    "recommendations",
+    "settings",
+    "legal",
+    "offlineSync",
+    "observability"
+  ]
 };
 
 function isDashboardDomain(value: string): value is DashboardDomain {

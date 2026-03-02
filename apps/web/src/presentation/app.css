@@ -373,6 +373,14 @@ body {
   flex-wrap: wrap;
 }
 
+.compact-label {
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+  color: var(--text-1);
+  font-size: 0.82rem;
+}
+
 .choice-list {
   display: grid;
   gap: 7px;
@@ -544,6 +552,45 @@ input::placeholder {
   color: var(--gold-0);
 }
 
+.operations-table {
+  display: grid;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.operations-table-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(70px, 1fr)) minmax(120px, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 760px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(15, 20, 26, 0.72);
+}
+
+.operations-table-header {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.operations-athlete-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.operations-athlete-cell input {
+  min-height: unset;
+}
+
+.operations-athlete-cell strong {
+  font-size: 0.9rem;
+}
+
 .history-values {
   display: flex;
   gap: 8px;
@@ -635,5 +682,9 @@ input::placeholder {
 
   .video-grid {
     grid-template-columns: 1fr;
+  }
+
+  .operations-table-row {
+    min-width: 700px;
   }
 }

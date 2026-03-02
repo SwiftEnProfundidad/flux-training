@@ -20,6 +20,9 @@ describe("i18n", () => {
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
     expect(translate("retryRoleCapabilities")).toBe("Retry capabilities");
+    expect(translate("operationsHubTitle")).toBe("Core operations");
+    expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
+    expect(translate("athleteColumn")).toBe("Athlete");
     expect(translate("domainOperations")).toBe("Operations");
     expect(translate("settingsTitle")).toBe("Settings");
     expect(translate("legalSectionTitle")).toBe("Privacy and consent");
@@ -44,6 +47,9 @@ describe("i18n", () => {
     expect(translate("recoverByEmail")).toBe("Recuperar por email");
     expect(translate("recoverBySMS")).toBe("Recuperar por SMS");
     expect(translate("retryRoleCapabilities")).toBe("Reintentar capacidades");
+    expect(translate("operationsHubTitle")).toBe("Operaciones core");
+    expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
+    expect(translate("athleteColumn")).toBe("Atleta");
     expect(translate("domainAll")).toBe("Todo");
     expect(translate("domainTraining")).toBe("Entrenamiento");
     expect(translate("domainOperations")).toBe("Operaciones");
