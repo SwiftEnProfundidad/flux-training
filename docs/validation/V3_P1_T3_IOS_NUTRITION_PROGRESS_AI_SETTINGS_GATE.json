@@ -1,0 +1,48 @@
+{
+  "taskId": "V3-P1-T3",
+  "title": "iOS nutrition progress ai settings gate",
+  "status": "done",
+  "subtasks": {
+    "V3-P1-T3.1": {
+      "name": "Nutricion/progreso",
+      "result": "PASS",
+      "evidence": [
+        "apps/ios/Sources/Presentation/NutritionViewModel.swift",
+        "apps/ios/Sources/Presentation/ProgressViewModel.swift",
+        "apps/ios/Sources/Presentation/ProgressSummaryView.swift",
+        "apps/ios/Tests/FluxTrainingTests/NutritionViewModelTests.swift",
+        "apps/ios/Tests/FluxTrainingTests/ProgressViewModelTests.swift"
+      ]
+    },
+    "V3-P1-T3.2": {
+      "name": "Recomendaciones IA",
+      "result": "PASS",
+      "evidence": [
+        "apps/ios/Sources/Presentation/ExperienceHubView.swift",
+        "apps/ios/Sources/Presentation/NutritionProgressAIScreenContract.swift",
+        "apps/ios/Tests/FluxTrainingTests/NutritionProgressAIScreenContractTests.swift"
+      ]
+    },
+    "V3-P1-T3.3": {
+      "name": "Settings/legal GDPR",
+      "result": "PASS",
+      "evidence": [
+        "apps/ios/Sources/Presentation/ExperienceHubView.swift",
+        "apps/ios/Sources/Presentation/SettingsLegalScreenContract.swift",
+        "apps/ios/Tests/FluxTrainingTests/SettingsLegalScreenContractTests.swift",
+        "apps/ios/Tests/FluxTrainingTests/LocalizedCopyTests.swift"
+      ]
+    }
+  },
+  "qualityChecks": [
+    {
+      "command": "cd apps/ios && swift test",
+      "result": "PASS",
+      "details": {
+        "totalTests": 79,
+        "failures": 0
+      }
+    }
+  ],
+  "nextTask": "V3-P2-T1"
+}
