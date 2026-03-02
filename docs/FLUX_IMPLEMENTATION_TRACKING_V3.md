@@ -41,12 +41,12 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 |---|---|---|---|---|---|
 | V3-P3-T1 | Alineacion contracts<->backend | V3-P3-T1.1 versionado de contratos; V3-P3-T1.2 compatibilidad de payloads; V3-P3-T1.3 tests de contrato | ✅ | V3-P0-T3 | Contratos coherentes y estables |
 | V3-P3-T2 | Endpoints funcionales por dominio | V3-P3-T2.1 auth/onboarding; V3-P3-T2.2 training/nutrition/progress; V3-P3-T2.3 legal/admin/audit | ✅ | V3-P3-T1 | Backend cubre flujos del board |
-| V3-P3-T3 | Resiliencia backend operativa | V3-P3-T3.1 errores estandarizados; V3-P3-T3.2 trazabilidad; V3-P3-T3.3 politicas de retry/idempotencia | 🚧 | V3-P3-T2 | Backend listo para carga operativa |
+| V3-P3-T3 | Resiliencia backend operativa | V3-P3-T3.1 errores estandarizados; V3-P3-T3.2 trazabilidad; V3-P3-T3.3 politicas de retry/idempotencia | ✅ | V3-P3-T2 | Backend listo para carga operativa |
 
 ## Fase P4 - Integracion cruzada y QA
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P4-T1 | Paridad iOS/Web funcional | V3-P4-T1.1 matriz de paridad; V3-P4-T1.2 ajustes de comportamiento; V3-P4-T1.3 smoke cross-platform | ⏳ | V3-P1-T3, V3-P2-T3 | Paridad cerrada por dominio |
+| V3-P4-T1 | Paridad iOS/Web funcional | V3-P4-T1.1 matriz de paridad; V3-P4-T1.2 ajustes de comportamiento; V3-P4-T1.3 smoke cross-platform | 🚧 | V3-P1-T3, V3-P2-T3 | Paridad cerrada por dominio |
 | V3-P4-T2 | E2E de flujos criticos | V3-P4-T2.1 happy paths; V3-P4-T2.2 edge cases; V3-P4-T2.3 recovery paths | ⏳ | V3-P4-T1 | Flujos criticos sin roturas |
 | V3-P4-T3 | Gate de calidad V3 | V3-P4-T3.1 `pnpm -r test`; V3-P4-T3.2 `swift test`; V3-P4-T3.3 evidencia docs/validation | ⏳ | V3-P4-T2 | Gate V3 en PASS |
 
@@ -269,4 +269,22 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
       - `pnpm --filter @flux/contracts test` (`25` tests, `0` fallos)
       - `pnpm --filter @flux/backend check`
       - `pnpm --filter @flux/backend test` (`27` ficheros, `56` tests, `0` fallos)
-  - siguiente subtask activa: `V3-P3-T3.3` (políticas de retry/idempotencia por endpoint crítico).
+  - subtask `V3-P3-T3.3` cerrada:
+    - políticas de retry/idempotencia aplicadas en endpoints críticos de mutación:
+      - cache de idempotencia en demo HTTP para `POST` con `x-idempotency-key`, replay determinista y metadata `idempotency`.
+      - cache de idempotencia en handlers Firebase para operaciones críticas:
+        - `createWorkoutSession`
+        - `createNutritionLog`
+        - `processSyncQueue`
+        - `createAnalyticsEvent`
+        - `createCrashReport`
+      - metadata de respuesta con `idempotency.key`, `idempotency.replayed` y `ttlSeconds`.
+    - cobertura de regresión añadida en `demo-http-server.spec.ts` para verificar no duplicación ante retry.
+    - validación en PASS:
+      - `pnpm --filter @flux/contracts check`
+      - `pnpm --filter @flux/contracts test` (`25` tests, `0` fallos)
+      - `pnpm --filter @flux/backend check`
+      - `pnpm --filter @flux/backend test` (`27` ficheros, `57` tests, `0` fallos)
+  - cierre de task `V3-P3-T3`: resiliencia backend operativa completada (errores estandarizados, trazabilidad y retry/idempotencia).
+- Inicio V3-P4-T1:
+  - foco en matriz de paridad iOS/Web por dominio y ajuste de divergencias funcionales antes de E2E cross-platform.
