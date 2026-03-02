@@ -12,6 +12,8 @@ import {
   dataDeletionRequestSchema,
   dataRetentionPolicySchema,
   observabilitySummarySchema,
+  operationalAlertSchema,
+  operationalRunbookSchema,
   deniedAccessAuditInputSchema,
   deniedAccessAuditSchema,
   legalConsentSubmissionSchema,
@@ -41,6 +43,8 @@ import {
   type LegalConsentSubmission,
   type NutritionLog,
   type ObservabilitySummary,
+  type OperationalAlert,
+  type OperationalRunbook,
   type OnboardingProfileInput,
   type OnboardingResult,
   type ParQResponse,
@@ -74,6 +78,8 @@ import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices
 import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
 import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
 import { ListObservabilitySummaryUseCase } from "../application/list-observability-summary";
+import { ListOperationalAlertsUseCase } from "../application/list-operational-alerts";
+import { ListOperationalRunbooksUseCase } from "../application/list-operational-runbooks";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
 import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
@@ -329,6 +335,8 @@ export type DemoApiRuntime = {
   recordDeniedAccessAudit(payload: DeniedAccessAuditInput): Promise<DeniedAccessAudit>;
   listDeniedAccessAudits(userId: string): Promise<DeniedAccessAudit[]>;
   listObservabilitySummary(userId: string): Promise<ObservabilitySummary>;
+  listOperationalAlerts(userId: string): Promise<OperationalAlert[]>;
+  listOperationalRunbooks(): Promise<OperationalRunbook[]>;
   listBillingInvoices(userId: string): Promise<BillingInvoice[]>;
   listSupportIncidents(userId: string): Promise<SupportIncident[]>;
 };
@@ -416,6 +424,11 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     analyticsEventRepository,
     crashReportRepository
   );
+  const listOperationalAlertsUseCase = new ListOperationalAlertsUseCase(
+    listObservabilitySummaryUseCase,
+    listSupportIncidentsUseCase
+  );
+  const listOperationalRunbooksUseCase = new ListOperationalRunbooksUseCase();
 
   return {
     async createAuthSession(providerToken: string) {
@@ -560,6 +573,18 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     async listObservabilitySummary(userId: string) {
       return observabilitySummarySchema.parse(
         await listObservabilitySummaryUseCase.execute(userId)
+      );
+    },
+
+    async listOperationalAlerts(userId: string) {
+      return operationalAlertSchema.array().parse(
+        await listOperationalAlertsUseCase.execute(userId)
+      );
+    },
+
+    async listOperationalRunbooks() {
+      return operationalRunbookSchema.array().parse(
+        listOperationalRunbooksUseCase.execute()
       );
     },
 

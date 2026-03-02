@@ -11,6 +11,8 @@ import {
   dataDeletionRequestSchema,
   dataRetentionPolicySchema,
   observabilitySummarySchema,
+  operationalAlertSchema,
+  operationalRunbookSchema,
   deniedAccessAuditInputSchema,
   deniedAccessAuditSchema,
   goalSchema,
@@ -51,6 +53,8 @@ import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices
 import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
 import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
 import { ListObservabilitySummaryUseCase } from "../application/list-observability-summary";
+import { ListOperationalAlertsUseCase } from "../application/list-operational-alerts";
+import { ListOperationalRunbooksUseCase } from "../application/list-operational-runbooks";
 import { EvaluateRoleAccessUseCase } from "../application/evaluate-role-access";
 import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
 import { ListDeniedAccessAuditsUseCase } from "../application/list-denied-access-audits";
@@ -124,6 +128,11 @@ const listSupportIncidentsUseCase = new ListSupportIncidentsUseCase(
   analyticsEventRepository,
   crashReportRepository
 );
+const listOperationalAlertsUseCase = new ListOperationalAlertsUseCase(
+  listObservabilitySummaryUseCase,
+  listSupportIncidentsUseCase
+);
+const listOperationalRunbooksUseCase = new ListOperationalRunbooksUseCase();
 const authTokenVerifier = new FirebaseAuthTokenVerifier();
 const createAuthSessionUseCase = new CreateAuthSessionUseCase(authTokenVerifier);
 const requestAuthRecoveryUseCase = new RequestAuthRecoveryUseCase();
@@ -949,5 +958,30 @@ export const listObservabilitySummary = onRequest(async (request, response) => {
     response.status(200).json({ summary: observabilitySummarySchema.parse(summary) });
   } catch {
     sendStandardError(request, response, 400, "invalid_list_observability_summary_payload");
+  }
+});
+
+export const listOperationalAlerts = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const userId = String(request.query.userId ?? "");
+    const alerts = await listOperationalAlertsUseCase.execute(userId);
+    response.status(200).json({ alerts: operationalAlertSchema.array().parse(alerts) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_list_operational_alerts_payload");
+  }
+});
+
+export const listOperationalRunbooks = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const runbooks = listOperationalRunbooksUseCase.execute();
+    response.status(200).json({ runbooks: operationalRunbookSchema.array().parse(runbooks) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_list_operational_runbooks_payload");
   }
 });

@@ -41,6 +41,9 @@ describe("i18n", () => {
     expect(translate("idempotencyReplayYes")).toBe("yes");
     expect(translate("idempotencyReplayNo")).toBe("no");
     expect(translate("idempotencyTTLLabel")).toBe("Idempotency TTL");
+    expect(translate("observabilityOperationalAlertsLabel")).toBe("Open operational alerts");
+    expect(translate("observabilityRunbooksLabel")).toBe("Active runbooks");
+    expect(translate("observabilityOnCallOwnerLabel")).toBe("On-call owner");
     expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
     expect(translate("progressFiltersLabel")).toBe("Progress filters");
     expect(translate("effortMetric")).toBe("Effort");
@@ -91,6 +94,9 @@ describe("i18n", () => {
     expect(translate("idempotencyReplayYes")).toBe("si");
     expect(translate("idempotencyReplayNo")).toBe("no");
     expect(translate("idempotencyTTLLabel")).toBe("TTL idempotencia");
+    expect(translate("observabilityOperationalAlertsLabel")).toBe("Alertas operativas abiertas");
+    expect(translate("observabilityRunbooksLabel")).toBe("Runbooks activos");
+    expect(translate("observabilityOnCallOwnerLabel")).toBe("Owner on-call");
     expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
     expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
     expect(translate("effortMetric")).toBe("Esfuerzo");

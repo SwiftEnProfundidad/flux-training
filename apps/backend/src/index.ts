@@ -5,6 +5,8 @@ export {
   createCrashReport,
   recordLegalConsent,
   listObservabilitySummary,
+  listOperationalAlerts,
+  listOperationalRunbooks,
   requestDataExport,
   requestDataDeletion,
   createHealthScreening,

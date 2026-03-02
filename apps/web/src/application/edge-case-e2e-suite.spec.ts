@@ -11,6 +11,8 @@ import type {
   LegalConsentSubmission,
   NutritionLog,
   ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook,
   ProgressSummary,
   RoleCapabilities,
   SyncQueueItem,
@@ -193,6 +195,32 @@ class EdgeCaseGateway
       latestAnalyticsAt: null,
       latestCrashAt: null
     };
+  }
+
+  async listOperationalAlerts(_: string): Promise<OperationalAlert[]> {
+    return [];
+  }
+
+  async listOperationalRunbooks(): Promise<OperationalRunbook[]> {
+    return [
+      {
+        id: "RB-denied-access",
+        alertCode: "denied_access_spike",
+        title: "Denied access triage",
+        objective: "Triage denied-access spikes.",
+        ownerOnCall: "security_oncall",
+        steps: [
+          {
+            id: "rb-edge-step-1",
+            title: "Inspect RBAC deltas",
+            ownerRole: "security_engineer",
+            slaMinutes: 10,
+            outcome: "RBAC drift identified."
+          }
+        ],
+        updatedAt: "2026-03-02T19:02:30.000Z"
+      }
+    ];
   }
 
   async process(input: SyncQueueProcessInput): Promise<

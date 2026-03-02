@@ -6,6 +6,8 @@ import type {
   ExerciseVideo,
   NutritionLog,
   ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook,
   ProgressSummary,
   SyncQueueItem,
   SyncQueueProcessInput,
@@ -218,6 +220,54 @@ class InMemoryPlatformGateway
     };
   }
 
+  async listOperationalAlerts(userId: string): Promise<OperationalAlert[]> {
+    const summary = await this.listObservabilitySummary(userId);
+    if (summary.fatalCrashReports === 0) {
+      return [];
+    }
+    return [
+      {
+        id: "ALT-critical-fatal",
+        userId,
+        code: "fatal_crash_slo_breach",
+        severity: "critical",
+        state: "open",
+        source: "backend",
+        summary: "Fatal crash SLO breached.",
+        correlationId: "corr-critical-ops",
+        runbookId: "RB-fatal-crash",
+        ownerOnCall: "backend_oncall",
+        serviceLevelObjective: "fatal_crash_reports <= 0",
+        currentValue: summary.fatalCrashReports,
+        thresholdValue: 0,
+        triggeredAt: summary.latestCrashAt ?? summary.generatedAt,
+        lastEvaluatedAt: summary.generatedAt
+      }
+    ];
+  }
+
+  async listOperationalRunbooks(): Promise<OperationalRunbook[]> {
+    return [
+      {
+        id: "RB-fatal-crash",
+        alertCode: "fatal_crash_slo_breach",
+        title: "Fatal crash response",
+        objective: "Restore runtime stability.",
+        ownerOnCall: "backend_oncall",
+        steps: [
+          {
+            id: "rb-critical-step-1",
+            title: "Acknowledge incident",
+            ownerRole: "on_call_engineer",
+            slaMinutes: 5,
+            outcome: "Incident acknowledged."
+          }
+        ],
+        updatedAt: "2026-03-01T10:31:00.000Z"
+      }
+    ];
+  }
+
   async process(input: SyncQueueProcessInput): Promise<SyncQueueProcessResult> {
     const acceptedIds: string[] = [];
     const rejected: SyncQueueProcessResult["rejected"] = [];
@@ -330,6 +380,9 @@ describe("CriticalRegressionSuite", () => {
 
     const analytics = await observabilityUseCase.listAnalyticsEvents("user-1");
     const crashes = await observabilityUseCase.listCrashReports("user-1");
+    const summary = await observabilityUseCase.listObservabilitySummary("user-1");
+    const alerts = await observabilityUseCase.listOperationalAlerts("user-1");
+    const runbooks = await observabilityUseCase.listOperationalRunbooks();
 
     expect(pendingBeforeSync).toHaveLength(1);
     expect(syncResult.acceptedIds).toEqual(["queue-1"]);
@@ -340,5 +393,8 @@ describe("CriticalRegressionSuite", () => {
     expect(recommendations).toHaveLength(1);
     expect(analytics).toHaveLength(1);
     expect(crashes).toHaveLength(1);
+    expect(summary.totalCrashReports).toBe(1);
+    expect(alerts).toHaveLength(0);
+    expect(runbooks.length).toBeGreaterThan(0);
   });
 });

@@ -1,4 +1,10 @@
-import type { AnalyticsEvent, CrashReport, ObservabilitySummary } from "@flux/contracts";
+import type {
+  AnalyticsEvent,
+  CrashReport,
+  ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook
+} from "@flux/contracts";
 import type { ObservabilityGateway } from "../application/manage-observability";
 import { assertApiResponse, createApiHeaders } from "./api-client";
 
@@ -51,6 +57,25 @@ class ApiObservabilityGateway implements ObservabilityGateway {
     await assertApiResponse(response, "list_observability_summary_failed");
     const payload = (await response.json()) as { summary: ObservabilitySummary };
     return payload.summary;
+  }
+
+  async listOperationalAlerts(userId: string): Promise<OperationalAlert[]> {
+    const response = await fetch(
+      `/api/listOperationalAlerts?userId=${encodeURIComponent(userId)}`,
+      { headers: createApiHeaders() }
+    );
+    await assertApiResponse(response, "list_operational_alerts_failed");
+    const payload = (await response.json()) as { alerts: OperationalAlert[] };
+    return payload.alerts;
+  }
+
+  async listOperationalRunbooks(): Promise<OperationalRunbook[]> {
+    const response = await fetch("/api/listOperationalRunbooks", {
+      headers: createApiHeaders()
+    });
+    await assertApiResponse(response, "list_operational_runbooks_failed");
+    const payload = (await response.json()) as { runbooks: OperationalRunbook[] };
+    return payload.runbooks;
   }
 }
 

@@ -10,6 +10,8 @@ import {
   deniedAccessAuditInputSchema,
   goalSchema,
   legalConsentSubmissionSchema,
+  operationalAlertSchema,
+  operationalRunbookSchema,
   nutritionLogSchema,
   syncQueueProcessInputSchema,
   trainingPlanSchema,
@@ -69,6 +71,8 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/createCrashReport": "POST",
   "/api/listCrashReports": "GET",
   "/api/listObservabilitySummary": "GET",
+  "/api/listOperationalAlerts": "GET",
+  "/api/listOperationalRunbooks": "GET",
   "/api/recordLegalConsent": "POST",
   "/api/requestDataExport": "POST",
   "/api/requestDataDeletion": "POST",
@@ -719,6 +723,35 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: mapDomainError(error, "invalid_list_observability_summary_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listOperationalAlerts") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const alerts = operationalAlertSchema
+        .array()
+        .parse(await runtime.listOperationalAlerts(userId));
+      return { statusCode: 200, payload: { alerts } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_operational_alerts_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listOperationalRunbooks") {
+    try {
+      const runbooks = operationalRunbookSchema
+        .array()
+        .parse(await runtime.listOperationalRunbooks());
+      return { statusCode: 200, payload: { runbooks } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_operational_runbooks_payload") }
       };
     }
   }

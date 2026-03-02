@@ -235,6 +235,9 @@ type AppTranslations = {
   observabilityDeniedEventsLabel: string;
   observabilityFatalCrashesLabel: string;
   observabilityCanonicalCoverageLabel: string;
+  observabilityOperationalAlertsLabel: string;
+  observabilityRunbooksLabel: string;
+  observabilityOnCallOwnerLabel: string;
   readinessLabel: string;
   authMetric: string;
   queueMetric: string;
@@ -505,6 +508,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     observabilityDeniedEventsLabel: "Eventos denegados",
     observabilityFatalCrashesLabel: "Crashes fatales",
     observabilityCanonicalCoverageLabel: "Cobertura canonica",
+    observabilityOperationalAlertsLabel: "Alertas operativas abiertas",
+    observabilityRunbooksLabel: "Runbooks activos",
+    observabilityOnCallOwnerLabel: "Owner on-call",
     readinessLabel: "Readiness",
     authMetric: "Auth",
     queueMetric: "Cola",
@@ -773,6 +779,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     observabilityDeniedEventsLabel: "Denied events",
     observabilityFatalCrashesLabel: "Fatal crashes",
     observabilityCanonicalCoverageLabel: "Canonical coverage",
+    observabilityOperationalAlertsLabel: "Open operational alerts",
+    observabilityRunbooksLabel: "Active runbooks",
+    observabilityOnCallOwnerLabel: "On-call owner",
     readinessLabel: "Readiness",
     authMetric: "Auth",
     queueMetric: "Queue",

@@ -8,6 +8,8 @@ import {
   Goal,
   NutritionLog,
   ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook,
   ProgressSummary,
   TrainingPlan,
   WorkoutSessionInput,
@@ -299,6 +301,8 @@ export function App() {
   const [observabilitySummary, setObservabilitySummary] = useState<ObservabilitySummary | null>(
     null
   );
+  const [operationalAlerts, setOperationalAlerts] = useState<OperationalAlert[]>([]);
+  const [operationalRunbooks, setOperationalRunbooks] = useState<OperationalRunbook[]>([]);
   const [exerciseVideos, setExerciseVideos] = useState<ExerciseVideo[]>([]);
   const [videoStatus, setVideoStatus] = useState<VideoStatus>("idle");
   const [selectedExerciseForVideos, setSelectedExerciseForVideos] = useState(
@@ -1204,14 +1208,19 @@ export function App() {
   }
 
   async function loadObservabilityCollections(): Promise<void> {
-    const [loadedEvents, loadedCrashReports, loadedSummary] = await Promise.all([
+    const [loadedEvents, loadedCrashReports, loadedSummary, loadedAlerts, loadedRunbooks] =
+      await Promise.all([
       manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
       manageObservabilityUseCase.listCrashReports(demoUserId),
-      manageObservabilityUseCase.listObservabilitySummary(demoUserId)
+      manageObservabilityUseCase.listObservabilitySummary(demoUserId),
+      manageObservabilityUseCase.listOperationalAlerts(demoUserId),
+      manageObservabilityUseCase.listOperationalRunbooks()
     ]);
     setAnalyticsEvents(loadedEvents);
     setCrashReports(loadedCrashReports);
     setObservabilitySummary(loadedSummary);
+    setOperationalAlerts(loadedAlerts);
+    setOperationalRunbooks(loadedRunbooks);
   }
 
   async function handleTrackAnalyticsEvent() {
@@ -3317,6 +3326,23 @@ export function App() {
               <StatLine
                 label={translate("observabilityCanonicalCoverageLabel")}
                 value={`${observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0}/${(observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0) + (observabilitySummary?.canonicalCoverage.customEvents ?? 0)}`}
+                language={language}
+              />
+              <StatLine
+                label={translate("observabilityOperationalAlertsLabel")}
+                value={String(
+                  operationalAlerts.filter((alert) => alert.state !== "resolved").length
+                )}
+                language={language}
+              />
+              <StatLine
+                label={translate("observabilityRunbooksLabel")}
+                value={String(operationalRunbooks.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("observabilityOnCallOwnerLabel")}
+                value={operationalAlerts[0]?.ownerOnCall ?? "-"}
                 language={language}
               />
             </div>

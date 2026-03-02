@@ -247,4 +247,58 @@ describe("DemoApiRuntime", () => {
     expect(summary.fatalCrashReports).toBeGreaterThan(0);
     expect(summary.canonicalCoverage.trackedCanonicalEvents).toBeGreaterThan(0);
   });
+
+  it("returns operational alerts and runbooks for on-call response", async () => {
+    const runtime = createDemoApiRuntime();
+
+    await runtime.createAnalyticsEvent({
+      userId: "demo-user",
+      name: "dashboard_domain_access_denied",
+      source: "web",
+      occurredAt: "2026-03-03T10:00:00.000Z",
+      attributes: {
+        domain: "training",
+        reason: "domain_denied",
+        correlationId: "corr-ops-1"
+      }
+    });
+    await runtime.createAnalyticsEvent({
+      userId: "demo-user",
+      name: "dashboard_domain_access_denied",
+      source: "web",
+      occurredAt: "2026-03-03T10:01:00.000Z",
+      attributes: {
+        domain: "nutrition",
+        reason: "domain_denied",
+        correlationId: "corr-ops-1"
+      }
+    });
+    await runtime.createAnalyticsEvent({
+      userId: "demo-user",
+      name: "dashboard_domain_access_denied",
+      source: "web",
+      occurredAt: "2026-03-03T10:02:00.000Z",
+      attributes: {
+        domain: "progress",
+        reason: "domain_denied",
+        correlationId: "corr-ops-1"
+      }
+    });
+    await runtime.createCrashReport({
+      userId: "demo-user",
+      source: "backend",
+      message: "fatal worker crash",
+      severity: "fatal",
+      occurredAt: "2026-03-03T10:03:00.000Z"
+    });
+
+    const alerts = await runtime.listOperationalAlerts("demo-user");
+    const runbooks = await runtime.listOperationalRunbooks();
+
+    expect(alerts.length).toBeGreaterThan(0);
+    expect(alerts.some((item) => item.code === "fatal_crash_slo_breach")).toBe(true);
+    expect(alerts.some((item) => item.code === "denied_access_spike")).toBe(true);
+    expect(runbooks.length).toBe(5);
+    expect(runbooks.every((item) => item.steps.length > 0)).toBe(true);
+  });
 });

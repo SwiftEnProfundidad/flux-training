@@ -11,6 +11,8 @@ import type {
   LegalConsentSubmission,
   NutritionLog,
   ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook,
   ProgressSummary,
   RoleCapabilities,
   SyncQueueItem,
@@ -315,6 +317,54 @@ class InMemoryHappyPathGateway
     };
   }
 
+  async listOperationalAlerts(userId: string): Promise<OperationalAlert[]> {
+    const summary = await this.listObservabilitySummary(userId);
+    if (summary.fatalCrashReports === 0) {
+      return [];
+    }
+    return [
+      {
+        id: "ALT-happy-fatal",
+        userId,
+        code: "fatal_crash_slo_breach",
+        severity: "critical",
+        state: "open",
+        source: "backend",
+        summary: "Fatal crash SLO breached.",
+        correlationId: "corr-happy-ops",
+        runbookId: "RB-fatal-crash",
+        ownerOnCall: "backend_oncall",
+        serviceLevelObjective: "fatal_crash_reports <= 0",
+        currentValue: summary.fatalCrashReports,
+        thresholdValue: 0,
+        triggeredAt: summary.latestCrashAt ?? summary.generatedAt,
+        lastEvaluatedAt: summary.generatedAt
+      }
+    ];
+  }
+
+  async listOperationalRunbooks(): Promise<OperationalRunbook[]> {
+    return [
+      {
+        id: "RB-fatal-crash",
+        alertCode: "fatal_crash_slo_breach",
+        title: "Fatal crash response",
+        objective: "Restore runtime stability.",
+        ownerOnCall: "backend_oncall",
+        steps: [
+          {
+            id: "rb-happy-step-1",
+            title: "Acknowledge incident",
+            ownerRole: "on_call_engineer",
+            slaMinutes: 5,
+            outcome: "Incident acknowledged."
+          }
+        ],
+        updatedAt: "2026-03-02T18:21:00.000Z"
+      }
+    ];
+  }
+
   async process(input: SyncQueueProcessInput): Promise<
     SyncQueueProcessResult & {
       idempotency: { key: string; replayed: boolean; ttlSeconds: number };
@@ -480,6 +530,8 @@ describe("HappyPathE2ESuite", () => {
     const observabilitySummary = await observabilityUseCase.listObservabilitySummary(
       "user-happy-1"
     );
+    const alerts = await observabilityUseCase.listOperationalAlerts("user-happy-1");
+    const runbooks = await observabilityUseCase.listOperationalRunbooks();
 
     expect(consent.userId).toBe("user-happy-1");
     expect(exportRequest.status).toBe("completed");
@@ -500,5 +552,7 @@ describe("HappyPathE2ESuite", () => {
     expect(crashes).toHaveLength(1);
     expect(observabilitySummary.totalAnalyticsEvents).toBe(1);
     expect(observabilitySummary.totalCrashReports).toBe(1);
+    expect(alerts).toHaveLength(0);
+    expect(runbooks.length).toBeGreaterThan(0);
   });
 });

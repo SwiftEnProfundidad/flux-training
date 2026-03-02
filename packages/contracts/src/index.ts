@@ -422,6 +422,62 @@ export const observabilitySummarySchema = z.object({
   latestCrashAt: z.string().datetime().nullable()
 });
 
+export const operationalAlertCodeSchema = z.enum([
+  "fatal_crash_slo_breach",
+  "denied_access_spike",
+  "blocked_action_spike",
+  "canonical_coverage_drop",
+  "high_incident_backlog"
+]);
+
+export const operationalAlertSeveritySchema = z.enum([
+  "critical",
+  "high",
+  "medium"
+]);
+
+export const operationalAlertStateSchema = z.enum([
+  "open",
+  "acknowledged",
+  "resolved"
+]);
+
+export const operationalAlertSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  code: operationalAlertCodeSchema,
+  severity: operationalAlertSeveritySchema,
+  state: operationalAlertStateSchema,
+  source: observabilitySourceSchema,
+  summary: z.string().min(1),
+  correlationId: z.string().min(1),
+  runbookId: z.string().min(1),
+  ownerOnCall: z.string().min(1),
+  serviceLevelObjective: z.string().min(1),
+  currentValue: z.number().nonnegative(),
+  thresholdValue: z.number().nonnegative(),
+  triggeredAt: z.string().datetime(),
+  lastEvaluatedAt: z.string().datetime()
+});
+
+export const operationalRunbookStepSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  ownerRole: z.string().min(1),
+  slaMinutes: z.number().int().positive(),
+  outcome: z.string().min(1)
+});
+
+export const operationalRunbookSchema = z.object({
+  id: z.string().min(1),
+  alertCode: operationalAlertCodeSchema,
+  title: z.string().min(1),
+  objective: z.string().min(1),
+  ownerOnCall: z.string().min(1),
+  steps: z.array(operationalRunbookStepSchema).min(1),
+  updatedAt: z.string().datetime()
+});
+
 export const crashSeveritySchema = z.enum(["warning", "fatal"]);
 
 export const crashReportSchema = z.object({
@@ -607,6 +663,12 @@ export type ObservabilitySource = z.infer<typeof observabilitySourceSchema>;
 export type CanonicalAnalyticsEventName = z.infer<typeof canonicalAnalyticsEventNameSchema>;
 export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
 export type ObservabilitySummary = z.infer<typeof observabilitySummarySchema>;
+export type OperationalAlertCode = z.infer<typeof operationalAlertCodeSchema>;
+export type OperationalAlertSeverity = z.infer<typeof operationalAlertSeveritySchema>;
+export type OperationalAlertState = z.infer<typeof operationalAlertStateSchema>;
+export type OperationalAlert = z.infer<typeof operationalAlertSchema>;
+export type OperationalRunbookStep = z.infer<typeof operationalRunbookStepSchema>;
+export type OperationalRunbook = z.infer<typeof operationalRunbookSchema>;
 export type CrashSeverity = z.infer<typeof crashSeveritySchema>;
 export type CrashReport = z.infer<typeof crashReportSchema>;
 export type BillingInvoiceStatus = z.infer<typeof billingInvoiceStatusSchema>;

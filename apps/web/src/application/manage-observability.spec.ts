@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { AnalyticsEvent, CrashReport, ObservabilitySummary } from "@flux/contracts";
+import type {
+  AnalyticsEvent,
+  CrashReport,
+  ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook
+} from "@flux/contracts";
 import type { ObservabilityGateway } from "./manage-observability";
 import { ManageObservabilityUseCase } from "./manage-observability";
 
@@ -68,6 +74,50 @@ class InMemoryObservabilityGateway implements ObservabilityGateway {
       latestCrashAt: userReports[0]?.occurredAt ?? null
     };
   }
+
+  async listOperationalAlerts(userId: string): Promise<OperationalAlert[]> {
+    return [
+      {
+        id: "ALT-1",
+        userId,
+        code: "fatal_crash_slo_breach",
+        severity: "critical",
+        state: "open",
+        source: "backend",
+        summary: "Fatal crash SLO breached.",
+        correlationId: "corr-ops-1",
+        runbookId: "RB-fatal-crash",
+        ownerOnCall: "backend_oncall",
+        serviceLevelObjective: "fatal_crash_reports <= 0",
+        currentValue: 1,
+        thresholdValue: 0,
+        triggeredAt: "2026-03-03T11:05:00.000Z",
+        lastEvaluatedAt: "2026-03-03T11:06:00.000Z"
+      }
+    ];
+  }
+
+  async listOperationalRunbooks(): Promise<OperationalRunbook[]> {
+    return [
+      {
+        id: "RB-fatal-crash",
+        alertCode: "fatal_crash_slo_breach",
+        title: "Fatal crash response",
+        objective: "Stabilize runtime after fatal crashes.",
+        ownerOnCall: "backend_oncall",
+        steps: [
+          {
+            id: "step-1",
+            title: "Acknowledge page",
+            ownerRole: "on_call_engineer",
+            slaMinutes: 5,
+            outcome: "Incident acknowledged."
+          }
+        ],
+        updatedAt: "2026-03-03T11:07:00.000Z"
+      }
+    ];
+  }
 }
 
 describe("ManageObservabilityUseCase", () => {
@@ -94,5 +144,17 @@ describe("ManageObservabilityUseCase", () => {
 
     expect(summary.totalAnalyticsEvents).toBe(1);
     expect(summary.totalCrashReports).toBe(1);
+  });
+
+  it("loads operational alerts and runbooks", async () => {
+    const useCase = new ManageObservabilityUseCase(new InMemoryObservabilityGateway());
+
+    const alerts = await useCase.listOperationalAlerts("user-1");
+    const runbooks = await useCase.listOperationalRunbooks();
+
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]?.runbookId).toBe("RB-fatal-crash");
+    expect(runbooks).toHaveLength(1);
+    expect(runbooks[0]?.alertCode).toBe("fatal_crash_slo_breach");
   });
 });

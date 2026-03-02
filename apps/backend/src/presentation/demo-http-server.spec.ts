@@ -251,6 +251,111 @@ describe("DemoHttpServer", () => {
     expect(payload.summary?.canonicalCoverage?.trackedCanonicalEvents).toBeGreaterThan(0);
   });
 
+  it("serves operational alerts and runbooks endpoints", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_domain_access_denied",
+        source: "web",
+        occurredAt: "2026-03-02T11:20:00.000Z",
+        attributes: {
+          domain: "training",
+          reason: "domain_denied",
+          correlationId: "corr-ops-api-1"
+        }
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_domain_access_denied",
+        source: "web",
+        occurredAt: "2026-03-02T11:21:00.000Z",
+        attributes: {
+          domain: "nutrition",
+          reason: "domain_denied",
+          correlationId: "corr-ops-api-1"
+        }
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_domain_access_denied",
+        source: "web",
+        occurredAt: "2026-03-02T11:22:00.000Z",
+        attributes: {
+          domain: "progress",
+          reason: "domain_denied",
+          correlationId: "corr-ops-api-2"
+        }
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createCrashReport`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        source: "backend",
+        message: "fatal worker crash",
+        severity: "fatal",
+        occurredAt: "2026-03-02T11:23:00.000Z"
+      })
+    });
+
+    const alertsResponse = await fetch(
+      `${server.baseUrl}/api/listOperationalAlerts?userId=demo-user`,
+      { headers: clientHeaders }
+    );
+    const runbooksResponse = await fetch(
+      `${server.baseUrl}/api/listOperationalRunbooks`,
+      { headers: clientHeaders }
+    );
+
+    expect(alertsResponse.status).toBe(200);
+    expect(runbooksResponse.status).toBe(200);
+
+    const alertsPayload = (await alertsResponse.json()) as {
+      alerts?: Array<{ code?: string; runbookId?: string }>;
+    };
+    const runbooksPayload = (await runbooksResponse.json()) as {
+      runbooks?: Array<{ id?: string; alertCode?: string }>;
+    };
+
+    expect((alertsPayload.alerts?.length ?? 0) > 0).toBe(true);
+    expect(alertsPayload.alerts?.some((alert) => alert.code === "fatal_crash_slo_breach")).toBe(true);
+    expect(alertsPayload.alerts?.every((alert) => (alert.runbookId ?? "").startsWith("RB-"))).toBe(
+      true
+    );
+    expect(runbooksPayload.runbooks).toHaveLength(5);
+    expect(
+      runbooksPayload.runbooks?.some((runbook) => runbook.alertCode === "denied_access_spike")
+    ).toBe(true);
+  });
+
   it("applies idempotency policy for critical post endpoints", async () => {
     server = await startDemoHttpServer({ port: 0 });
 

@@ -5,6 +5,8 @@ import type {
   ExerciseVideo,
   NutritionLog,
   ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook,
   ProgressSummary,
   SyncQueueItem,
   SyncQueueProcessInput,
@@ -171,6 +173,54 @@ class RecoveryGateway
           : [...reports].sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))[0]
               ?.occurredAt ?? null
     };
+  }
+
+  async listOperationalAlerts(userId: string): Promise<OperationalAlert[]> {
+    const summary = await this.listObservabilitySummary(userId);
+    if (summary.fatalCrashReports === 0) {
+      return [];
+    }
+    return [
+      {
+        id: "ALT-recovery-fatal",
+        userId,
+        code: "fatal_crash_slo_breach",
+        severity: "critical",
+        state: "open",
+        source: "backend",
+        summary: "Fatal crash threshold exceeded.",
+        correlationId: "corr-recovery-ops",
+        runbookId: "RB-fatal-crash",
+        ownerOnCall: "backend_oncall",
+        serviceLevelObjective: "fatal_crash_reports <= 0",
+        currentValue: summary.fatalCrashReports,
+        thresholdValue: 0,
+        triggeredAt: summary.latestCrashAt ?? summary.generatedAt,
+        lastEvaluatedAt: summary.generatedAt
+      }
+    ];
+  }
+
+  async listOperationalRunbooks(): Promise<OperationalRunbook[]> {
+    return [
+      {
+        id: "RB-fatal-crash",
+        alertCode: "fatal_crash_slo_breach",
+        title: "Fatal crash response",
+        objective: "Recover service quickly after fatal crash spike.",
+        ownerOnCall: "backend_oncall",
+        steps: [
+          {
+            id: "rb-recovery-step-1",
+            title: "Acknowledge incident",
+            ownerRole: "on_call_engineer",
+            slaMinutes: 5,
+            outcome: "Incident acknowledged."
+          }
+        ],
+        updatedAt: "2026-03-02T20:20:00.000Z"
+      }
+    ];
   }
 
   async process(input: SyncQueueProcessInput): Promise<

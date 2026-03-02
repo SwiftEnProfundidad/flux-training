@@ -23,6 +23,8 @@ import {
   onboardingProfileInputSchema,
   onboardingResultSchema,
   onboardingSubmissionInputSchema,
+  operationalAlertSchema,
+  operationalRunbookSchema,
   nutritionLogSchema,
   progressSummarySchema,
   roleCapabilitiesSchema,
@@ -214,6 +216,61 @@ describe("observabilitySummarySchema", () => {
       },
       latestAnalyticsAt: "2026-03-03T08:59:00.000Z",
       latestCrashAt: "2026-03-03T08:58:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("operationalAlertSchema", () => {
+  it("accepts operational alert payload", () => {
+    const parsed = operationalAlertSchema.safeParse({
+      id: "ALT-0001",
+      userId: "user-1",
+      code: "fatal_crash_slo_breach",
+      severity: "critical",
+      state: "open",
+      source: "backend",
+      summary: "Fatal crashes exceeded configured SLO threshold.",
+      correlationId: "corr-ops-1",
+      runbookId: "RB-fatal-crash",
+      ownerOnCall: "backend_oncall",
+      serviceLevelObjective: "fatal_crash_reports <= 0",
+      currentValue: 2,
+      thresholdValue: 0,
+      triggeredAt: "2026-03-03T09:01:00.000Z",
+      lastEvaluatedAt: "2026-03-03T09:02:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("operationalRunbookSchema", () => {
+  it("accepts operational runbook payload", () => {
+    const parsed = operationalRunbookSchema.safeParse({
+      id: "RB-fatal-crash",
+      alertCode: "fatal_crash_slo_breach",
+      title: "Fatal crash response",
+      objective: "Restore service and stop fatal crash growth.",
+      ownerOnCall: "backend_oncall",
+      steps: [
+        {
+          id: "step-1",
+          title: "Acknowledge page",
+          ownerRole: "on_call_engineer",
+          slaMinutes: 5,
+          outcome: "Incident acknowledged in on-call channel."
+        },
+        {
+          id: "step-2",
+          title: "Mitigate and rollback",
+          ownerRole: "incident_commander",
+          slaMinutes: 15,
+          outcome: "Traffic stabilized and rollback validated."
+        }
+      ],
+      updatedAt: "2026-03-03T09:03:00.000Z"
     });
 
     expect(parsed.success).toBe(true);
