@@ -18,8 +18,8 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 | ID | Task | Subtasks | Estado | Criterio de aceptacion |
 |---|---|---|---|---|
 | V5-P0-T1 | Estrategia de despliegue por oleadas | V5-P0-T1.1 cohortes; V5-P0-T1.2 ventanas de release; V5-P0-T1.3 criterios de avance | ✅ | Plan de rollout aprobado |
-| V5-P0-T2 | Entornos y feature flags | V5-P0-T2.1 toggles por modulo; V5-P0-T2.2 gating por rol; V5-P0-T2.3 estrategia de rollback por flag | 🚧 | Rollout reversible y seguro |
-| V5-P0-T3 | Comunicacion de cambio | V5-P0-T3.1 notas release; V5-P0-T3.2 soporte interno; V5-P0-T3.3 mensajes in-app | ⏳ | Cambio comunicado sin friccion |
+| V5-P0-T2 | Entornos y feature flags | V5-P0-T2.1 toggles por modulo; V5-P0-T2.2 gating por rol; V5-P0-T2.3 estrategia de rollback por flag | ✅ | Rollout reversible y seguro |
+| V5-P0-T3 | Comunicacion de cambio | V5-P0-T3.1 notas release; V5-P0-T3.2 soporte interno; V5-P0-T3.3 mensajes in-app | 🚧 | Cambio comunicado sin friccion |
 
 ## Fase P1 - Adopcion y valor de negocio
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -54,3 +54,10 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - evidencia publicada: `docs/validation/V5_P0_T1_ROLLOUT_WAVE_STRATEGY.json`.
 - Siguiente task activa:
   - `V5-P0-T2` (Entornos y feature flags) en `🚧`.
+- Cierre V5-P0-T2:
+  - matriz de entornos definida (`dev`, `staging`, `prod`) con propietarios, data policy y guardrails operativos por entorno.
+  - catálogo de feature flags por módulo (`auth`, `training`, `nutrition`, `ai`, `observability`) con estrategia de gating por rol.
+  - estrategia de rollback por flag definida con `kill-switch` inmediato, validación post-toggle y trazabilidad de cambios.
+  - evidencia publicada: `docs/validation/V5_P0_T2_ENV_FLAGS_STRATEGY.json`.
+- Siguiente task activa:
+  - `V5-P0-T3` (Comunicacion de cambio) en `🚧`.
