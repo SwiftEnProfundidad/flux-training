@@ -39,8 +39,8 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V5-P3-T1 | Consolidar aprendizaje V5 | V5-P3-T1.1 insights producto; V5-P3-T1.2 insights operacion; V5-P3-T1.3 riesgos residuales | ✅ | V5-P2-T3 | Base objetiva para roadmap |
-| V5-P3-T2 | Definir backlog V6 | V5-P3-T2.1 priorizacion impacto/esfuerzo; V5-P3-T2.2 dependencias; V5-P3-T2.3 capacidad | 🚧 | V5-P3-T1 | Backlog V6 listo |
-| V5-P3-T3 | Cierre ejecutivo V5 | V5-P3-T3.1 reporte final; V5-P3-T3.2 decision de continuidad; V5-P3-T3.3 apertura V6 | ⏳ | V5-P3-T2 | Ciclo V5 formalmente cerrado |
+| V5-P3-T2 | Definir backlog V6 | V5-P3-T2.1 priorizacion impacto/esfuerzo; V5-P3-T2.2 dependencias; V5-P3-T2.3 capacidad | ✅ | V5-P3-T1 | Backlog V6 listo |
+| V5-P3-T3 | Cierre ejecutivo V5 | V5-P3-T3.1 reporte final; V5-P3-T3.2 decision de continuidad; V5-P3-T3.3 apertura V6 | 🚧 | V5-P3-T2 | Ciclo V5 formalmente cerrado |
 
 ## Bitacora V5 (2026-03-02)
 - Inicio V5-P0-T1:
@@ -117,3 +117,10 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - evidencia publicada: `docs/validation/V5_P3_T1_CONSOLIDATED_LEARNINGS.json`.
 - Siguiente task activa:
   - `V5-P3-T2` (Definir backlog V6) en `🚧`.
+- Cierre V5-P3-T2:
+  - backlog V6 priorizado con matriz impacto/esfuerzo y criterio explícito de secuenciación por valor/riesgo.
+  - dependencias críticas mapeadas por dominio (producto, plataforma, datos, soporte) con owners y gating de entrada.
+  - capacidad objetivo de ejecución definida por ola (`W1..W3`) con reserva para incidencias operativas y deuda técnica.
+  - evidencia publicada: `docs/validation/V5_P3_T2_V6_BACKLOG_DEFINITION.json`.
+- Siguiente task activa:
+  - `V5-P3-T3` (Cierre ejecutivo V5) en `🚧`.

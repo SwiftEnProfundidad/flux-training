@@ -133,6 +133,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V5_P2_T2_KB_SELF_SERVICE.json`: evidencia de knowledge base y autoservicio (taxonomía por dominio/perfil, FAQ y runbooks operativos).
 - `V5_P2_T3_CONTINUOUS_QUALITY.json`: evidencia de calidad continua post-release (cadencia de regresión, priorización de deuda y health review mensual).
 - `V5_P3_T1_CONSOLIDATED_LEARNINGS.json`: evidencia de consolidación de aprendizaje V5 (insights de producto/operación y riesgos residuales priorizados).
+- `V5_P3_T2_V6_BACKLOG_DEFINITION.json`: evidencia de definición de backlog V6 (priorización impacto/esfuerzo, dependencias y capacidad por ola).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -224,6 +225,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v5_p2_t2_kb_self_service.feature`
 - `features/v5_p2_t3_continuous_quality.feature`
 - `features/v5_p3_t1_consolidated_learnings.feature`
+- `features/v5_p3_t2_v6_backlog_definition.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
