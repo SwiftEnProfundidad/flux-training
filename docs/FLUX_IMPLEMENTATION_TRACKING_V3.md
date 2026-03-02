@@ -39,8 +39,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 ## Fase P3 - Backend y contratos
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P3-T1 | Alineacion contracts<->backend | V3-P3-T1.1 versionado de contratos; V3-P3-T1.2 compatibilidad de payloads; V3-P3-T1.3 tests de contrato | 🚧 | V3-P0-T3 | Contratos coherentes y estables |
-| V3-P3-T2 | Endpoints funcionales por dominio | V3-P3-T2.1 auth/onboarding; V3-P3-T2.2 training/nutrition/progress; V3-P3-T2.3 legal/admin/audit | ⏳ | V3-P3-T1 | Backend cubre flujos del board |
+| V3-P3-T1 | Alineacion contracts<->backend | V3-P3-T1.1 versionado de contratos; V3-P3-T1.2 compatibilidad de payloads; V3-P3-T1.3 tests de contrato | ✅ | V3-P0-T3 | Contratos coherentes y estables |
+| V3-P3-T2 | Endpoints funcionales por dominio | V3-P3-T2.1 auth/onboarding; V3-P3-T2.2 training/nutrition/progress; V3-P3-T2.3 legal/admin/audit | 🚧 | V3-P3-T1 | Backend cubre flujos del board |
 | V3-P3-T3 | Resiliencia backend operativa | V3-P3-T3.1 errores estandarizados; V3-P3-T3.2 trazabilidad; V3-P3-T3.3 politicas de retry/idempotencia | ⏳ | V3-P3-T2 | Backend listo para carga operativa |
 
 ## Fase P4 - Integracion cruzada y QA
@@ -189,3 +189,20 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - cierre de task `V3-P2-T3`: bloque web enterprise (`users/roles/RBAC`, `audit/compliance`, `billing/support`) completado.
 - Inicio V3-P3-T1:
   - foco en alinear contratos compartidos y backend para cubrir gaps enterprise detectados en `billing/incidents/approvals` y cerrar drift payload<->consumidores.
+- Cierre V3-P3-T1:
+  - contratos extendidos en `packages/contracts` con entidades enterprise:
+    - `billingInvoiceSchema` (`draft/open/paid/overdue`).
+    - `supportIncidentSchema` (`open/in_progress/resolved`, severidades y fuente).
+  - backend alineado con nuevos contratos:
+    - use cases: `ListBillingInvoicesUseCase`, `ListSupportIncidentsUseCase`.
+    - runtime local: métodos `listBillingInvoices` y `listSupportIncidents` en `demo-api-runtime`.
+    - rutas HTTP demo/API añadidas:
+      - `GET /api/listBillingInvoices`
+      - `GET /api/listSupportIncidents`
+  - cobertura y validación en PASS:
+    - `pnpm --filter @flux/contracts check`
+    - `pnpm --filter @flux/contracts test` (`22` tests, `0` fallos)
+    - `pnpm --filter @flux/backend check`
+    - `pnpm --filter @flux/backend test` (`26` ficheros, `46` tests, `0` fallos)
+- Inicio V3-P3-T2:
+  - foco en expandir endpoints funcionales por dominio para cerrar cobertura backend total del board (`auth/onboarding`, `training/nutrition/progress`, `legal/admin/audit`).
