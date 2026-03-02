@@ -1,9 +1,13 @@
 import type {
+  ActivityLogEntry,
   AnalyticsEvent,
   CrashReport,
+  ForensicAuditExport,
+  ForensicAuditExportRequest,
   ObservabilitySummary,
   OperationalAlert,
-  OperationalRunbook
+  OperationalRunbook,
+  StructuredLog
 } from "@flux/contracts";
 import type { ObservabilityGateway } from "../application/manage-observability";
 import { assertApiResponse, createApiHeaders } from "./api-client";
@@ -76,6 +80,35 @@ class ApiObservabilityGateway implements ObservabilityGateway {
     await assertApiResponse(response, "list_operational_runbooks_failed");
     const payload = (await response.json()) as { runbooks: OperationalRunbook[] };
     return payload.runbooks;
+  }
+
+  async listStructuredLogs(userId: string): Promise<StructuredLog[]> {
+    const response = await fetch(`/api/listStructuredLogs?userId=${encodeURIComponent(userId)}`, {
+      headers: createApiHeaders()
+    });
+    await assertApiResponse(response, "list_structured_logs_failed");
+    const payload = (await response.json()) as { logs: StructuredLog[] };
+    return payload.logs;
+  }
+
+  async listActivityLog(userId: string): Promise<ActivityLogEntry[]> {
+    const response = await fetch(`/api/listActivityLog?userId=${encodeURIComponent(userId)}`, {
+      headers: createApiHeaders()
+    });
+    await assertApiResponse(response, "list_activity_log_failed");
+    const payload = (await response.json()) as { activityLog: ActivityLogEntry[] };
+    return payload.activityLog;
+  }
+
+  async exportForensicAudit(payload: ForensicAuditExportRequest): Promise<ForensicAuditExport> {
+    const response = await fetch("/api/exportForensicAudit", {
+      method: "POST",
+      headers: createApiHeaders(undefined, true),
+      body: JSON.stringify(payload)
+    });
+    await assertApiResponse(response, "export_forensic_audit_failed");
+    const parsedPayload = (await response.json()) as { exportResult: ForensicAuditExport };
+    return parsedPayload.exportResult;
   }
 }
 

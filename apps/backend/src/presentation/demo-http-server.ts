@@ -2,17 +2,24 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import {
   accessDecisionInputSchema,
   accessRoleSchema,
+  activityLogActionSchema,
+  activityLogEntrySchema,
+  activityLogOutcomeSchema,
   analyticsEventSchema,
   authRecoveryRequestSchema,
   crashReportSchema,
   dataExportRequestInputSchema,
   dataDeletionRequestSchema,
   deniedAccessAuditInputSchema,
+  forensicAuditExportRequestSchema,
   goalSchema,
   legalConsentSubmissionSchema,
   operationalAlertSchema,
   operationalRunbookSchema,
   nutritionLogSchema,
+  structuredLogCategorySchema,
+  structuredLogLevelSchema,
+  structuredLogSchema,
   syncQueueProcessInputSchema,
   trainingPlanSchema,
   workoutSessionInputSchema,
@@ -73,6 +80,9 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/listObservabilitySummary": "GET",
   "/api/listOperationalAlerts": "GET",
   "/api/listOperationalRunbooks": "GET",
+  "/api/listStructuredLogs": "GET",
+  "/api/listActivityLog": "GET",
+  "/api/exportForensicAudit": "POST",
   "/api/recordLegalConsent": "POST",
   "/api/requestDataExport": "POST",
   "/api/requestDataDeletion": "POST",
@@ -752,6 +762,83 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: mapDomainError(error, "invalid_list_operational_runbooks_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listStructuredLogs") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const logs = structuredLogSchema.array().parse(
+        await runtime.listStructuredLogs(userId, {
+          fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+          toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+          limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit")),
+          level: parseOptionalEnumQuery(
+            url.searchParams.get("level"),
+            structuredLogLevelSchema.options
+          ),
+          category: parseOptionalEnumQuery(
+            url.searchParams.get("category"),
+            structuredLogCategorySchema.options
+          ),
+          source: parseOptionalEnumQuery(
+            url.searchParams.get("source"),
+            ["web", "ios", "backend"] as const
+          ),
+          query: url.searchParams.get("query") ?? undefined
+        })
+      );
+      return { statusCode: 200, payload: { logs } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_structured_logs_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listActivityLog") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const entries = activityLogEntrySchema.array().parse(
+        await runtime.listActivityLog(userId, {
+          fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+          toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+          limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit")),
+          action: parseOptionalEnumQuery(
+            url.searchParams.get("action"),
+            activityLogActionSchema.options
+          ),
+          outcome: parseOptionalEnumQuery(
+            url.searchParams.get("outcome"),
+            activityLogOutcomeSchema.options
+          ),
+          source: parseOptionalEnumQuery(
+            url.searchParams.get("source"),
+            ["web", "ios", "backend"] as const
+          ),
+          query: url.searchParams.get("query") ?? undefined
+        })
+      );
+      return { statusCode: 200, payload: { activityLog: entries } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_activity_log_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/exportForensicAudit") {
+    try {
+      const payload = forensicAuditExportRequestSchema.parse(await readJsonBody(request));
+      const exportResult = await runtime.exportForensicAudit(payload);
+      return { statusCode: 201, payload: { exportResult } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_export_forensic_audit_payload") }
       };
     }
   }

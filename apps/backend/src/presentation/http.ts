@@ -2,6 +2,9 @@ import {
   accessDecisionInputSchema,
   accessDecisionResultSchema,
   accessRoleSchema,
+  activityLogActionSchema,
+  activityLogEntrySchema,
+  activityLogOutcomeSchema,
   analyticsEventSchema,
   authRecoveryRequestSchema,
   authRecoveryResultSchema,
@@ -15,8 +18,13 @@ import {
   operationalRunbookSchema,
   deniedAccessAuditInputSchema,
   deniedAccessAuditSchema,
+  forensicAuditExportRequestSchema,
+  forensicAuditExportSchema,
   goalSchema,
   legalConsentSubmissionSchema,
+  structuredLogCategorySchema,
+  structuredLogLevelSchema,
+  structuredLogSchema,
   supportIncidentSchema,
   syncQueueProcessInputSchema,
   type DeniedAccessAudit,
@@ -55,6 +63,9 @@ import { ListDataRetentionPoliciesUseCase } from "../application/list-data-reten
 import { ListObservabilitySummaryUseCase } from "../application/list-observability-summary";
 import { ListOperationalAlertsUseCase } from "../application/list-operational-alerts";
 import { ListOperationalRunbooksUseCase } from "../application/list-operational-runbooks";
+import { ListStructuredLogsUseCase } from "../application/list-structured-logs";
+import { ListActivityLogUseCase } from "../application/list-activity-log";
+import { ExportForensicAuditUseCase } from "../application/export-forensic-audit";
 import { EvaluateRoleAccessUseCase } from "../application/evaluate-role-access";
 import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
 import { ListDeniedAccessAuditsUseCase } from "../application/list-denied-access-audits";
@@ -165,6 +176,20 @@ const recordDeniedAccessAuditUseCase = new RecordDeniedAccessAuditUseCase(
 );
 const listDeniedAccessAuditsUseCase = new ListDeniedAccessAuditsUseCase(
   deniedAccessAuditRepository
+);
+const listStructuredLogsUseCase = new ListStructuredLogsUseCase(
+  analyticsEventRepository,
+  crashReportRepository,
+  deniedAccessAuditRepository
+);
+const listActivityLogUseCase = new ListActivityLogUseCase(
+  analyticsEventRepository,
+  deniedAccessAuditRepository,
+  crashReportRepository
+);
+const exportForensicAuditUseCase = new ExportForensicAuditUseCase(
+  listStructuredLogsUseCase,
+  listActivityLogUseCase
 );
 const ensureSupportedClientVersionUseCase = new EnsureSupportedClientVersionUseCase({
   webMinimumVersion: String(process.env.MIN_WEB_CLIENT_VERSION ?? "0.1.0"),
@@ -983,5 +1008,66 @@ export const listOperationalRunbooks = onRequest(async (request, response) => {
     response.status(200).json({ runbooks: operationalRunbookSchema.array().parse(runbooks) });
   } catch {
     sendStandardError(request, response, 400, "invalid_list_operational_runbooks_payload");
+  }
+});
+
+export const listStructuredLogs = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const userId = String(request.query.userId ?? "");
+    const logs = await listStructuredLogsUseCase.execute(userId, {
+      fromDate: parseOptionalDateQuery(request.query.fromDate),
+      toDate: parseOptionalDateQuery(request.query.toDate),
+      limit: parseOptionalPositiveIntegerQuery(request.query.limit),
+      level: parseOptionalEnumQuery(request.query.level, structuredLogLevelSchema.options),
+      category: parseOptionalEnumQuery(request.query.category, structuredLogCategorySchema.options),
+      source: parseOptionalEnumQuery(
+        request.query.source,
+        ["web", "ios", "backend"] as const
+      ),
+      query: request.query.query === undefined ? undefined : String(request.query.query)
+    });
+    response.status(200).json({ logs: structuredLogSchema.array().parse(logs) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_list_structured_logs_payload");
+  }
+});
+
+export const listActivityLog = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const userId = String(request.query.userId ?? "");
+    const activityLog = await listActivityLogUseCase.execute(userId, {
+      fromDate: parseOptionalDateQuery(request.query.fromDate),
+      toDate: parseOptionalDateQuery(request.query.toDate),
+      limit: parseOptionalPositiveIntegerQuery(request.query.limit),
+      action: parseOptionalEnumQuery(request.query.action, activityLogActionSchema.options),
+      outcome: parseOptionalEnumQuery(request.query.outcome, activityLogOutcomeSchema.options),
+      source: parseOptionalEnumQuery(
+        request.query.source,
+        ["web", "ios", "backend"] as const
+      ),
+      query: request.query.query === undefined ? undefined : String(request.query.query)
+    });
+    response.status(200).json({ activityLog: activityLogEntrySchema.array().parse(activityLog) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_list_activity_log_payload");
+  }
+});
+
+export const exportForensicAudit = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const payload = forensicAuditExportRequestSchema.parse(request.body);
+    const exportResult = await exportForensicAuditUseCase.execute(payload);
+    response.status(201).json({ exportResult: forensicAuditExportSchema.parse(exportResult) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_export_forensic_audit_payload");
   }
 });

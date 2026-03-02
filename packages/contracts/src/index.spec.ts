@@ -20,7 +20,11 @@ import {
   legalConsentAuditSchema,
   legalConsentSchema,
   legalConsentSubmissionSchema,
+  activityLogEntrySchema,
+  forensicAuditExportRequestSchema,
+  forensicAuditExportSchema,
   onboardingProfileInputSchema,
+  structuredLogSchema,
   onboardingResultSchema,
   onboardingSubmissionInputSchema,
   operationalAlertSchema,
@@ -219,6 +223,77 @@ describe("observabilitySummarySchema", () => {
     });
 
     expect(parsed.success).toBe(true);
+  });
+});
+
+describe("structuredLogSchema", () => {
+  it("accepts structured log payload", () => {
+    const parsed = structuredLogSchema.safeParse({
+      id: "LOG-0001",
+      userId: "user-1",
+      occurredAt: "2026-03-03T09:01:00.000Z",
+      source: "backend",
+      level: "warning",
+      category: "operations",
+      eventName: "dashboard_action_blocked",
+      domain: "operations",
+      correlationId: "corr-log-1",
+      summary: "Blocked action requires manual recovery.",
+      attributes: {
+        ownerOnCall: "operations_oncall",
+        blockedActions: 5
+      }
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("activityLogEntrySchema", () => {
+  it("accepts activity log payload", () => {
+    const parsed = activityLogEntrySchema.safeParse({
+      id: "ACT-0001",
+      userId: "user-1",
+      occurredAt: "2026-03-03T09:02:00.000Z",
+      actorRole: "system",
+      action: "forensic_exported",
+      resource: "audit_bundle",
+      domain: "operations",
+      source: "backend",
+      outcome: "success",
+      correlationId: "corr-activity-1",
+      summary: "Forensic bundle generated for incident review."
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("forensicAuditExportSchemas", () => {
+  it("accepts forensic export request and response payloads", () => {
+    const requestParsed = forensicAuditExportRequestSchema.safeParse({
+      userId: "user-1",
+      format: "csv",
+      fromDate: "2026-03-03T08:00:00.000Z",
+      toDate: "2026-03-03T09:00:00.000Z",
+      includeStructuredLogs: true,
+      includeActivityLog: true
+    });
+    const responseParsed = forensicAuditExportSchema.safeParse({
+      id: "forensic-user-1-1700000000",
+      userId: "user-1",
+      format: "csv",
+      status: "completed",
+      generatedAt: "2026-03-03T09:03:00.000Z",
+      rowCount: 42,
+      checksum: "abc123456789",
+      downloadUrl: "https://forensics.flux.training/exports/forensic-user-1-1700000000.csv",
+      fromDate: "2026-03-03T08:00:00.000Z",
+      toDate: "2026-03-03T09:00:00.000Z"
+    });
+
+    expect(requestParsed.success).toBe(true);
+    expect(responseParsed.success).toBe(true);
   });
 });
 

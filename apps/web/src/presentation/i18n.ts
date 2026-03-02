@@ -89,6 +89,7 @@ type AppTranslations = {
   auditStatusLabel: string;
   auditLoadTimeline: string;
   auditExportCSV: string;
+  auditExportForensic: string;
   auditClearFilters: string;
   auditSearchPlaceholder: string;
   auditSourceFilterLabel: string;
@@ -103,6 +104,9 @@ type AppTranslations = {
   auditSeverityInfo: string;
   auditRowsLoadedLabel: string;
   auditRowsFilteredLabel: string;
+  auditStructuredLogsLabel: string;
+  auditActivityLogLabel: string;
+  auditForensicStatusLabel: string;
   auditNoRows: string;
   auditOccurredAtColumn: string;
   auditSourceColumn: string;
@@ -362,6 +366,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     auditStatusLabel: "Audit",
     auditLoadTimeline: "Cargar timeline audit",
     auditExportCSV: "Exportar CSV audit",
+    auditExportForensic: "Exportar forense",
     auditClearFilters: "Limpiar filtros audit",
     auditSearchPlaceholder: "buscar evento audit",
     auditSourceFilterLabel: "fuente audit",
@@ -376,6 +381,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     auditSeverityInfo: "info",
     auditRowsLoadedLabel: "Filas audit cargadas",
     auditRowsFilteredLabel: "Filas audit filtradas",
+    auditStructuredLogsLabel: "Logs estructurados",
+    auditActivityLogLabel: "Entradas activity log",
+    auditForensicStatusLabel: "Estado export forense",
     auditNoRows: "No hay filas de audit para este filtro.",
     auditOccurredAtColumn: "Momento",
     auditSourceColumn: "Fuente",
@@ -633,6 +641,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     auditStatusLabel: "Audit",
     auditLoadTimeline: "Load audit timeline",
     auditExportCSV: "Export audit CSV",
+    auditExportForensic: "Export forensic audit",
     auditClearFilters: "Clear audit filters",
     auditSearchPlaceholder: "search audit event",
     auditSourceFilterLabel: "audit source",
@@ -647,6 +656,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     auditSeverityInfo: "info",
     auditRowsLoadedLabel: "Audit rows loaded",
     auditRowsFilteredLabel: "Audit rows filtered",
+    auditStructuredLogsLabel: "Structured logs",
+    auditActivityLogLabel: "Activity log entries",
+    auditForensicStatusLabel: "Forensic export status",
     auditNoRows: "No audit rows match this filter.",
     auditOccurredAtColumn: "Occurred at",
     auditSourceColumn: "Source",

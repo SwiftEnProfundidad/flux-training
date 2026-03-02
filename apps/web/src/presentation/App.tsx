@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AccessRole,
+  ActivityLogEntry,
   AIRecommendation,
   AnalyticsEvent,
   CrashReport,
   ExerciseVideo,
+  ForensicAuditExport,
   Goal,
   NutritionLog,
   ObservabilitySummary,
   OperationalAlert,
   OperationalRunbook,
   ProgressSummary,
+  StructuredLog,
   TrainingPlan,
   WorkoutSessionInput,
   RoleCapabilities
@@ -299,6 +302,11 @@ export function App() {
   const [analyticsEvents, setAnalyticsEvents] = useState<AnalyticsEvent[]>([]);
   const [crashReports, setCrashReports] = useState<CrashReport[]>([]);
   const [observabilitySummary, setObservabilitySummary] = useState<ObservabilitySummary | null>(
+    null
+  );
+  const [structuredLogs, setStructuredLogs] = useState<StructuredLog[]>([]);
+  const [activityLogEntries, setActivityLogEntries] = useState<ActivityLogEntry[]>([]);
+  const [forensicExportResult, setForensicExportResult] = useState<ForensicAuditExport | null>(
     null
   );
   const [operationalAlerts, setOperationalAlerts] = useState<OperationalAlert[]>([]);
@@ -1208,19 +1216,31 @@ export function App() {
   }
 
   async function loadObservabilityCollections(): Promise<void> {
-    const [loadedEvents, loadedCrashReports, loadedSummary, loadedAlerts, loadedRunbooks] =
+    const [
+      loadedEvents,
+      loadedCrashReports,
+      loadedSummary,
+      loadedAlerts,
+      loadedRunbooks,
+      loadedStructuredLogs,
+      loadedActivityLog
+    ] =
       await Promise.all([
       manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
       manageObservabilityUseCase.listCrashReports(demoUserId),
       manageObservabilityUseCase.listObservabilitySummary(demoUserId),
       manageObservabilityUseCase.listOperationalAlerts(demoUserId),
-      manageObservabilityUseCase.listOperationalRunbooks()
+      manageObservabilityUseCase.listOperationalRunbooks(),
+      manageObservabilityUseCase.listStructuredLogs(demoUserId),
+      manageObservabilityUseCase.listActivityLog(demoUserId)
     ]);
     setAnalyticsEvents(loadedEvents);
     setCrashReports(loadedCrashReports);
     setObservabilitySummary(loadedSummary);
     setOperationalAlerts(loadedAlerts);
     setOperationalRunbooks(loadedRunbooks);
+    setStructuredLogs(loadedStructuredLogs);
+    setActivityLogEntries(loadedActivityLog);
   }
 
   async function handleTrackAnalyticsEvent() {
@@ -1343,6 +1363,27 @@ export function App() {
       });
       setAuditStatus("saved");
     } catch {
+      setAuditStatus("error");
+    }
+  }
+
+  async function handleExportForensicAudit() {
+    setAuditStatus("loading");
+    try {
+      const exportResult = await manageObservabilityUseCase.exportForensicAudit({
+        userId: demoUserId,
+        format: "csv",
+        fromDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        toDate: new Date().toISOString(),
+        includeStructuredLogs: true,
+        includeActivityLog: true
+      });
+      setForensicExportResult(exportResult);
+      setAuditStatus("saved");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
       setAuditStatus("error");
     }
   }
@@ -2585,6 +2626,9 @@ export function App() {
                 <button className="button primary" onClick={handleExportAuditCSV} type="button">
                   {translate("auditExportCSV")}
                 </button>
+                <button className="button ghost" onClick={handleExportForensicAudit} type="button">
+                  {translate("auditExportForensic")}
+                </button>
                 <button className="button ghost" onClick={handleClearAuditFilters} type="button">
                   {translate("auditClearFilters")}
                 </button>
@@ -2655,6 +2699,21 @@ export function App() {
               <StatLine
                 label={translate("auditRowsFilteredLabel")}
                 value={String(auditTimelineRows.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("auditStructuredLogsLabel")}
+                value={String(structuredLogs.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("auditActivityLogLabel")}
+                value={String(activityLogEntries.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("auditForensicStatusLabel")}
+                value={forensicExportResult === null ? "-" : humanizeStatus(forensicExportResult.status, language)}
                 language={language}
               />
               {auditTimelineRows.length === 0 ? (

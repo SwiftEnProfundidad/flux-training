@@ -478,6 +478,109 @@ export const operationalRunbookSchema = z.object({
   updatedAt: z.string().datetime()
 });
 
+export const structuredLogLevelSchema = z.enum([
+  "info",
+  "warning",
+  "error",
+  "critical"
+]);
+
+export const structuredLogCategorySchema = z.enum([
+  "analytics",
+  "crash",
+  "access",
+  "compliance",
+  "operations"
+]);
+
+export const structuredLogSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  occurredAt: z.string().datetime(),
+  source: observabilitySourceSchema,
+  level: structuredLogLevelSchema,
+  category: structuredLogCategorySchema,
+  eventName: z.string().min(1),
+  domain: z.string().min(1),
+  correlationId: z.string().min(1),
+  summary: z.string().min(1),
+  attributes: z
+    .record(z.union([z.string(), z.number(), z.boolean()]))
+    .default({})
+});
+
+export const activityActorRoleSchema = z.enum([
+  "athlete",
+  "coach",
+  "admin",
+  "system"
+]);
+
+export const activityLogActionSchema = z.enum([
+  "role_changed",
+  "domain_changed",
+  "access_denied",
+  "action_blocked",
+  "incident_opened",
+  "forensic_exported",
+  "consent_recorded",
+  "data_export_requested",
+  "data_deletion_requested",
+  "crash_reported"
+]);
+
+export const activityLogOutcomeSchema = z.enum([
+  "success",
+  "denied",
+  "error"
+]);
+
+export const activityLogEntrySchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  occurredAt: z.string().datetime(),
+  actorRole: activityActorRoleSchema,
+  action: activityLogActionSchema,
+  resource: z.string().min(1),
+  domain: z.string().min(1),
+  source: observabilitySourceSchema,
+  outcome: activityLogOutcomeSchema,
+  correlationId: z.string().min(1),
+  summary: z.string().min(1)
+});
+
+export const forensicAuditExportFormatSchema = z.enum([
+  "csv",
+  "json"
+]);
+
+export const forensicAuditExportRequestSchema = z.object({
+  userId: z.string().min(1),
+  format: forensicAuditExportFormatSchema.default("csv"),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+  includeStructuredLogs: z.boolean().default(true),
+  includeActivityLog: z.boolean().default(true),
+  limit: z.number().int().positive().max(5000).optional()
+});
+
+export const forensicAuditExportStatusSchema = z.enum([
+  "completed"
+]);
+
+export const forensicAuditExportSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  format: forensicAuditExportFormatSchema,
+  status: forensicAuditExportStatusSchema,
+  generatedAt: z.string().datetime(),
+  rowCount: z.number().int().nonnegative(),
+  checksum: z.string().min(8),
+  downloadUrl: z.string().url(),
+  fromDate: z.string().datetime().nullable(),
+  toDate: z.string().datetime().nullable()
+});
+
 export const crashSeveritySchema = z.enum(["warning", "fatal"]);
 
 export const crashReportSchema = z.object({
@@ -669,6 +772,17 @@ export type OperationalAlertState = z.infer<typeof operationalAlertStateSchema>;
 export type OperationalAlert = z.infer<typeof operationalAlertSchema>;
 export type OperationalRunbookStep = z.infer<typeof operationalRunbookStepSchema>;
 export type OperationalRunbook = z.infer<typeof operationalRunbookSchema>;
+export type StructuredLogLevel = z.infer<typeof structuredLogLevelSchema>;
+export type StructuredLogCategory = z.infer<typeof structuredLogCategorySchema>;
+export type StructuredLog = z.infer<typeof structuredLogSchema>;
+export type ActivityActorRole = z.infer<typeof activityActorRoleSchema>;
+export type ActivityLogAction = z.infer<typeof activityLogActionSchema>;
+export type ActivityLogOutcome = z.infer<typeof activityLogOutcomeSchema>;
+export type ActivityLogEntry = z.infer<typeof activityLogEntrySchema>;
+export type ForensicAuditExportFormat = z.infer<typeof forensicAuditExportFormatSchema>;
+export type ForensicAuditExportRequest = z.infer<typeof forensicAuditExportRequestSchema>;
+export type ForensicAuditExportStatus = z.infer<typeof forensicAuditExportStatusSchema>;
+export type ForensicAuditExport = z.infer<typeof forensicAuditExportSchema>;
 export type CrashSeverity = z.infer<typeof crashSeveritySchema>;
 export type CrashReport = z.infer<typeof crashReportSchema>;
 export type BillingInvoiceStatus = z.infer<typeof billingInvoiceStatusSchema>;

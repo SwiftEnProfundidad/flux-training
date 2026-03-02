@@ -2,6 +2,7 @@ import {
   accessDecisionInputSchema,
   accessDecisionResultSchema,
   accessRoleSchema,
+  activityLogEntrySchema,
   analyticsEventSchema,
   authRecoveryRequestSchema,
   authRecoveryResultSchema,
@@ -16,10 +17,14 @@ import {
   operationalRunbookSchema,
   deniedAccessAuditInputSchema,
   deniedAccessAuditSchema,
+  forensicAuditExportRequestSchema,
+  forensicAuditExportSchema,
   legalConsentSubmissionSchema,
+  structuredLogSchema,
   supportIncidentSchema,
   roleCapabilitiesSchema,
   syncQueueProcessInputSchema,
+  type ActivityLogEntry,
   type AccessDecisionInput,
   type AccessDecisionResult,
   type AccessRole,
@@ -36,6 +41,8 @@ import {
   type DeniedAccessAudit,
   type DeniedAccessAuditInput,
   type ExerciseVideo,
+  type ForensicAuditExport,
+  type ForensicAuditExportRequest,
   type Goal,
   type HealthScreening,
   type LegalConsentAudit,
@@ -50,6 +57,7 @@ import {
   type ParQResponse,
   type ProgressSummary,
   type RoleCapabilities,
+  type StructuredLog,
   type SupportIncident,
   type SyncQueueItem,
   type SyncQueueProcessResult,
@@ -80,6 +88,7 @@ import { ListDataRetentionPoliciesUseCase } from "../application/list-data-reten
 import { ListObservabilitySummaryUseCase } from "../application/list-observability-summary";
 import { ListOperationalAlertsUseCase } from "../application/list-operational-alerts";
 import { ListOperationalRunbooksUseCase } from "../application/list-operational-runbooks";
+import { ListStructuredLogsUseCase, type StructuredLogListOptions } from "../application/list-structured-logs";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
 import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
@@ -87,6 +96,8 @@ import { RequestDataExportUseCase } from "../application/request-data-export";
 import { RequestDataDeletionUseCase } from "../application/request-data-deletion";
 import { EvaluateRoleAccessUseCase } from "../application/evaluate-role-access";
 import { ListDeniedAccessAuditsUseCase } from "../application/list-denied-access-audits";
+import { ListActivityLogUseCase, type ActivityLogListOptions } from "../application/list-activity-log";
+import { ExportForensicAuditUseCase } from "../application/export-forensic-audit";
 import type { AnalyticsEventRepository } from "../domain/analytics-event-repository";
 import type { AuthTokenVerifier } from "../domain/auth-token-verifier";
 import type { CrashReportRepository } from "../domain/crash-report-repository";
@@ -337,6 +348,9 @@ export type DemoApiRuntime = {
   listObservabilitySummary(userId: string): Promise<ObservabilitySummary>;
   listOperationalAlerts(userId: string): Promise<OperationalAlert[]>;
   listOperationalRunbooks(): Promise<OperationalRunbook[]>;
+  listStructuredLogs(userId: string, options?: StructuredLogListOptions): Promise<StructuredLog[]>;
+  listActivityLog(userId: string, options?: ActivityLogListOptions): Promise<ActivityLogEntry[]>;
+  exportForensicAudit(payload: ForensicAuditExportRequest): Promise<ForensicAuditExport>;
   listBillingInvoices(userId: string): Promise<BillingInvoice[]>;
   listSupportIncidents(userId: string): Promise<SupportIncident[]>;
 };
@@ -423,6 +437,20 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   const listObservabilitySummaryUseCase = new ListObservabilitySummaryUseCase(
     analyticsEventRepository,
     crashReportRepository
+  );
+  const listStructuredLogsUseCase = new ListStructuredLogsUseCase(
+    analyticsEventRepository,
+    crashReportRepository,
+    deniedAccessAuditRepository
+  );
+  const listActivityLogUseCase = new ListActivityLogUseCase(
+    analyticsEventRepository,
+    deniedAccessAuditRepository,
+    crashReportRepository
+  );
+  const exportForensicAuditUseCase = new ExportForensicAuditUseCase(
+    listStructuredLogsUseCase,
+    listActivityLogUseCase
   );
   const listOperationalAlertsUseCase = new ListOperationalAlertsUseCase(
     listObservabilitySummaryUseCase,
@@ -585,6 +613,25 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     async listOperationalRunbooks() {
       return operationalRunbookSchema.array().parse(
         listOperationalRunbooksUseCase.execute()
+      );
+    },
+
+    async listStructuredLogs(userId: string, options?: StructuredLogListOptions) {
+      return structuredLogSchema
+        .array()
+        .parse(await listStructuredLogsUseCase.execute(userId, options));
+    },
+
+    async listActivityLog(userId: string, options?: ActivityLogListOptions) {
+      return activityLogEntrySchema
+        .array()
+        .parse(await listActivityLogUseCase.execute(userId, options));
+    },
+
+    async exportForensicAudit(payload: ForensicAuditExportRequest) {
+      const parsedPayload = forensicAuditExportRequestSchema.parse(payload);
+      return forensicAuditExportSchema.parse(
+        await exportForensicAuditUseCase.execute(parsedPayload)
       );
     },
 

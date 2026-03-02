@@ -28,8 +28,12 @@ describe("i18n", () => {
     expect(translate("governancePrincipalColumn")).toBe("User");
     expect(translate("auditTitle")).toBe("Audit + compliance");
     expect(translate("auditLoadTimeline")).toBe("Load audit timeline");
+    expect(translate("auditExportForensic")).toBe("Export forensic audit");
     expect(translate("auditClearFilters")).toBe("Clear audit filters");
     expect(translate("auditSummaryColumn")).toBe("Summary");
+    expect(translate("auditStructuredLogsLabel")).toBe("Structured logs");
+    expect(translate("auditActivityLogLabel")).toBe("Activity log entries");
+    expect(translate("auditForensicStatusLabel")).toBe("Forensic export status");
     expect(translate("billingSupportTitle")).toBe("Billing + support");
     expect(translate("billingSupportLoadData")).toBe("Load billing/support");
     expect(translate("billingSupportClearSelection")).toBe("Clear incident selection");
@@ -81,8 +85,12 @@ describe("i18n", () => {
     expect(translate("governancePrincipalColumn")).toBe("Usuario");
     expect(translate("auditTitle")).toBe("Audit + compliance");
     expect(translate("auditLoadTimeline")).toBe("Cargar timeline audit");
+    expect(translate("auditExportForensic")).toBe("Exportar forense");
     expect(translate("auditClearFilters")).toBe("Limpiar filtros audit");
     expect(translate("auditSummaryColumn")).toBe("Resumen");
+    expect(translate("auditStructuredLogsLabel")).toBe("Logs estructurados");
+    expect(translate("auditActivityLogLabel")).toBe("Entradas activity log");
+    expect(translate("auditForensicStatusLabel")).toBe("Estado export forense");
     expect(translate("billingSupportTitle")).toBe("Billing + soporte");
     expect(translate("billingSupportLoadData")).toBe("Cargar billing/soporte");
     expect(translate("billingSupportClearSelection")).toBe("Limpiar seleccion incidencias");

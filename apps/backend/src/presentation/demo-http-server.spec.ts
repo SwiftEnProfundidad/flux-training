@@ -356,6 +356,88 @@ describe("DemoHttpServer", () => {
     ).toBe(true);
   });
 
+  it("serves structured logs activity log and forensic export endpoints", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_action_blocked",
+        source: "web",
+        occurredAt: "2026-03-02T11:30:00.000Z",
+        attributes: {
+          role: "athlete",
+          domain: "training",
+          backendRoute: "training/view",
+          reason: "domain_denied",
+          correlationId: "corr-forensic-1"
+        }
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/recordDeniedAccessAudit`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        role: "athlete",
+        domain: "training",
+        action: "view",
+        reason: "domain_denied",
+        trigger: "domain_select",
+        correlationId: "corr-forensic-1"
+      })
+    });
+
+    const logsResponse = await fetch(
+      `${server.baseUrl}/api/listStructuredLogs?userId=demo-user&query=blocked&limit=10`,
+      { headers: clientHeaders }
+    );
+    const activityResponse = await fetch(
+      `${server.baseUrl}/api/listActivityLog?userId=demo-user&action=access_denied`,
+      { headers: clientHeaders }
+    );
+    const exportResponse = await fetch(`${server.baseUrl}/api/exportForensicAudit`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        format: "csv",
+        fromDate: "2026-03-02T00:00:00.000Z",
+        toDate: "2026-03-03T00:00:00.000Z",
+        includeStructuredLogs: true,
+        includeActivityLog: true
+      })
+    });
+
+    expect(logsResponse.status).toBe(200);
+    expect(activityResponse.status).toBe(200);
+    expect(exportResponse.status).toBe(201);
+
+    const logsPayload = (await logsResponse.json()) as { logs?: unknown[] };
+    const activityPayload = (await activityResponse.json()) as { activityLog?: unknown[] };
+    const exportPayload = (await exportResponse.json()) as {
+      exportResult?: { status?: string; rowCount?: number; downloadUrl?: string };
+    };
+
+    expect((logsPayload.logs ?? []).length).toBeGreaterThan(0);
+    expect((activityPayload.activityLog ?? []).length).toBeGreaterThan(0);
+    expect(exportPayload.exportResult?.status).toBe("completed");
+    expect((exportPayload.exportResult?.rowCount ?? 0) > 0).toBe(true);
+    expect((exportPayload.exportResult?.downloadUrl ?? "").endsWith(".csv")).toBe(true);
+  });
+
   it("applies idempotency policy for critical post endpoints", async () => {
     server = await startDemoHttpServer({ port: 0 });
 

@@ -301,4 +301,64 @@ describe("DemoApiRuntime", () => {
     expect(runbooks.length).toBe(5);
     expect(runbooks.every((item) => item.steps.length > 0)).toBe(true);
   });
+
+  it("returns structured logs activity log and forensic export metadata", async () => {
+    const runtime = createDemoApiRuntime();
+
+    await runtime.createAnalyticsEvent({
+      userId: "demo-user",
+      name: "dashboard_action_blocked",
+      source: "web",
+      occurredAt: "2026-03-03T10:00:00.000Z",
+      attributes: {
+        role: "athlete",
+        domain: "training",
+        backendRoute: "training/view",
+        reason: "domain_denied",
+        correlationId: "corr-forensic-1"
+      }
+    });
+    await runtime.recordDeniedAccessAudit({
+      userId: "demo-user",
+      role: "athlete",
+      domain: "training",
+      action: "view",
+      reason: "domain_denied",
+      trigger: "domain_select",
+      correlationId: "corr-forensic-1"
+    });
+    await runtime.createCrashReport({
+      userId: "demo-user",
+      source: "backend",
+      message: "fatal worker crash",
+      severity: "fatal",
+      occurredAt: "2026-03-03T10:01:00.000Z",
+      correlationId: "corr-forensic-2"
+    });
+
+    const [logs, activityLog, forensicExport] = await Promise.all([
+      runtime.listStructuredLogs("demo-user", {
+        query: "blocked",
+        limit: 10
+      }),
+      runtime.listActivityLog("demo-user", {
+        source: "web",
+        limit: 10
+      }),
+      runtime.exportForensicAudit({
+        userId: "demo-user",
+        format: "csv",
+        fromDate: "2026-03-03T09:00:00.000Z",
+        toDate: "2026-03-03T12:00:00.000Z",
+        includeStructuredLogs: true,
+        includeActivityLog: true
+      })
+    ]);
+
+    expect(logs.length).toBeGreaterThan(0);
+    expect(activityLog.length).toBeGreaterThan(0);
+    expect(forensicExport.status).toBe("completed");
+    expect(forensicExport.rowCount).toBeGreaterThan(0);
+    expect(forensicExport.downloadUrl.endsWith(".csv")).toBe(true);
+  });
 });
