@@ -361,4 +361,63 @@ describe("DemoApiRuntime", () => {
     expect(forensicExport.rowCount).toBeGreaterThan(0);
     expect(forensicExport.downloadUrl.endsWith(".csv")).toBe(true);
   });
+
+  it("profiles endpoint calls and records cache hits for repeated reads", async () => {
+    const runtime = createDemoApiRuntime();
+
+    await runtime.createAnalyticsEvent({
+      userId: "demo-user",
+      name: "dashboard_action_blocked",
+      source: "web",
+      occurredAt: "2026-03-03T10:00:00.000Z",
+      attributes: {
+        domain: "operations",
+        reason: "domain_denied",
+        correlationId: "corr-profile-1"
+      }
+    });
+
+    await runtime.listObservabilitySummary("demo-user");
+    await runtime.listObservabilitySummary("demo-user");
+
+    const profiles = runtime.listRuntimeProfiles();
+    const summaryProfile = profiles.find((profile) => profile.endpoint === "listObservabilitySummary");
+
+    expect(summaryProfile).toBeDefined();
+    expect(summaryProfile?.calls).toBe(2);
+    expect(summaryProfile?.cacheHits).toBe(1);
+  });
+
+  it("invalidates cached reads after mutating operations", async () => {
+    const runtime = createDemoApiRuntime();
+
+    await runtime.createCrashReport({
+      userId: "demo-user",
+      source: "backend",
+      message: "initial fatal crash",
+      severity: "fatal",
+      occurredAt: "2026-03-03T10:00:00.000Z"
+    });
+
+    const firstSummary = await runtime.listObservabilitySummary("demo-user");
+    expect(firstSummary.totalCrashReports).toBe(1);
+
+    await runtime.listObservabilitySummary("demo-user");
+
+    await runtime.createCrashReport({
+      userId: "demo-user",
+      source: "backend",
+      message: "second fatal crash",
+      severity: "fatal",
+      occurredAt: "2026-03-03T10:05:00.000Z"
+    });
+
+    const summaryAfterMutation = await runtime.listObservabilitySummary("demo-user");
+    expect(summaryAfterMutation.totalCrashReports).toBe(2);
+
+    const profiles = runtime.listRuntimeProfiles();
+    const summaryProfile = profiles.find((profile) => profile.endpoint === "listObservabilitySummary");
+    expect(summaryProfile?.calls).toBe(3);
+    expect(summaryProfile?.cacheHits).toBe(1);
+  });
 });

@@ -32,8 +32,8 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V4-P2-T1 | Performance de frontend (iOS/Web) | V4-P2-T1.1 tiempos de carga; V4-P2-T1.2 listas densas/tablas; V4-P2-T1.3 optimizacion render | ✅ | V4-P1-T1 | UX estable bajo carga realista |
-| V4-P2-T2 | Performance backend/API | V4-P2-T2.1 perfiles por endpoint; V4-P2-T2.2 caching/colas; V4-P2-T2.3 tuning DB | 🚧 | V4-P2-T1 | API dentro de SLO acordado |
-| V4-P2-T3 | Pruebas de carga y degradacion | V4-P2-T3.1 carga base; V4-P2-T3.2 stress; V4-P2-T3.3 criterios de degradacion controlada | ⏳ | V4-P2-T2 | Comportamiento predecible en picos |
+| V4-P2-T2 | Performance backend/API | V4-P2-T2.1 perfiles por endpoint; V4-P2-T2.2 caching/colas; V4-P2-T2.3 tuning DB | ✅ | V4-P2-T1 | API dentro de SLO acordado |
+| V4-P2-T3 | Pruebas de carga y degradacion | V4-P2-T3.1 carga base; V4-P2-T3.2 stress; V4-P2-T3.3 criterios de degradacion controlada | 🚧 | V4-P2-T2 | Comportamiento predecible en picos |
 
 ## Fase P3 - Release governance
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -102,3 +102,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
 - Siguiente task activa:
   - `V4-P2-T2` (Performance backend/API) en `🚧`.
+- Cierre V4-P2-T2:
+  - runtime backend ampliado con perfilado por endpoint (`calls`, `cacheHits`, `averageMs`, `maxMs`) para observabilidad de latencia en tiempo de ejecución.
+  - capa API optimizada con caching TTL en lecturas frecuentes e invalidación explícita tras operaciones de escritura/mutación.
+  - repositorios en memoria indexados por usuario/identificador para evitar escaneos completos en rutas de alto tráfico.
+  - evidencia publicada: `docs/validation/V4_P2_T2_BACKEND_API_PERFORMANCE.json`.
+  - regresión global validada en verde (`pnpm --filter backend build`, `pnpm --filter backend test`, `pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
+- Siguiente task activa:
+  - `V4-P2-T3` (Pruebas de carga y degradacion) en `🚧`.

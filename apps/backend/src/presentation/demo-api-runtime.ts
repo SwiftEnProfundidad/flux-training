@@ -134,6 +134,28 @@ type DateRangeListOptions = {
   limit?: number | undefined;
 };
 
+type RuntimeProfileEntry = {
+  endpoint: string;
+  calls: number;
+  cacheHits: number;
+  averageMs: number;
+  maxMs: number;
+  lastMs: number;
+};
+
+type RuntimeProfileAccumulator = {
+  calls: number;
+  cacheHits: number;
+  totalMs: number;
+  maxMs: number;
+  lastMs: number;
+};
+
+type RuntimeCacheEntry<T> = {
+  expiresAt: number;
+  value: T;
+};
+
 class InMemoryUserProfileRepository implements UserProfileRepository {
   private readonly records: OnboardingResult["profile"][] = [];
 
@@ -151,67 +173,96 @@ class InMemoryHealthScreeningRepository implements HealthScreeningRepository {
 }
 
 class InMemoryTrainingPlanRepository implements TrainingPlanRepository {
-  private readonly records: TrainingPlan[] = [];
+  private readonly recordsById = new Map<string, TrainingPlan>();
+  private readonly recordsByUserId = new Map<string, TrainingPlan[]>();
 
   async save(plan: TrainingPlan): Promise<void> {
-    const existingIndex = this.records.findIndex((record) => record.id === plan.id);
-    if (existingIndex >= 0) {
-      this.records[existingIndex] = plan;
-      return;
+    const existing = this.recordsById.get(plan.id);
+    if (existing !== undefined && existing.userId !== plan.userId) {
+      const oldUserPlans = this.recordsByUserId.get(existing.userId);
+      if (oldUserPlans !== undefined) {
+        this.recordsByUserId.set(
+          existing.userId,
+          oldUserPlans.filter((record) => record.id !== plan.id)
+        );
+      }
     }
-    this.records.push(plan);
+
+    this.recordsById.set(plan.id, plan);
+
+    const userPlans = this.recordsByUserId.get(plan.userId) ?? [];
+    const existingIndex = userPlans.findIndex((record) => record.id === plan.id);
+    if (existingIndex >= 0) {
+      userPlans[existingIndex] = plan;
+    } else {
+      userPlans.push(plan);
+    }
+    this.recordsByUserId.set(plan.userId, userPlans);
   }
 
   async listByUserId(userId: string): Promise<TrainingPlan[]> {
-    return this.records.filter((record) => record.userId === userId);
+    const records = this.recordsByUserId.get(userId) ?? [];
+    return [...records];
   }
 }
 
 class InMemoryWorkoutSessionRepository implements WorkoutSessionRepository {
-  private readonly records: WorkoutSessionInput[] = [];
+  private readonly recordsByUserId = new Map<string, WorkoutSessionInput[]>();
 
   async save(session: WorkoutSessionInput): Promise<void> {
-    this.records.push(session);
+    const userSessions = this.recordsByUserId.get(session.userId) ?? [];
+    userSessions.push(session);
+    this.recordsByUserId.set(session.userId, userSessions);
   }
 
   async listByUserId(userId: string): Promise<WorkoutSessionInput[]> {
-    return this.records.filter((record) => record.userId === userId);
+    const records = this.recordsByUserId.get(userId) ?? [];
+    return [...records];
   }
 }
 
 class InMemoryNutritionLogRepository implements NutritionLogRepository {
-  private readonly records: NutritionLog[] = [];
+  private readonly recordsByUserId = new Map<string, NutritionLog[]>();
 
   async save(log: NutritionLog): Promise<void> {
-    this.records.push(log);
+    const userLogs = this.recordsByUserId.get(log.userId) ?? [];
+    userLogs.push(log);
+    this.recordsByUserId.set(log.userId, userLogs);
   }
 
   async listByUserId(userId: string): Promise<NutritionLog[]> {
-    return this.records.filter((record) => record.userId === userId);
+    const records = this.recordsByUserId.get(userId) ?? [];
+    return [...records];
   }
 }
 
 class InMemoryAnalyticsEventRepository implements AnalyticsEventRepository {
-  private readonly records: AnalyticsEvent[] = [];
+  private readonly recordsByUserId = new Map<string, AnalyticsEvent[]>();
 
   async save(event: AnalyticsEvent): Promise<void> {
-    this.records.push(event);
+    const userEvents = this.recordsByUserId.get(event.userId) ?? [];
+    userEvents.push(event);
+    this.recordsByUserId.set(event.userId, userEvents);
   }
 
   async listByUserId(userId: string): Promise<AnalyticsEvent[]> {
-    return this.records.filter((record) => record.userId === userId);
+    const records = this.recordsByUserId.get(userId) ?? [];
+    return [...records];
   }
 }
 
 class InMemoryCrashReportRepository implements CrashReportRepository {
-  private readonly records: CrashReport[] = [];
+  private readonly recordsByUserId = new Map<string, CrashReport[]>();
 
   async save(report: CrashReport): Promise<void> {
-    this.records.push(report);
+    const userReports = this.recordsByUserId.get(report.userId) ?? [];
+    userReports.push(report);
+    this.recordsByUserId.set(report.userId, userReports);
   }
 
   async listByUserId(userId: string): Promise<CrashReport[]> {
-    return this.records.filter((record) => record.userId === userId);
+    const records = this.recordsByUserId.get(userId) ?? [];
+    return [...records];
   }
 }
 
@@ -240,14 +291,17 @@ class InMemoryDataDeletionRequestRepository implements DataDeletionRequestReposi
 }
 
 class InMemoryDeniedAccessAuditRepository implements DeniedAccessAuditRepository {
-  private readonly records: DeniedAccessAudit[] = [];
+  private readonly recordsByUserId = new Map<string, DeniedAccessAudit[]>();
 
   async save(audit: DeniedAccessAudit): Promise<void> {
-    this.records.push(audit);
+    const userAudits = this.recordsByUserId.get(audit.userId) ?? [];
+    userAudits.push(audit);
+    this.recordsByUserId.set(audit.userId, userAudits);
   }
 
   async listByUserId(userId: string): Promise<DeniedAccessAudit[]> {
-    return this.records.filter((record) => record.userId === userId);
+    const records = this.recordsByUserId.get(userId) ?? [];
+    return [...records];
   }
 }
 
@@ -353,6 +407,7 @@ export type DemoApiRuntime = {
   exportForensicAudit(payload: ForensicAuditExportRequest): Promise<ForensicAuditExport>;
   listBillingInvoices(userId: string): Promise<BillingInvoice[]>;
   listSupportIncidents(userId: string): Promise<SupportIncident[]>;
+  listRuntimeProfiles(): RuntimeProfileEntry[];
 };
 
 export function createDemoApiRuntime(): DemoApiRuntime {
@@ -457,6 +512,66 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     listSupportIncidentsUseCase
   );
   const listOperationalRunbooksUseCase = new ListOperationalRunbooksUseCase();
+  const runtimeProfiles = new Map<string, RuntimeProfileAccumulator>();
+  const runtimeCache = new Map<string, RuntimeCacheEntry<unknown>>();
+  const runtimeCacheTtlMs = 20_000;
+
+  function registerRuntimeProfile(endpoint: string, elapsedMs: number, cacheHit: boolean): void {
+    const current = runtimeProfiles.get(endpoint) ?? {
+      calls: 0,
+      cacheHits: 0,
+      totalMs: 0,
+      maxMs: 0,
+      lastMs: 0
+    };
+    const next: RuntimeProfileAccumulator = {
+      calls: current.calls + 1,
+      cacheHits: current.cacheHits + (cacheHit ? 1 : 0),
+      totalMs: current.totalMs + elapsedMs,
+      maxMs: Math.max(current.maxMs, elapsedMs),
+      lastMs: elapsedMs
+    };
+    runtimeProfiles.set(endpoint, next);
+  }
+
+  function makeCacheKey(endpoint: string, keyParts: (string | number | boolean | undefined)[]): string {
+    return `${endpoint}:${JSON.stringify(keyParts)}`;
+  }
+
+  function clearRuntimeCache(): void {
+    runtimeCache.clear();
+  }
+
+  async function executeProfiled<T>(endpoint: string, task: () => Promise<T>): Promise<T> {
+    const startedAt = Date.now();
+    const result = await task();
+    registerRuntimeProfile(endpoint, Date.now() - startedAt, false);
+    return result;
+  }
+
+  async function executeProfiledCached<T>(
+    endpoint: string,
+    keyParts: (string | number | boolean | undefined)[],
+    task: () => Promise<T>,
+    ttlMs: number = runtimeCacheTtlMs
+  ): Promise<T> {
+    const now = Date.now();
+    const cacheKey = makeCacheKey(endpoint, keyParts);
+    const cached = runtimeCache.get(cacheKey);
+    if (cached !== undefined && cached.expiresAt > now) {
+      registerRuntimeProfile(endpoint, 0, true);
+      return cached.value as T;
+    }
+
+    const startedAt = now;
+    const result = await task();
+    runtimeCache.set(cacheKey, {
+      expiresAt: now + ttlMs,
+      value: result
+    });
+    registerRuntimeProfile(endpoint, Date.now() - startedAt, false);
+    return result;
+  }
 
   return {
     async createAuthSession(providerToken: string) {
@@ -486,99 +601,170 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     },
 
     async createTrainingPlan(payload: Omit<TrainingPlan, "createdAt">) {
-      return createTrainingPlanUseCase.execute(payload);
+      const createdPlan = await executeProfiled("createTrainingPlan", () =>
+        createTrainingPlanUseCase.execute(payload)
+      );
+      clearRuntimeCache();
+      return createdPlan;
     },
 
     async listTrainingPlans(userId: string) {
-      return listTrainingPlansUseCase.execute(userId);
+      return executeProfiledCached("listTrainingPlans", [userId], () =>
+        listTrainingPlansUseCase.execute(userId)
+      );
     },
 
     async createWorkoutSession(payload: WorkoutSessionInput) {
-      return createWorkoutSessionUseCase.execute(payload);
+      const session = await executeProfiled("createWorkoutSession", () =>
+        createWorkoutSessionUseCase.execute(payload)
+      );
+      clearRuntimeCache();
+      return session;
     },
 
     async listWorkoutSessions(userId: string, planId?: string, options?: DateRangeListOptions) {
-      const sessions = await listWorkoutSessionsUseCase.execute(userId, planId);
-      const filteredByDate = filterByDateRangeAndLimit(
-        sessions,
-        options,
-        (session) => session.endedAt
+      return executeProfiledCached(
+        "listWorkoutSessions",
+        [userId, planId ?? "", options?.fromDate, options?.toDate, options?.limit],
+        async () => {
+          const sessions = await listWorkoutSessionsUseCase.execute(userId, planId);
+          return filterByDateRangeAndLimit(sessions, options, (session) => session.endedAt);
+        }
       );
-      if (planId === undefined || planId.length === 0) {
-        return filteredByDate;
-      }
-      return filteredByDate.filter((session) => session.planId === planId);
     },
 
     async createNutritionLog(payload: NutritionLog) {
-      return createNutritionLogUseCase.execute(payload);
+      const nutritionLog = await executeProfiled("createNutritionLog", () =>
+        createNutritionLogUseCase.execute(payload)
+      );
+      clearRuntimeCache();
+      return nutritionLog;
     },
 
     async listNutritionLogs(userId: string, options?: DateRangeListOptions) {
-      const logs = await listNutritionLogsUseCase.execute(userId);
-      return filterByDateRangeAndLimit(logs, options, (log) => log.date);
+      return executeProfiledCached(
+        "listNutritionLogs",
+        [userId, options?.fromDate, options?.toDate, options?.limit],
+        async () => {
+          const logs = await listNutritionLogsUseCase.execute(userId);
+          return filterByDateRangeAndLimit(logs, options, (log) => log.date);
+        }
+      );
     },
 
     async getProgressSummary(userId: string, generatedAt?: string) {
-      return getProgressSummaryUseCase.execute(userId, generatedAt);
+      return executeProfiledCached(
+        "getProgressSummary",
+        [userId, generatedAt ?? "-"],
+        () => getProgressSummaryUseCase.execute(userId, generatedAt),
+        8_000
+      );
     },
 
     async processSyncQueue(input: { userId: string; items: SyncQueueItem[] }) {
       const parsedInput = syncQueueProcessInputSchema.parse(input);
-      return processSyncQueueUseCase.execute(parsedInput.userId, parsedInput.items);
+      const result = await executeProfiled("processSyncQueue", () =>
+        processSyncQueueUseCase.execute(parsedInput.userId, parsedInput.items)
+      );
+      clearRuntimeCache();
+      return result;
     },
 
     async createAnalyticsEvent(payload: AnalyticsEvent) {
-      return createAnalyticsEventUseCase.execute(analyticsEventSchema.parse(payload));
+      const event = await executeProfiled("createAnalyticsEvent", () =>
+        createAnalyticsEventUseCase.execute(analyticsEventSchema.parse(payload))
+      );
+      clearRuntimeCache();
+      return event;
     },
 
     async listAnalyticsEvents(userId: string) {
-      return listAnalyticsEventsUseCase.execute(userId);
+      return executeProfiledCached("listAnalyticsEvents", [userId], () =>
+        listAnalyticsEventsUseCase.execute(userId)
+      );
     },
 
     async createCrashReport(payload: CrashReport) {
-      return createCrashReportUseCase.execute(crashReportSchema.parse(payload));
+      const report = await executeProfiled("createCrashReport", () =>
+        createCrashReportUseCase.execute(crashReportSchema.parse(payload))
+      );
+      clearRuntimeCache();
+      return report;
     },
 
     async listCrashReports(userId: string) {
-      return listCrashReportsUseCase.execute(userId);
+      return executeProfiledCached("listCrashReports", [userId], () =>
+        listCrashReportsUseCase.execute(userId)
+      );
     },
 
     async recordLegalConsent(payload: LegalConsentSubmission) {
-      return recordLegalConsentUseCase.execute(legalConsentSubmissionSchema.parse(payload));
+      const consent = await executeProfiled("recordLegalConsent", () =>
+        recordLegalConsentUseCase.execute(legalConsentSubmissionSchema.parse(payload))
+      );
+      clearRuntimeCache();
+      return consent;
     },
 
     async requestDataExport(payload: DataExportRequestInput) {
       const parsedPayload = dataExportRequestInputSchema.parse(payload);
-      const request = await requestDataExportUseCase.execute(parsedPayload);
+      const request = await executeProfiled("requestDataExport", () =>
+        requestDataExportUseCase.execute(parsedPayload)
+      );
+      clearRuntimeCache();
       return dataExportRequestSchema.parse(request);
     },
 
     async requestDataDeletion(payload: DataDeletionRequest) {
-      return requestDataDeletionUseCase.execute(dataDeletionRequestSchema.parse(payload));
+      const request = await executeProfiled("requestDataDeletion", () =>
+        requestDataDeletionUseCase.execute(dataDeletionRequestSchema.parse(payload))
+      );
+      clearRuntimeCache();
+      return request;
     },
 
     async listDataRetentionPolicies() {
-      return dataRetentionPolicySchema
-        .array()
-        .parse(listDataRetentionPoliciesUseCase.execute());
+      return executeProfiledCached("listDataRetentionPolicies", ["global"], async () =>
+        dataRetentionPolicySchema
+          .array()
+          .parse(listDataRetentionPoliciesUseCase.execute())
+      );
     },
 
     async listExerciseVideos(input: ListExerciseVideosInput) {
-      return listExerciseVideosUseCase.execute({
-        userId: input.userId,
-        exerciseId: input.exerciseId,
-        locale: input.locale
-      });
+      return executeProfiledCached(
+        "listExerciseVideos",
+        [input.userId, input.exerciseId, input.locale],
+        () =>
+          listExerciseVideosUseCase.execute({
+            userId: input.userId,
+            exerciseId: input.exerciseId,
+            locale: input.locale
+          })
+      );
     },
 
     async listAIRecommendations(input: ListAIRecommendationsInput) {
-      return generateAIRecommendationsUseCase.execute(input);
+      return executeProfiledCached(
+        "listAIRecommendations",
+        [
+          input.userId,
+          input.goal,
+          input.pendingQueueCount,
+          input.daysSinceLastWorkout,
+          input.recentCompletionRate,
+          input.locale
+        ],
+        () => generateAIRecommendationsUseCase.execute(input),
+        8_000
+      );
     },
 
     async listRoleCapabilities(role: AccessRole) {
       const parsedRole = accessRoleSchema.parse(role);
-      return roleCapabilitiesSchema.parse(listRoleCapabilitiesUseCase.execute(parsedRole));
+      return executeProfiledCached("listRoleCapabilities", [parsedRole], async () =>
+        roleCapabilitiesSchema.parse(listRoleCapabilitiesUseCase.execute(parsedRole))
+      );
     },
 
     async evaluateAccessDecision(payload: AccessDecisionInput) {
@@ -588,61 +774,123 @@ export function createDemoApiRuntime(): DemoApiRuntime {
 
     async recordDeniedAccessAudit(payload: DeniedAccessAuditInput) {
       const parsedPayload = deniedAccessAuditInputSchema.parse(payload);
-      const audit = await recordDeniedAccessAuditUseCase.execute(parsedPayload);
+      const audit = await executeProfiled("recordDeniedAccessAudit", () =>
+        recordDeniedAccessAuditUseCase.execute(parsedPayload)
+      );
+      clearRuntimeCache();
       return deniedAccessAuditSchema.parse(audit);
     },
 
     async listDeniedAccessAudits(userId: string) {
-      return deniedAccessAuditSchema
-        .array()
-        .parse(await listDeniedAccessAuditsUseCase.execute(userId));
+      return executeProfiledCached("listDeniedAccessAudits", [userId], async () =>
+        deniedAccessAuditSchema
+          .array()
+          .parse(await listDeniedAccessAuditsUseCase.execute(userId))
+      );
     },
 
     async listObservabilitySummary(userId: string) {
-      return observabilitySummarySchema.parse(
-        await listObservabilitySummaryUseCase.execute(userId)
+      return executeProfiledCached(
+        "listObservabilitySummary",
+        [userId],
+        async () =>
+          observabilitySummarySchema.parse(await listObservabilitySummaryUseCase.execute(userId)),
+        8_000
       );
     },
 
     async listOperationalAlerts(userId: string) {
-      return operationalAlertSchema.array().parse(
-        await listOperationalAlertsUseCase.execute(userId)
+      return executeProfiledCached(
+        "listOperationalAlerts",
+        [userId],
+        async () =>
+          operationalAlertSchema.array().parse(
+            await listOperationalAlertsUseCase.execute(userId)
+          ),
+        8_000
       );
     },
 
     async listOperationalRunbooks() {
-      return operationalRunbookSchema.array().parse(
-        listOperationalRunbooksUseCase.execute()
+      return executeProfiledCached("listOperationalRunbooks", ["global"], async () =>
+        operationalRunbookSchema.array().parse(listOperationalRunbooksUseCase.execute())
       );
     },
 
     async listStructuredLogs(userId: string, options?: StructuredLogListOptions) {
-      return structuredLogSchema
-        .array()
-        .parse(await listStructuredLogsUseCase.execute(userId, options));
+      return executeProfiledCached(
+        "listStructuredLogs",
+        [
+          userId,
+          options?.fromDate,
+          options?.toDate,
+          options?.limit,
+          options?.level,
+          options?.category,
+          options?.source,
+          options?.query
+        ],
+        async () =>
+          structuredLogSchema
+            .array()
+            .parse(await listStructuredLogsUseCase.execute(userId, options)),
+        8_000
+      );
     },
 
     async listActivityLog(userId: string, options?: ActivityLogListOptions) {
-      return activityLogEntrySchema
-        .array()
-        .parse(await listActivityLogUseCase.execute(userId, options));
+      return executeProfiledCached(
+        "listActivityLog",
+        [
+          userId,
+          options?.fromDate,
+          options?.toDate,
+          options?.limit,
+          options?.action,
+          options?.outcome,
+          options?.source,
+          options?.query
+        ],
+        async () =>
+          activityLogEntrySchema
+            .array()
+            .parse(await listActivityLogUseCase.execute(userId, options)),
+        8_000
+      );
     },
 
     async exportForensicAudit(payload: ForensicAuditExportRequest) {
       const parsedPayload = forensicAuditExportRequestSchema.parse(payload);
-      return forensicAuditExportSchema.parse(
-        await exportForensicAuditUseCase.execute(parsedPayload)
+      return executeProfiled("exportForensicAudit", async () =>
+        forensicAuditExportSchema.parse(await exportForensicAuditUseCase.execute(parsedPayload))
       );
     },
 
     async listBillingInvoices(userId: string) {
-      const invoices = await listBillingInvoicesUseCase.execute(userId);
-      return billingInvoiceSchema.array().parse(invoices);
+      return executeProfiledCached("listBillingInvoices", [userId], async () => {
+        const invoices = await listBillingInvoicesUseCase.execute(userId);
+        return billingInvoiceSchema.array().parse(invoices);
+      });
     },
 
     async listSupportIncidents(userId: string) {
-      const incidents = await listSupportIncidentsUseCase.execute(userId);
-      return supportIncidentSchema.array().parse(incidents);
+      return executeProfiledCached("listSupportIncidents", [userId], async () => {
+        const incidents = await listSupportIncidentsUseCase.execute(userId);
+        return supportIncidentSchema.array().parse(incidents);
+      });
+    },
+
+    listRuntimeProfiles() {
+      return Array.from(runtimeProfiles.entries())
+        .map(([endpoint, profile]) => ({
+          endpoint,
+          calls: profile.calls,
+          cacheHits: profile.cacheHits,
+          averageMs: Math.round((profile.totalMs / Math.max(profile.calls, 1)) * 100) / 100,
+          maxMs: profile.maxMs,
+          lastMs: profile.lastMs
+        }))
+        .sort((left, right) => left.endpoint.localeCompare(right.endpoint));
     }
   };
 }
