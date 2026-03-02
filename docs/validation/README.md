@@ -129,6 +129,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V5_P1_T1_ADOPTION_KPI_FRAMEWORK.json`: evidencia de framework KPI de adopción (north-star, guardrails, eventos de negocio y panel ejecutivo).
 - `V5_P1_T2_FUNNELS_RETENTION.json`: evidencia de embudos canónicos de adopción, cohortes de retención y alertas de caída por segmento.
 - `V5_P1_T3_CONTROLLED_EXPERIMENTATION.json`: evidencia de experimentación controlada (backlog de hipótesis, criterios estadísticos y cierre de aprendizaje).
+- `V5_P2_T1_ENTERPRISE_SUPPORT_SLA.json`: evidencia de modelo de soporte enterprise (catálogo de incidencias, objetivos SLA y flujo de escalado).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -216,6 +217,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v5_p1_t1_adoption_kpi_framework.feature`
 - `features/v5_p1_t2_funnels_retention.feature`
 - `features/v5_p1_t3_controlled_experimentation.feature`
+- `features/v5_p2_t1_enterprise_support_sla.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
