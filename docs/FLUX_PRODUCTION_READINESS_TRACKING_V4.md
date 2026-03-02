@@ -18,8 +18,8 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 | ID | Task | Subtasks | Estado | Criterio de aceptacion |
 |---|---|---|---|---|
 | V4-P0-T1 | Hardening de autenticacion/sesion | V4-P0-T1.1 politicas de sesion; V4-P0-T1.2 rotacion/expiracion; V4-P0-T1.3 pruebas de abuso | ✅ | Sesion endurecida y trazable |
-| V4-P0-T2 | Compliance legal y datos | V4-P0-T2.1 consent/auditoria; V4-P0-T2.2 export/delete; V4-P0-T2.3 retention policy | 🚧 | Flujos GDPR y retencion auditables |
-| V4-P0-T3 | Control de acceso enterprise | V4-P0-T3.1 RBAC por recurso; V4-P0-T3.2 permisos condicionales; V4-P0-T3.3 auditoria de denegaciones | ⏳ | Permisos consistentes y verificables |
+| V4-P0-T2 | Compliance legal y datos | V4-P0-T2.1 consent/auditoria; V4-P0-T2.2 export/delete; V4-P0-T2.3 retention policy | ✅ | Flujos GDPR y retencion auditables |
+| V4-P0-T3 | Control de acceso enterprise | V4-P0-T3.1 RBAC por recurso; V4-P0-T3.2 permisos condicionales; V4-P0-T3.3 auditoria de denegaciones | 🚧 | Permisos consistentes y verificables |
 
 ## Fase P1 - Observabilidad y operacion
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -54,3 +54,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - regresión global validada en verde (`pnpm -r test` y `cd apps/ios && swift test`).
 - Siguiente task activa:
   - `V4-P0-T2` (Compliance legal y datos) en `🚧`.
+- Cierre V4-P0-T2:
+  - contratos expandidos para consentimiento legal versionado, metadata de borrado/export y política de retención.
+  - backend endurecido con auditoría de consentimiento, endpoint de export y endpoint de políticas de retención.
+  - web alineada al nuevo contrato legal con acciones de export/delete tipadas y validadas.
+  - evidencia publicada: `docs/validation/V4_P0_T2_COMPLIANCE_LEGAL_DATA.json`.
+  - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
+- Siguiente task activa:
+  - `V4-P0-T3` (Control de acceso enterprise) en `🚧`.
