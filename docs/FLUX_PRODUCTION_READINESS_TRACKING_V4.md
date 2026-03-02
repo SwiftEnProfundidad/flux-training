@@ -17,8 +17,8 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 ## Fase P0 - Security + compliance base
 | ID | Task | Subtasks | Estado | Criterio de aceptacion |
 |---|---|---|---|---|
-| V4-P0-T1 | Hardening de autenticacion/sesion | V4-P0-T1.1 politicas de sesion; V4-P0-T1.2 rotacion/expiracion; V4-P0-T1.3 pruebas de abuso | 🚧 | Sesion endurecida y trazable |
-| V4-P0-T2 | Compliance legal y datos | V4-P0-T2.1 consent/auditoria; V4-P0-T2.2 export/delete; V4-P0-T2.3 retention policy | ⏳ | Flujos GDPR y retencion auditables |
+| V4-P0-T1 | Hardening de autenticacion/sesion | V4-P0-T1.1 politicas de sesion; V4-P0-T1.2 rotacion/expiracion; V4-P0-T1.3 pruebas de abuso | ✅ | Sesion endurecida y trazable |
+| V4-P0-T2 | Compliance legal y datos | V4-P0-T2.1 consent/auditoria; V4-P0-T2.2 export/delete; V4-P0-T2.3 retention policy | 🚧 | Flujos GDPR y retencion auditables |
 | V4-P0-T3 | Control de acceso enterprise | V4-P0-T3.1 RBAC por recurso; V4-P0-T3.2 permisos condicionales; V4-P0-T3.3 auditoria de denegaciones | ⏳ | Permisos consistentes y verificables |
 
 ## Fase P1 - Observabilidad y operacion
@@ -46,3 +46,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 - Inicio V4-P0-T1:
   - ciclo V4 activado desde `V3-P5-T3` con handoff formal en `docs/validation/V3_P5_T3_V4_HANDOFF.json`.
   - foco inicial: hardening de autenticación/sesión para preparar entorno productivo enterprise.
+- Cierre V4-P0-T1:
+  - contrato de sesion endurecido con `sessionId`, `issuedAt`, `rotationRequiredAt`, `absoluteExpiresAt` y `sessionPolicy`.
+  - backend con guardas anti-abuso (token vacío/oversized) y política temporal determinista.
+  - alineación web+iOS del modelo de sesión y pruebas específicas en verde.
+  - evidencia publicada: `docs/validation/V4_P0_T1_AUTH_SESSION_HARDENING.json`.
+  - regresión global validada en verde (`pnpm -r test` y `cd apps/ios && swift test`).
+- Siguiente task activa:
+  - `V4-P0-T2` (Compliance legal y datos) en `🚧`.

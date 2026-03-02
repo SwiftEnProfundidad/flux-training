@@ -1,0 +1,67 @@
+{
+  "cycle": "V4",
+  "phase": "P0",
+  "task": "V4-P0-T1",
+  "title": "Auth session hardening with policy, rotation, expiration and abuse guards",
+  "status": "pass",
+  "executedAt": "2026-03-02T23:30:00Z",
+  "scope": {
+    "contracts": [
+      "packages/contracts/src/index.ts",
+      "packages/contracts/src/index.spec.ts"
+    ],
+    "backend": [
+      "apps/backend/src/application/create-auth-session.ts",
+      "apps/backend/src/application/create-auth-session.spec.ts"
+    ],
+    "web": [
+      "apps/web/src/domain/auth.spec.ts"
+    ],
+    "ios": [
+      "apps/ios/Sources/Domain/AuthSession.swift",
+      "apps/ios/Sources/Infrastructure/DemoAuthGateway.swift",
+      "apps/ios/Tests/FluxTrainingTests/CreateAuthSessionUseCaseTests.swift"
+    ]
+  },
+  "commands": [
+    "pnpm --filter @flux/contracts test",
+    "pnpm --filter @flux/backend test -- src/application/create-auth-session.spec.ts",
+    "pnpm --filter @flux/web test -- src/domain/auth.spec.ts",
+    "cd apps/ios && swift test --filter CreateAuthSessionUseCaseTests",
+    "pnpm -r test",
+    "cd apps/ios && swift test"
+  ],
+  "results": {
+    "contracts": {
+      "runner": "vitest",
+      "testsPassed": 26,
+      "testsFailed": 0
+    },
+    "backend": {
+      "runner": "vitest",
+      "testsPassed": 61,
+      "testsFailed": 0
+    },
+    "web": {
+      "runner": "vitest",
+      "testsPassed": 85,
+      "testsFailed": 0
+    },
+    "ios": {
+      "runner": "swift-test",
+      "testsPassed": 83,
+      "testsFailed": 0
+    }
+  },
+  "acceptanceCriteria": [
+    "El contrato de sesion incluye policy, sessionId, issuedAt, rotationRequiredAt y absoluteExpiresAt.",
+    "El backend crea sesiones con timestamps deterministas y validacion de token abusivo.",
+    "Web e iOS validan y consumen el nuevo contrato sin ruptura.",
+    "La regresion cross-platform permanece en verde tras el hardening."
+  ],
+  "notes": [
+    "Se aplica policy fija: idle=1800s, rotation=600s, absolute=43200s.",
+    "Se rechazan tokens vacios o mayores de 4096 caracteres antes de validar identidad.",
+    "Con cierre de V4-P0-T1 se activa V4-P0-T2 (compliance legal y datos)."
+  ]
+}
