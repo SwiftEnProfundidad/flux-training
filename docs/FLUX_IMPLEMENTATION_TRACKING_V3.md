@@ -46,8 +46,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 ## Fase P4 - Integracion cruzada y QA
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P4-T1 | Paridad iOS/Web funcional | V3-P4-T1.1 matriz de paridad; V3-P4-T1.2 ajustes de comportamiento; V3-P4-T1.3 smoke cross-platform | 🚧 | V3-P1-T3, V3-P2-T3 | Paridad cerrada por dominio |
-| V3-P4-T2 | E2E de flujos criticos | V3-P4-T2.1 happy paths; V3-P4-T2.2 edge cases; V3-P4-T2.3 recovery paths | ⏳ | V3-P4-T1 | Flujos criticos sin roturas |
+| V3-P4-T1 | Paridad iOS/Web funcional | V3-P4-T1.1 matriz de paridad; V3-P4-T1.2 ajustes de comportamiento; V3-P4-T1.3 smoke cross-platform | ✅ | V3-P1-T3, V3-P2-T3 | Paridad cerrada por dominio |
+| V3-P4-T2 | E2E de flujos criticos | V3-P4-T2.1 happy paths; V3-P4-T2.2 edge cases; V3-P4-T2.3 recovery paths | 🚧 | V3-P4-T1 | Flujos criticos sin roturas |
 | V3-P4-T3 | Gate de calidad V3 | V3-P4-T3.1 `pnpm -r test`; V3-P4-T3.2 `swift test`; V3-P4-T3.3 evidencia docs/validation | ⏳ | V3-P4-T2 | Gate V3 en PASS |
 
 ## Fase P5 - Cierre V3 y traspaso a V4
@@ -311,4 +311,13 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
       - `pnpm --filter @flux/web check`
       - `pnpm --filter @flux/web test` (`33` ficheros, `82` tests, `0` fallos)
       - `cd apps/ios && swift test` (`80` tests, `0` fallos)
-  - siguiente subtask activa: `V3-P4-T1.3` (smoke cross-platform de paridad cerrada por dominio).
+  - subtask `V3-P4-T1.3` cerrada:
+    - smoke cross-platform ejecutado en PASS:
+      - `pnpm --filter @flux/web test -- --runInBand`
+      - `cd apps/ios && swift test`
+      - `pnpm test:critical`
+    - evidencias publicadas:
+      - `docs/validation/V3_P4_T1_3_CROSS_PLATFORM_SMOKE.json`
+      - `docs/validation/features/v3_p4_t1_3_cross_platform_smoke.feature`
+    - resultado: `V3-P4-T1` cerrado con paridad funcional iOS/Web validada por dominio.
+  - siguiente task activa: `V3-P4-T2` (arranque E2E de flujos críticos).
