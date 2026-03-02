@@ -150,3 +150,14 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - `pnpm --filter @flux/web test` en PASS (`29` ficheros, `68` tests, `0` fallos).
 - Inicio V3-P2-T3:
   - foco en módulos web de administración/gobernanza (`users/roles/RBAC`, `audit/compliance`, `billing/support`) para cierre enterprise del bloque P2.
+- Avance V3-P2-T3 (en curso):
+  - subtask `V3-P2-T3.1` iniciada con módulo `adminGovernance` en web: gestión de usuarios operativos, asignación de roles en lote y carga de cobertura RBAC por rol.
+  - `adminGovernance` integra control por permiso de operador (acciones de cambio de rol solo para `admin`) con trazabilidad vía analítica (`governance_bulk_role_assignment_saved` / acción bloqueada).
+  - estados enterprise unificados sobre governance (`loaded/empty/validation_error/denied/offline/error`) mediante `deriveModuleRuntimeStatus`.
+  - cobertura técnica añadida:
+    - `apps/web/src/presentation/admin-governance.spec.ts`
+    - actualización de `apps/web/src/presentation/dashboard-domains.spec.ts`
+    - actualización de `apps/web/src/presentation/i18n.spec.ts`
+  - validación parcial en PASS:
+    - `pnpm --filter @flux/web check`
+    - `pnpm --filter @flux/web test` (`30` ficheros, `72` tests, `0` fallos).
