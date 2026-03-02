@@ -32,8 +32,8 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V6-P2-T1 | Loops de activacion semanal | V6-P2-T1.1 primer valor en 24h; V6-P2-T1.2 continuidad D7; V6-P2-T1.3 coaching nudges | ✅ | V6-P0-T2 | Activacion semanal en alza |
-| V6-P2-T2 | CRM operativo multicanal | V6-P2-T2.1 in-app; V6-P2-T2.2 email/push; V6-P2-T2.3 segmentacion por riesgo | 🚧 | V6-P2-T1 | Re-engagement automatizado |
-| V6-P2-T3 | Prevencion de churn y win-back | V6-P2-T3.1 score de churn; V6-P2-T3.2 intervenciones; V6-P2-T3.3 medicion incremental | ⏳ | V6-P2-T2 | Churn contenido por cohortes |
+| V6-P2-T2 | CRM operativo multicanal | V6-P2-T2.1 in-app; V6-P2-T2.2 email/push; V6-P2-T2.3 segmentacion por riesgo | ✅ | V6-P2-T1 | Re-engagement automatizado |
+| V6-P2-T3 | Prevencion de churn y win-back | V6-P2-T3.1 score de churn; V6-P2-T3.2 intervenciones; V6-P2-T3.3 medicion incremental | 🚧 | V6-P2-T2 | Churn contenido por cohortes |
 
 ## Fase P3 - Cierre y gobierno V6
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -96,3 +96,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P2_T1_WEEKLY_ACTIVATION_LOOPS.json`.
 - Siguiente task activa:
   - `V6-P2-T2` (CRM operativo multicanal) en `🚧`.
+- Cierre V6-P2-T2:
+  - CRM operativo definido con orquestación multicanal (`in-app`, `push`, `email`) y política de prioridad por contexto de urgencia.
+  - journeys de re-engagement definidos por segmento de riesgo (`at_risk_new`, `stalled_returning`, `coach_led_inactive`) con timing por ventana.
+  - reglas de segmentación definidas por señales de comportamiento (`inactive_days`, `adherence_drop`, `billing_risk`) con ownership de monitoreo.
+  - evidencia publicada: `docs/validation/V6_P2_T2_MULTICHANNEL_CRM_OPERATIONS.json`.
+- Siguiente task activa:
+  - `V6-P2-T3` (Prevencion de churn y win-back) en `🚧`.
