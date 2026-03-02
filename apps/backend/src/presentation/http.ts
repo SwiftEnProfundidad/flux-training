@@ -1,4 +1,6 @@
 import {
+  accessDecisionInputSchema,
+  accessDecisionResultSchema,
   accessRoleSchema,
   analyticsEventSchema,
   authRecoveryRequestSchema,
@@ -8,10 +10,14 @@ import {
   dataExportRequestInputSchema,
   dataDeletionRequestSchema,
   dataRetentionPolicySchema,
+  deniedAccessAuditInputSchema,
+  deniedAccessAuditSchema,
   goalSchema,
   legalConsentSubmissionSchema,
   supportIncidentSchema,
-  syncQueueProcessInputSchema
+  syncQueueProcessInputSchema,
+  type DeniedAccessAudit,
+  type DeniedAccessAuditInput
 } from "@flux/contracts";
 import { onRequest } from "firebase-functions/v2/https";
 import { CreateAnalyticsEventUseCase } from "../application/create-analytics-event";
@@ -43,6 +49,9 @@ import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabiliti
 import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices";
 import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
 import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
+import { EvaluateRoleAccessUseCase } from "../application/evaluate-role-access";
+import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
+import { ListDeniedAccessAuditsUseCase } from "../application/list-denied-access-audits";
 import { FirebaseAuthTokenVerifier } from "../infrastructure/firebase-auth-token-verifier";
 import { FirestoreAnalyticsEventRepository } from "../infrastructure/firestore-analytics-event-repository";
 import { FirestoreCrashReportRepository } from "../infrastructure/firestore-crash-report-repository";
@@ -54,6 +63,7 @@ import { FirestoreUserProfileRepository } from "../infrastructure/firestore-user
 import { FirestoreWorkoutSessionRepository } from "../infrastructure/firestore-workout-session-repository";
 import { FirestoreDataDeletionRequestRepository } from "../infrastructure/firestore-data-deletion-request-repository";
 import { StaticExerciseVideoRepository } from "../infrastructure/static-exercise-video-repository";
+import type { DeniedAccessAuditRepository } from "../domain/denied-access-audit-repository";
 
 const repository = new FirestoreWorkoutSessionRepository();
 const createWorkoutSessionUseCase = new CreateWorkoutSessionUseCase(repository);
@@ -81,6 +91,9 @@ const exerciseVideoRepository = new StaticExerciseVideoRepository();
 const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
 const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
 const listRoleCapabilitiesUseCase = new ListRoleCapabilitiesUseCase();
+const evaluateRoleAccessUseCase = new EvaluateRoleAccessUseCase(
+  listRoleCapabilitiesUseCase
+);
 const listBillingInvoicesUseCase = new ListBillingInvoicesUseCase(
   trainingPlanRepository,
   repository,
@@ -118,6 +131,26 @@ const requestDataDeletionUseCase = new RequestDataDeletionUseCase(
   dataDeletionRequestRepository
 );
 const listDataRetentionPoliciesUseCase = new ListDataRetentionPoliciesUseCase();
+
+class InMemoryDeniedAccessAuditRepository implements DeniedAccessAuditRepository {
+  private readonly records: DeniedAccessAudit[] = [];
+
+  async save(audit: DeniedAccessAudit): Promise<void> {
+    this.records.push(audit);
+  }
+
+  async listByUserId(userId: string): Promise<DeniedAccessAudit[]> {
+    return this.records.filter((record) => record.userId === userId);
+  }
+}
+
+const deniedAccessAuditRepository = new InMemoryDeniedAccessAuditRepository();
+const recordDeniedAccessAuditUseCase = new RecordDeniedAccessAuditUseCase(
+  deniedAccessAuditRepository
+);
+const listDeniedAccessAuditsUseCase = new ListDeniedAccessAuditsUseCase(
+  deniedAccessAuditRepository
+);
 const ensureSupportedClientVersionUseCase = new EnsureSupportedClientVersionUseCase({
   webMinimumVersion: String(process.env.MIN_WEB_CLIENT_VERSION ?? "0.1.0"),
   iosMinimumVersion: String(process.env.MIN_IOS_CLIENT_VERSION ?? "0.1.0")
@@ -657,6 +690,50 @@ export const listRoleCapabilities = onRequest(async (request, response) => {
     response.status(200).json({ capabilities });
   } catch {
     sendStandardError(request, response, 400, "invalid_list_role_capabilities_payload");
+  }
+});
+
+export const evaluateAccessDecision = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const payload = accessDecisionInputSchema.parse(request.body);
+    const decision = evaluateRoleAccessUseCase.execute(payload);
+    response.status(200).json({ decision: accessDecisionResultSchema.parse(decision) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_evaluate_access_decision_payload");
+  }
+});
+
+export const recordDeniedAccessAudit = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const payload = deniedAccessAuditInputSchema.parse(
+      request.body
+    ) as DeniedAccessAuditInput;
+    const audit = await recordDeniedAccessAuditUseCase.execute(payload);
+    response.status(201).json({ audit: deniedAccessAuditSchema.parse(audit) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_denied_access_audit_payload");
+  }
+});
+
+export const listDeniedAccessAudits = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const userId = String(request.query.userId ?? "").trim();
+    if (userId.length === 0) {
+      throw new Error("missing_user_id");
+    }
+    const audits = await listDeniedAccessAuditsUseCase.execute(userId);
+    response.status(200).json({ audits: deniedAccessAuditSchema.array().parse(audits) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_list_denied_access_audits_payload");
   }
 });
 

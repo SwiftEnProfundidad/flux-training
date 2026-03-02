@@ -1,7 +1,9 @@
 import {
+  accessActionSchema,
   accessRoleSchema,
   dashboardDomainSchema,
   roleCapabilitiesSchema,
+  type AccessAction,
   type AccessRole,
   type DashboardDomain,
   type RoleCapabilities
@@ -23,5 +25,29 @@ export class ManageRoleCapabilitiesUseCase {
   canAccessDomain(capabilities: RoleCapabilities, domainRaw: string): boolean {
     const domain = dashboardDomainSchema.parse(domainRaw) as DashboardDomain;
     return capabilities.allowedDomains.includes(domain);
+  }
+
+  canPerformAction(
+    capabilities: RoleCapabilities,
+    domainRaw: string,
+    actionRaw: string,
+    context: { isOwner: boolean; medicalDisclaimerAccepted: boolean }
+  ): boolean {
+    const domain = dashboardDomainSchema.parse(domainRaw) as DashboardDomain;
+    const action = accessActionSchema.parse(actionRaw) as AccessAction;
+    const permission = capabilities.permissions.find((entry) => entry.domain === domain);
+    if (permission === undefined || permission.actions.includes(action) === false) {
+      return false;
+    }
+    if (permission.conditions.requiresOwnership && context.isOwner === false) {
+      return false;
+    }
+    if (
+      permission.conditions.requiresMedicalConsent &&
+      context.medicalDisclaimerAccepted === false
+    ) {
+      return false;
+    }
+    return true;
   }
 }

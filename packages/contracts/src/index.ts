@@ -283,10 +283,94 @@ export const dashboardDomainSchema = z.enum([
 
 export const accessRoleSchema = z.enum(["athlete", "coach", "admin"]);
 
+export const accessActionSchema = z.enum([
+  "view",
+  "create",
+  "update",
+  "delete",
+  "approve",
+  "export",
+  "assign"
+]);
+
+export const roleResourceConditionSchema = z.object({
+  requiresOwnership: z.boolean().default(false),
+  requiresMedicalConsent: z.boolean().default(false)
+});
+
+export const roleResourcePermissionSchema = z.object({
+  domain: dashboardDomainSchema,
+  actions: z.array(accessActionSchema).min(1),
+  conditions: roleResourceConditionSchema.default({
+    requiresOwnership: false,
+    requiresMedicalConsent: false
+  })
+});
+
 export const roleCapabilitiesSchema = z.object({
   role: accessRoleSchema,
   allowedDomains: z.array(dashboardDomainSchema).min(1),
+  permissions: z.array(roleResourcePermissionSchema).min(1),
   issuedAt: z.string().datetime()
+});
+
+export const accessDecisionInputSchema = z.object({
+  role: accessRoleSchema,
+  domain: dashboardDomainSchema,
+  action: accessActionSchema,
+  context: z
+    .object({
+      isOwner: z.boolean().default(false),
+      medicalDisclaimerAccepted: z.boolean().default(true)
+    })
+    .default({})
+});
+
+export const accessDecisionReasonSchema = z.enum([
+  "allowed",
+  "domain_denied",
+  "action_denied",
+  "ownership_required",
+  "medical_consent_required"
+]);
+
+export const accessDecisionResultSchema = z.object({
+  role: accessRoleSchema,
+  domain: dashboardDomainSchema,
+  action: accessActionSchema,
+  allowed: z.boolean(),
+  reason: accessDecisionReasonSchema,
+  evaluatedAt: z.string().datetime()
+});
+
+export const deniedAccessTriggerSchema = z.enum([
+  "domain_select",
+  "runtime_state_change",
+  "recover",
+  "role_capabilities_sync",
+  "governance_action"
+]);
+
+export const deniedAccessReasonSchema = z.enum([
+  "domain_denied",
+  "action_denied",
+  "ownership_required",
+  "medical_consent_required"
+]);
+
+export const deniedAccessAuditInputSchema = z.object({
+  userId: z.string().min(1),
+  role: accessRoleSchema,
+  domain: dashboardDomainSchema,
+  action: accessActionSchema,
+  reason: deniedAccessReasonSchema,
+  trigger: deniedAccessTriggerSchema,
+  correlationId: z.string().min(1)
+});
+
+export const deniedAccessAuditSchema = deniedAccessAuditInputSchema.extend({
+  id: z.string().min(1),
+  occurredAt: z.string().datetime()
 });
 
 export const observabilitySourceSchema = z.enum(["web", "ios", "backend"]);
@@ -471,7 +555,17 @@ export type AuthRecoveryStatus = z.infer<typeof authRecoveryStatusSchema>;
 export type AuthRecoveryResult = z.infer<typeof authRecoveryResultSchema>;
 export type DashboardDomain = z.infer<typeof dashboardDomainSchema>;
 export type AccessRole = z.infer<typeof accessRoleSchema>;
+export type AccessAction = z.infer<typeof accessActionSchema>;
+export type RoleResourceCondition = z.infer<typeof roleResourceConditionSchema>;
+export type RoleResourcePermission = z.infer<typeof roleResourcePermissionSchema>;
 export type RoleCapabilities = z.infer<typeof roleCapabilitiesSchema>;
+export type AccessDecisionInput = z.infer<typeof accessDecisionInputSchema>;
+export type AccessDecisionReason = z.infer<typeof accessDecisionReasonSchema>;
+export type AccessDecisionResult = z.infer<typeof accessDecisionResultSchema>;
+export type DeniedAccessTrigger = z.infer<typeof deniedAccessTriggerSchema>;
+export type DeniedAccessReason = z.infer<typeof deniedAccessReasonSchema>;
+export type DeniedAccessAuditInput = z.infer<typeof deniedAccessAuditInputSchema>;
+export type DeniedAccessAudit = z.infer<typeof deniedAccessAuditSchema>;
 export type ObservabilitySource = z.infer<typeof observabilitySourceSchema>;
 export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
 export type CrashSeverity = z.infer<typeof crashSeveritySchema>;

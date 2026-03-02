@@ -116,6 +116,42 @@ describe("DemoApiRuntime", () => {
       "progress",
       "operations"
     ]);
+    expect(capabilities.permissions.find((permission) => permission.domain === "training")?.actions).toContain(
+      "approve"
+    );
+  });
+
+  it("evaluates conditional access decisions and persists denied access audits", async () => {
+    const runtime = createDemoApiRuntime();
+
+    const denied = await runtime.evaluateAccessDecision({
+      role: "athlete",
+      domain: "training",
+      action: "view",
+      context: {
+        isOwner: true,
+        medicalDisclaimerAccepted: false
+      }
+    });
+
+    expect(denied.allowed).toBe(false);
+    expect(denied.reason).toBe("medical_consent_required");
+
+    const audit = await runtime.recordDeniedAccessAudit({
+      userId: "demo-user",
+      role: "athlete",
+      domain: "training",
+      action: "view",
+      reason: denied.reason === "allowed" ? "domain_denied" : denied.reason,
+      trigger: "domain_select",
+      correlationId: "corr-audit-1"
+    });
+
+    const audits = await runtime.listDeniedAccessAudits("demo-user");
+
+    expect(audit.id.length).toBeGreaterThan(0);
+    expect(audits).toHaveLength(1);
+    expect(audits[0]?.reason).toBe("medical_consent_required");
   });
 
   it("returns billing invoices and support incidents for enterprise operations", async () => {

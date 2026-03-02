@@ -22,6 +22,13 @@ describe("role domain access", () => {
     const capabilities: RoleCapabilities = {
       role: "coach",
       allowedDomains: ["all", "training", "nutrition", "progress", "operations"],
+      permissions: [
+        {
+          domain: "training",
+          actions: ["view", "create", "update", "approve"],
+          conditions: { requiresOwnership: false, requiresMedicalConsent: true }
+        }
+      ],
       issuedAt: "2026-03-02T14:15:00.000Z"
     };
 

@@ -65,6 +65,23 @@ class EdgeCaseGateway
     return {
       role,
       allowedDomains: ["training", "progress", "operations"],
+      permissions: [
+        {
+          domain: "training",
+          actions: ["view", "create", "update", "approve"],
+          conditions: { requiresOwnership: false, requiresMedicalConsent: true }
+        },
+        {
+          domain: "progress",
+          actions: ["view"],
+          conditions: { requiresOwnership: false, requiresMedicalConsent: false }
+        },
+        {
+          domain: "operations",
+          actions: ["view", "assign"],
+          conditions: { requiresOwnership: false, requiresMedicalConsent: false }
+        }
+      ],
       issuedAt: "2026-03-02T19:00:00.000Z"
     };
   }

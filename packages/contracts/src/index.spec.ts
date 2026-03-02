@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  accessDecisionInputSchema,
+  accessDecisionResultSchema,
   aiRecommendationSchema,
   analyticsEventSchema,
   authRecoveryRequestSchema,
@@ -11,6 +13,8 @@ import {
   dataExportRequestSchema,
   dataDeletionRequestSchema,
   dataRetentionPolicySchema,
+  deniedAccessAuditInputSchema,
+  deniedAccessAuditSchema,
   exerciseVideoSchema,
   legalConsentAuditSchema,
   legalConsentSchema,
@@ -327,6 +331,16 @@ describe("roleCapabilitiesSchema", () => {
     const parsed = roleCapabilitiesSchema.safeParse({
       role: "coach",
       allowedDomains: ["all", "training", "nutrition", "progress", "operations"],
+      permissions: [
+        {
+          domain: "training",
+          actions: ["view", "create", "update", "approve"],
+          conditions: {
+            requiresOwnership: false,
+            requiresMedicalConsent: false
+          }
+        }
+      ],
       issuedAt: "2026-03-01T10:00:00.000Z"
     });
 
@@ -337,10 +351,83 @@ describe("roleCapabilitiesSchema", () => {
     const parsed = roleCapabilitiesSchema.safeParse({
       role: "athlete",
       allowedDomains: [],
+      permissions: [
+        {
+          domain: "training",
+          actions: ["view"],
+          conditions: {
+            requiresOwnership: true,
+            requiresMedicalConsent: true
+          }
+        }
+      ],
       issuedAt: "2026-03-01T10:00:00.000Z"
     });
 
     expect(parsed.success).toBe(false);
+  });
+});
+
+describe("accessDecisionInputSchema", () => {
+  it("accepts access decision input payload", () => {
+    const parsed = accessDecisionInputSchema.safeParse({
+      role: "athlete",
+      domain: "training",
+      action: "view",
+      context: {
+        isOwner: true,
+        medicalDisclaimerAccepted: true
+      }
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("accessDecisionResultSchema", () => {
+  it("accepts access decision result payload", () => {
+    const parsed = accessDecisionResultSchema.safeParse({
+      role: "coach",
+      domain: "onboarding",
+      action: "view",
+      allowed: false,
+      reason: "domain_denied",
+      evaluatedAt: "2026-03-02T20:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("deniedAccessAuditSchemas", () => {
+  it("accepts denied access audit input payload", () => {
+    const parsed = deniedAccessAuditInputSchema.safeParse({
+      userId: "demo-user",
+      role: "coach",
+      domain: "onboarding",
+      action: "view",
+      reason: "domain_denied",
+      trigger: "domain_select",
+      correlationId: "corr-1"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("accepts denied access audit payload", () => {
+    const parsed = deniedAccessAuditSchema.safeParse({
+      id: "daa-1",
+      userId: "demo-user",
+      role: "coach",
+      domain: "onboarding",
+      action: "view",
+      reason: "domain_denied",
+      trigger: "domain_select",
+      correlationId: "corr-1",
+      occurredAt: "2026-03-02T20:05:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
   });
 });
 

@@ -12,6 +12,7 @@ import {
   WorkoutSessionInput,
   RoleCapabilities
 } from "@flux/contracts";
+import { ManageAccessControlUseCase } from "../application/manage-access-control";
 import { CompleteOnboardingUseCase } from "../application/complete-onboarding";
 import { ManageNutritionUseCase } from "../application/manage-nutrition";
 import { ManageObservabilityUseCase } from "../application/manage-observability";
@@ -32,6 +33,7 @@ import { apiProgressGateway } from "../infrastructure/progress-client";
 import { apiTrainingGateway } from "../infrastructure/training-client";
 import { apiRecommendationsGateway } from "../infrastructure/recommendations-client";
 import { apiRoleCapabilitiesGateway } from "../infrastructure/role-capabilities-client";
+import { apiAccessControlGateway } from "../infrastructure/access-control-client";
 import { isClientUpdateRequiredError } from "../infrastructure/api-client";
 import { apiLegalGateway } from "../infrastructure/legal-client";
 import { buildUXReadinessSnapshot, type UXReadinessSnapshot } from "./ux-readiness";
@@ -210,6 +212,10 @@ export function App() {
   );
   const manageRoleCapabilitiesUseCase = useMemo(
     () => new ManageRoleCapabilitiesUseCase(apiRoleCapabilitiesGateway),
+    []
+  );
+  const manageAccessControlUseCase = useMemo(
+    () => new ManageAccessControlUseCase(apiAccessControlGateway),
     []
   );
   const authScreenDefaults = useMemo(() => createDefaultAuthScreenModel(), []);
@@ -1651,9 +1657,45 @@ export function App() {
       | "runtime_state_change"
       | "recover"
       | "role_capabilities_sync",
-    reason: "domain_denied",
+    reason:
+      | "domain_denied"
+      | "action_denied"
+      | "ownership_required"
+      | "medical_consent_required",
     correlationId?: string
   ) {
+    let resolvedReason = reason;
+    try {
+      const decision = await manageAccessControlUseCase.evaluateAccessDecision({
+        role: activeRole,
+        domain,
+        action: "view",
+        context: {
+          isOwner: activeRole === "athlete",
+          medicalDisclaimerAccepted
+        }
+      });
+      if (decision.allowed === false && decision.reason !== "allowed") {
+        resolvedReason = decision.reason;
+      }
+    } catch {
+      resolvedReason = reason;
+    }
+
+    try {
+      await manageAccessControlUseCase.recordDeniedAccessAudit({
+        userId: demoUserId,
+        role: activeRole,
+        domain,
+        action: "view",
+        reason: resolvedReason,
+        trigger: action,
+        correlationId: correlationId ?? nextCorrelationId(runtimeObservabilitySessionRef.current, domain, action)
+      });
+    } catch {
+      resolvedReason = reason;
+    }
+
     const backendRoute = resolveBlockedActionRoute(domain);
     const payloadValidation = resolveDomainPayloadValidation(buildDomainPayloadValidationInput(domain));
     const runtimeAttributes = nextEventAttributes(
@@ -1671,7 +1713,7 @@ export function App() {
           role: activeRole,
           domain,
           action,
-          reason,
+          reason: resolvedReason,
           roleCapabilitiesStatus,
           backendRoute,
           contract: payloadValidation.contract,

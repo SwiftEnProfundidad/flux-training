@@ -101,12 +101,62 @@ class InMemoryHappyPathGateway
   ];
 
   async listRoleCapabilities(role: AccessRole): Promise<RoleCapabilities> {
+    const isCoach = role === "coach";
     return {
       role,
-      allowedDomains:
-        role === "coach"
-          ? ["all", "training", "nutrition", "progress", "operations"]
-          : ["all", "onboarding", "training", "nutrition", "progress", "operations"],
+      allowedDomains: isCoach
+        ? ["all", "training", "nutrition", "progress", "operations"]
+        : ["all", "onboarding", "training", "nutrition", "progress", "operations"],
+      permissions: isCoach
+        ? [
+            {
+              domain: "training",
+              actions: ["view", "create", "update", "approve"],
+              conditions: { requiresOwnership: false, requiresMedicalConsent: true }
+            },
+            {
+              domain: "nutrition",
+              actions: ["view", "update", "export"],
+              conditions: { requiresOwnership: false, requiresMedicalConsent: false }
+            },
+            {
+              domain: "progress",
+              actions: ["view", "export"],
+              conditions: { requiresOwnership: false, requiresMedicalConsent: false }
+            },
+            {
+              domain: "operations",
+              actions: ["view", "assign"],
+              conditions: { requiresOwnership: false, requiresMedicalConsent: false }
+            }
+          ]
+        : [
+            {
+              domain: "onboarding",
+              actions: ["view", "update"],
+              conditions: { requiresOwnership: true, requiresMedicalConsent: false }
+            },
+            {
+              domain: "training",
+              actions: ["view", "create", "update"],
+              conditions: { requiresOwnership: true, requiresMedicalConsent: true }
+            },
+            {
+              domain: "nutrition",
+              actions: ["view", "create", "update"],
+              conditions: { requiresOwnership: true, requiresMedicalConsent: false }
+            },
+            {
+              domain: "progress",
+              actions: ["view", "export"],
+              conditions: { requiresOwnership: true, requiresMedicalConsent: false }
+            },
+            {
+              domain: "operations",
+              actions: ["view"],
+              conditions: { requiresOwnership: true, requiresMedicalConsent: false }
+            }
+          ],
       issuedAt: "2026-03-02T18:00:00.000Z"
     };
   }

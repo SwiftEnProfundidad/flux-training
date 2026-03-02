@@ -15,6 +15,14 @@ describe("ListRoleCapabilitiesUseCase", () => {
       "progress",
       "operations"
     ]);
+    expect(result.permissions.length).toBeGreaterThan(0);
+    expect(result.permissions.find((permission) => permission.domain === "training")?.actions).toContain(
+      "approve"
+    );
+    expect(
+      result.permissions.find((permission) => permission.domain === "training")?.conditions
+        .requiresMedicalConsent
+    ).toBe(true);
   });
 
   it("rejects invalid role", () => {

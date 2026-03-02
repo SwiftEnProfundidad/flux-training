@@ -74,11 +74,25 @@ describe("admin governance", () => {
       athlete: {
         role: "athlete",
         allowedDomains: ["all", "training"],
+        permissions: [
+          {
+            domain: "training",
+            actions: ["view"],
+            conditions: { requiresOwnership: true, requiresMedicalConsent: true }
+          }
+        ],
         issuedAt: "2026-03-02T10:00:00.000Z"
       },
       coach: {
         role: "coach",
         allowedDomains: ["all", "training", "nutrition"],
+        permissions: [
+          {
+            domain: "training",
+            actions: ["view", "create", "update", "approve"],
+            conditions: { requiresOwnership: false, requiresMedicalConsent: true }
+          }
+        ],
         issuedAt: "2026-03-02T10:00:00.000Z"
       }
     };

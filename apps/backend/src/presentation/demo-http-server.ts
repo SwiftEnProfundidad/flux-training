@@ -1,11 +1,13 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import {
+  accessDecisionInputSchema,
   accessRoleSchema,
   analyticsEventSchema,
   authRecoveryRequestSchema,
   crashReportSchema,
   dataExportRequestInputSchema,
   dataDeletionRequestSchema,
+  deniedAccessAuditInputSchema,
   goalSchema,
   legalConsentSubmissionSchema,
   nutritionLogSchema,
@@ -73,6 +75,9 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/listExerciseVideos": "GET",
   "/api/listAIRecommendations": "GET",
   "/api/listRoleCapabilities": "GET",
+  "/api/evaluateAccessDecision": "POST",
+  "/api/recordDeniedAccessAudit": "POST",
+  "/api/listDeniedAccessAudits": "GET",
   "/api/listBillingInvoices": "GET",
   "/api/listSupportIncidents": "GET"
 };
@@ -801,6 +806,48 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: mapDomainError(error, "invalid_role_capabilities_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/evaluateAccessDecision") {
+    try {
+      const input = accessDecisionInputSchema.parse(await readJsonBody(request));
+      const decision = await runtime.evaluateAccessDecision(input);
+      return { statusCode: 200, payload: { decision } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_evaluate_access_decision_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/recordDeniedAccessAudit") {
+    try {
+      const input = deniedAccessAuditInputSchema.parse(await readJsonBody(request));
+      const audit = await runtime.recordDeniedAccessAudit(input);
+      return { statusCode: 201, payload: { audit } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_denied_access_audit_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listDeniedAccessAudits") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "").trim();
+      if (userId.length === 0) {
+        throw new Error("missing_user_id");
+      }
+      const audits = await runtime.listDeniedAccessAudits(userId);
+      return { statusCode: 200, payload: { audits } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_denied_access_audits_payload") }
       };
     }
   }

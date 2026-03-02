@@ -1,4 +1,6 @@
 import {
+  accessDecisionInputSchema,
+  accessDecisionResultSchema,
   accessRoleSchema,
   analyticsEventSchema,
   authRecoveryRequestSchema,
@@ -9,10 +11,14 @@ import {
   dataExportRequestSchema,
   dataDeletionRequestSchema,
   dataRetentionPolicySchema,
+  deniedAccessAuditInputSchema,
+  deniedAccessAuditSchema,
   legalConsentSubmissionSchema,
   supportIncidentSchema,
   roleCapabilitiesSchema,
   syncQueueProcessInputSchema,
+  type AccessDecisionInput,
+  type AccessDecisionResult,
   type AccessRole,
   type AIRecommendation,
   type AnalyticsEvent,
@@ -24,6 +30,8 @@ import {
   type DataExportRequest,
   type DataExportRequestInput,
   type DataRetentionPolicy,
+  type DeniedAccessAudit,
+  type DeniedAccessAuditInput,
   type ExerciseVideo,
   type Goal,
   type HealthScreening,
@@ -65,13 +73,17 @@ import { ListSupportIncidentsUseCase } from "../application/list-support-inciden
 import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
+import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
 import { RequestDataExportUseCase } from "../application/request-data-export";
 import { RequestDataDeletionUseCase } from "../application/request-data-deletion";
+import { EvaluateRoleAccessUseCase } from "../application/evaluate-role-access";
+import { ListDeniedAccessAuditsUseCase } from "../application/list-denied-access-audits";
 import type { AnalyticsEventRepository } from "../domain/analytics-event-repository";
 import type { AuthTokenVerifier } from "../domain/auth-token-verifier";
 import type { CrashReportRepository } from "../domain/crash-report-repository";
 import type { DataDeletionRequestRepository } from "../domain/data-deletion-request-repository";
 import type { DataExportRequestRepository } from "../domain/data-export-request-repository";
+import type { DeniedAccessAuditRepository } from "../domain/denied-access-audit-repository";
 import type { HealthScreeningRepository } from "../domain/health-screening-repository";
 import type { LegalConsentAuditRepository } from "../domain/legal-consent-audit-repository";
 import type { LegalConsentRepository } from "../domain/legal-consent-repository";
@@ -207,6 +219,18 @@ class InMemoryDataDeletionRequestRepository implements DataDeletionRequestReposi
   }
 }
 
+class InMemoryDeniedAccessAuditRepository implements DeniedAccessAuditRepository {
+  private readonly records: DeniedAccessAudit[] = [];
+
+  async save(audit: DeniedAccessAudit): Promise<void> {
+    this.records.push(audit);
+  }
+
+  async listByUserId(userId: string): Promise<DeniedAccessAudit[]> {
+    return this.records.filter((record) => record.userId === userId);
+  }
+}
+
 class InMemoryDataExportRequestRepository implements DataExportRequestRepository {
   private readonly records: DataExportRequest[] = [];
 
@@ -298,6 +322,9 @@ export type DemoApiRuntime = {
   listExerciseVideos(input: ListExerciseVideosInput): Promise<ExerciseVideo[]>;
   listAIRecommendations(input: ListAIRecommendationsInput): Promise<AIRecommendation[]>;
   listRoleCapabilities(role: AccessRole): Promise<RoleCapabilities>;
+  evaluateAccessDecision(payload: AccessDecisionInput): Promise<AccessDecisionResult>;
+  recordDeniedAccessAudit(payload: DeniedAccessAuditInput): Promise<DeniedAccessAudit>;
+  listDeniedAccessAudits(userId: string): Promise<DeniedAccessAudit[]>;
   listBillingInvoices(userId: string): Promise<BillingInvoice[]>;
   listSupportIncidents(userId: string): Promise<SupportIncident[]>;
 };
@@ -314,6 +341,7 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   const legalConsentAuditRepository = new InMemoryLegalConsentAuditRepository();
   const dataExportRequestRepository = new InMemoryDataExportRequestRepository();
   const dataDeletionRequestRepository = new InMemoryDataDeletionRequestRepository();
+  const deniedAccessAuditRepository = new InMemoryDeniedAccessAuditRepository();
   const exerciseVideoRepository = new StaticExerciseVideoRepository();
 
   const createAuthSessionUseCase = new CreateAuthSessionUseCase(new DemoAuthTokenVerifier());
@@ -362,6 +390,15 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
   const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
   const listRoleCapabilitiesUseCase = new ListRoleCapabilitiesUseCase();
+  const evaluateRoleAccessUseCase = new EvaluateRoleAccessUseCase(
+    listRoleCapabilitiesUseCase
+  );
+  const recordDeniedAccessAuditUseCase = new RecordDeniedAccessAuditUseCase(
+    deniedAccessAuditRepository
+  );
+  const listDeniedAccessAuditsUseCase = new ListDeniedAccessAuditsUseCase(
+    deniedAccessAuditRepository
+  );
   const listBillingInvoicesUseCase = new ListBillingInvoicesUseCase(
     trainingPlanRepository,
     workoutSessionRepository,
@@ -493,6 +530,23 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     async listRoleCapabilities(role: AccessRole) {
       const parsedRole = accessRoleSchema.parse(role);
       return roleCapabilitiesSchema.parse(listRoleCapabilitiesUseCase.execute(parsedRole));
+    },
+
+    async evaluateAccessDecision(payload: AccessDecisionInput) {
+      const parsedPayload = accessDecisionInputSchema.parse(payload);
+      return accessDecisionResultSchema.parse(evaluateRoleAccessUseCase.execute(parsedPayload));
+    },
+
+    async recordDeniedAccessAudit(payload: DeniedAccessAuditInput) {
+      const parsedPayload = deniedAccessAuditInputSchema.parse(payload);
+      const audit = await recordDeniedAccessAuditUseCase.execute(parsedPayload);
+      return deniedAccessAuditSchema.parse(audit);
+    },
+
+    async listDeniedAccessAudits(userId: string) {
+      return deniedAccessAuditSchema
+        .array()
+        .parse(await listDeniedAccessAuditsUseCase.execute(userId));
     },
 
     async listBillingInvoices(userId: string) {

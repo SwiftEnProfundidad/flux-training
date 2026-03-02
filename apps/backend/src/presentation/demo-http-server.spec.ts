@@ -286,11 +286,76 @@ describe("DemoHttpServer", () => {
 
     expect(response.status).toBe(200);
     const payload = (await response.json()) as {
-      capabilities?: { role?: string; allowedDomains?: string[] };
+      capabilities?: {
+        role?: string;
+        allowedDomains?: string[];
+        permissions?: Array<{ domain?: string; actions?: string[] }>;
+      };
     };
     expect(payload.capabilities?.role).toBe("coach");
     expect(payload.capabilities?.allowedDomains).toContain("training");
     expect(payload.capabilities?.allowedDomains).not.toContain("onboarding");
+    expect(payload.capabilities?.permissions?.some((permission) => permission.domain === "training")).toBe(
+      true
+    );
+  });
+
+  it("evaluates role access and stores denied access audits", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    const evaluateResponse = await fetch(`${server.baseUrl}/api/evaluateAccessDecision`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        role: "athlete",
+        domain: "training",
+        action: "view",
+        context: {
+          isOwner: true,
+          medicalDisclaimerAccepted: false
+        }
+      })
+    });
+
+    expect(evaluateResponse.status).toBe(200);
+    const evaluatePayload = (await evaluateResponse.json()) as {
+      decision?: { allowed?: boolean; reason?: string };
+    };
+    expect(evaluatePayload.decision?.allowed).toBe(false);
+    expect(evaluatePayload.decision?.reason).toBe("medical_consent_required");
+
+    const auditResponse = await fetch(`${server.baseUrl}/api/recordDeniedAccessAudit`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        role: "athlete",
+        domain: "training",
+        action: "view",
+        reason: "medical_consent_required",
+        trigger: "domain_select",
+        correlationId: "corr-rbac-1"
+      })
+    });
+    expect(auditResponse.status).toBe(201);
+
+    const listResponse = await fetch(
+      `${server.baseUrl}/api/listDeniedAccessAudits?userId=demo-user`,
+      { headers: clientHeaders }
+    );
+    expect(listResponse.status).toBe(200);
+    const listPayload = (await listResponse.json()) as {
+      audits?: Array<{ reason?: string; id?: string }>;
+    };
+    expect(listPayload.audits).toHaveLength(1);
+    expect(listPayload.audits?.[0]?.reason).toBe("medical_consent_required");
+    expect((listPayload.audits?.[0]?.id ?? "").length).toBeGreaterThan(0);
   });
 
   it("surfaces missing_user_id for list endpoints requiring identity scope", async () => {
