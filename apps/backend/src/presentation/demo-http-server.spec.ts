@@ -71,6 +71,23 @@ describe("DemoHttpServer", () => {
     expect(payload.error).toBe("method_not_allowed");
   });
 
+  it("serves role capabilities for RBAC runtime", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    const response = await fetch(
+      `${server.baseUrl}/api/listRoleCapabilities?role=coach`,
+      { headers: clientHeaders }
+    );
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      capabilities?: { role?: string; allowedDomains?: string[] };
+    };
+    expect(payload.capabilities?.role).toBe("coach");
+    expect(payload.capabilities?.allowedDomains).toContain("training");
+    expect(payload.capabilities?.allowedDomains).not.toContain("onboarding");
+  });
+
   it("surfaces missing_user_id for list endpoints requiring identity scope", async () => {
     server = await startDemoHttpServer({ port: 0 });
 

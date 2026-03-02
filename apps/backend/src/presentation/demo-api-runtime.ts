@@ -1,9 +1,12 @@
 import {
+  accessRoleSchema,
   analyticsEventSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
   legalConsentSubmissionSchema,
+  roleCapabilitiesSchema,
   syncQueueProcessInputSchema,
+  type AccessRole,
   type AIRecommendation,
   type AnalyticsEvent,
   type CrashReport,
@@ -15,6 +18,7 @@ import {
   type NutritionLog,
   type OnboardingResult,
   type ProgressSummary,
+  type RoleCapabilities,
   type SyncQueueItem,
   type SyncQueueProcessResult,
   type TrainingPlan,
@@ -35,6 +39,7 @@ import { ListExerciseVideosUseCase } from "../application/list-exercise-videos";
 import { ListNutritionLogsUseCase } from "../application/list-nutrition-logs";
 import { ListTrainingPlansUseCase } from "../application/list-training-plans";
 import { ListWorkoutSessionsUseCase } from "../application/list-workout-sessions";
+import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabilities";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
 import { RequestDataDeletionUseCase } from "../application/request-data-deletion";
@@ -206,6 +211,7 @@ export type DemoApiRuntime = {
   requestDataDeletion(payload: DataDeletionRequest): Promise<DataDeletionRequest>;
   listExerciseVideos(input: ListExerciseVideosInput): Promise<ExerciseVideo[]>;
   listAIRecommendations(input: ListAIRecommendationsInput): Promise<AIRecommendation[]>;
+  listRoleCapabilities(role: AccessRole): Promise<RoleCapabilities>;
 };
 
 export function createDemoApiRuntime(): DemoApiRuntime {
@@ -254,6 +260,7 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   );
   const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
   const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
+  const listRoleCapabilitiesUseCase = new ListRoleCapabilitiesUseCase();
 
   return {
     async createAuthSession(providerToken: string) {
@@ -335,6 +342,11 @@ export function createDemoApiRuntime(): DemoApiRuntime {
 
     async listAIRecommendations(input: ListAIRecommendationsInput) {
       return generateAIRecommendationsUseCase.execute(input);
+    },
+
+    async listRoleCapabilities(role: AccessRole) {
+      const parsedRole = accessRoleSchema.parse(role);
+      return roleCapabilitiesSchema.parse(listRoleCapabilitiesUseCase.execute(parsedRole));
     }
   };
 }

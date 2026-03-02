@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import {
+  accessRoleSchema,
   analyticsEventSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
@@ -56,7 +57,8 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/recordLegalConsent": "POST",
   "/api/requestDataDeletion": "POST",
   "/api/listExerciseVideos": "GET",
-  "/api/listAIRecommendations": "GET"
+  "/api/listAIRecommendations": "GET",
+  "/api/listRoleCapabilities": "GET"
 };
 
 function mapDomainError(error: unknown, fallbackCode: string): string {
@@ -455,6 +457,19 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: "invalid_list_ai_recommendations_payload" }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listRoleCapabilities") {
+    try {
+      const role = accessRoleSchema.parse(String(url.searchParams.get("role") ?? "athlete"));
+      const capabilities = await runtime.listRoleCapabilities(role);
+      return { statusCode: 200, payload: { capabilities } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_role_capabilities_payload") }
       };
     }
   }

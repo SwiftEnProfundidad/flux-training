@@ -4,33 +4,39 @@ import SwiftUI
 public struct ObservabilityView: View {
   @State private var viewModel: ObservabilityViewModel
   private let userID: String
+  private let copy: LocalizedCopy
 
-  public init(viewModel: ObservabilityViewModel, userID: String = "demo-user") {
+  public init(
+    viewModel: ObservabilityViewModel,
+    userID: String = "demo-user",
+    copy: LocalizedCopy = LocalizedCopy(language: .es)
+  ) {
     _viewModel = State(initialValue: viewModel)
     self.userID = userID
+    self.copy = copy
   }
 
   public var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text("Observability")
+      Text(copy.text(.observabilityTitle))
         .font(.title2)
 
       HStack {
-        Button("Track event") {
+        Button(copy.text(.trackEvent)) {
           Task { await viewModel.trackDemoEvent(userID: userID) }
         }
-        Button("Report crash") {
+        Button(copy.text(.reportCrash)) {
           Task { await viewModel.reportDemoCrash(userID: userID) }
         }
-        Button("Load data") {
+        Button(copy.text(.loadData)) {
           Task { await viewModel.refresh(userID: userID) }
         }
       }
 
-      Text("Status: \(viewModel.status)")
+      Text("\(copy.text(.statusLabel)): \(copy.humanStatus(viewModel.status))")
         .foregroundStyle(.secondary)
-      Text("Analytics events: \(viewModel.analyticsEvents.count)")
-      Text("Crash reports: \(viewModel.crashReports.count)")
+      Text("\(copy.text(.analyticsEventsLabel)): \(viewModel.analyticsEvents.count)")
+      Text("\(copy.text(.crashReportsLabel)): \(viewModel.crashReports.count)")
     }
     .padding()
   }

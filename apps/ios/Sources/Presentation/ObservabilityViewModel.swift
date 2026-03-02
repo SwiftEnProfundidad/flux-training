@@ -26,14 +26,28 @@ public final class ObservabilityViewModel {
   }
 
   public func trackDemoEvent(userID: String, now: Date = Date()) async {
+    await trackRuntimeEvent(
+      userID: userID,
+      name: "dashboard_interaction",
+      attributes: ["screen": "dashboard"],
+      now: now
+    )
+  }
+
+  public func trackRuntimeEvent(
+    userID: String,
+    name: String,
+    attributes: [String: String],
+    now: Date = Date()
+  ) async {
     do {
       _ = try await createAnalyticsEventUseCase.execute(
         event: AnalyticsEvent(
           userID: userID,
-          name: "dashboard_interaction",
+          name: name,
           source: .ios,
           occurredAt: now,
-          attributes: ["screen": "dashboard"]
+          attributes: attributes
         )
       )
       status = "event_saved"

@@ -17,6 +17,7 @@ type AppTranslations = {
   heightPlaceholder: string;
   weightPlaceholder: string;
   daysPerWeekPlaceholder: string;
+  goalPickerLabel: string;
   planNamePlaceholder: string;
   datePlaceholder: string;
   caloriesPlaceholder: string;
@@ -35,7 +36,9 @@ type AppTranslations = {
   acceptPrivacyPolicy: string;
   acceptTerms: string;
   acceptMedicalDisclaimer: string;
+  legalSummaryLabel: string;
   saveConsent: string;
+  exportData: string;
   requestDeletion: string;
   trainingSectionTitle: string;
   planStatusLabel: string;
@@ -47,6 +50,8 @@ type AppTranslations = {
   sessionsLoadedLabel: string;
   exerciseVideosTitle: string;
   videosStatusLabel: string;
+  exercisePickerLabel: string;
+  videoLocalePickerLabel: string;
   loadVideos: string;
   noVideosLoaded: string;
   openVideo: string;
@@ -91,6 +96,34 @@ type AppTranslations = {
   queueMetric: string;
   goalMetric: string;
   syncMetric: string;
+  domainFilterLabel: string;
+  domainAll: string;
+  domainOnboarding: string;
+  domainTraining: string;
+  domainNutrition: string;
+  domainProgress: string;
+  domainOperations: string;
+  roleLabel: string;
+  roleAthlete: string;
+  roleCoach: string;
+  roleAdmin: string;
+  noModulesForSelectedDomain: string;
+  runtimeStateSectionTitle: string;
+  runtimeStateModeLabel: string;
+  runtimeStateHintAllDomains: string;
+  runtimeStateRecoveryAction: string;
+  runtimeStateSuccessDescription: string;
+  runtimeStateLoadingDescription: string;
+  runtimeStateEmptyDescription: string;
+  runtimeStateErrorDescription: string;
+  runtimeStateOfflineDescription: string;
+  runtimeStateDeniedDescription: string;
+  settingsTitle: string;
+  settingsStatusLabel: string;
+  saveSettings: string;
+  notificationsPreference: string;
+  watchPreference: string;
+  calendarPreference: string;
 };
 
 const translations: Record<AppLanguage, AppTranslations> = {
@@ -108,6 +141,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heightPlaceholder: "altura cm",
     weightPlaceholder: "peso kg",
     daysPerWeekPlaceholder: "dias por semana",
+    goalPickerLabel: "objetivo",
     planNamePlaceholder: "nombre del plan",
     datePlaceholder: "fecha (AAAA-MM-DD)",
     caloriesPlaceholder: "calorias",
@@ -127,7 +161,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     acceptPrivacyPolicy: "Acepto politica de privacidad",
     acceptTerms: "Acepto terminos y condiciones",
     acceptMedicalDisclaimer: "He leido el disclaimer medico",
+    legalSummaryLabel: "Resumen legal",
     saveConsent: "Guardar consentimiento",
+    exportData: "Exportar datos",
     requestDeletion: "Solicitar borrado",
     trainingSectionTitle: "Entrenamiento",
     planStatusLabel: "Plan",
@@ -139,6 +175,8 @@ const translations: Record<AppLanguage, AppTranslations> = {
     sessionsLoadedLabel: "Sesiones cargadas",
     exerciseVideosTitle: "Videos de ejercicios",
     videosStatusLabel: "Videos",
+    exercisePickerLabel: "ejercicio",
+    videoLocalePickerLabel: "idioma del video",
     loadVideos: "Cargar videos",
     noVideosLoaded: "Todavia no hay videos cargados.",
     openVideo: "Abrir video",
@@ -182,7 +220,35 @@ const translations: Record<AppLanguage, AppTranslations> = {
     authMetric: "Auth",
     queueMetric: "Cola",
     goalMetric: "Objetivo",
-    syncMetric: "Sync"
+    syncMetric: "Sync",
+    domainFilterLabel: "Dominio",
+    domainAll: "Todo",
+    domainOnboarding: "Onboarding",
+    domainTraining: "Entrenamiento",
+    domainNutrition: "Nutricion",
+    domainProgress: "Progreso",
+    domainOperations: "Operaciones",
+    roleLabel: "Rol",
+    roleAthlete: "Atleta",
+    roleCoach: "Coach",
+    roleAdmin: "Admin",
+    noModulesForSelectedDomain: "No hay modulos para el dominio seleccionado.",
+    runtimeStateSectionTitle: "Estado enterprise por dominio",
+    runtimeStateModeLabel: "Modo runtime",
+    runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
+    runtimeStateRecoveryAction: "Recuperar dominio",
+    runtimeStateSuccessDescription: "Dominio operativo. El flujo principal esta disponible.",
+    runtimeStateLoadingDescription: "Carga en curso. Mostrando estado intermedio.",
+    runtimeStateEmptyDescription: "Sin datos para este dominio. Requiere inicializacion.",
+    runtimeStateErrorDescription: "Error operativo detectado. Necesita reintento controlado.",
+    runtimeStateOfflineDescription: "Sin conexion. Opera en cola hasta recuperar red.",
+    runtimeStateDeniedDescription: "Permiso denegado para este dominio segun rol activo.",
+    settingsTitle: "Ajustes",
+    settingsStatusLabel: "Ajustes",
+    saveSettings: "Guardar ajustes",
+    notificationsPreference: "Notificaciones activas",
+    watchPreference: "Sincronizar Apple Watch",
+    calendarPreference: "Sincronizar calendario"
   },
   en: {
     appName: "Flux Training",
@@ -198,6 +264,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heightPlaceholder: "height cm",
     weightPlaceholder: "weight kg",
     daysPerWeekPlaceholder: "days per week",
+    goalPickerLabel: "goal",
     planNamePlaceholder: "plan name",
     datePlaceholder: "date (YYYY-MM-DD)",
     caloriesPlaceholder: "calories",
@@ -217,7 +284,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     acceptPrivacyPolicy: "I accept the privacy policy",
     acceptTerms: "I accept terms and conditions",
     acceptMedicalDisclaimer: "I have read the medical disclaimer",
+    legalSummaryLabel: "Legal summary",
     saveConsent: "Save consent",
+    exportData: "Export data",
     requestDeletion: "Request deletion",
     trainingSectionTitle: "Training",
     planStatusLabel: "Plan",
@@ -229,6 +298,8 @@ const translations: Record<AppLanguage, AppTranslations> = {
     sessionsLoadedLabel: "Sessions loaded",
     exerciseVideosTitle: "Exercise videos",
     videosStatusLabel: "Videos",
+    exercisePickerLabel: "exercise",
+    videoLocalePickerLabel: "video language",
     loadVideos: "Load videos",
     noVideosLoaded: "No videos loaded yet.",
     openVideo: "Open video",
@@ -272,7 +343,36 @@ const translations: Record<AppLanguage, AppTranslations> = {
     authMetric: "Auth",
     queueMetric: "Queue",
     goalMetric: "Goal",
-    syncMetric: "Sync"
+    syncMetric: "Sync",
+    domainFilterLabel: "Domain",
+    domainAll: "All",
+    domainOnboarding: "Onboarding",
+    domainTraining: "Training",
+    domainNutrition: "Nutrition",
+    domainProgress: "Progress",
+    domainOperations: "Operations",
+    roleLabel: "Role",
+    roleAthlete: "Athlete",
+    roleCoach: "Coach",
+    roleAdmin: "Admin",
+    noModulesForSelectedDomain: "No modules are available for the selected domain.",
+    runtimeStateSectionTitle: "Enterprise runtime state by domain",
+    runtimeStateModeLabel: "Runtime mode",
+    runtimeStateHintAllDomains:
+      "Select a concrete domain to simulate risky operational states.",
+    runtimeStateRecoveryAction: "Recover domain",
+    runtimeStateSuccessDescription: "Domain is operational. Main flow is available.",
+    runtimeStateLoadingDescription: "Loading in progress. Showing intermediate state.",
+    runtimeStateEmptyDescription: "No data for this domain. Initialization is required.",
+    runtimeStateErrorDescription: "Operational error detected. Controlled retry is required.",
+    runtimeStateOfflineDescription: "No connection. Queue mode remains active until network returns.",
+    runtimeStateDeniedDescription: "Permission denied for this domain under active role.",
+    settingsTitle: "Settings",
+    settingsStatusLabel: "Settings",
+    saveSettings: "Save settings",
+    notificationsPreference: "Notifications enabled",
+    watchPreference: "Sync Apple Watch",
+    calendarPreference: "Sync calendar"
   }
 };
 
@@ -335,6 +435,12 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     event_saved: "evento guardado",
     crash_saved: "crash guardado",
     error: "error",
+    exported: "exportado",
+    success: "operativo",
+    loading: "cargando",
+    empty: "sin datos",
+    offline: "sin conexion",
+    denied: "sin permiso",
     upgrade_required: "actualizacion requerida",
     high: "alta",
     medium: "media",
@@ -354,6 +460,12 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     event_saved: "event saved",
     crash_saved: "crash saved",
     error: "error",
+    exported: "exported",
+    success: "operational",
+    loading: "loading",
+    empty: "empty",
+    offline: "offline",
+    denied: "denied",
     upgrade_required: "upgrade required",
     high: "high",
     medium: "medium",

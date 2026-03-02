@@ -65,4 +65,19 @@ describe("DemoApiRuntime", () => {
     expect(summary.workoutSessionsCount).toBe(1);
     expect(summary.nutritionLogsCount).toBe(1);
   });
+
+  it("returns role capabilities for RBAC runtime", async () => {
+    const runtime = createDemoApiRuntime();
+
+    const capabilities = await runtime.listRoleCapabilities("coach");
+
+    expect(capabilities.role).toBe("coach");
+    expect(capabilities.allowedDomains).toEqual([
+      "all",
+      "training",
+      "nutrition",
+      "progress",
+      "operations"
+    ]);
+  });
 });

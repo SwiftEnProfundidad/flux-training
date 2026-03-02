@@ -1,6 +1,26 @@
 import Foundation
 import Observation
 
+public struct OnboardingConsentChecklist: Sendable, Equatable {
+  public var privacyPolicyAccepted: Bool
+  public var termsAccepted: Bool
+  public var medicalDisclaimerAccepted: Bool
+
+  public init(
+    privacyPolicyAccepted: Bool,
+    termsAccepted: Bool,
+    medicalDisclaimerAccepted: Bool
+  ) {
+    self.privacyPolicyAccepted = privacyPolicyAccepted
+    self.termsAccepted = termsAccepted
+    self.medicalDisclaimerAccepted = medicalDisclaimerAccepted
+  }
+
+  public var isComplete: Bool {
+    privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted
+  }
+}
+
 @MainActor
 @Observable
 public final class OnboardingViewModel {
@@ -19,13 +39,33 @@ public final class OnboardingViewModel {
     self.completeOnboardingUseCase = completeOnboardingUseCase
   }
 
-  public func complete(userID: String) async {
+  public func complete(userID: String, consent: OnboardingConsentChecklist) async {
+    guard consent.isComplete else {
+      onboardingStatus = "consent_required"
+      return
+    }
+
+    let trimmedDisplayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard trimmedDisplayName.isEmpty == false else {
+      onboardingStatus = "validation_error"
+      return
+    }
+    guard age >= 18, heightCm > 0, weightKg > 0, (1...7).contains(availableDaysPerWeek) else {
+      onboardingStatus = "validation_error"
+      return
+    }
+    guard parQResponses.isEmpty == false else {
+      onboardingStatus = "validation_error"
+      return
+    }
+
+    onboardingStatus = "loading"
     do {
       let _ = try await completeOnboardingUseCase.execute(
         userID: userID,
         goal: selectedGoal,
         onboardingProfile: OnboardingProfileInput(
-          displayName: displayName,
+          displayName: trimmedDisplayName,
           age: age,
           heightCm: heightCm,
           weightKg: weightKg,
@@ -41,4 +81,3 @@ public final class OnboardingViewModel {
     }
   }
 }
-

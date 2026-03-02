@@ -2,6 +2,11 @@ import SwiftUI
 
 @available(iOS 17, macOS 14, *)
 public struct ExperienceHubView: View {
+  private static let defaultAuthScreenContract = AuthScreenContract()
+  private static let defaultOnboardingScreenContract = OnboardingScreenContract()
+  private static let defaultNutritionProgressAIScreenContract = NutritionProgressAIScreenContract()
+  private static let defaultSettingsLegalScreenContract = SettingsLegalScreenContract()
+
   @State private var authViewModel: AuthViewModel
   @State private var onboardingViewModel: OnboardingViewModel
   @State private var trainingViewModel: TrainingFlowViewModel
@@ -10,13 +15,35 @@ public struct ExperienceHubView: View {
   @State private var offlineSyncViewModel: OfflineSyncViewModel
   @State private var observabilityViewModel: ObservabilityViewModel
   @State private var recommendations: [AIRecommendation] = []
-  @State private var recommendationsStatus: String = "idle"
+  @State private var recommendationsStatus: String =
+    defaultNutritionProgressAIScreenContract.recommendationsStatus.rawValue
+  @State private var settingsStatus: String = defaultSettingsLegalScreenContract.settingsStatus.rawValue
+  @State private var legalStatus: String = defaultSettingsLegalScreenContract.legalStatus.rawValue
+  @State private var notificationsEnabled: Bool = defaultSettingsLegalScreenContract.notificationsEnabled
+  @State private var watchSyncEnabled: Bool = defaultSettingsLegalScreenContract.watchSyncEnabled
+  @State private var calendarSyncEnabled: Bool = defaultSettingsLegalScreenContract.calendarSyncEnabled
+  @State private var privacyPolicyAccepted: Bool = defaultOnboardingScreenContract.privacyPolicyAccepted
+  @State private var termsAccepted: Bool = defaultOnboardingScreenContract.termsAccepted
+  @State private var medicalDisclaimerAccepted: Bool =
+    defaultOnboardingScreenContract.medicalDisclaimerAccepted
   @State private var language: SupportedLanguage = .es
+  @State private var activeRole: ExperienceRole = .athlete
+  @State private var activeRoleAllowedDomains: Set<ExperienceDomain> = [.all]
+  @State private var sectionShell = ExperienceSectionShell()
+  @State private var runtimeStateStore = ExperienceDomainRuntimeStateStore()
+  @State private var runtimeObservabilitySession = RuntimeObservabilitySession()
+  @State private var hasHydratedPersistedDomain = false
+  @State private var hasHydratedPersistedRole = false
+  @State private var hasTrackedInitialDomainChange = false
+  @AppStorage("flux_training_dashboard_domain")
+  private var persistedDomainRawValue: String = ExperienceDomain.all.rawValue
+  @AppStorage("flux_training_dashboard_role")
+  private var persistedRoleRawValue: String = ExperienceRole.athlete.rawValue
 
-  @State private var email: String = "demo@flux.training"
-  @State private var password: String = "demo-password"
-  @State private var parQQuestionOne: Bool = false
-  @State private var parQQuestionTwo: Bool = false
+  @State private var email: String = defaultAuthScreenContract.email
+  @State private var password: String = defaultAuthScreenContract.password
+  @State private var parQQuestionOne: Bool = defaultOnboardingScreenContract.parQQuestionOne
+  @State private var parQQuestionTwo: Bool = defaultOnboardingScreenContract.parQQuestionTwo
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
@@ -75,6 +102,10 @@ public struct ExperienceHubView: View {
     LocalizedCopy(language: language)
   }
 
+  private var activeDomainRuntimeState: EnterpriseRuntimeState {
+    runtimeStateStore.state(for: sectionShell.activeDomain)
+  }
+
   public var body: some View {
     TabView {
       todayTab
@@ -93,18 +124,60 @@ public struct ExperienceHubView: View {
         }
     }
     .tint(.orange)
+    .onAppear {
+      hydratePersistedPreferencesIfNeeded()
+    }
+    .onChange(of: sectionShell.activeDomain) { _, newValue in
+      persistedDomainRawValue = newValue.rawValue
+      if !hasTrackedInitialDomainChange {
+        hasTrackedInitialDomainChange = true
+        return
+      }
+      Task {
+        await trackDomainChange(newValue)
+      }
+    }
+    .onChange(of: activeRole) { _, newValue in
+      persistedRoleRawValue = newValue.rawValue
+      activeRoleAllowedDomains = [.all]
+      reconcileRuntimeStateForRole()
+      Task {
+        await loadRoleCapabilities(for: newValue)
+        await trackRoleChange(newValue)
+      }
+    }
   }
 
   private var todayTab: some View {
     NavigationStack {
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          readinessHero
-          authSection
-          onboardingSection
-          TrainingFlowView(viewModel: trainingViewModel, userID: userID, copy: copy)
-            .cardSurface()
-          nutritionSection
+          domainFilterSection
+          runtimeStateSection
+          if activeDomainRuntimeState == .success {
+            if hasTodayContent {
+              if moduleVisible(.readiness) {
+                readinessHero
+              }
+              if moduleVisible(.auth) {
+                authSection
+              }
+              if moduleVisible(.onboarding) {
+                onboardingSection
+              }
+              if moduleVisible(.training) {
+                TrainingFlowView(viewModel: trainingViewModel, userID: userID, copy: copy)
+                  .cardSurface()
+              }
+              if moduleVisible(.nutrition) {
+                nutritionSection
+              }
+            } else {
+              noModulesSection
+            }
+          } else {
+            runtimeStateBannerSection
+          }
         }
         .padding(16)
       }
@@ -117,10 +190,18 @@ public struct ExperienceHubView: View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 16) {
-          ProgressSummaryView(viewModel: progressViewModel, userID: userID)
-            .cardSurface()
-          OfflineSyncView(viewModel: offlineSyncViewModel, userID: userID)
-            .cardSurface()
+          domainFilterSection
+          runtimeStateSection
+          if activeDomainRuntimeState == .success {
+            if moduleVisible(.progress) {
+              ProgressSummaryView(viewModel: progressViewModel, userID: userID)
+                .cardSurface()
+            } else {
+              noModulesSection
+            }
+          } else {
+            runtimeStateBannerSection
+          }
         }
         .padding(16)
       }
@@ -133,12 +214,36 @@ public struct ExperienceHubView: View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 16) {
-          ObservabilityView(viewModel: observabilityViewModel, userID: userID)
-            .cardSurface()
-          aiRecommendationsSection
-          Text("\(copy.text(.overallStatusLabel)): \(copy.readinessLabel(readinessSnapshot.label))")
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+          domainFilterSection
+          runtimeStateSection
+          if activeDomainRuntimeState == .success {
+            if hasOperationsContent {
+              if moduleVisible(.offlineSync) {
+                OfflineSyncView(viewModel: offlineSyncViewModel, userID: userID, copy: copy)
+                  .cardSurface()
+              }
+              if moduleVisible(.observability) {
+                ObservabilityView(viewModel: observabilityViewModel, userID: userID, copy: copy)
+                  .cardSurface()
+              }
+              if moduleVisible(.recommendations) {
+                aiRecommendationsSection
+              }
+              if moduleVisible(.settings) {
+                settingsSection
+              }
+              if moduleVisible(.legal) {
+                legalSection
+              }
+              Text("\(copy.text(.overallStatusLabel)): \(copy.readinessLabel(readinessSnapshot.label))")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            } else {
+              noModulesSection
+            }
+          } else {
+            runtimeStateBannerSection
+          }
         }
         .padding(16)
       }
@@ -154,8 +259,8 @@ public struct ExperienceHubView: View {
       Text("\(copy.text(.readinessLabel)) \(readinessSnapshot.score)%")
         .font(.largeTitle.bold())
       Picker(copy.text(.languageLabel), selection: $language) {
-        Text("ES").tag(SupportedLanguage.es)
-        Text("EN").tag(SupportedLanguage.en)
+        Text(copy.text(.languageOptionSpanish)).tag(SupportedLanguage.es)
+        Text(copy.text(.languageOptionEnglish)).tag(SupportedLanguage.en)
       }
       .pickerStyle(.segmented)
       Text(copy.readinessLabel(readinessSnapshot.label))
@@ -172,6 +277,116 @@ public struct ExperienceHubView: View {
     .cardSurface()
   }
 
+  private var domainFilterSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text(copy.text(.domainFilterLabel))
+        .font(.headline)
+      ScrollView(.horizontal) {
+        HStack(spacing: 8) {
+          ForEach(ExperienceDomain.allCases, id: \.self) { domain in
+            Button {
+              handleDomainSelection(domain)
+            } label: {
+              Text(domainLabel(domain))
+                .font(.subheadline.bold())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .frame(minWidth: 92)
+                .background(domainBackground(domain))
+                .foregroundStyle(domainForeground(domain))
+                .clipShape(.capsule)
+            }
+            .buttonStyle(.plain)
+          }
+        }
+        .padding(.horizontal, 2)
+      }
+      .scrollIndicators(.hidden)
+      Picker(copy.text(.roleLabel), selection: $activeRole) {
+        Text(copy.text(.roleAthlete)).tag(ExperienceRole.athlete)
+        Text(copy.text(.roleCoach)).tag(ExperienceRole.coach)
+        Text(copy.text(.roleAdmin)).tag(ExperienceRole.admin)
+      }
+      .pickerStyle(.segmented)
+    }
+    .cardSurface()
+  }
+
+  private var noModulesSection: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text(copy.text(.noModulesForSelectedDomain))
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+    }
+    .cardSurface()
+  }
+
+  private var runtimeStateSection: some View {
+    VStack(alignment: .leading, spacing: 10) {
+      HStack {
+        Text(copy.text(.runtimeStateSectionTitle))
+          .font(.headline)
+        Spacer()
+        Text(copy.humanStatus(activeDomainRuntimeState.rawValue))
+          .font(.caption.bold())
+          .padding(.horizontal, 10)
+          .padding(.vertical, 6)
+          .background(runtimeStateColor.opacity(0.22))
+          .foregroundStyle(runtimeStateColor)
+          .clipShape(.capsule)
+      }
+
+      if sectionShell.activeDomain == .all {
+        Text(copy.text(.runtimeStateHintAllDomains))
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+      } else {
+        Picker(
+          copy.text(.runtimeStateModeLabel),
+          selection: Binding(
+            get: { activeDomainRuntimeState },
+            set: { selectedState in
+              runtimeStateStore.set(state: selectedState, for: sectionShell.activeDomain)
+            }
+          )
+        ) {
+          ForEach(EnterpriseRuntimeState.allCases, id: \.self) { state in
+            Text(copy.humanStatus(state.rawValue)).tag(state)
+          }
+        }
+        .pickerStyle(.menu)
+        .labelsHidden()
+
+        Button(copy.text(.runtimeStateRecoveryAction)) {
+          Task { await recoverActiveDomainState() }
+        }
+        .buttonStyle(.bordered)
+        .disabled(activeDomainRuntimeState == .success)
+
+        Text(runtimeStateDescription(activeDomainRuntimeState))
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+      }
+    }
+    .cardSurface()
+  }
+
+  private var runtimeStateBannerSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text(copy.text(.runtimeStateSectionTitle))
+        .font(.title3.bold())
+      Text(runtimeStateDescription(activeDomainRuntimeState))
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+      Button(copy.text(.runtimeStateRecoveryAction)) {
+        Task { await recoverActiveDomainState() }
+      }
+      .buttonStyle(.borderedProminent)
+      .tint(.orange)
+    }
+    .cardSurface()
+  }
+
   private var authSection: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text(copy.text(.authenticationTitle))
@@ -181,15 +396,25 @@ public struct ExperienceHubView: View {
       }
       .buttonStyle(.borderedProminent)
       .tint(.orange)
-      TextField("Email", text: $email)
+      TextField(copy.text(.emailField), text: $email)
         .fluxEmailFieldBehavior()
         .textFieldStyle(RoundedBorderTextFieldStyle())
-      SecureField("Password", text: $password)
+      SecureField(copy.text(.passwordField), text: $password)
         .textFieldStyle(RoundedBorderTextFieldStyle())
       Button(copy.text(.signInWithEmail)) {
         Task { await authViewModel.signInWithEmail(email: email, password: password) }
       }
       .buttonStyle(.bordered)
+      HStack {
+        Button(copy.text(.recoverByEmail)) {
+          authViewModel.requestRecovery(email: email, channel: .email)
+        }
+        .buttonStyle(.bordered)
+        Button(copy.text(.recoverBySMS)) {
+          authViewModel.requestRecovery(email: email, channel: .sms)
+        }
+        .buttonStyle(.bordered)
+      }
       Text("\(copy.text(.authStatusLabel)): \(copy.humanStatus(authViewModel.authStatus))")
         .foregroundStyle(.secondary)
         .font(.footnote)
@@ -226,7 +451,16 @@ public struct ExperienceHubView: View {
           ParQResponse(questionID: "parq-1", answer: parQQuestionOne),
           ParQResponse(questionID: "parq-2", answer: parQQuestionTwo)
         ]
-        Task { await onboardingViewModel.complete(userID: userID) }
+        Task {
+          await onboardingViewModel.complete(
+            userID: userID,
+            consent: OnboardingConsentChecklist(
+              privacyPolicyAccepted: privacyPolicyAccepted,
+              termsAccepted: termsAccepted,
+              medicalDisclaimerAccepted: medicalDisclaimerAccepted
+            )
+          )
+        }
       }
       .buttonStyle(.borderedProminent)
       .tint(.orange)
@@ -357,6 +591,458 @@ public struct ExperienceHubView: View {
       endPoint: .bottomTrailing
     )
     .ignoresSafeArea()
+  }
+
+  private var hasTodayContent: Bool {
+    moduleVisible(.readiness)
+      || moduleVisible(.auth)
+      || moduleVisible(.onboarding)
+      || moduleVisible(.training)
+      || moduleVisible(.nutrition)
+  }
+
+  private var hasOperationsContent: Bool {
+    moduleVisible(.settings)
+      || moduleVisible(.legal)
+      || moduleVisible(.offlineSync)
+      || moduleVisible(.observability)
+      || moduleVisible(.recommendations)
+  }
+
+  private var settingsSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text(copy.text(.settingsTitle))
+        .font(.title3.bold())
+      Toggle(copy.text(.notificationsPreference), isOn: $notificationsEnabled)
+      Toggle(copy.text(.watchPreference), isOn: $watchSyncEnabled)
+      Toggle(copy.text(.calendarPreference), isOn: $calendarSyncEnabled)
+      Button(copy.text(.saveSettings)) {
+        settingsStatus = "saved"
+      }
+      .buttonStyle(.borderedProminent)
+      .tint(.orange)
+      Text("\(copy.text(.settingsStatusLabel)): \(copy.humanStatus(settingsStatus))")
+        .foregroundStyle(.secondary)
+        .font(.footnote)
+    }
+    .cardSurface()
+  }
+
+  private var legalSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text(copy.text(.legalSectionTitle))
+        .font(.title3.bold())
+      Toggle(copy.text(.acceptPrivacyPolicy), isOn: $privacyPolicyAccepted)
+      Toggle(copy.text(.acceptTerms), isOn: $termsAccepted)
+      Toggle(copy.text(.acceptMedicalDisclaimer), isOn: $medicalDisclaimerAccepted)
+      Text(
+        "\(copy.text(.legalSummaryLabel)): \(copy.humanStatus(privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"))"
+      )
+      .foregroundStyle(.secondary)
+      .font(.footnote)
+      HStack {
+        Button(copy.text(.saveConsent)) {
+          legalStatus = "saved"
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.orange)
+        Button(copy.text(.exportData)) {
+          legalStatus = "exported"
+        }
+        .buttonStyle(.bordered)
+        Button(copy.text(.requestDeletion)) {
+          legalStatus = "deletion_requested"
+        }
+        .buttonStyle(.bordered)
+      }
+      Text("\(copy.text(.legalStatusLabel)): \(copy.humanStatus(legalStatus))")
+        .foregroundStyle(.secondary)
+        .font(.footnote)
+    }
+    .cardSurface()
+  }
+
+  private func moduleVisible(_ module: ExperienceModule) -> Bool {
+    sectionShell.isModuleVisible(module)
+  }
+
+  private func domainLabel(_ domain: ExperienceDomain) -> String {
+    switch domain {
+    case .all:
+      return copy.text(.domainAll)
+    case .onboarding:
+      return copy.text(.domainOnboarding)
+    case .training:
+      return copy.text(.domainTraining)
+    case .nutrition:
+      return copy.text(.domainNutrition)
+    case .progress:
+      return copy.text(.domainProgress)
+    case .operations:
+      return copy.text(.domainOperations)
+    }
+  }
+
+  private func domainBackground(_ domain: ExperienceDomain) -> Color {
+    if sectionShell.activeDomain == domain {
+      return .orange
+    }
+    return Color(red: 0.13, green: 0.14, blue: 0.18)
+  }
+
+  private func domainForeground(_ domain: ExperienceDomain) -> Color {
+    if sectionShell.activeDomain == domain {
+      return .black
+    }
+    return .white
+  }
+
+  private func hydratePersistedPreferencesIfNeeded() {
+    if hasHydratedPersistedDomain && hasHydratedPersistedRole {
+      return
+    }
+    if !hasHydratedPersistedDomain {
+      hasHydratedPersistedDomain = true
+      sectionShell = ExperienceSectionShell(persistedDomainRawValue: persistedDomainRawValue)
+    }
+    if !hasHydratedPersistedRole {
+      hasHydratedPersistedRole = true
+      activeRole = ExperienceRole(rawValue: persistedRoleRawValue) ?? .athlete
+    }
+    Task {
+      await loadRoleCapabilities(for: activeRole)
+      reconcileRuntimeStateForRole()
+    }
+  }
+
+  private var runtimeStateColor: Color {
+    switch activeDomainRuntimeState {
+    case .success:
+      return .green
+    case .loading:
+      return .orange
+    case .empty:
+      return .gray
+    case .error, .denied:
+      return .red
+    case .offline:
+      return .yellow
+    }
+  }
+
+  private func runtimeStateDescription(_ state: EnterpriseRuntimeState) -> String {
+    switch state {
+    case .success:
+      return copy.text(.runtimeStateSuccessDescription)
+    case .loading:
+      return copy.text(.runtimeStateLoadingDescription)
+    case .empty:
+      return copy.text(.runtimeStateEmptyDescription)
+    case .error:
+      return copy.text(.runtimeStateErrorDescription)
+    case .offline:
+      return copy.text(.runtimeStateOfflineDescription)
+    case .denied:
+      return copy.text(.runtimeStateDeniedDescription)
+    }
+  }
+
+  @MainActor
+  private func recoverActiveDomainState() async {
+    if !canAccessActiveDomain(sectionShell.activeDomain) {
+      runtimeStateStore.set(state: .denied, for: sectionShell.activeDomain)
+      let correlationID = nextRuntimeCorrelationID(
+        domain: sectionShell.activeDomain,
+        trigger: "recover"
+      )
+      await trackDeniedDomainAccess(
+        domain: sectionShell.activeDomain,
+        trigger: "recover",
+        correlationID: correlationID
+      )
+      await trackBlockedAction(
+        domain: sectionShell.activeDomain,
+        action: "recover",
+        reason: "domain_denied",
+        correlationID: correlationID
+      )
+      return
+    }
+    runtimeStateStore.reset(for: sectionShell.activeDomain)
+    switch sectionShell.activeDomain {
+    case .training:
+      do {
+        try await trainingViewModel.refreshPlans(userID: userID)
+        try await trainingViewModel.refreshSessions(userID: userID)
+      } catch {
+        return
+      }
+    case .nutrition:
+      await nutritionViewModel.refreshLogs(userID: userID)
+    case .progress:
+      await progressViewModel.refresh(userID: userID)
+    case .operations:
+      await offlineSyncViewModel.refresh(userID: userID)
+      await observabilityViewModel.refresh(userID: userID)
+    case .onboarding, .all:
+      return
+    }
+  }
+
+  private func handleDomainSelection(_ domain: ExperienceDomain) {
+    sectionShell.select(domain: domain)
+    if domain == .all {
+      return
+    }
+    if !canAccessActiveDomain(domain) {
+      runtimeStateStore.set(state: .denied, for: domain)
+      Task {
+        let correlationID = nextRuntimeCorrelationID(domain: domain, trigger: "domain_select")
+        await trackDeniedDomainAccess(
+          domain: domain,
+          trigger: "domain_select",
+          correlationID: correlationID
+        )
+        await trackBlockedAction(
+          domain: domain,
+          action: "domain_select",
+          reason: "domain_denied",
+          correlationID: correlationID
+        )
+      }
+    }
+  }
+
+  private func reconcileRuntimeStateForRole() {
+    let domain = sectionShell.activeDomain
+    if domain == .all {
+      return
+    }
+    let currentState = runtimeStateStore.state(for: domain)
+    if canAccessActiveDomain(domain), currentState == .denied {
+      runtimeStateStore.reset(for: domain)
+    } else if !canAccessActiveDomain(domain), currentState != .denied {
+      runtimeStateStore.set(state: .denied, for: domain)
+      Task {
+        let correlationID = nextRuntimeCorrelationID(
+          domain: domain,
+          trigger: "role_capabilities_sync"
+        )
+        await trackDeniedDomainAccess(
+          domain: domain,
+          trigger: "role_capabilities_sync",
+          correlationID: correlationID
+        )
+        await trackBlockedAction(
+          domain: domain,
+          action: "role_capabilities_sync",
+          reason: "domain_denied",
+          correlationID: correlationID
+        )
+      }
+    }
+  }
+
+  private func canAccessActiveDomain(_ domain: ExperienceDomain) -> Bool {
+    if domain == .all {
+      return true
+    }
+    return activeRoleAllowedDomains.contains(domain)
+  }
+
+  @MainActor
+  private func loadRoleCapabilities(for role: ExperienceRole) async {
+    let fallbackDomains = activeRoleAllowedDomains.isEmpty ? Set([ExperienceDomain.all]) : activeRoleAllowedDomains
+
+    guard let url = URL(
+      string: "http://127.0.0.1:8787/api/listRoleCapabilities?role=\(role.rawValue)"
+    ) else {
+      activeRoleAllowedDomains = fallbackDomains
+      reconcileRuntimeStateForRole()
+      return
+    }
+
+    var request = URLRequest(url: url)
+    request.setValue("ios", forHTTPHeaderField: "x-flux-client-platform")
+    request.setValue("0.1.0", forHTTPHeaderField: "x-flux-client-version")
+
+    struct RoleCapabilitiesEnvelope: Decodable {
+      struct Capabilities: Decodable {
+        let role: String
+        let allowedDomains: [String]
+      }
+      let capabilities: Capabilities
+    }
+
+    do {
+      let (data, response) = try await URLSession.shared.data(for: request)
+      guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        activeRoleAllowedDomains = fallbackDomains
+        reconcileRuntimeStateForRole()
+        return
+      }
+      let decoded = try JSONDecoder().decode(RoleCapabilitiesEnvelope.self, from: data)
+      let allowed = Set(decoded.capabilities.allowedDomains.compactMap(ExperienceDomain.init(rawValue:)))
+      activeRoleAllowedDomains = allowed.isEmpty ? fallbackDomains : allowed
+      reconcileRuntimeStateForRole()
+    } catch {
+      activeRoleAllowedDomains = fallbackDomains
+      reconcileRuntimeStateForRole()
+    }
+  }
+
+  private func trackRoleChange(_ role: ExperienceRole) async {
+    let runtimeAttributes = nextEventRuntimeAttributes(domain: sectionShell.activeDomain)
+    await observabilityViewModel.trackRuntimeEvent(
+      userID: userID,
+      name: "dashboard_role_changed",
+      attributes: [
+        "role": role.rawValue,
+        "domain": sectionShell.activeDomain.rawValue,
+        "allowed_domain_count": String(activeRoleAllowedDomains.count)
+      ]
+      .merging(runtimeAttributes) { _, latest in latest }
+    )
+  }
+
+  private func trackDomainChange(_ domain: ExperienceDomain) async {
+    let backendRoute = BlockedActionBackendContract.resolveRoute(for: domain)
+    let payloadValidation = BlockedActionBackendContract.resolvePayloadValidation(
+      for: domain,
+      input: domainPayloadValidationInput
+    )
+    let runtimeAttributes = nextEventRuntimeAttributes(domain: domain)
+    await observabilityViewModel.trackRuntimeEvent(
+      userID: userID,
+      name: "dashboard_domain_changed",
+      attributes: [
+        "role": activeRole.rawValue,
+        "domain": domain.rawValue,
+        "allowed_domain_count": String(activeRoleAllowedDomains.count),
+        "backend_route": backendRoute,
+        "contract": payloadValidation.contract,
+        "payload_validation": payloadValidation.status.rawValue,
+        "payload_missing_fields": payloadValidation.missingFields
+      ]
+      .merging(runtimeAttributes) { _, latest in latest }
+    )
+  }
+
+  private func trackDeniedDomainAccess(
+    domain: ExperienceDomain,
+    trigger: String,
+    correlationID: String? = nil
+  ) async {
+    let backendRoute = BlockedActionBackendContract.resolveRoute(for: domain)
+    let payloadValidation = BlockedActionBackendContract.resolvePayloadValidation(
+      for: domain,
+      input: domainPayloadValidationInput
+    )
+    let runtimeAttributes = nextDeniedRuntimeAttributes(
+      domain: domain,
+      correlationID: correlationID
+    )
+    await observabilityViewModel.trackRuntimeEvent(
+      userID: userID,
+      name: "dashboard_domain_access_denied",
+      attributes: [
+        "role": activeRole.rawValue,
+        "domain": domain.rawValue,
+        "trigger": trigger,
+        "allowed_domain_count": String(activeRoleAllowedDomains.count),
+        "backend_route": backendRoute,
+        "contract": payloadValidation.contract,
+        "payload_validation": payloadValidation.status.rawValue,
+        "payload_missing_fields": payloadValidation.missingFields
+      ]
+      .merging(runtimeAttributes) { _, latest in latest }
+    )
+  }
+
+  private func trackBlockedAction(
+    domain: ExperienceDomain,
+    action: String,
+    reason: String,
+    correlationID: String? = nil
+  ) async {
+    let backendRoute = BlockedActionBackendContract.resolveRoute(for: domain)
+    let payloadValidation = BlockedActionBackendContract.resolvePayloadValidation(
+      for: domain,
+      input: domainPayloadValidationInput
+    )
+    let runtimeAttributes = nextEventRuntimeAttributes(
+      domain: domain,
+      correlationID: correlationID
+    )
+    await observabilityViewModel.trackRuntimeEvent(
+      userID: userID,
+      name: "dashboard_action_blocked",
+      attributes: [
+        "role": activeRole.rawValue,
+        "domain": domain.rawValue,
+        "action": action,
+        "reason": reason,
+        "backend_route": backendRoute,
+        "allowed_domain_count": String(activeRoleAllowedDomains.count),
+        "contract": payloadValidation.contract,
+        "payload_validation": payloadValidation.status.rawValue,
+        "payload_missing_fields": payloadValidation.missingFields
+      ]
+      .merging(runtimeAttributes) { _, latest in latest }
+    )
+  }
+
+  private func nextRuntimeCorrelationID(domain: ExperienceDomain, trigger: String) -> String {
+    var session = runtimeObservabilitySession
+    let correlationID = session.nextCorrelationID(domain: domain, trigger: trigger)
+    runtimeObservabilitySession = session
+    return correlationID
+  }
+
+  private func nextEventRuntimeAttributes(
+    domain: ExperienceDomain,
+    correlationID: String? = nil
+  ) -> [String: String] {
+    var session = runtimeObservabilitySession
+    let attributes = session.nextEventAttributes(
+      domain: domain,
+      correlationID: correlationID
+    )
+    runtimeObservabilitySession = session
+    return attributes
+  }
+
+  private func nextDeniedRuntimeAttributes(
+    domain: ExperienceDomain,
+    correlationID: String? = nil
+  ) -> [String: String] {
+    var session = runtimeObservabilitySession
+    let attributes = session.nextDeniedEventAttributes(
+      domain: domain,
+      correlationID: correlationID
+    )
+    runtimeObservabilitySession = session
+    return attributes
+  }
+
+  private var domainPayloadValidationInput: DomainPayloadValidationInput {
+    DomainPayloadValidationInput(
+      userID: userID,
+      goal: onboardingViewModel.selectedGoal.rawValue,
+      onboardingDisplayName: onboardingViewModel.displayName,
+      onboardingAge: onboardingViewModel.age,
+      onboardingHeightCm: onboardingViewModel.heightCm,
+      onboardingWeightKg: onboardingViewModel.weightKg,
+      onboardingAvailableDaysPerWeek: onboardingViewModel.availableDaysPerWeek,
+      onboardingParQResponsesCount: [parQQuestionOne, parQQuestionTwo].count,
+      selectedPlanID: trainingViewModel.selectedPlanID,
+      selectedExerciseID: trainingViewModel.selectedExerciseIDForVideos,
+      nutritionDate: nutritionViewModel.date,
+      calories: nutritionViewModel.calories,
+      proteinGrams: nutritionViewModel.proteinGrams,
+      carbsGrams: nutritionViewModel.carbsGrams,
+      fatsGrams: nutritionViewModel.fatsGrams
+    )
   }
 }
 

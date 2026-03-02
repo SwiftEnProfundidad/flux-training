@@ -242,6 +242,90 @@ body {
   color: #ffd8dd;
 }
 
+.domain-filter-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(150deg, rgba(18, 22, 29, 0.96), rgba(14, 18, 24, 0.88));
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.domain-filter-label {
+  margin: 0;
+  font-family: "Bebas Neue", sans-serif;
+  letter-spacing: 0.08em;
+  font-size: 1rem;
+}
+
+.domain-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.domain-tab {
+  min-height: 34px;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+}
+
+.domain-tab.active {
+  border-color: var(--gold-0);
+  color: var(--gold-0);
+  background: rgba(201, 169, 98, 0.14);
+}
+
+.runtime-state-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(150deg, rgba(18, 22, 29, 0.96), rgba(14, 18, 24, 0.88));
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.runtime-state-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.runtime-state-control {
+  display: grid;
+  gap: 6px;
+  color: var(--text-1);
+  font-size: 0.84rem;
+}
+
+.runtime-state-copy {
+  margin: 0;
+  color: var(--text-1);
+  font-size: 0.9rem;
+}
+
+.runtime-state-banner {
+  border-color: var(--border-strong);
+}
+
+.runtime-state-banner.state-loading {
+  border-color: rgba(241, 181, 108, 0.6);
+}
+
+.runtime-state-banner.state-empty {
+  border-color: rgba(146, 156, 177, 0.7);
+}
+
+.runtime-state-banner.state-error,
+.runtime-state-banner.state-denied {
+  border-color: rgba(228, 111, 125, 0.7);
+}
+
+.runtime-state-banner.state-offline {
+  border-color: rgba(150, 158, 173, 0.8);
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

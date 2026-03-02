@@ -11,6 +11,7 @@ export {
   listAIRecommendations,
   listCrashReports,
   listExerciseVideos,
+  listRoleCapabilities,
   listTrainingPlans,
   listNutritionLogs,
   listWorkoutSessions,

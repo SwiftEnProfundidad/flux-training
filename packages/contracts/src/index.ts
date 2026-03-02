@@ -188,6 +188,23 @@ export const authSessionSchema = z.object({
   identity: authIdentitySchema
 });
 
+export const dashboardDomainSchema = z.enum([
+  "all",
+  "onboarding",
+  "training",
+  "nutrition",
+  "progress",
+  "operations"
+]);
+
+export const accessRoleSchema = z.enum(["athlete", "coach", "admin"]);
+
+export const roleCapabilitiesSchema = z.object({
+  role: accessRoleSchema,
+  allowedDomains: z.array(dashboardDomainSchema).min(1),
+  issuedAt: z.string().datetime()
+});
+
 export const observabilitySourceSchema = z.enum(["web", "ios", "backend"]);
 
 export const analyticsEventSchema = z.object({
@@ -307,6 +324,9 @@ export type ProgressSummary = z.infer<typeof progressSummarySchema>;
 export type AuthProvider = z.infer<typeof authProviderSchema>;
 export type AuthIdentity = z.infer<typeof authIdentitySchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
+export type DashboardDomain = z.infer<typeof dashboardDomainSchema>;
+export type AccessRole = z.infer<typeof accessRoleSchema>;
+export type RoleCapabilities = z.infer<typeof roleCapabilitiesSchema>;
 export type ObservabilitySource = z.infer<typeof observabilitySourceSchema>;
 export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
 export type CrashSeverity = z.infer<typeof crashSeveritySchema>;

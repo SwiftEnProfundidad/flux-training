@@ -1,4 +1,5 @@
 import {
+  accessRoleSchema,
   analyticsEventSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
@@ -30,6 +31,7 @@ import { GetProgressSummaryUseCase } from "../application/get-progress-summary";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { ListExerciseVideosUseCase } from "../application/list-exercise-videos";
 import { GenerateAIRecommendationsUseCase } from "../application/generate-ai-recommendations";
+import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabilities";
 import { FirebaseAuthTokenVerifier } from "../infrastructure/firebase-auth-token-verifier";
 import { FirestoreAnalyticsEventRepository } from "../infrastructure/firestore-analytics-event-repository";
 import { FirestoreCrashReportRepository } from "../infrastructure/firestore-crash-report-repository";
@@ -67,6 +69,7 @@ const getProgressSummaryUseCase = new GetProgressSummaryUseCase(
 const exerciseVideoRepository = new StaticExerciseVideoRepository();
 const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
 const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
+const listRoleCapabilitiesUseCase = new ListRoleCapabilitiesUseCase();
 const processSyncQueueUseCase = new ProcessSyncQueueUseCase(
   trainingPlanRepository,
   repository,
@@ -355,6 +358,19 @@ export const listAIRecommendations = onRequest(async (request, response) => {
     response.status(200).json({ recommendations });
   } catch {
     response.status(400).json({ error: "invalid_list_ai_recommendations_payload" });
+  }
+});
+
+export const listRoleCapabilities = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const role = accessRoleSchema.parse(String(request.query.role ?? "athlete"));
+    const capabilities = listRoleCapabilitiesUseCase.execute(role);
+    response.status(200).json({ capabilities });
+  } catch {
+    response.status(400).json({ error: "invalid_list_role_capabilities_payload" });
   }
 });
 

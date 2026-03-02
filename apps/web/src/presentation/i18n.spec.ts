@@ -12,6 +12,46 @@ describe("i18n", () => {
     const translate = createTranslator("en");
     expect(translate("heroTitle")).toBe("Train with focus and real tracking");
     expect(translate("trainingSectionTitle")).toBe("Training");
+    expect(translate("domainFilterLabel")).toBe("Domain");
+    expect(translate("roleLabel")).toBe("Role");
+    expect(translate("roleAthlete")).toBe("Athlete");
+    expect(translate("roleCoach")).toBe("Coach");
+    expect(translate("roleAdmin")).toBe("Admin");
+    expect(translate("domainOperations")).toBe("Operations");
+    expect(translate("settingsTitle")).toBe("Settings");
+    expect(translate("legalSectionTitle")).toBe("Privacy and consent");
+    expect(translate("goalPickerLabel")).toBe("goal");
+    expect(translate("exercisePickerLabel")).toBe("exercise");
+    expect(translate("videoLocalePickerLabel")).toBe("video language");
+    expect(translate("runtimeStateSectionTitle")).toBe("Enterprise runtime state by domain");
+    expect(translate("runtimeStateModeLabel")).toBe("Runtime mode");
+    expect(translate("runtimeStateRecoveryAction")).toBe("Recover domain");
+    expect(translate("noModulesForSelectedDomain")).toBe(
+      "No modules are available for the selected domain."
+    );
+  });
+
+  it("exposes domain filter translations in spanish", () => {
+    const translate = createTranslator("es");
+    expect(translate("domainFilterLabel")).toBe("Dominio");
+    expect(translate("roleLabel")).toBe("Rol");
+    expect(translate("roleAthlete")).toBe("Atleta");
+    expect(translate("roleCoach")).toBe("Coach");
+    expect(translate("roleAdmin")).toBe("Admin");
+    expect(translate("domainAll")).toBe("Todo");
+    expect(translate("domainTraining")).toBe("Entrenamiento");
+    expect(translate("domainOperations")).toBe("Operaciones");
+    expect(translate("settingsTitle")).toBe("Ajustes");
+    expect(translate("legalSectionTitle")).toBe("Privacidad y consentimiento");
+    expect(translate("goalPickerLabel")).toBe("objetivo");
+    expect(translate("exercisePickerLabel")).toBe("ejercicio");
+    expect(translate("videoLocalePickerLabel")).toBe("idioma del video");
+    expect(translate("runtimeStateSectionTitle")).toBe("Estado enterprise por dominio");
+    expect(translate("runtimeStateModeLabel")).toBe("Modo runtime");
+    expect(translate("runtimeStateRecoveryAction")).toBe("Recuperar dominio");
+    expect(translate("noModulesForSelectedDomain")).toBe(
+      "No hay modulos para el dominio seleccionado."
+    );
   });
 
   it("resolves preferred language from locale", () => {
@@ -25,5 +65,13 @@ describe("i18n", () => {
     expect(humanizeStatus("signed_out", "en")).toBe("signed out");
     expect(humanizeStatus("upgrade_required", "es")).toBe("actualizacion requerida");
     expect(humanizeStatus("upgrade_required", "en")).toBe("upgrade required");
+    expect(humanizeStatus("exported", "es")).toBe("exportado");
+    expect(humanizeStatus("exported", "en")).toBe("exported");
+    expect(humanizeStatus("loading", "es")).toBe("cargando");
+    expect(humanizeStatus("loading", "en")).toBe("loading");
+    expect(humanizeStatus("offline", "es")).toBe("sin conexion");
+    expect(humanizeStatus("offline", "en")).toBe("offline");
+    expect(humanizeStatus("denied", "es")).toBe("sin permiso");
+    expect(humanizeStatus("denied", "en")).toBe("denied");
   });
 });

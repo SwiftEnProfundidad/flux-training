@@ -13,6 +13,7 @@ import {
   onboardingSubmissionInputSchema,
   nutritionLogSchema,
   progressSummarySchema,
+  roleCapabilitiesSchema,
   syncQueueProcessInputSchema,
   syncQueueProcessResultSchema,
   trainingPlanSchema,
@@ -203,6 +204,28 @@ describe("authSessionSchema", () => {
     });
 
     expect(parsed.success).toBe(true);
+  });
+});
+
+describe("roleCapabilitiesSchema", () => {
+  it("accepts valid role capabilities payload", () => {
+    const parsed = roleCapabilitiesSchema.safeParse({
+      role: "coach",
+      allowedDomains: ["all", "training", "nutrition", "progress", "operations"],
+      issuedAt: "2026-03-01T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects role capabilities without allowed domains", () => {
+    const parsed = roleCapabilitiesSchema.safeParse({
+      role: "athlete",
+      allowedDomains: [],
+      issuedAt: "2026-03-01T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(false);
   });
 });
 

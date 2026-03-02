@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import type {
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  AccessRole,
   AIRecommendation,
   AnalyticsEvent,
   CrashReport,
@@ -8,7 +9,8 @@ import type {
   NutritionLog,
   ProgressSummary,
   TrainingPlan,
-  WorkoutSessionInput
+  WorkoutSessionInput,
+  RoleCapabilities
 } from "@flux/contracts";
 import { CompleteOnboardingUseCase } from "../application/complete-onboarding";
 import { ManageNutritionUseCase } from "../application/manage-nutrition";
@@ -18,6 +20,7 @@ import { ManageLegalUseCase } from "../application/manage-legal";
 import { ManageProgressUseCase } from "../application/manage-progress";
 import { ManageTrainingUseCase } from "../application/manage-training";
 import { ManageRecommendationsUseCase } from "../application/manage-recommendations";
+import { ManageRoleCapabilitiesUseCase } from "../application/manage-role-capabilities";
 import { CreateAuthSessionUseCase } from "../domain/auth";
 import { firebaseAuthGateway } from "../infrastructure/firebase-auth-client";
 import { localStorageOfflineQueueStore } from "../infrastructure/local-storage-offline-queue-store";
@@ -28,6 +31,7 @@ import { apiOfflineSyncGateway } from "../infrastructure/sync-client";
 import { apiProgressGateway } from "../infrastructure/progress-client";
 import { apiTrainingGateway } from "../infrastructure/training-client";
 import { apiRecommendationsGateway } from "../infrastructure/recommendations-client";
+import { apiRoleCapabilitiesGateway } from "../infrastructure/role-capabilities-client";
 import { isClientUpdateRequiredError } from "../infrastructure/api-client";
 import { apiLegalGateway } from "../infrastructure/legal-client";
 import { buildUXReadinessSnapshot, type UXReadinessSnapshot } from "./ux-readiness";
@@ -39,6 +43,41 @@ import {
   resolveLanguage,
   type AppLanguage
 } from "./i18n";
+import {
+  applyDashboardDomainToURL,
+  getVisibleModules,
+  isModuleVisible,
+  readDashboardDomainFromURL,
+  resolveDashboardRole,
+  resolveDashboardDomain,
+  type DashboardDomain,
+  type DashboardRole
+} from "./dashboard-domains";
+import {
+  createInitialDomainRuntimeStates,
+  resetRuntimeStateForActiveDomain,
+  resolveActiveDomainRuntimeState,
+  setRuntimeStateForActiveDomain,
+  type DomainRuntimeStates,
+  type EnterpriseRuntimeState
+} from "./runtime-states";
+import {
+  createDefaultAuthScreenModel,
+  createDefaultOnboardingScreenModel
+} from "./auth-onboarding-contract";
+import { createDefaultDailyTrainingVideoScreenModel } from "./daily-training-video-contract";
+import { createDefaultNutritionProgressAIScreenModel } from "./nutrition-progress-ai-contract";
+import { createDefaultSettingsLegalScreenModel } from "./settings-legal-contract";
+import {
+  resolveBlockedActionRoute,
+  resolveDomainPayloadValidation
+} from "./blocked-action-contract";
+import {
+  createRuntimeObservabilitySession,
+  nextCorrelationId,
+  nextDeniedEventAttributes,
+  nextEventAttributes
+} from "./runtime-observability";
 import "./app.css";
 
 type SessionStatus = "idle" | "saved" | "error";
@@ -49,12 +88,15 @@ type ProgressStatus = "idle" | "loaded" | "error";
 type SyncStatus = "idle" | "synced" | "error";
 type ObservabilityStatus = "idle" | "event_saved" | "crash_saved" | "loaded" | "error";
 type ReleaseCompatibilityStatus = "compatible" | "upgrade_required";
-type LegalStatus = "idle" | "consent_saved" | "deletion_requested" | "error";
+type LegalStatus = "idle" | "consent_saved" | "deletion_requested" | "exported" | "error";
+type SettingsStatus = "idle" | "saved";
 type VideoStatus = "idle" | "loaded" | "error";
 type RecommendationsStatus = "idle" | "loaded" | "error";
 
 const demoUserId = "demo-user";
 const languageStorageKey = "flux_training_language";
+const dashboardDomainStorageKey = "flux_training_dashboard_domain";
+const dashboardRoleStorageKey = "flux_training_dashboard_role";
 
 export function App() {
   const createAuthSessionUseCase = useMemo(
@@ -84,6 +126,21 @@ export function App() {
     () => new ManageRecommendationsUseCase(apiRecommendationsGateway),
     []
   );
+  const manageRoleCapabilitiesUseCase = useMemo(
+    () => new ManageRoleCapabilitiesUseCase(apiRoleCapabilitiesGateway),
+    []
+  );
+  const authScreenDefaults = useMemo(() => createDefaultAuthScreenModel(), []);
+  const onboardingScreenDefaults = useMemo(() => createDefaultOnboardingScreenModel(), []);
+  const dailyTrainingVideoDefaults = useMemo(
+    () => createDefaultDailyTrainingVideoScreenModel(),
+    []
+  );
+  const nutritionProgressAIDefaults = useMemo(
+    () => createDefaultNutritionProgressAIScreenModel(),
+    []
+  );
+  const settingsLegalDefaults = useMemo(() => createDefaultSettingsLegalScreenModel(), []);
 
   const [authStatus, setAuthStatus] = useState("signed_out");
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("idle");
@@ -96,47 +153,82 @@ export function App() {
   const [releaseCompatibilityStatus, setReleaseCompatibilityStatus] =
     useState<ReleaseCompatibilityStatus>("compatible");
   const [legalStatus, setLegalStatus] = useState<LegalStatus>("idle");
+  const [settingsStatus, setSettingsStatus] = useState<SettingsStatus>("idle");
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(authScreenDefaults.email);
+  const [password, setPassword] = useState(authScreenDefaults.password);
   const [displayName, setDisplayName] = useState("Juan");
   const [age, setAge] = useState("35");
   const [heightCm, setHeightCm] = useState("178");
   const [weightKg, setWeightKg] = useState("84");
   const [availableDaysPerWeek, setAvailableDaysPerWeek] = useState("4");
-  const [goal, setGoal] = useState<Goal>("recomposition");
-  const [parQ1, setParQ1] = useState(false);
-  const [parQ2, setParQ2] = useState(false);
-  const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [medicalDisclaimerAccepted, setMedicalDisclaimerAccepted] = useState(false);
+  const [goal, setGoal] = useState<Goal>(onboardingScreenDefaults.goal);
+  const [parQ1, setParQ1] = useState(onboardingScreenDefaults.parQ1);
+  const [parQ2, setParQ2] = useState(onboardingScreenDefaults.parQ2);
+  const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(
+    onboardingScreenDefaults.privacyPolicyAccepted
+  );
+  const [termsAccepted, setTermsAccepted] = useState(onboardingScreenDefaults.termsAccepted);
+  const [medicalDisclaimerAccepted, setMedicalDisclaimerAccepted] = useState(
+    onboardingScreenDefaults.medicalDisclaimerAccepted
+  );
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    settingsLegalDefaults.notificationsEnabled
+  );
+  const [watchSyncEnabled, setWatchSyncEnabled] = useState(settingsLegalDefaults.watchSyncEnabled);
+  const [calendarSyncEnabled, setCalendarSyncEnabled] = useState(
+    settingsLegalDefaults.calendarSyncEnabled
+  );
 
-  const [planName, setPlanName] = useState("Starter Plan");
+  const [planName, setPlanName] = useState(dailyTrainingVideoDefaults.planName || "Starter Plan");
   const [plans, setPlans] = useState<TrainingPlan[]>([]);
-  const [selectedPlanId, setSelectedPlanId] = useState("");
-  const [sessions, setSessions] = useState<WorkoutSessionInput[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState(dailyTrainingVideoDefaults.selectedPlanId);
+  const [sessions, setSessions] = useState<WorkoutSessionInput[]>(dailyTrainingVideoDefaults.sessions);
   const [nutritionDate, setNutritionDate] = useState("2026-02-26");
   const [calories, setCalories] = useState("2200");
   const [proteinGrams, setProteinGrams] = useState("150");
   const [carbsGrams, setCarbsGrams] = useState("230");
   const [fatsGrams, setFatsGrams] = useState("70");
-  const [nutritionLogs, setNutritionLogs] = useState<NutritionLog[]>([]);
-  const [progressSummary, setProgressSummary] = useState<ProgressSummary | null>(null);
+  const [nutritionLogs, setNutritionLogs] = useState<NutritionLog[]>(
+    nutritionProgressAIDefaults.nutritionLogs
+  );
+  const [progressSummary, setProgressSummary] = useState<ProgressSummary | null>(
+    nutritionProgressAIDefaults.progressSummary
+  );
   const [pendingQueueCount, setPendingQueueCount] = useState(0);
   const [lastSyncRejectedCount, setLastSyncRejectedCount] = useState(0);
   const [analyticsEvents, setAnalyticsEvents] = useState<AnalyticsEvent[]>([]);
   const [crashReports, setCrashReports] = useState<CrashReport[]>([]);
   const [exerciseVideos, setExerciseVideos] = useState<ExerciseVideo[]>([]);
   const [videoStatus, setVideoStatus] = useState<VideoStatus>("idle");
-  const [selectedExerciseForVideos, setSelectedExerciseForVideos] =
-    useState("goblet-squat");
-  const [videoLocale, setVideoLocale] = useState("es-ES");
+  const [selectedExerciseForVideos, setSelectedExerciseForVideos] = useState(
+    dailyTrainingVideoDefaults.selectedExercise
+  );
+  const [videoLocale, setVideoLocale] = useState(dailyTrainingVideoDefaults.videoLocale);
   const [recommendationsStatus, setRecommendationsStatus] =
     useState<RecommendationsStatus>("idle");
-  const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<AIRecommendation[]>(
+    nutritionProgressAIDefaults.recommendations
+  );
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
+  const [activeDomain, setActiveDomain] = useState<DashboardDomain>(() =>
+    readDomainPreference()
+  );
+  const [activeRole, setActiveRole] = useState<DashboardRole>(() =>
+    readRolePreference()
+  );
+  const [roleCapabilities, setRoleCapabilities] = useState<RoleCapabilities | null>(null);
+  const [roleCapabilitiesStatus, setRoleCapabilitiesStatus] = useState<
+    "idle" | "loading" | "loaded" | "error"
+  >("idle");
+  const [domainRuntimeStates, setDomainRuntimeStates] = useState<DomainRuntimeStates>(() =>
+    createInitialDomainRuntimeStates()
+  );
+  const isInitialDomainRender = useRef(true);
+  const isInitialRoleRender = useRef(true);
+  const runtimeObservabilitySessionRef = useRef(createRuntimeObservabilitySession());
 
   const translate = useMemo(() => createTranslator(language), [language]);
 
@@ -151,6 +243,25 @@ export function App() {
     pendingQueueCount,
     releaseCompatibilityStatus
   });
+
+  const domainTabs: Array<{ id: DashboardDomain; label: string }> = [
+    { id: "all", label: translate("domainAll") },
+    { id: "onboarding", label: translate("domainOnboarding") },
+    { id: "training", label: translate("domainTraining") },
+    { id: "nutrition", label: translate("domainNutrition") },
+    { id: "progress", label: translate("domainProgress") },
+    { id: "operations", label: translate("domainOperations") }
+  ];
+  const roleOptions: Array<{ id: DashboardRole; label: string }> = [
+    { id: "athlete", label: translate("roleAthlete") },
+    { id: "coach", label: translate("roleCoach") },
+    { id: "admin", label: translate("roleAdmin") }
+  ];
+  const visibleModulesForDomain = useMemo(() => getVisibleModules(activeDomain), [activeDomain]);
+  const activeDomainRuntimeState = resolveActiveDomainRuntimeState(
+    activeDomain,
+    domainRuntimeStates
+  );
 
   async function refreshPendingQueue(): Promise<void> {
     const pending = await offlineSyncQueueUseCase.listPending(demoUserId);
@@ -172,6 +283,84 @@ export function App() {
   useEffect(() => {
     persistLanguagePreference(language);
   }, [language]);
+
+  useEffect(() => {
+    persistDomainPreference(activeDomain);
+    persistDomainQueryParam(activeDomain);
+    if (isInitialDomainRender.current) {
+      isInitialDomainRender.current = false;
+      return;
+    }
+    void trackDomainChange(activeDomain);
+  }, [activeDomain]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function loadRoleCapabilities() {
+      setRoleCapabilitiesStatus("loading");
+      try {
+        const capabilities = await manageRoleCapabilitiesUseCase.listRoleCapabilities(
+          activeRole as AccessRole
+        );
+        if (isCancelled) {
+          return;
+        }
+        setRoleCapabilities(capabilities);
+        setRoleCapabilitiesStatus("loaded");
+      } catch {
+        if (isCancelled) {
+          return;
+        }
+        setRoleCapabilities(null);
+        setRoleCapabilitiesStatus("error");
+      }
+    }
+
+    void loadRoleCapabilities();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [activeRole, manageRoleCapabilitiesUseCase]);
+
+  useEffect(() => {
+    if (activeDomain === "all") {
+      return;
+    }
+    const allowed = canAccessActiveRoleDomain(activeDomain);
+    setDomainRuntimeStates((currentStates) => {
+      const currentState = currentStates[activeDomain];
+      if (!allowed && currentState !== "denied") {
+        const correlationId = nextCorrelationId(
+          runtimeObservabilitySessionRef.current,
+          activeDomain,
+          "role_capabilities_sync"
+        );
+        void trackDeniedDomainAccess(activeDomain, "role_capabilities_sync", correlationId);
+        void trackBlockedAction(
+          activeDomain,
+          "role_capabilities_sync",
+          "domain_denied",
+          correlationId
+        );
+        return { ...currentStates, [activeDomain]: "denied" };
+      }
+      if (allowed && currentState === "denied") {
+        return { ...currentStates, [activeDomain]: "success" };
+      }
+      return currentStates;
+    });
+  }, [activeDomain, roleCapabilities, roleCapabilitiesStatus]);
+
+  useEffect(() => {
+    persistRolePreference(activeRole);
+    if (isInitialRoleRender.current) {
+      isInitialRoleRender.current = false;
+      return;
+    }
+    void trackRoleChange(activeRole);
+  }, [activeRole]);
 
   async function handleAppleSignIn() {
     try {
@@ -258,6 +447,14 @@ export function App() {
       }
       setLegalStatus("error");
     }
+  }
+
+  function handleSaveSettings() {
+    setSettingsStatus("saved");
+  }
+
+  function handleExportData() {
+    setLegalStatus("exported");
   }
 
   async function handleCreatePlan() {
@@ -549,6 +746,247 @@ export function App() {
     }
   }
 
+  async function trackDomainChange(domain: DashboardDomain) {
+    try {
+      const allowedDomainCount =
+        roleCapabilitiesStatus === "loaded" && roleCapabilities !== null
+          ? roleCapabilities.allowedDomains.length
+          : 0;
+      const payloadValidation = resolveDomainPayloadValidation(buildDomainPayloadValidationInput(domain));
+      const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, domain);
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: demoUserId,
+        name: "dashboard_domain_changed",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          domain,
+          role: activeRole,
+          roleCapabilitiesStatus,
+          allowedDomainCount: String(allowedDomainCount),
+          backendRoute: resolveBlockedActionRoute(domain),
+          contract: payloadValidation.contract,
+          payloadValidation: payloadValidation.status,
+          payloadMissingFields: payloadValidation.missingFields,
+          ...runtimeAttributes
+        }
+      });
+    } catch {
+      return;
+    }
+  }
+
+  async function trackRoleChange(role: DashboardRole) {
+    try {
+      const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, activeDomain);
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: demoUserId,
+        name: "dashboard_role_changed",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          role,
+          domain: activeDomain,
+          ...runtimeAttributes
+        }
+      });
+    } catch {
+      return;
+    }
+  }
+
+  async function trackDeniedDomainAccess(
+    domain: DashboardDomain,
+    trigger: "domain_select" | "runtime_state_change" | "recover" | "role_capabilities_sync",
+    correlationId?: string
+  ) {
+    try {
+      const payloadValidation = resolveDomainPayloadValidation(buildDomainPayloadValidationInput(domain));
+      const runtimeAttributes = nextDeniedEventAttributes(
+        runtimeObservabilitySessionRef.current,
+        domain,
+        correlationId
+      );
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: demoUserId,
+        name: "dashboard_domain_access_denied",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          role: activeRole,
+          domain,
+          trigger,
+          roleCapabilitiesStatus,
+          backendRoute: resolveBlockedActionRoute(domain),
+          contract: payloadValidation.contract,
+          payloadValidation: payloadValidation.status,
+          payloadMissingFields: payloadValidation.missingFields,
+          ...runtimeAttributes
+        }
+      });
+    } catch {
+      return;
+    }
+  }
+
+  async function trackBlockedAction(
+    domain: DashboardDomain,
+    action:
+      | "domain_select"
+      | "runtime_state_change"
+      | "recover"
+      | "role_capabilities_sync",
+    reason: "domain_denied",
+    correlationId?: string
+  ) {
+    const backendRoute = resolveBlockedActionRoute(domain);
+    const payloadValidation = resolveDomainPayloadValidation(buildDomainPayloadValidationInput(domain));
+    const runtimeAttributes = nextEventAttributes(
+      runtimeObservabilitySessionRef.current,
+      domain,
+      correlationId
+    );
+    try {
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: demoUserId,
+        name: "dashboard_action_blocked",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          role: activeRole,
+          domain,
+          action,
+          reason,
+          roleCapabilitiesStatus,
+          backendRoute,
+          contract: payloadValidation.contract,
+          payloadValidation: payloadValidation.status,
+          payloadMissingFields: payloadValidation.missingFields,
+          ...runtimeAttributes
+        }
+      });
+    } catch {
+      return;
+    }
+  }
+
+  function buildDomainPayloadValidationInput(domain: DashboardDomain) {
+    return {
+      domain,
+      userId: demoUserId,
+      goal,
+      displayName,
+      age: Number(age),
+      heightCm: Number(heightCm),
+      weightKg: Number(weightKg),
+      availableDaysPerWeek: Number(availableDaysPerWeek),
+      parQ1,
+      parQ2,
+      selectedPlanId,
+      selectedExerciseId: selectedExerciseForVideos,
+      nutritionDate,
+      calories: Number(calories),
+      proteinGrams: Number(proteinGrams),
+      carbsGrams: Number(carbsGrams),
+      fatsGrams: Number(fatsGrams)
+    };
+  }
+
+  function canAccessActiveRoleDomain(domain: DashboardDomain): boolean {
+    if (domain === "all") {
+      return true;
+    }
+    if (roleCapabilitiesStatus !== "loaded" || roleCapabilities === null) {
+      return false;
+    }
+    return manageRoleCapabilitiesUseCase.canAccessDomain(roleCapabilities, domain);
+  }
+
+  function setActiveDomainRuntimeState(targetState: EnterpriseRuntimeState) {
+    if (activeDomain !== "all" && !canAccessActiveRoleDomain(activeDomain)) {
+      setDomainRuntimeStates((currentStates) =>
+        setRuntimeStateForActiveDomain(activeDomain, "denied", currentStates)
+      );
+      const correlationId = nextCorrelationId(
+        runtimeObservabilitySessionRef.current,
+        activeDomain,
+        "runtime_state_change"
+      );
+      void trackDeniedDomainAccess(activeDomain, "runtime_state_change", correlationId);
+      void trackBlockedAction(activeDomain, "runtime_state_change", "domain_denied", correlationId);
+      return;
+    }
+    setDomainRuntimeStates((currentStates) =>
+      setRuntimeStateForActiveDomain(activeDomain, targetState, currentStates)
+    );
+  }
+
+  function handleDomainSelection(domain: DashboardDomain) {
+    setActiveDomain(domain);
+    if (domain === "all") {
+      return;
+    }
+    if (!canAccessActiveRoleDomain(domain)) {
+      setDomainRuntimeStates((currentStates) =>
+        setRuntimeStateForActiveDomain(domain, "denied", currentStates)
+      );
+      const correlationId = nextCorrelationId(
+        runtimeObservabilitySessionRef.current,
+        domain,
+        "domain_select"
+      );
+      void trackDeniedDomainAccess(domain, "domain_select", correlationId);
+      void trackBlockedAction(domain, "domain_select", "domain_denied", correlationId);
+    }
+  }
+
+  async function recoverActiveDomainState() {
+    if (activeDomain !== "all" && !canAccessActiveRoleDomain(activeDomain)) {
+      setDomainRuntimeStates((currentStates) =>
+        setRuntimeStateForActiveDomain(activeDomain, "denied", currentStates)
+      );
+      const correlationId = nextCorrelationId(
+        runtimeObservabilitySessionRef.current,
+        activeDomain,
+        "recover"
+      );
+      await trackDeniedDomainAccess(activeDomain, "recover", correlationId);
+      await trackBlockedAction(activeDomain, "recover", "domain_denied", correlationId);
+      return;
+    }
+    setDomainRuntimeStates((currentStates) =>
+      resetRuntimeStateForActiveDomain(activeDomain, currentStates)
+    );
+
+    switch (activeDomain) {
+      case "onboarding":
+        setAuthStatus("signed_out");
+        setOnboardingStatus("idle");
+        return;
+      case "training":
+        setTrainingStatus("idle");
+        setSessionStatus("idle");
+        setVideoStatus("idle");
+        return;
+      case "nutrition":
+        setNutritionStatus("idle");
+        return;
+      case "progress":
+        setProgressStatus("idle");
+        return;
+      case "operations":
+        setSyncStatus("idle");
+        setObservabilityStatus("idle");
+        setRecommendationsStatus("idle");
+        await refreshPendingQueue();
+        return;
+      case "all":
+        return;
+      default:
+        return;
+    }
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -565,11 +1003,13 @@ export function App() {
               </button>
               <div className="inline-inputs">
                 <input
+                  aria-label={translate("emailPlaceholder")}
                   placeholder={translate("emailPlaceholder")}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
                 <input
+                  aria-label={translate("passwordPlaceholder")}
                   placeholder={translate("passwordPlaceholder")}
                   value={password}
                   type="password"
@@ -618,6 +1058,10 @@ export function App() {
                 title={translate("syncMetric")}
                 value={humanizeStatus(syncStatus, language)}
               />
+              <Metric
+                title={translate("runtimeStateModeLabel")}
+                value={toHumanStatus(activeDomainRuntimeState, language)}
+              />
             </div>
           </div>
         </section>
@@ -629,8 +1073,132 @@ export function App() {
           </section>
         ) : null}
 
-        <section className="dashboard-grid">
-          <article className="module-card">
+        <section className="domain-filter-card">
+          <p className="domain-filter-label">{translate("domainFilterLabel")}</p>
+          <div
+            className="domain-filter-tabs"
+            role="tablist"
+            aria-label={translate("domainFilterLabel")}
+          >
+            {domainTabs.map((tab) => (
+              <button
+                key={tab.id}
+                className={`button ghost domain-tab ${activeDomain === tab.id ? "active" : ""}`}
+                onClick={() => handleDomainSelection(tab.id)}
+                type="button"
+                role="tab"
+                aria-selected={activeDomain === tab.id}
+                aria-controls="dashboard-grid"
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="inline-inputs">
+            <label className="runtime-state-control">
+              <span>{translate("roleLabel")}</span>
+              <select
+                aria-label={translate("roleLabel")}
+                value={activeRole}
+                onChange={(event) => setActiveRole(event.target.value as DashboardRole)}
+              >
+                {roleOptions.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Metric
+              title={translate("roleLabel")}
+              value={
+                roleCapabilitiesStatus === "loaded" && roleCapabilities !== null
+                  ? roleCapabilities.allowedDomains
+                      .filter((domain) => domain !== "all")
+                      .map(
+                        (domain) =>
+                          domainTabs.find((tab) => tab.id === domain)?.label ?? domain
+                      )
+                      .join(" · ")
+                  : toHumanStatus(roleCapabilitiesStatus, language)
+              }
+            />
+          </div>
+        </section>
+
+        <section className="runtime-state-card">
+          <header className="runtime-state-header">
+            <p className="domain-filter-label">{translate("runtimeStateSectionTitle")}</p>
+            <span className={`status-pill status-${toStatusClass(activeDomainRuntimeState)}`}>
+              {toHumanStatus(activeDomainRuntimeState, language)}
+            </span>
+          </header>
+          <div className="inline-inputs">
+            <label className="runtime-state-control">
+              <span>{translate("runtimeStateModeLabel")}</span>
+              <select
+                aria-label={translate("runtimeStateModeLabel")}
+                disabled={activeDomain === "all"}
+                value={activeDomainRuntimeState}
+                onChange={(event) =>
+                  setActiveDomainRuntimeState(event.target.value as EnterpriseRuntimeState)
+                }
+              >
+                <option value="success">{toHumanStatus("success", language)}</option>
+                <option value="loading">{toHumanStatus("loading", language)}</option>
+                <option value="empty">{toHumanStatus("empty", language)}</option>
+                <option value="error">{toHumanStatus("error", language)}</option>
+                <option value="offline">{toHumanStatus("offline", language)}</option>
+                <option value="denied">{toHumanStatus("denied", language)}</option>
+              </select>
+            </label>
+            <button
+              className="button ghost"
+              disabled={activeDomain === "all" || activeDomainRuntimeState === "success"}
+              onClick={() => void recoverActiveDomainState()}
+              type="button"
+            >
+              {translate("runtimeStateRecoveryAction")}
+            </button>
+          </div>
+          <p className="runtime-state-copy">
+            {activeDomain === "all"
+              ? translate("runtimeStateHintAllDomains")
+              : runtimeStateDescription(activeDomainRuntimeState, translate)}
+          </p>
+        </section>
+
+        <section id="dashboard-grid" className="dashboard-grid">
+          {activeDomainRuntimeState !== "success" ? (
+            <article className={`module-card runtime-state-banner state-${activeDomainRuntimeState}`}>
+              <SectionHeader
+                title={translate("runtimeStateSectionTitle")}
+                status={activeDomainRuntimeState}
+                statusLabel={translate("runtimeStateModeLabel")}
+                language={language}
+              />
+              <div className="form-grid">
+                <p className="runtime-state-copy">
+                  {runtimeStateDescription(activeDomainRuntimeState, translate)}
+                </p>
+                <button
+                  className="button primary"
+                  onClick={() => void recoverActiveDomainState()}
+                  type="button"
+                >
+                  {translate("runtimeStateRecoveryAction")}
+                </button>
+              </div>
+            </article>
+          ) : (
+            <>
+              {visibleModulesForDomain.length === 0 ? (
+                <article className="module-card">
+                  <p className="empty-state">{translate("noModulesForSelectedDomain")}</p>
+                </article>
+              ) : null}
+          {isModuleVisible("onboarding", activeDomain) ? (
+            <article className="module-card">
             <SectionHeader
               title={translate("onboardingSectionTitle")}
               status={onboardingStatus}
@@ -639,17 +1207,20 @@ export function App() {
             />
             <div className="form-grid">
               <input
+                aria-label={translate("displayNamePlaceholder")}
                 placeholder={translate("displayNamePlaceholder")}
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
               />
               <div className="inline-inputs">
                 <input
+                  aria-label={translate("agePlaceholder")}
                   placeholder={translate("agePlaceholder")}
                   value={age}
                   onChange={(event) => setAge(event.target.value)}
                 />
                 <input
+                  aria-label={translate("heightPlaceholder")}
                   placeholder={translate("heightPlaceholder")}
                   value={heightCm}
                   onChange={(event) => setHeightCm(event.target.value)}
@@ -657,17 +1228,23 @@ export function App() {
               </div>
               <div className="inline-inputs">
                 <input
+                  aria-label={translate("weightPlaceholder")}
                   placeholder={translate("weightPlaceholder")}
                   value={weightKg}
                   onChange={(event) => setWeightKg(event.target.value)}
                 />
                 <input
+                  aria-label={translate("daysPerWeekPlaceholder")}
                   placeholder={translate("daysPerWeekPlaceholder")}
                   value={availableDaysPerWeek}
                   onChange={(event) => setAvailableDaysPerWeek(event.target.value)}
                 />
               </div>
-              <select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>
+              <select
+                aria-label={translate("goalPickerLabel")}
+                value={goal}
+                onChange={(event) => setGoal(event.target.value as Goal)}
+              >
                 <option value="fat_loss">fat_loss</option>
                 <option value="recomposition">recomposition</option>
                 <option value="muscle_gain">muscle_gain</option>
@@ -689,20 +1266,6 @@ export function App() {
                 />
                 {translate("parQQuestionTwo")}
               </label>
-              <button className="button primary" onClick={handleCompleteOnboarding} type="button">
-                {translate("completeOnboarding")}
-              </button>
-            </div>
-          </article>
-
-          <article className="module-card">
-            <SectionHeader
-              title={translate("legalSectionTitle")}
-              status={legalStatus}
-              statusLabel={translate("legalStatusLabel")}
-              language={language}
-            />
-            <div className="form-grid">
               <label>
                 <input
                   type="checkbox"
@@ -727,18 +1290,23 @@ export function App() {
                 />
                 {translate("acceptMedicalDisclaimer")}
               </label>
+              <button className="button primary" onClick={handleCompleteOnboarding} type="button">
+                {translate("completeOnboarding")}
+              </button>
               <div className="inline-inputs">
                 <button className="button primary" onClick={handleSubmitLegalConsent} type="button">
                   {translate("saveConsent")}
                 </button>
-                <button className="button ghost" onClick={handleRequestDataDeletion} type="button">
-                  {translate("requestDeletion")}
+                <button className="button ghost" onClick={handleExportData} type="button">
+                  {translate("exportData")}
                 </button>
               </div>
             </div>
-          </article>
+            </article>
+          ) : null}
 
-          <article className="module-card">
+          {isModuleVisible("training", activeDomain) ? (
+            <article className="module-card">
             <SectionHeader
               title={translate("trainingSectionTitle")}
               status={trainingStatus}
@@ -748,6 +1316,7 @@ export function App() {
             <div className="form-grid">
               <div className="inline-inputs">
                 <input
+                  aria-label={translate("planNamePlaceholder")}
                   placeholder={translate("planNamePlaceholder")}
                   value={planName}
                   onChange={(event) => setPlanName(event.target.value)}
@@ -790,19 +1359,9 @@ export function App() {
                 value={String(sessions.length)}
                 language={language}
               />
-            </div>
-          </article>
-
-          <article className="module-card">
-            <SectionHeader
-              title={translate("exerciseVideosTitle")}
-              status={videoStatus}
-              statusLabel={translate("videosStatusLabel")}
-              language={language}
-            />
-            <div className="form-grid">
               <div className="inline-inputs">
                 <select
+                  aria-label={translate("exercisePickerLabel")}
                   value={selectedExerciseForVideos}
                   onChange={(event) => setSelectedExerciseForVideos(event.target.value)}
                 >
@@ -810,16 +1369,22 @@ export function App() {
                   <option value="bench-press">bench-press</option>
                 </select>
                 <select
+                  aria-label={translate("videoLocalePickerLabel")}
                   value={videoLocale}
                   onChange={(event) => setVideoLocale(event.target.value)}
                 >
                   <option value="es-ES">es-ES</option>
                   <option value="en-US">en-US</option>
                 </select>
-                <button className="button primary" onClick={handleLoadExerciseVideos} type="button">
+                <button className="button ghost" onClick={handleLoadExerciseVideos} type="button">
                   {translate("loadVideos")}
                 </button>
               </div>
+              <StatLine
+                label={translate("videosStatusLabel")}
+                value={videoStatus}
+                language={language}
+              />
               {exerciseVideos.length === 0 ? (
                 <p className="empty-state">{translate("noVideosLoaded")}</p>
               ) : (
@@ -842,9 +1407,11 @@ export function App() {
                 </div>
               )}
             </div>
-          </article>
+            </article>
+          ) : null}
 
-          <article className="module-card">
+          {isModuleVisible("recommendations", activeDomain) ? (
+            <article className="module-card">
             <SectionHeader
               title={translate("recommendationsTitle")}
               status={recommendationsStatus}
@@ -882,9 +1449,11 @@ export function App() {
                 </div>
               )}
             </div>
-          </article>
+            </article>
+          ) : null}
 
-          <article className="module-card">
+          {isModuleVisible("nutrition", activeDomain) ? (
+            <article className="module-card">
             <SectionHeader
               title={translate("nutritionTitle")}
               status={nutritionStatus}
@@ -893,17 +1462,20 @@ export function App() {
             />
             <div className="form-grid">
               <input
+                aria-label={translate("datePlaceholder")}
                 placeholder={translate("datePlaceholder")}
                 value={nutritionDate}
                 onChange={(event) => setNutritionDate(event.target.value)}
               />
               <div className="inline-inputs">
                 <input
+                  aria-label={translate("caloriesPlaceholder")}
                   placeholder={translate("caloriesPlaceholder")}
                   value={calories}
                   onChange={(event) => setCalories(event.target.value)}
                 />
                 <input
+                  aria-label={translate("proteinPlaceholder")}
                   placeholder={translate("proteinPlaceholder")}
                   value={proteinGrams}
                   onChange={(event) => setProteinGrams(event.target.value)}
@@ -911,11 +1483,13 @@ export function App() {
               </div>
               <div className="inline-inputs">
                 <input
+                  aria-label={translate("carbsPlaceholder")}
                   placeholder={translate("carbsPlaceholder")}
                   value={carbsGrams}
                   onChange={(event) => setCarbsGrams(event.target.value)}
                 />
                 <input
+                  aria-label={translate("fatsPlaceholder")}
                   placeholder={translate("fatsPlaceholder")}
                   value={fatsGrams}
                   onChange={(event) => setFatsGrams(event.target.value)}
@@ -935,9 +1509,11 @@ export function App() {
                 language={language}
               />
             </div>
-          </article>
+            </article>
+          ) : null}
 
-          <article className="module-card">
+          {isModuleVisible("progress", activeDomain) ? (
+            <article className="module-card">
             <SectionHeader
               title={translate("progressTitle")}
               status={progressStatus}
@@ -1002,9 +1578,11 @@ export function App() {
                 </>
               )}
             </div>
-          </article>
+            </article>
+          ) : null}
 
-          <article className="module-card">
+          {isModuleVisible("offlineSync", activeDomain) ? (
+            <article className="module-card">
             <SectionHeader
               title={translate("offlineSyncTitle")}
               status={syncStatus}
@@ -1031,9 +1609,80 @@ export function App() {
                 language={language}
               />
             </div>
-          </article>
+            </article>
+          ) : null}
 
-          <article className="module-card">
+          {isModuleVisible("settings", activeDomain) ? (
+            <article className="module-card">
+            <SectionHeader
+              title={translate("settingsTitle")}
+              status={settingsStatus}
+              statusLabel={translate("settingsStatusLabel")}
+              language={language}
+            />
+            <div className="form-grid">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={notificationsEnabled}
+                  onChange={(event) => setNotificationsEnabled(event.target.checked)}
+                />
+                {translate("notificationsPreference")}
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={watchSyncEnabled}
+                  onChange={(event) => setWatchSyncEnabled(event.target.checked)}
+                />
+                {translate("watchPreference")}
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={calendarSyncEnabled}
+                  onChange={(event) => setCalendarSyncEnabled(event.target.checked)}
+                />
+                {translate("calendarPreference")}
+              </label>
+              <button className="button primary" onClick={handleSaveSettings} type="button">
+                {translate("saveSettings")}
+              </button>
+            </div>
+            </article>
+          ) : null}
+
+          {isModuleVisible("legal", activeDomain) ? (
+            <article className="module-card">
+            <SectionHeader
+              title={translate("legalSectionTitle")}
+              status={legalStatus}
+              statusLabel={translate("legalStatusLabel")}
+              language={language}
+            />
+            <div className="form-grid">
+              <StatLine
+                label={translate("legalSummaryLabel")}
+                value={`${privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"}`}
+                language={language}
+              />
+              <div className="inline-inputs">
+                <button className="button primary" onClick={handleSubmitLegalConsent} type="button">
+                  {translate("saveConsent")}
+                </button>
+                <button className="button ghost" onClick={handleExportData} type="button">
+                  {translate("exportData")}
+                </button>
+                <button className="button ghost" onClick={handleRequestDataDeletion} type="button">
+                  {translate("requestDeletion")}
+                </button>
+              </div>
+            </div>
+            </article>
+          ) : null}
+
+          {isModuleVisible("observability", activeDomain) ? (
+            <article className="module-card">
             <SectionHeader
               title={translate("observabilityTitle")}
               status={observabilityStatus}
@@ -1063,7 +1712,10 @@ export function App() {
                 language={language}
               />
             </div>
-          </article>
+            </article>
+          ) : null}
+            </>
+          )}
         </section>
       </main>
     </div>
@@ -1146,6 +1798,36 @@ function toStatusClass(status: string): string {
   return "neutral";
 }
 
+function runtimeStateDescription(
+  runtimeState: EnterpriseRuntimeState,
+  translate: (
+    key:
+      | "runtimeStateSuccessDescription"
+      | "runtimeStateLoadingDescription"
+      | "runtimeStateEmptyDescription"
+      | "runtimeStateErrorDescription"
+      | "runtimeStateOfflineDescription"
+      | "runtimeStateDeniedDescription"
+  ) => string
+): string {
+  switch (runtimeState) {
+    case "success":
+      return translate("runtimeStateSuccessDescription");
+    case "loading":
+      return translate("runtimeStateLoadingDescription");
+    case "empty":
+      return translate("runtimeStateEmptyDescription");
+    case "error":
+      return translate("runtimeStateErrorDescription");
+    case "offline":
+      return translate("runtimeStateOfflineDescription");
+    case "denied":
+      return translate("runtimeStateDeniedDescription");
+    default:
+      return translate("runtimeStateSuccessDescription");
+  }
+}
+
 function readLanguagePreference(): string | null {
   if (typeof window === "undefined") {
     return null;
@@ -1162,4 +1844,46 @@ function persistLanguagePreference(language: AppLanguage): void {
     return;
   }
   window.localStorage.setItem(languageStorageKey, language);
+}
+
+function readRolePreference(): DashboardRole {
+  if (typeof window === "undefined") {
+    return "athlete";
+  }
+  return resolveDashboardRole(window.localStorage.getItem(dashboardRoleStorageKey));
+}
+
+function persistRolePreference(role: DashboardRole): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(dashboardRoleStorageKey, role);
+}
+
+function readDomainPreference(): DashboardDomain {
+  if (typeof window === "undefined") {
+    return "all";
+  }
+  const domainFromURL = readDashboardDomainFromURL(window.location.href);
+  if (domainFromURL !== null) {
+    return domainFromURL;
+  }
+  return resolveDashboardDomain(window.localStorage.getItem(dashboardDomainStorageKey));
+}
+
+function persistDomainPreference(domain: DashboardDomain): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(dashboardDomainStorageKey, domain);
+}
+
+function persistDomainQueryParam(domain: DashboardDomain): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const nextURL = applyDashboardDomainToURL(window.location.href, domain);
+  if (nextURL !== window.location.href) {
+    window.history.replaceState(null, "", nextURL);
+  }
 }
