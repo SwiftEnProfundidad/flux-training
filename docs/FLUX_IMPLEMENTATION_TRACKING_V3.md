@@ -254,4 +254,19 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
     - validación en PASS:
       - `pnpm --filter @flux/backend check`
       - `pnpm --filter @flux/backend test` (`27` ficheros, `55` tests, `0` fallos)
-  - siguiente subtask activa: `V3-P3-T3.2` (trazabilidad operativa y correlación en eventos/logs).
+  - subtask `V3-P3-T3.2` cerrada:
+    - trazabilidad operativa reforzada en observabilidad:
+      - `crashReportSchema` ampliado con `correlationId` opcional.
+      - `createAnalyticsEvent` y `createCrashReport` propagan `x-correlation-id` cuando el payload no incluye identificador.
+      - `listCrashReports` soporta búsqueda por `correlationId` vía `query`.
+      - `ListSupportIncidentsUseCase` usa `correlationId` real de crash cuando está disponible.
+    - cobertura de regresión añadida/actualizada:
+      - `packages/contracts/src/index.spec.ts`
+      - `apps/backend/src/application/list-support-incidents.spec.ts`
+      - `apps/backend/src/presentation/demo-http-server.spec.ts`
+    - validación en PASS:
+      - `pnpm --filter @flux/contracts check`
+      - `pnpm --filter @flux/contracts test` (`25` tests, `0` fallos)
+      - `pnpm --filter @flux/backend check`
+      - `pnpm --filter @flux/backend test` (`27` ficheros, `56` tests, `0` fallos)
+  - siguiente subtask activa: `V3-P3-T3.3` (políticas de retry/idempotencia por endpoint crítico).
