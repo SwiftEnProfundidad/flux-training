@@ -4,6 +4,7 @@ import {
   accessDecisionResultSchema,
   aiRecommendationSchema,
   analyticsEventSchema,
+  canonicalAnalyticsEventNameSchema,
   authRecoveryRequestSchema,
   authRecoveryResultSchema,
   authSessionSchema,
@@ -25,6 +26,7 @@ import {
   nutritionLogSchema,
   progressSummarySchema,
   roleCapabilitiesSchema,
+  observabilitySummarySchema,
   supportIncidentSchema,
   syncQueueProcessInputSchema,
   syncQueueProcessResultSchema,
@@ -143,6 +145,24 @@ describe("analyticsEventSchema", () => {
   });
 });
 
+describe("canonicalAnalyticsEventNameSchema", () => {
+  it("accepts canonical event names and custom fallback", () => {
+    const canonicalParsed = canonicalAnalyticsEventNameSchema.safeParse(
+      "dashboard_action_blocked"
+    );
+    const customParsed = canonicalAnalyticsEventNameSchema.safeParse("custom");
+
+    expect(canonicalParsed.success).toBe(true);
+    expect(customParsed.success).toBe(true);
+  });
+
+  it("rejects unknown canonical event name", () => {
+    const parsed = canonicalAnalyticsEventNameSchema.safeParse("unknown_event");
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
 describe("crashReportSchema", () => {
   it("accepts crash report payload", () => {
     const parsed = crashReportSchema.safeParse({
@@ -169,6 +189,34 @@ describe("crashReportSchema", () => {
     });
 
     expect(parsed.success).toBe(false);
+  });
+});
+
+describe("observabilitySummarySchema", () => {
+  it("accepts observability summary payload", () => {
+    const parsed = observabilitySummarySchema.safeParse({
+      userId: "user-1",
+      generatedAt: "2026-03-03T09:00:00.000Z",
+      totalAnalyticsEvents: 24,
+      totalCrashReports: 3,
+      blockedActions: 5,
+      deniedAccessEvents: 4,
+      fatalCrashReports: 1,
+      uniqueCorrelationIds: 12,
+      sourceBreakdown: {
+        web: 10,
+        ios: 8,
+        backend: 6
+      },
+      canonicalCoverage: {
+        trackedCanonicalEvents: 11,
+        customEvents: 2
+      },
+      latestAnalyticsAt: "2026-03-03T08:59:00.000Z",
+      latestCrashAt: "2026-03-03T08:58:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
   });
 });
 

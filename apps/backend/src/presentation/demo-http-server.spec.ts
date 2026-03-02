@@ -192,6 +192,65 @@ describe("DemoHttpServer", () => {
     expect(filteredCrashesPayload.reports.length).toBe(1);
   });
 
+  it("serves observability summary for operations dashboard", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_action_blocked",
+        source: "web",
+        occurredAt: "2026-03-02T11:10:00.000Z",
+        attributes: {
+          domain: "operations",
+          reason: "domain_denied",
+          correlationId: "corr-obs-summary-1"
+        }
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createCrashReport`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        source: "backend",
+        message: "fatal worker crash",
+        severity: "fatal",
+        occurredAt: "2026-03-02T11:11:00.000Z"
+      })
+    });
+
+    const response = await fetch(
+      `${server.baseUrl}/api/listObservabilitySummary?userId=demo-user`,
+      { headers: clientHeaders }
+    );
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      summary?: {
+        totalAnalyticsEvents?: number;
+        totalCrashReports?: number;
+        blockedActions?: number;
+        fatalCrashReports?: number;
+        canonicalCoverage?: { trackedCanonicalEvents?: number };
+      };
+    };
+    expect(payload.summary?.totalAnalyticsEvents).toBeGreaterThan(0);
+    expect(payload.summary?.totalCrashReports).toBeGreaterThan(0);
+    expect(payload.summary?.blockedActions).toBeGreaterThan(0);
+    expect(payload.summary?.fatalCrashReports).toBeGreaterThan(0);
+    expect(payload.summary?.canonicalCoverage?.trackedCanonicalEvents).toBeGreaterThan(0);
+  });
+
   it("applies idempotency policy for critical post endpoints", async () => {
     server = await startDemoHttpServer({ port: 0 });
 

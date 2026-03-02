@@ -1,4 +1,4 @@
-import type { AnalyticsEvent, CrashReport } from "@flux/contracts";
+import type { AnalyticsEvent, CrashReport, ObservabilitySummary } from "@flux/contracts";
 import type { ObservabilityGateway } from "../application/manage-observability";
 import { assertApiResponse, createApiHeaders } from "./api-client";
 
@@ -41,6 +41,16 @@ class ApiObservabilityGateway implements ObservabilityGateway {
     await assertApiResponse(response, "list_crash_reports_failed");
     const payload = (await response.json()) as { reports: CrashReport[] };
     return payload.reports;
+  }
+
+  async listObservabilitySummary(userId: string): Promise<ObservabilitySummary> {
+    const response = await fetch(
+      `/api/listObservabilitySummary?userId=${encodeURIComponent(userId)}`,
+      { headers: createApiHeaders() }
+    );
+    await assertApiResponse(response, "list_observability_summary_failed");
+    const payload = (await response.json()) as { summary: ObservabilitySummary };
+    return payload.summary;
   }
 }
 

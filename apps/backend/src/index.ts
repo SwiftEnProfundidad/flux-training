@@ -4,6 +4,7 @@ export {
   requestAuthRecovery,
   createCrashReport,
   recordLegalConsent,
+  listObservabilitySummary,
   requestDataExport,
   requestDataDeletion,
   createHealthScreening,

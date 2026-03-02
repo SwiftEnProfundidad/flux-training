@@ -10,6 +10,7 @@ import type {
   ExerciseVideo,
   LegalConsentSubmission,
   NutritionLog,
+  ObservabilitySummary,
   ProgressSummary,
   RoleCapabilities,
   SyncQueueItem,
@@ -168,6 +169,30 @@ class EdgeCaseGateway
 
   async listCrashReports(_: string): Promise<CrashReport[]> {
     return [];
+  }
+
+  async listObservabilitySummary(userId: string): Promise<ObservabilitySummary> {
+    return {
+      userId,
+      generatedAt: "2026-03-02T19:02:30.000Z",
+      totalAnalyticsEvents: 0,
+      totalCrashReports: 0,
+      blockedActions: 0,
+      deniedAccessEvents: 0,
+      fatalCrashReports: 0,
+      uniqueCorrelationIds: 0,
+      sourceBreakdown: {
+        web: 0,
+        ios: 0,
+        backend: 0
+      },
+      canonicalCoverage: {
+        trackedCanonicalEvents: 0,
+        customEvents: 0
+      },
+      latestAnalyticsAt: null,
+      latestCrashAt: null
+    };
   }
 
   async process(input: SyncQueueProcessInput): Promise<

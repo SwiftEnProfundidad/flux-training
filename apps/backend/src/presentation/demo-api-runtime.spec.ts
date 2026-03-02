@@ -218,4 +218,33 @@ describe("DemoApiRuntime", () => {
     expect(incidents.length).toBe(2);
     expect(incidents[0]?.severity).toBe("high");
   });
+
+  it("returns observability summary with canonical coverage", async () => {
+    const runtime = createDemoApiRuntime();
+
+    await runtime.createAnalyticsEvent({
+      userId: "demo-user",
+      name: "dashboard_action_blocked",
+      source: "web",
+      occurredAt: "2026-03-03T10:00:00.000Z",
+      attributes: {
+        correlationId: "corr-obs-1"
+      }
+    });
+    await runtime.createCrashReport({
+      userId: "demo-user",
+      source: "backend",
+      message: "fatal worker crash",
+      severity: "fatal",
+      occurredAt: "2026-03-03T10:05:00.000Z"
+    });
+
+    const summary = await runtime.listObservabilitySummary("demo-user");
+
+    expect(summary.totalAnalyticsEvents).toBeGreaterThan(0);
+    expect(summary.totalCrashReports).toBeGreaterThan(0);
+    expect(summary.blockedActions).toBeGreaterThan(0);
+    expect(summary.fatalCrashReports).toBeGreaterThan(0);
+    expect(summary.canonicalCoverage.trackedCanonicalEvents).toBeGreaterThan(0);
+  });
 });

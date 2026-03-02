@@ -11,6 +11,7 @@ import {
   dataExportRequestSchema,
   dataDeletionRequestSchema,
   dataRetentionPolicySchema,
+  observabilitySummarySchema,
   deniedAccessAuditInputSchema,
   deniedAccessAuditSchema,
   legalConsentSubmissionSchema,
@@ -39,6 +40,7 @@ import {
   type LegalConsent,
   type LegalConsentSubmission,
   type NutritionLog,
+  type ObservabilitySummary,
   type OnboardingProfileInput,
   type OnboardingResult,
   type ParQResponse,
@@ -71,6 +73,7 @@ import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabiliti
 import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices";
 import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
 import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
+import { ListObservabilitySummaryUseCase } from "../application/list-observability-summary";
 import { ProcessSyncQueueUseCase } from "../application/process-sync-queue";
 import { RecordLegalConsentUseCase } from "../application/record-legal-consent";
 import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
@@ -325,6 +328,7 @@ export type DemoApiRuntime = {
   evaluateAccessDecision(payload: AccessDecisionInput): Promise<AccessDecisionResult>;
   recordDeniedAccessAudit(payload: DeniedAccessAuditInput): Promise<DeniedAccessAudit>;
   listDeniedAccessAudits(userId: string): Promise<DeniedAccessAudit[]>;
+  listObservabilitySummary(userId: string): Promise<ObservabilitySummary>;
   listBillingInvoices(userId: string): Promise<BillingInvoice[]>;
   listSupportIncidents(userId: string): Promise<SupportIncident[]>;
 };
@@ -405,6 +409,10 @@ export function createDemoApiRuntime(): DemoApiRuntime {
     nutritionLogRepository
   );
   const listSupportIncidentsUseCase = new ListSupportIncidentsUseCase(
+    analyticsEventRepository,
+    crashReportRepository
+  );
+  const listObservabilitySummaryUseCase = new ListObservabilitySummaryUseCase(
     analyticsEventRepository,
     crashReportRepository
   );
@@ -547,6 +555,12 @@ export function createDemoApiRuntime(): DemoApiRuntime {
       return deniedAccessAuditSchema
         .array()
         .parse(await listDeniedAccessAuditsUseCase.execute(userId));
+    },
+
+    async listObservabilitySummary(userId: string) {
+      return observabilitySummarySchema.parse(
+        await listObservabilitySummaryUseCase.execute(userId)
+      );
     },
 
     async listBillingInvoices(userId: string) {

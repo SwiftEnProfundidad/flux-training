@@ -10,6 +10,7 @@ import type {
   ExerciseVideo,
   LegalConsentSubmission,
   NutritionLog,
+  ObservabilitySummary,
   ProgressSummary,
   RoleCapabilities,
   SyncQueueItem,
@@ -272,6 +273,48 @@ class InMemoryHappyPathGateway
     return this.crashReports.filter((report) => report.userId === userId);
   }
 
+  async listObservabilitySummary(userId: string): Promise<ObservabilitySummary> {
+    const events = this.analyticsEvents.filter((event) => event.userId === userId);
+    const reports = this.crashReports.filter((report) => report.userId === userId);
+    return {
+      userId,
+      generatedAt: "2026-03-02T18:25:00.000Z",
+      totalAnalyticsEvents: events.length,
+      totalCrashReports: reports.length,
+      blockedActions: events.filter((event) => event.name === "dashboard_action_blocked").length,
+      deniedAccessEvents: events.filter((event) => event.name === "dashboard_domain_access_denied").length,
+      fatalCrashReports: reports.filter((report) => report.severity === "fatal").length,
+      uniqueCorrelationIds: new Set(
+        events
+          .map((event) => event.attributes.correlationId)
+          .filter((value): value is string => typeof value === "string" && value.length > 0)
+      ).size,
+      sourceBreakdown: {
+        web: events.filter((event) => event.source === "web").length,
+        ios: events.filter((event) => event.source === "ios").length,
+        backend: events.filter((event) => event.source === "backend").length
+      },
+      canonicalCoverage: {
+        trackedCanonicalEvents: events.filter(
+          (event) => String(event.attributes.canonicalEventName ?? "custom") !== "custom"
+        ).length,
+        customEvents: events.filter(
+          (event) => String(event.attributes.canonicalEventName ?? "custom") === "custom"
+        ).length
+      },
+      latestAnalyticsAt:
+        events.length === 0
+          ? null
+          : [...events].sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))[0]
+              ?.occurredAt ?? null,
+      latestCrashAt:
+        reports.length === 0
+          ? null
+          : [...reports].sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))[0]
+              ?.occurredAt ?? null
+    };
+  }
+
   async process(input: SyncQueueProcessInput): Promise<
     SyncQueueProcessResult & {
       idempotency: { key: string; replayed: boolean; ttlSeconds: number };
@@ -434,6 +477,9 @@ describe("HappyPathE2ESuite", () => {
 
     const analytics = await observabilityUseCase.listAnalyticsEvents("user-happy-1");
     const crashes = await observabilityUseCase.listCrashReports("user-happy-1");
+    const observabilitySummary = await observabilityUseCase.listObservabilitySummary(
+      "user-happy-1"
+    );
 
     expect(consent.userId).toBe("user-happy-1");
     expect(exportRequest.status).toBe("completed");
@@ -452,5 +498,7 @@ describe("HappyPathE2ESuite", () => {
     expect(recommendations).toHaveLength(1);
     expect(analytics).toHaveLength(1);
     expect(crashes).toHaveLength(1);
+    expect(observabilitySummary.totalAnalyticsEvents).toBe(1);
+    expect(observabilitySummary.totalCrashReports).toBe(1);
   });
 });

@@ -10,6 +10,7 @@ import {
   dataExportRequestInputSchema,
   dataDeletionRequestSchema,
   dataRetentionPolicySchema,
+  observabilitySummarySchema,
   deniedAccessAuditInputSchema,
   deniedAccessAuditSchema,
   goalSchema,
@@ -49,6 +50,7 @@ import { ListRoleCapabilitiesUseCase } from "../application/list-role-capabiliti
 import { ListBillingInvoicesUseCase } from "../application/list-billing-invoices";
 import { ListSupportIncidentsUseCase } from "../application/list-support-incidents";
 import { ListDataRetentionPoliciesUseCase } from "../application/list-data-retention-policies";
+import { ListObservabilitySummaryUseCase } from "../application/list-observability-summary";
 import { EvaluateRoleAccessUseCase } from "../application/evaluate-role-access";
 import { RecordDeniedAccessAuditUseCase } from "../application/record-denied-access-audit";
 import { ListDeniedAccessAuditsUseCase } from "../application/list-denied-access-audits";
@@ -114,6 +116,10 @@ const listAnalyticsEventsUseCase = new ListAnalyticsEventsUseCase(
 const crashReportRepository = new FirestoreCrashReportRepository();
 const createCrashReportUseCase = new CreateCrashReportUseCase(crashReportRepository);
 const listCrashReportsUseCase = new ListCrashReportsUseCase(crashReportRepository);
+const listObservabilitySummaryUseCase = new ListObservabilitySummaryUseCase(
+  analyticsEventRepository,
+  crashReportRepository
+);
 const listSupportIncidentsUseCase = new ListSupportIncidentsUseCase(
   analyticsEventRepository,
   crashReportRepository
@@ -930,5 +936,18 @@ export const listCrashReports = onRequest(async (request, response) => {
     response.status(200).json({ reports: payloadReports });
   } catch {
     sendStandardError(request, response, 400, "invalid_list_crash_reports_payload");
+  }
+});
+
+export const listObservabilitySummary = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const userId = String(request.query.userId ?? "");
+    const summary = await listObservabilitySummaryUseCase.execute(userId);
+    response.status(200).json({ summary: observabilitySummarySchema.parse(summary) });
+  } catch {
+    sendStandardError(request, response, 400, "invalid_list_observability_summary_payload");
   }
 });

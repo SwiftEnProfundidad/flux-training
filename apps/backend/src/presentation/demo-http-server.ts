@@ -68,6 +68,7 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/listAnalyticsEvents": "GET",
   "/api/createCrashReport": "POST",
   "/api/listCrashReports": "GET",
+  "/api/listObservabilitySummary": "GET",
   "/api/recordLegalConsent": "POST",
   "/api/requestDataExport": "POST",
   "/api/requestDataDeletion": "POST",
@@ -705,6 +706,19 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: mapDomainError(error, "invalid_list_crash_reports_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listObservabilitySummary") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const summary = await runtime.listObservabilitySummary(userId);
+      return { statusCode: 200, payload: { summary } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_observability_summary_payload") }
       };
     }
   }

@@ -375,6 +375,21 @@ export const deniedAccessAuditSchema = deniedAccessAuditInputSchema.extend({
 
 export const observabilitySourceSchema = z.enum(["web", "ios", "backend"]);
 
+export const canonicalAnalyticsEventNameSchema = z.enum([
+  "dashboard_interaction",
+  "dashboard_domain_changed",
+  "dashboard_role_changed",
+  "dashboard_domain_access_denied",
+  "dashboard_action_blocked",
+  "governance_bulk_role_assignment_saved",
+  "billing_support_incidents_resolved",
+  "audit_timeline_exported",
+  "critical_regression_passed",
+  "happy_path_completed",
+  "recovery_path_completed",
+  "custom"
+]);
+
 export const analyticsEventSchema = z.object({
   userId: z.string().min(1),
   name: z.string().min(1),
@@ -383,6 +398,28 @@ export const analyticsEventSchema = z.object({
   attributes: z
     .record(z.union([z.string(), z.number(), z.boolean()]))
     .default({})
+});
+
+export const observabilitySummarySchema = z.object({
+  userId: z.string().min(1),
+  generatedAt: z.string().datetime(),
+  totalAnalyticsEvents: z.number().int().nonnegative(),
+  totalCrashReports: z.number().int().nonnegative(),
+  blockedActions: z.number().int().nonnegative(),
+  deniedAccessEvents: z.number().int().nonnegative(),
+  fatalCrashReports: z.number().int().nonnegative(),
+  uniqueCorrelationIds: z.number().int().nonnegative(),
+  sourceBreakdown: z.object({
+    web: z.number().int().nonnegative(),
+    ios: z.number().int().nonnegative(),
+    backend: z.number().int().nonnegative()
+  }),
+  canonicalCoverage: z.object({
+    trackedCanonicalEvents: z.number().int().nonnegative(),
+    customEvents: z.number().int().nonnegative()
+  }),
+  latestAnalyticsAt: z.string().datetime().nullable(),
+  latestCrashAt: z.string().datetime().nullable()
 });
 
 export const crashSeveritySchema = z.enum(["warning", "fatal"]);
@@ -567,7 +604,9 @@ export type DeniedAccessReason = z.infer<typeof deniedAccessReasonSchema>;
 export type DeniedAccessAuditInput = z.infer<typeof deniedAccessAuditInputSchema>;
 export type DeniedAccessAudit = z.infer<typeof deniedAccessAuditSchema>;
 export type ObservabilitySource = z.infer<typeof observabilitySourceSchema>;
+export type CanonicalAnalyticsEventName = z.infer<typeof canonicalAnalyticsEventNameSchema>;
 export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
+export type ObservabilitySummary = z.infer<typeof observabilitySummarySchema>;
 export type CrashSeverity = z.infer<typeof crashSeveritySchema>;
 export type CrashReport = z.infer<typeof crashReportSchema>;
 export type BillingInvoiceStatus = z.infer<typeof billingInvoiceStatusSchema>;

@@ -231,6 +231,10 @@ type AppTranslations = {
   loadData: string;
   analyticsEventsLabel: string;
   crashReportsLabel: string;
+  observabilityBlockedActionsLabel: string;
+  observabilityDeniedEventsLabel: string;
+  observabilityFatalCrashesLabel: string;
+  observabilityCanonicalCoverageLabel: string;
   readinessLabel: string;
   authMetric: string;
   queueMetric: string;
@@ -497,6 +501,10 @@ const translations: Record<AppLanguage, AppTranslations> = {
     loadData: "Cargar datos",
     analyticsEventsLabel: "Eventos de analitica",
     crashReportsLabel: "Crash reports",
+    observabilityBlockedActionsLabel: "Acciones bloqueadas",
+    observabilityDeniedEventsLabel: "Eventos denegados",
+    observabilityFatalCrashesLabel: "Crashes fatales",
+    observabilityCanonicalCoverageLabel: "Cobertura canonica",
     readinessLabel: "Readiness",
     authMetric: "Auth",
     queueMetric: "Cola",
@@ -761,6 +769,10 @@ const translations: Record<AppLanguage, AppTranslations> = {
     loadData: "Load data",
     analyticsEventsLabel: "Analytics events",
     crashReportsLabel: "Crash reports",
+    observabilityBlockedActionsLabel: "Blocked actions",
+    observabilityDeniedEventsLabel: "Denied events",
+    observabilityFatalCrashesLabel: "Fatal crashes",
+    observabilityCanonicalCoverageLabel: "Canonical coverage",
     readinessLabel: "Readiness",
     authMetric: "Auth",
     queueMetric: "Queue",

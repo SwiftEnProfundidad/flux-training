@@ -7,6 +7,7 @@ import {
   ExerciseVideo,
   Goal,
   NutritionLog,
+  ObservabilitySummary,
   ProgressSummary,
   TrainingPlan,
   WorkoutSessionInput,
@@ -295,6 +296,9 @@ export function App() {
   const [lastSyncRejectedCount, setLastSyncRejectedCount] = useState(0);
   const [analyticsEvents, setAnalyticsEvents] = useState<AnalyticsEvent[]>([]);
   const [crashReports, setCrashReports] = useState<CrashReport[]>([]);
+  const [observabilitySummary, setObservabilitySummary] = useState<ObservabilitySummary | null>(
+    null
+  );
   const [exerciseVideos, setExerciseVideos] = useState<ExerciseVideo[]>([]);
   const [videoStatus, setVideoStatus] = useState<VideoStatus>("idle");
   const [selectedExerciseForVideos, setSelectedExerciseForVideos] = useState(
@@ -1200,12 +1204,14 @@ export function App() {
   }
 
   async function loadObservabilityCollections(): Promise<void> {
-    const [loadedEvents, loadedCrashReports] = await Promise.all([
+    const [loadedEvents, loadedCrashReports, loadedSummary] = await Promise.all([
       manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
-      manageObservabilityUseCase.listCrashReports(demoUserId)
+      manageObservabilityUseCase.listCrashReports(demoUserId),
+      manageObservabilityUseCase.listObservabilitySummary(demoUserId)
     ]);
     setAnalyticsEvents(loadedEvents);
     setCrashReports(loadedCrashReports);
+    setObservabilitySummary(loadedSummary);
   }
 
   async function handleTrackAnalyticsEvent() {
@@ -3291,6 +3297,26 @@ export function App() {
               <StatLine
                 label={translate("crashReportsLabel")}
                 value={String(crashReports.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("observabilityBlockedActionsLabel")}
+                value={String(observabilitySummary?.blockedActions ?? 0)}
+                language={language}
+              />
+              <StatLine
+                label={translate("observabilityDeniedEventsLabel")}
+                value={String(observabilitySummary?.deniedAccessEvents ?? 0)}
+                language={language}
+              />
+              <StatLine
+                label={translate("observabilityFatalCrashesLabel")}
+                value={String(observabilitySummary?.fatalCrashReports ?? 0)}
+                language={language}
+              />
+              <StatLine
+                label={translate("observabilityCanonicalCoverageLabel")}
+                value={`${observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0}/${(observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0) + (observabilitySummary?.canonicalCoverage.customEvents ?? 0)}`}
                 language={language}
               />
             </div>
