@@ -1,0 +1,56 @@
+# FLUX_GROWTH_MONETIZATION_TRACKING_V6
+
+## Leyenda
+- ✅ Hecho
+- 🚧 En construccion (maximo 1)
+- ⏳ Pendiente
+- ⛔ Bloqueado
+
+## Reglas operativas
+- Solo puede haber 1 task en `🚧`.
+- V6 inicia tras cierre formal de V5 (`V5-P3-T3` en `✅`).
+- Cualquier cambio de alcance en monetizacion/compliance debe marcar `⛔` hasta decision.
+
+## Objetivo del ciclo V6
+Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable, control de riesgo operativo y trazabilidad enterprise.
+
+## Fase P0 - Fundacion de crecimiento
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V6-P0-T1 | Definir north-star y guardrails de negocio | V6-P0-T1.1 north-star monetizacion; V6-P0-T1.2 guardrails UX/operacion; V6-P0-T1.3 baseline por segmento | ✅ | V5-P3-T3 | Marco de crecimiento medible |
+| V6-P0-T2 | Instrumentacion de conversion freemium | V6-P0-T2.1 eventos paywall; V6-P0-T2.2 conversion funnel; V6-P0-T2.3 alertas de fuga | 🚧 | V6-P0-T1 | Funnel de conversion observable |
+| V6-P0-T3 | Modelo operativo Growth-Product-Support | V6-P0-T3.1 ownership semanal; V6-P0-T3.2 rituales; V6-P0-T3.3 decision log | ⏳ | V6-P0-T2 | Cadencia operativa activa |
+
+## Fase P1 - Monetizacion y pricing
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V6-P1-T1 | Arquitectura de planes freemium/premium | V6-P1-T1.1 packaging; V6-P1-T1.2 limites por rol; V6-P1-T1.3 upgrade paths | ⏳ | V6-P0-T2 | Planes consistentes y accionables |
+| V6-P1-T2 | Paywall y upgrades contextuales | V6-P1-T2.1 triggers por valor; V6-P1-T2.2 copy ES/EN; V6-P1-T2.3 pruebas A/B | ⏳ | V6-P1-T1 | Upgrade no intrusivo y trazable |
+| V6-P1-T3 | Billing resiliente y recovery | V6-P1-T3.1 fallo de cobro; V6-P1-T3.2 grace period; V6-P1-T3.3 win-back | ⏳ | V6-P1-T2 | Perdida de ingreso controlada |
+
+## Fase P2 - Retencion y expansion
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V6-P2-T1 | Loops de activacion semanal | V6-P2-T1.1 primer valor en 24h; V6-P2-T1.2 continuidad D7; V6-P2-T1.3 coaching nudges | ⏳ | V6-P0-T2 | Activacion semanal en alza |
+| V6-P2-T2 | CRM operativo multicanal | V6-P2-T2.1 in-app; V6-P2-T2.2 email/push; V6-P2-T2.3 segmentacion por riesgo | ⏳ | V6-P2-T1 | Re-engagement automatizado |
+| V6-P2-T3 | Prevencion de churn y win-back | V6-P2-T3.1 score de churn; V6-P2-T3.2 intervenciones; V6-P2-T3.3 medicion incremental | ⏳ | V6-P2-T2 | Churn contenido por cohortes |
+
+## Fase P3 - Cierre y gobierno V6
+| ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
+|---|---|---|---|---|---|
+| V6-P3-T1 | Consolidar resultados V6 | V6-P3-T1.1 impacto negocio; V6-P3-T1.2 impacto operacion; V6-P3-T1.3 riesgos residuales | ⏳ | V6-P2-T3 | Resultado ejecutivo auditable |
+| V6-P3-T2 | Definir backlog V7 | V6-P3-T2.1 priorizacion; V6-P3-T2.2 dependencias; V6-P3-T2.3 capacidad | ⏳ | V6-P3-T1 | Backlog V7 listo |
+| V6-P3-T3 | Cierre ejecutivo V6 | V6-P3-T3.1 reporte final; V6-P3-T3.2 decision continuidad; V6-P3-T3.3 handoff | ⏳ | V6-P3-T2 | V6 cerrado formalmente |
+
+## Bitacora V6 (2026-03-03)
+- Inicio V6-P0-T1:
+  - ciclo V6 activado tras cierre formal de V5 (`V5-P3-T3` en `✅`).
+  - objetivo inmediato: definir north-star de crecimiento y guardrails operativos de monetizacion freemium.
+  - evidencia de entrada: `docs/validation/V5_P3_T3_V5_EXECUTIVE_CLOSURE.json`.
+- Cierre V6-P0-T1:
+  - north-star de negocio definido como `weekly_paying_active_athletes` con segmentacion por canal y cohorte.
+  - guardrails definidos para proteger UX/operacion durante experimentacion de monetizacion (`crash-free`, `support_p1`, `refund_rate`).
+  - baseline por segmento definido (`new`, `returning`, `coach-led`, `self-serve`) para medir lift incremental.
+  - evidencia publicada: `docs/validation/V6_P0_T1_GROWTH_NORTH_STAR.json`.
+- Siguiente task activa:
+  - `V6-P0-T2` (Instrumentacion de conversion freemium) en `🚧`.
