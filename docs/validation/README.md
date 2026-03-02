@@ -145,6 +145,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V6_P2_T2_MULTICHANNEL_CRM_OPERATIONS.json`: evidencia de CRM operativo multicanal (in-app/push/email, segmentación de riesgo y journeys de re-engagement).
 - `V6_P2_T3_CHURN_PREVENTION_WINBACK.json`: evidencia de prevención de churn y win-back (scoring de riesgo, playbooks de intervención y lift incremental).
 - `V6_P3_T1_V6_RESULTS_CONSOLIDATION.json`: evidencia de consolidación de resultados V6 (impacto negocio, impacto operativo y riesgos residuales).
+- `V6_P3_T2_V7_BACKLOG_DEFINITION.json`: evidencia de definición de backlog V7 (priorización, dependencias y planificación de capacidad).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -248,6 +249,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v6_p2_t2_multichannel_crm_operations.feature`
 - `features/v6_p2_t3_churn_prevention_winback.feature`
 - `features/v6_p3_t1_v6_results_consolidation.feature`
+- `features/v6_p3_t2_v7_backlog_definition.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

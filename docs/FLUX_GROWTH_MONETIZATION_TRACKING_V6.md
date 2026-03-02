@@ -39,8 +39,8 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V6-P3-T1 | Consolidar resultados V6 | V6-P3-T1.1 impacto negocio; V6-P3-T1.2 impacto operacion; V6-P3-T1.3 riesgos residuales | ✅ | V6-P2-T3 | Resultado ejecutivo auditable |
-| V6-P3-T2 | Definir backlog V7 | V6-P3-T2.1 priorizacion; V6-P3-T2.2 dependencias; V6-P3-T2.3 capacidad | 🚧 | V6-P3-T1 | Backlog V7 listo |
-| V6-P3-T3 | Cierre ejecutivo V6 | V6-P3-T3.1 reporte final; V6-P3-T3.2 decision continuidad; V6-P3-T3.3 handoff | ⏳ | V6-P3-T2 | V6 cerrado formalmente |
+| V6-P3-T2 | Definir backlog V7 | V6-P3-T2.1 priorizacion; V6-P3-T2.2 dependencias; V6-P3-T2.3 capacidad | ✅ | V6-P3-T1 | Backlog V7 listo |
+| V6-P3-T3 | Cierre ejecutivo V6 | V6-P3-T3.1 reporte final; V6-P3-T3.2 decision continuidad; V6-P3-T3.3 handoff | 🚧 | V6-P3-T2 | V6 cerrado formalmente |
 
 ## Bitacora V6 (2026-03-03)
 - Inicio V6-P0-T1:
@@ -117,3 +117,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P3_T1_V6_RESULTS_CONSOLIDATION.json`.
 - Siguiente task activa:
   - `V6-P3-T2` (Definir backlog V7) en `🚧`.
+- Cierre V6-P3-T2:
+  - backlog V7 definido con priorización impacto/esfuerzo/riesgo y secuenciación por olas operativas.
+  - dependencias cross-domain identificadas (`product`, `growth`, `billing`, `data`, `support`) con owner y criterio de entrada.
+  - capacidad V7 planificada por ola con reserva explícita para incidentes y deuda técnica.
+  - evidencia publicada: `docs/validation/V6_P3_T2_V7_BACKLOG_DEFINITION.json`.
+- Siguiente task activa:
+  - `V6-P3-T3` (Cierre ejecutivo V6) en `🚧`.
