@@ -288,3 +288,12 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - cierre de task `V3-P3-T3`: resiliencia backend operativa completada (errores estandarizados, trazabilidad y retry/idempotencia).
 - Inicio V3-P4-T1:
   - foco en matriz de paridad iOS/Web por dominio y ajuste de divergencias funcionales antes de E2E cross-platform.
+- Avance V3-P4-T1 (en curso):
+  - subtask `V3-P4-T1.1` cerrada:
+    - matriz de paridad funcional publicada en:
+      - `docs/validation/V3_P4_T1_IOS_WEB_PARITY_MATRIX.csv`
+      - `docs/validation/V3_P4_T1_IOS_WEB_PARITY_SUMMARY.json`
+    - BDD de evidencia cross-platform añadida:
+      - `docs/validation/features/v3_p4_t1_ios_web_parity.feature`
+    - resultado: paridad de estados `PASS` en dominios core y `REVIEW` focalizado en `OBSERVABILITY_AND_CRASH` para ajuste de comportamiento.
+  - siguiente subtask activa: `V3-P4-T1.2` (ajustes de comportamiento iOS/Web sobre gaps de paridad detectados).

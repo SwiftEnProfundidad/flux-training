@@ -98,6 +98,8 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V3_P2_T1_WEB_SHELL_ACCESS_DASHBOARD_GATE.json`: consolidado de cierre de task V3-P2-T1 con evidencias por subtask y resultados de quality checks web.
 - `V3_P2_T2_WEB_CORE_OPERATIONS_COVERAGE.csv`: cobertura de subtasks en operaciones core web (operations hub, nutrition/progress ops y estados enterprise).
 - `V3_P2_T2_WEB_CORE_OPERATIONS_GATE.json`: consolidado de cierre de task V3-P2-T2 con evidencias por subtask y resultados de quality checks web.
+- `V3_P4_T1_IOS_WEB_PARITY_MATRIX.csv`: matriz de paridad iOS/Web por dominio para arranque de fase P4 (scope, contratos, estado de flujo y gaps).
+- `V3_P4_T1_IOS_WEB_PARITY_SUMMARY.json`: resumen ejecutivo de paridad V3-P4-T1.1 con contadores PASS/REVIEW y gaps abiertos para remediación.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -157,6 +159,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v3_p1_t3_ios_nutrition_progress_ai_settings.feature`
 - `features/v3_p2_t1_web_shell_access_dashboard.feature`
 - `features/v3_p2_t2_web_core_operations.feature`
+- `features/v3_p4_t1_ios_web_parity.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
