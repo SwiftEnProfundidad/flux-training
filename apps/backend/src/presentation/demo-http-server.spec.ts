@@ -348,4 +348,103 @@ describe("DemoHttpServer", () => {
     expect(summaryPayload.summary?.generatedAt).toBe("2026-03-03T00:00:00.000Z");
     expect(summaryPayload.summary?.workoutSessionsCount).toBe(2);
   });
+
+  it("supports filters for analytics events and crash reports", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "dashboard_action_blocked",
+        source: "web",
+        occurredAt: "2026-03-02T10:00:00.000Z",
+        attributes: {
+          domain: "operations",
+          reason: "domain_denied",
+          correlationId: "corr-1"
+        }
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createAnalyticsEvent`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        name: "nutrition_log_saved",
+        source: "web",
+        occurredAt: "2026-03-02T10:01:00.000Z",
+        attributes: {
+          domain: "nutrition",
+          reason: "saved",
+          correlationId: "corr-2"
+        }
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createCrashReport`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        source: "web",
+        message: "warning crash",
+        stackTrace: "App.tsx:10",
+        severity: "warning",
+        occurredAt: "2026-03-02T10:02:00.000Z"
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createCrashReport`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        source: "backend",
+        message: "fatal crash",
+        stackTrace: "worker.ts:20",
+        severity: "fatal",
+        occurredAt: "2026-03-02T10:03:00.000Z"
+      })
+    });
+
+    const eventsResponse = await fetch(
+      `${server.baseUrl}/api/listAnalyticsEvents?userId=demo-user&domain=operations&query=blocked&limit=1`,
+      { headers: clientHeaders }
+    );
+    const crashResponse = await fetch(
+      `${server.baseUrl}/api/listCrashReports?userId=demo-user&source=backend&severity=fatal&limit=1`,
+      { headers: clientHeaders }
+    );
+
+    expect(eventsResponse.status).toBe(200);
+    expect(crashResponse.status).toBe(200);
+
+    const eventsPayload = (await eventsResponse.json()) as {
+      events: Array<{ name?: string }>;
+    };
+    const crashPayload = (await crashResponse.json()) as {
+      reports: Array<{ severity?: string; source?: string }>;
+    };
+
+    expect(eventsPayload.events.length).toBe(1);
+    expect(eventsPayload.events[0]?.name).toBe("dashboard_action_blocked");
+    expect(crashPayload.reports.length).toBe(1);
+    expect(crashPayload.reports[0]?.severity).toBe("fatal");
+    expect(crashPayload.reports[0]?.source).toBe("backend");
+  });
 });

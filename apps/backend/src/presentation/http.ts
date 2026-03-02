@@ -166,6 +166,23 @@ function parseOptionalDateQuery(value: unknown): string | undefined {
   throw new Error("invalid_date_query");
 }
 
+function parseOptionalEnumQuery<T extends string>(
+  value: unknown,
+  validValues: readonly T[]
+): T | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  const normalized = String(value).trim();
+  if (normalized.length === 0) {
+    return undefined;
+  }
+  if (validValues.includes(normalized as T)) {
+    return normalized as T;
+  }
+  throw new Error("invalid_enum_query");
+}
+
 function shouldRejectUnsupportedClient(
   request: HeaderRequest,
   response: JsonResponse
@@ -522,7 +539,38 @@ export const listAnalyticsEvents = onRequest(async (request, response) => {
     }
     const userId = String(request.query.userId ?? "");
     const events = await listAnalyticsEventsUseCase.execute(userId);
-    response.status(200).json({ events });
+    const sourceFilter = parseOptionalEnumQuery(
+      request.query.source,
+      ["web", "ios", "backend"] as const
+    );
+    const domainFilter = String(request.query.domain ?? "").trim().toLowerCase();
+    const queryFilter = String(request.query.query ?? "").trim().toLowerCase();
+    const limit = parseOptionalPositiveIntegerQuery(request.query.limit);
+    const eventsFilteredBySource =
+      sourceFilter === undefined
+        ? events
+        : events.filter((event) => event.source === sourceFilter);
+    const eventsFilteredByDomain =
+      domainFilter.length === 0
+        ? eventsFilteredBySource
+        : eventsFilteredBySource.filter((event) =>
+            String(event.attributes.domain ?? "").toLowerCase().includes(domainFilter)
+          );
+    const eventsFilteredByQuery =
+      queryFilter.length === 0
+        ? eventsFilteredByDomain
+        : eventsFilteredByDomain.filter((event) => {
+            const reason = String(event.attributes.reason ?? "").toLowerCase();
+            const correlationId = String(event.attributes.correlationId ?? "").toLowerCase();
+            return (
+              event.name.toLowerCase().includes(queryFilter) ||
+              reason.includes(queryFilter) ||
+              correlationId.includes(queryFilter)
+            );
+          });
+    const payloadEvents =
+      limit === undefined ? eventsFilteredByQuery : eventsFilteredByQuery.slice(0, limit);
+    response.status(200).json({ events: payloadEvents });
   } catch {
     response.status(400).json({ error: "invalid_list_analytics_events_payload" });
   }
@@ -548,7 +596,37 @@ export const listCrashReports = onRequest(async (request, response) => {
     }
     const userId = String(request.query.userId ?? "");
     const reports = await listCrashReportsUseCase.execute(userId);
-    response.status(200).json({ reports });
+    const sourceFilter = parseOptionalEnumQuery(
+      request.query.source,
+      ["web", "ios", "backend"] as const
+    );
+    const severityFilter = parseOptionalEnumQuery(
+      request.query.severity,
+      ["warning", "fatal"] as const
+    );
+    const queryFilter = String(request.query.query ?? "").trim().toLowerCase();
+    const limit = parseOptionalPositiveIntegerQuery(request.query.limit);
+    const reportsFilteredBySource =
+      sourceFilter === undefined
+        ? reports
+        : reports.filter((report) => report.source === sourceFilter);
+    const reportsFilteredBySeverity =
+      severityFilter === undefined
+        ? reportsFilteredBySource
+        : reportsFilteredBySource.filter((report) => report.severity === severityFilter);
+    const reportsFilteredByQuery =
+      queryFilter.length === 0
+        ? reportsFilteredBySeverity
+        : reportsFilteredBySeverity.filter((report) => {
+            const stackTrace = (report.stackTrace ?? "").toLowerCase();
+            return (
+              report.message.toLowerCase().includes(queryFilter) ||
+              stackTrace.includes(queryFilter)
+            );
+          });
+    const payloadReports =
+      limit === undefined ? reportsFilteredByQuery : reportsFilteredByQuery.slice(0, limit);
+    response.status(200).json({ reports: payloadReports });
   } catch {
     response.status(400).json({ error: "invalid_list_crash_reports_payload" });
   }

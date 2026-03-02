@@ -144,6 +144,20 @@ function parseOptionalDateQuery(value: string | null): string | undefined {
   throw new Error("invalid_date_query");
 }
 
+function parseOptionalEnumQuery<T extends string>(
+  value: string | null,
+  validValues: readonly T[]
+): T | undefined {
+  if (value === null || value.trim().length === 0) {
+    return undefined;
+  }
+  const normalized = value.trim() as T;
+  if (validValues.includes(normalized)) {
+    return normalized;
+  }
+  throw new Error("invalid_enum_query");
+}
+
 function parseGoal(value: string | null): Goal {
   return goalSchema.parse(value ?? "");
 }
@@ -446,8 +460,39 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/listAnalyticsEvents") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
+      const sourceFilter = parseOptionalEnumQuery(
+        url.searchParams.get("source"),
+        ["web", "ios", "backend"] as const
+      );
+      const domainFilter = url.searchParams.get("domain")?.trim().toLowerCase() ?? "";
+      const queryFilter = url.searchParams.get("query")?.trim().toLowerCase() ?? "";
+      const limit = parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"));
       const events = await runtime.listAnalyticsEvents(userId);
-      return { statusCode: 200, payload: { events } };
+      const eventsFilteredBySource =
+        sourceFilter === undefined
+          ? events
+          : events.filter((event) => event.source === sourceFilter);
+      const eventsFilteredByDomain =
+        domainFilter.length === 0
+          ? eventsFilteredBySource
+          : eventsFilteredBySource.filter((event) =>
+              String(event.attributes.domain ?? "").toLowerCase().includes(domainFilter)
+            );
+      const eventsFilteredByQuery =
+        queryFilter.length === 0
+          ? eventsFilteredByDomain
+          : eventsFilteredByDomain.filter((event) => {
+              const reason = String(event.attributes.reason ?? "").toLowerCase();
+              const correlationId = String(event.attributes.correlationId ?? "").toLowerCase();
+              return (
+                event.name.toLowerCase().includes(queryFilter) ||
+                reason.includes(queryFilter) ||
+                correlationId.includes(queryFilter)
+              );
+            });
+      const payloadEvents =
+        limit === undefined ? eventsFilteredByQuery : eventsFilteredByQuery.slice(0, limit);
+      return { statusCode: 200, payload: { events: payloadEvents } };
     } catch (error) {
       return {
         statusCode: 400,
@@ -469,8 +514,38 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/listCrashReports") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
+      const sourceFilter = parseOptionalEnumQuery(
+        url.searchParams.get("source"),
+        ["web", "ios", "backend"] as const
+      );
+      const severityFilter = parseOptionalEnumQuery(
+        url.searchParams.get("severity"),
+        ["warning", "fatal"] as const
+      );
+      const queryFilter = url.searchParams.get("query")?.trim().toLowerCase() ?? "";
+      const limit = parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"));
       const reports = await runtime.listCrashReports(userId);
-      return { statusCode: 200, payload: { reports } };
+      const reportsFilteredBySource =
+        sourceFilter === undefined
+          ? reports
+          : reports.filter((report) => report.source === sourceFilter);
+      const reportsFilteredBySeverity =
+        severityFilter === undefined
+          ? reportsFilteredBySource
+          : reportsFilteredBySource.filter((report) => report.severity === severityFilter);
+      const reportsFilteredByQuery =
+        queryFilter.length === 0
+          ? reportsFilteredBySeverity
+          : reportsFilteredBySeverity.filter((report) => {
+              const stackTrace = (report.stackTrace ?? "").toLowerCase();
+              return (
+                report.message.toLowerCase().includes(queryFilter) ||
+                stackTrace.includes(queryFilter)
+              );
+            });
+      const payloadReports =
+        limit === undefined ? reportsFilteredByQuery : reportsFilteredByQuery.slice(0, limit);
+      return { statusCode: 200, payload: { reports: payloadReports } };
     } catch (error) {
       return {
         statusCode: 400,
