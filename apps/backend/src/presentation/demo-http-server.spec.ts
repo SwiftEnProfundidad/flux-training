@@ -71,6 +71,76 @@ describe("DemoHttpServer", () => {
     expect(payload.error).toBe("method_not_allowed");
   });
 
+  it("serves auth recovery endpoint for email and sms channels", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    const emailResponse = await fetch(`${server.baseUrl}/api/requestAuthRecovery`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        channel: "email",
+        identifier: "user@example.com"
+      })
+    });
+
+    const smsResponse = await fetch(`${server.baseUrl}/api/requestAuthRecovery`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        channel: "sms",
+        identifier: "+34123456789"
+      })
+    });
+
+    expect(emailResponse.status).toBe(201);
+    expect(smsResponse.status).toBe(201);
+
+    const emailPayload = (await emailResponse.json()) as {
+      recovery?: { status?: string };
+    };
+    const smsPayload = (await smsResponse.json()) as {
+      recovery?: { status?: string };
+    };
+
+    expect(emailPayload.recovery?.status).toBe("recovery_sent_email");
+    expect(smsPayload.recovery?.status).toBe("recovery_sent_sms");
+  });
+
+  it("serves createHealthScreening endpoint for onboarding precheck", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    const response = await fetch(`${server.baseUrl}/api/createHealthScreening`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        onboardingProfile: {
+          displayName: "Juan",
+          age: 35,
+          heightCm: 178,
+          weightKg: 84,
+          availableDaysPerWeek: 4,
+          equipment: ["dumbbells"],
+          injuries: []
+        },
+        responses: [{ questionId: "parq-1", answer: true }]
+      })
+    });
+
+    expect(response.status).toBe(201);
+    const payload = (await response.json()) as { screening?: { risk?: string } };
+    expect(payload.screening?.risk).toBe("moderate");
+  });
+
   it("serves role capabilities for RBAC runtime", async () => {
     server = await startDemoHttpServer({ port: 0 });
 

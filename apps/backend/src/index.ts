@@ -1,6 +1,7 @@
 export {
   createAnalyticsEvent,
   createAuthSession,
+  requestAuthRecovery,
   createCrashReport,
   recordLegalConsent,
   requestDataDeletion,

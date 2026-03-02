@@ -25,6 +25,43 @@ describe("DemoApiRuntime", () => {
     expect(recommendations[0]?.priority).toBe("high");
   });
 
+  it("returns auth recovery status for email and sms channels", async () => {
+    const runtime = createDemoApiRuntime();
+
+    const emailRecovery = await runtime.requestAuthRecovery({
+      channel: "email",
+      identifier: "user@example.com"
+    });
+    const smsRecovery = await runtime.requestAuthRecovery({
+      channel: "sms",
+      identifier: "+34123456789"
+    });
+
+    expect(emailRecovery.status).toBe("recovery_sent_email");
+    expect(smsRecovery.status).toBe("recovery_sent_sms");
+  });
+
+  it("creates a standalone health screening for onboarding precheck", async () => {
+    const runtime = createDemoApiRuntime();
+
+    const screening = await runtime.createHealthScreening({
+      userId: "demo-user",
+      onboardingProfile: {
+        displayName: "Juan",
+        age: 35,
+        heightCm: 178,
+        weightKg: 84,
+        availableDaysPerWeek: 4,
+        equipment: ["dumbbells"],
+        injuries: []
+      },
+      responses: [{ questionId: "parq-1", answer: true }]
+    });
+
+    expect(screening.userId).toBe("demo-user");
+    expect(screening.risk).toBe("moderate");
+  });
+
   it("persists training and nutrition flows in local runtime", async () => {
     const runtime = createDemoApiRuntime();
 

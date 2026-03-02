@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   aiRecommendationSchema,
   analyticsEventSchema,
+  authRecoveryRequestSchema,
+  authRecoveryResultSchema,
   authSessionSchema,
   billingInvoiceSchema,
   crashReportSchema,
@@ -237,6 +239,31 @@ describe("authSessionSchema", () => {
         email: "user@example.com",
         displayName: "User One"
       }
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("authRecoveryRequestSchema", () => {
+  it("accepts auth recovery request payload", () => {
+    const parsed = authRecoveryRequestSchema.safeParse({
+      channel: "email",
+      identifier: "user@example.com"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("authRecoveryResultSchema", () => {
+  it("accepts auth recovery result payload", () => {
+    const parsed = authRecoveryResultSchema.safeParse({
+      channel: "sms",
+      identifier: "+34123456789",
+      status: "recovery_sent_sms",
+      ticketId: "rec-sms-1",
+      requestedAt: "2026-03-02T12:00:00.000Z"
     });
 
     expect(parsed.success).toBe(true);

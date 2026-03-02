@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import {
   accessRoleSchema,
   analyticsEventSchema,
+  authRecoveryRequestSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
   goalSchema,
@@ -41,6 +42,8 @@ type RouteResult = {
 
 const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/createAuthSession": "POST",
+  "/api/requestAuthRecovery": "POST",
+  "/api/createHealthScreening": "POST",
   "/api/completeOnboarding": "POST",
   "/api/createTrainingPlan": "POST",
   "/api/listTrainingPlans": "GET",
@@ -246,6 +249,45 @@ async function routeApiRequest(
       return { statusCode: 201, payload: { session } };
     } catch {
       return { statusCode: 401, payload: { error: "invalid_provider_token" } };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/requestAuthRecovery") {
+    try {
+      const payload = authRecoveryRequestSchema.parse(await readJsonBody(request));
+      const result = await runtime.requestAuthRecovery(payload);
+      return { statusCode: 201, payload: { recovery: result } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_auth_recovery_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/createHealthScreening") {
+    try {
+      const body = (await readJsonBody(request)) as {
+        userId?: unknown;
+        onboardingProfile?: unknown;
+        responses?: unknown;
+      };
+      const screening = await runtime.createHealthScreening({
+        userId: String(body.userId ?? ""),
+        onboardingProfile: body.onboardingProfile as {
+          displayName: string;
+          age: number;
+          heightCm: number;
+          weightKg: number;
+          availableDaysPerWeek: number;
+          equipment: string[];
+          injuries: string[];
+        },
+        responses: body.responses as Array<{ questionId: string; answer: boolean }>
+      });
+      return { statusCode: 201, payload: { screening } };
+    } catch {
+      return { statusCode: 400, payload: { error: "invalid_health_screening_payload" } };
     }
   }
 

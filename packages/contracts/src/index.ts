@@ -188,6 +188,26 @@ export const authSessionSchema = z.object({
   identity: authIdentitySchema
 });
 
+export const authRecoveryChannelSchema = z.enum(["email", "sms"]);
+
+export const authRecoveryRequestSchema = z.object({
+  channel: authRecoveryChannelSchema,
+  identifier: z.string().min(3)
+});
+
+export const authRecoveryStatusSchema = z.enum([
+  "recovery_sent_email",
+  "recovery_sent_sms"
+]);
+
+export const authRecoveryResultSchema = z.object({
+  channel: authRecoveryChannelSchema,
+  identifier: z.string().min(3),
+  status: authRecoveryStatusSchema,
+  ticketId: z.string().min(1),
+  requestedAt: z.string().datetime()
+});
+
 export const dashboardDomainSchema = z.enum([
   "all",
   "onboarding",
@@ -373,6 +393,10 @@ export type ProgressSummary = z.infer<typeof progressSummarySchema>;
 export type AuthProvider = z.infer<typeof authProviderSchema>;
 export type AuthIdentity = z.infer<typeof authIdentitySchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
+export type AuthRecoveryChannel = z.infer<typeof authRecoveryChannelSchema>;
+export type AuthRecoveryRequest = z.infer<typeof authRecoveryRequestSchema>;
+export type AuthRecoveryStatus = z.infer<typeof authRecoveryStatusSchema>;
+export type AuthRecoveryResult = z.infer<typeof authRecoveryResultSchema>;
 export type DashboardDomain = z.infer<typeof dashboardDomainSchema>;
 export type AccessRole = z.infer<typeof accessRoleSchema>;
 export type RoleCapabilities = z.infer<typeof roleCapabilitiesSchema>;

@@ -1,6 +1,8 @@
 import {
   accessRoleSchema,
   analyticsEventSchema,
+  authRecoveryRequestSchema,
+  authRecoveryResultSchema,
   billingInvoiceSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
@@ -11,15 +13,20 @@ import {
   type AccessRole,
   type AIRecommendation,
   type AnalyticsEvent,
+  type AuthRecoveryRequest,
+  type AuthRecoveryResult,
   type BillingInvoice,
   type CrashReport,
   type DataDeletionRequest,
   type ExerciseVideo,
   type Goal,
+  type HealthScreening,
   type LegalConsent,
   type LegalConsentSubmission,
   type NutritionLog,
+  type OnboardingProfileInput,
   type OnboardingResult,
+  type ParQResponse,
   type ProgressSummary,
   type RoleCapabilities,
   type SupportIncident,
@@ -31,6 +38,8 @@ import {
 import { CompleteOnboardingUseCase } from "../application/complete-onboarding";
 import { CreateAnalyticsEventUseCase } from "../application/create-analytics-event";
 import { CreateAuthSessionUseCase } from "../application/create-auth-session";
+import { CreateHealthScreeningUseCase } from "../application/create-health-screening";
+import { RequestAuthRecoveryUseCase } from "../application/request-auth-recovery";
 import { CreateCrashReportUseCase } from "../application/create-crash-report";
 import { CreateNutritionLogUseCase } from "../application/create-nutrition-log";
 import { CreateTrainingPlanUseCase } from "../application/create-training-plan";
@@ -200,6 +209,12 @@ class DemoAuthTokenVerifier implements AuthTokenVerifier {
 
 export type DemoApiRuntime = {
   createAuthSession(providerToken: string): Promise<Awaited<ReturnType<CreateAuthSessionUseCase["execute"]>>>;
+  requestAuthRecovery(payload: AuthRecoveryRequest): Promise<AuthRecoveryResult>;
+  createHealthScreening(payload: {
+    userId: string;
+    onboardingProfile: OnboardingProfileInput;
+    responses: ParQResponse[];
+  }): Promise<HealthScreening>;
   completeOnboarding(payload: unknown): Promise<OnboardingResult>;
   createTrainingPlan(payload: Omit<TrainingPlan, "createdAt">): Promise<TrainingPlan>;
   listTrainingPlans(userId: string): Promise<TrainingPlan[]>;
@@ -235,6 +250,9 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   const exerciseVideoRepository = new StaticExerciseVideoRepository();
 
   const createAuthSessionUseCase = new CreateAuthSessionUseCase(new DemoAuthTokenVerifier());
+  const createHealthScreeningUseCase = new CreateHealthScreeningUseCase(
+    healthScreeningRepository
+  );
   const completeOnboardingUseCase = new CompleteOnboardingUseCase(
     userProfileRepository,
     healthScreeningRepository
@@ -266,6 +284,7 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   const requestDataDeletionUseCase = new RequestDataDeletionUseCase(
     dataDeletionRequestRepository
   );
+  const requestAuthRecoveryUseCase = new RequestAuthRecoveryUseCase();
   const listExerciseVideosUseCase = new ListExerciseVideosUseCase(exerciseVideoRepository);
   const generateAIRecommendationsUseCase = new GenerateAIRecommendationsUseCase();
   const listRoleCapabilitiesUseCase = new ListRoleCapabilitiesUseCase();
@@ -282,6 +301,24 @@ export function createDemoApiRuntime(): DemoApiRuntime {
   return {
     async createAuthSession(providerToken: string) {
       return createAuthSessionUseCase.execute(providerToken);
+    },
+
+    async requestAuthRecovery(payload: AuthRecoveryRequest) {
+      const parsedPayload = authRecoveryRequestSchema.parse(payload);
+      const result = await requestAuthRecoveryUseCase.execute(parsedPayload);
+      return authRecoveryResultSchema.parse(result);
+    },
+
+    async createHealthScreening(payload: {
+      userId: string;
+      onboardingProfile: OnboardingProfileInput;
+      responses: ParQResponse[];
+    }) {
+      return createHealthScreeningUseCase.execute({
+        userId: payload.userId,
+        onboardingProfile: payload.onboardingProfile,
+        responses: payload.responses
+      });
     },
 
     async completeOnboarding(payload: unknown) {

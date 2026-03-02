@@ -1,6 +1,8 @@
 import {
   accessRoleSchema,
   analyticsEventSchema,
+  authRecoveryRequestSchema,
+  authRecoveryResultSchema,
   billingInvoiceSchema,
   crashReportSchema,
   dataDeletionRequestSchema,
@@ -12,6 +14,7 @@ import {
 import { onRequest } from "firebase-functions/v2/https";
 import { CreateAnalyticsEventUseCase } from "../application/create-analytics-event";
 import { CreateAuthSessionUseCase } from "../application/create-auth-session";
+import { RequestAuthRecoveryUseCase } from "../application/request-auth-recovery";
 import { CreateCrashReportUseCase } from "../application/create-crash-report";
 import { CreateHealthScreeningUseCase } from "../application/create-health-screening";
 import { CreateNutritionLogUseCase } from "../application/create-nutrition-log";
@@ -100,6 +103,7 @@ const listSupportIncidentsUseCase = new ListSupportIncidentsUseCase(
 );
 const authTokenVerifier = new FirebaseAuthTokenVerifier();
 const createAuthSessionUseCase = new CreateAuthSessionUseCase(authTokenVerifier);
+const requestAuthRecoveryUseCase = new RequestAuthRecoveryUseCase();
 const legalConsentRepository = new FirestoreLegalConsentRepository();
 const recordLegalConsentUseCase = new RecordLegalConsentUseCase(legalConsentRepository);
 const dataDeletionRequestRepository = new FirestoreDataDeletionRequestRepository();
@@ -186,6 +190,23 @@ export const createAuthSession = onRequest(async (request, response) => {
     response.status(201).json({ session });
   } catch {
     response.status(401).json({ error: "invalid_provider_token" });
+  }
+});
+
+export const requestAuthRecovery = onRequest(async (request, response) => {
+  try {
+    if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const payload = authRecoveryRequestSchema.parse(request.body);
+    const result = await requestAuthRecoveryUseCase.execute(payload);
+    response.status(201).json({ recovery: authRecoveryResultSchema.parse(result) });
+  } catch (error) {
+    if (error instanceof Error && error.message === "invalid_recovery_identifier") {
+      response.status(400).json({ error: "invalid_recovery_identifier" });
+      return;
+    }
+    response.status(400).json({ error: "invalid_auth_recovery_payload" });
   }
 });
 
