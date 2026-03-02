@@ -367,6 +367,14 @@ body {
   gap: 10px;
 }
 
+.section-subtitle {
+  margin: 0;
+  font-family: "Bebas Neue", sans-serif;
+  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+  color: var(--text-2);
+}
+
 .inline-inputs {
   display: flex;
   gap: 8px;

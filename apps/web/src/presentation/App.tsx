@@ -88,6 +88,15 @@ import {
   sortAthleteOperationsRows,
   type AthleteSortMode
 } from "./core-operations";
+import {
+  buildProgressHistoryRows,
+  filterNutritionLogs,
+  filterProgressHistoryRows,
+  sortNutritionLogs,
+  sortProgressHistoryRows,
+  type NutritionSortMode,
+  type ProgressSortMode
+} from "./nutrition-progress-operations";
 import "./app.css";
 
 type SessionStatus = "idle" | "loading" | "saved" | "queued" | "validation_error" | "error";
@@ -234,6 +243,12 @@ export function App() {
   const [proteinGrams, setProteinGrams] = useState("150");
   const [carbsGrams, setCarbsGrams] = useState("230");
   const [fatsGrams, setFatsGrams] = useState("70");
+  const [nutritionDateFilter, setNutritionDateFilter] = useState("");
+  const [nutritionMinProteinFilter, setNutritionMinProteinFilter] = useState("");
+  const [nutritionMaxCaloriesFilter, setNutritionMaxCaloriesFilter] = useState("");
+  const [nutritionSortMode, setNutritionSortMode] = useState<NutritionSortMode>("date_desc");
+  const [progressMinSessionsFilter, setProgressMinSessionsFilter] = useState("");
+  const [progressSortMode, setProgressSortMode] = useState<ProgressSortMode>("date_desc");
   const [nutritionLogs, setNutritionLogs] = useState<NutritionLog[]>(
     nutritionProgressAIDefaults.nutritionLogs
   );
@@ -318,6 +333,28 @@ export function App() {
       athleteSortMode
     );
   }, [plans, sessions, nutritionLogs, progressSummary, athleteSearch, athleteSortMode]);
+  const filteredNutritionLogs = useMemo(() => {
+    const filtered = filterNutritionLogs(nutritionLogs, {
+      queryDate: nutritionDateFilter,
+      minProteinGrams: parseOptionalNumber(nutritionMinProteinFilter),
+      maxCalories: parseOptionalNumber(nutritionMaxCaloriesFilter)
+    });
+    return sortNutritionLogs(filtered, nutritionSortMode);
+  }, [
+    nutritionLogs,
+    nutritionDateFilter,
+    nutritionMinProteinFilter,
+    nutritionMaxCaloriesFilter,
+    nutritionSortMode
+  ]);
+  const filteredProgressHistory = useMemo(() => {
+    const rows = buildProgressHistoryRows(progressSummary);
+    const filtered = filterProgressHistoryRows(
+      rows,
+      parseOptionalNumber(progressMinSessionsFilter)
+    );
+    return sortProgressHistoryRows(filtered, progressSortMode);
+  }, [progressSummary, progressMinSessionsFilter, progressSortMode]);
 
   async function refreshPendingQueue(): Promise<void> {
     const pending = await offlineSyncQueueUseCase.listPending(demoUserId);
@@ -334,6 +371,15 @@ export function App() {
 
   function hasValidEmail(value: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
+  function parseOptionalNumber(value: string): number | null {
+    const trimmedValue = value.trim();
+    if (trimmedValue.length === 0) {
+      return null;
+    }
+    const numericValue = Number(trimmedValue);
+    return Number.isFinite(numericValue) ? numericValue : null;
   }
 
   useEffect(() => {
@@ -932,6 +978,18 @@ export function App() {
     setOperationsStatus("loading");
     setPlanName("Starter Plan");
     setOperationsStatus("saved");
+  }
+
+  function handleClearNutritionFilters() {
+    setNutritionDateFilter("");
+    setNutritionMinProteinFilter("");
+    setNutritionMaxCaloriesFilter("");
+    setNutritionSortMode("date_desc");
+  }
+
+  function handleClearProgressFilters() {
+    setProgressMinSessionsFilter("");
+    setProgressSortMode("date_desc");
   }
 
   async function trackDomainChange(domain: DashboardDomain) {
@@ -1844,11 +1902,73 @@ export function App() {
                   {translate("loadLogs")}
                 </button>
               </div>
+              <p className="section-subtitle">{translate("nutritionFiltersLabel")}</p>
+              <div className="inline-inputs">
+                <input
+                  aria-label={translate("nutritionDateFilterPlaceholder")}
+                  placeholder={translate("nutritionDateFilterPlaceholder")}
+                  value={nutritionDateFilter}
+                  onChange={(event) => setNutritionDateFilter(event.target.value)}
+                />
+                <input
+                  aria-label={translate("nutritionMinProteinPlaceholder")}
+                  placeholder={translate("nutritionMinProteinPlaceholder")}
+                  value={nutritionMinProteinFilter}
+                  onChange={(event) => setNutritionMinProteinFilter(event.target.value)}
+                />
+                <input
+                  aria-label={translate("nutritionMaxCaloriesPlaceholder")}
+                  placeholder={translate("nutritionMaxCaloriesPlaceholder")}
+                  value={nutritionMaxCaloriesFilter}
+                  onChange={(event) => setNutritionMaxCaloriesFilter(event.target.value)}
+                />
+              </div>
+              <div className="inline-inputs">
+                <label className="compact-label">
+                  {translate("nutritionSortLabel")}
+                  <select
+                    aria-label={translate("nutritionSortLabel")}
+                    value={nutritionSortMode}
+                    onChange={(event) =>
+                      setNutritionSortMode(event.target.value as NutritionSortMode)
+                    }
+                  >
+                    <option value="date_desc">{translate("nutritionSortByDate")}</option>
+                    <option value="calories_desc">{translate("nutritionSortByCalories")}</option>
+                    <option value="protein_desc">{translate("nutritionSortByProtein")}</option>
+                  </select>
+                </label>
+                <button className="button ghost" onClick={handleClearNutritionFilters} type="button">
+                  {translate("clearNutritionFilters")}
+                </button>
+              </div>
               <StatLine
                 label={translate("logsLoadedLabel")}
                 value={String(nutritionLogs.length)}
                 language={language}
               />
+              <StatLine
+                label={translate("filteredLogsLabel")}
+                value={String(filteredNutritionLogs.length)}
+                language={language}
+              />
+              {filteredNutritionLogs.length === 0 ? (
+                <p className="empty-state">{translate("noNutritionFilteredLogs")}</p>
+              ) : (
+                <div className="history-list">
+                  {filteredNutritionLogs.map((log) => (
+                    <article key={`${log.userId}-${log.date}`} className="history-item">
+                      <strong>{log.date}</strong>
+                      <div className="history-values">
+                        <span>{translate("caloriesPlaceholder")} {log.calories}</span>
+                        <span>{translate("proteinPlaceholder")} {log.proteinGrams}</span>
+                        <span>{translate("carbsPlaceholder")} {log.carbsGrams}</span>
+                        <span>{translate("fatsPlaceholder")} {log.fatsGrams}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
             </div>
             </article>
           ) : null}
@@ -1895,26 +2015,62 @@ export function App() {
                       value={String(progressSummary.averageProteinGrams)}
                     />
                   </div>
+                  <p className="section-subtitle">{translate("progressFiltersLabel")}</p>
+                  <div className="inline-inputs">
+                    <input
+                      aria-label={translate("progressMinSessionsPlaceholder")}
+                      placeholder={translate("progressMinSessionsPlaceholder")}
+                      value={progressMinSessionsFilter}
+                      onChange={(event) => setProgressMinSessionsFilter(event.target.value)}
+                    />
+                    <label className="compact-label">
+                      {translate("progressSortLabel")}
+                      <select
+                        aria-label={translate("progressSortLabel")}
+                        value={progressSortMode}
+                        onChange={(event) =>
+                          setProgressSortMode(event.target.value as ProgressSortMode)
+                        }
+                      >
+                        <option value="date_desc">{translate("progressSortByDate")}</option>
+                        <option value="sessions_desc">{translate("progressSortBySessions")}</option>
+                        <option value="minutes_desc">{translate("progressSortByMinutes")}</option>
+                      </select>
+                    </label>
+                    <button className="button ghost" onClick={handleClearProgressFilters} type="button">
+                      {translate("clearProgressFilters")}
+                    </button>
+                  </div>
+                  <StatLine
+                    label={translate("filteredHistoryLabel")}
+                    value={String(filteredProgressHistory.length)}
+                    language={language}
+                  />
                   <div className="history-list">
-                    {progressSummary.history.map((entry) => (
-                      <article key={entry.date} className="history-item">
-                        <strong>{entry.date}</strong>
-                        <div className="history-values">
-                          <span>
-                            {translate("historySessionsLabel")} {entry.workoutSessions}
-                          </span>
-                          <span>
-                            {translate("historyMinutesLabel")} {entry.trainingMinutes}
-                          </span>
-                          <span>
-                            {translate("historySetsLabel")} {entry.completedSets}
-                          </span>
-                          <span>
-                            {translate("historyCaloriesLabel")} {entry.calories ?? "-"}
-                          </span>
-                        </div>
-                      </article>
-                    ))}
+                    {filteredProgressHistory.length === 0 ? (
+                      <p className="empty-state">{translate("noProgressFilteredHistory")}</p>
+                    ) : (
+                      filteredProgressHistory.map((entry) => (
+                        <article key={entry.date} className="history-item">
+                          <strong>{entry.date}</strong>
+                          <div className="history-values">
+                            <span>
+                              {translate("historySessionsLabel")} {entry.workoutSessions}
+                            </span>
+                            <span>
+                              {translate("historyMinutesLabel")} {entry.trainingMinutes}
+                            </span>
+                            <span>
+                              {translate("historySetsLabel")} {entry.completedSets}
+                            </span>
+                            <span>
+                              {translate("historyCaloriesLabel")} {entry.calories ?? "-"}
+                            </span>
+                            <span>{translate("effortMetric")} {entry.effortScore}</span>
+                          </div>
+                        </article>
+                      ))
+                    )}
                   </div>
                 </>
               )}

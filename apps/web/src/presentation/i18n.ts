@@ -83,16 +83,37 @@ type AppTranslations = {
   noRecommendationsLoaded: string;
   nutritionTitle: string;
   nutritionStatusLabel: string;
+  nutritionFiltersLabel: string;
+  nutritionDateFilterPlaceholder: string;
+  nutritionMinProteinPlaceholder: string;
+  nutritionMaxCaloriesPlaceholder: string;
+  nutritionSortLabel: string;
+  nutritionSortByDate: string;
+  nutritionSortByCalories: string;
+  nutritionSortByProtein: string;
+  clearNutritionFilters: string;
   saveNutritionLog: string;
   loadLogs: string;
   logsLoadedLabel: string;
+  filteredLogsLabel: string;
+  noNutritionFilteredLogs: string;
   progressTitle: string;
   progressStatusLabel: string;
+  progressFiltersLabel: string;
+  progressMinSessionsPlaceholder: string;
+  progressSortLabel: string;
+  progressSortByDate: string;
+  progressSortBySessions: string;
+  progressSortByMinutes: string;
+  clearProgressFilters: string;
   loadProgressSummary: string;
   noSummaryLoaded: string;
+  filteredHistoryLabel: string;
+  noProgressFilteredHistory: string;
   workoutsMetric: string;
   minutesMetric: string;
   setsMetric: string;
+  effortMetric: string;
   nutritionMetric: string;
   avgCaloriesMetric: string;
   avgProteinMetric: string;
@@ -231,16 +252,37 @@ const translations: Record<AppLanguage, AppTranslations> = {
     noRecommendationsLoaded: "Todavia no hay recomendaciones cargadas.",
     nutritionTitle: "Nutricion",
     nutritionStatusLabel: "Nutricion",
+    nutritionFiltersLabel: "Filtros de nutricion",
+    nutritionDateFilterPlaceholder: "filtrar por fecha",
+    nutritionMinProteinPlaceholder: "proteina minima",
+    nutritionMaxCaloriesPlaceholder: "calorias maximas",
+    nutritionSortLabel: "orden nutricion",
+    nutritionSortByDate: "fecha",
+    nutritionSortByCalories: "calorias",
+    nutritionSortByProtein: "proteina",
+    clearNutritionFilters: "Limpiar filtros nutricion",
     saveNutritionLog: "Guardar registro nutricional",
     loadLogs: "Cargar registros",
     logsLoadedLabel: "Registros cargados",
+    filteredLogsLabel: "Registros filtrados",
+    noNutritionFilteredLogs: "No hay registros nutricionales para este filtro.",
     progressTitle: "Progreso",
     progressStatusLabel: "Progreso",
+    progressFiltersLabel: "Filtros de progreso",
+    progressMinSessionsPlaceholder: "sesiones minimas",
+    progressSortLabel: "orden progreso",
+    progressSortByDate: "fecha",
+    progressSortBySessions: "sesiones",
+    progressSortByMinutes: "minutos",
+    clearProgressFilters: "Limpiar filtros progreso",
     loadProgressSummary: "Cargar resumen de progreso",
     noSummaryLoaded: "Todavia no hay resumen cargado.",
+    filteredHistoryLabel: "Dias filtrados",
+    noProgressFilteredHistory: "No hay historial para este filtro.",
     workoutsMetric: "Entrenos",
     minutesMetric: "Minutos",
     setsMetric: "Series",
+    effortMetric: "Esfuerzo",
     nutritionMetric: "Nutricion",
     avgCaloriesMetric: "Media kcal",
     avgProteinMetric: "Media proteina",
@@ -377,16 +419,37 @@ const translations: Record<AppLanguage, AppTranslations> = {
     noRecommendationsLoaded: "No recommendations loaded yet.",
     nutritionTitle: "Nutrition",
     nutritionStatusLabel: "Nutrition",
+    nutritionFiltersLabel: "Nutrition filters",
+    nutritionDateFilterPlaceholder: "filter by date",
+    nutritionMinProteinPlaceholder: "minimum protein",
+    nutritionMaxCaloriesPlaceholder: "maximum calories",
+    nutritionSortLabel: "nutrition sort",
+    nutritionSortByDate: "date",
+    nutritionSortByCalories: "calories",
+    nutritionSortByProtein: "protein",
+    clearNutritionFilters: "Clear nutrition filters",
     saveNutritionLog: "Save nutrition log",
     loadLogs: "Load logs",
     logsLoadedLabel: "Logs loaded",
+    filteredLogsLabel: "Filtered logs",
+    noNutritionFilteredLogs: "No nutrition logs match this filter.",
     progressTitle: "Progress",
     progressStatusLabel: "Progress",
+    progressFiltersLabel: "Progress filters",
+    progressMinSessionsPlaceholder: "minimum sessions",
+    progressSortLabel: "progress sort",
+    progressSortByDate: "date",
+    progressSortBySessions: "sessions",
+    progressSortByMinutes: "minutes",
+    clearProgressFilters: "Clear progress filters",
     loadProgressSummary: "Load progress summary",
     noSummaryLoaded: "No summary loaded yet.",
+    filteredHistoryLabel: "Filtered days",
+    noProgressFilteredHistory: "No history matches this filter.",
     workoutsMetric: "Workouts",
     minutesMetric: "Minutes",
     setsMetric: "Sets",
+    effortMetric: "Effort",
     nutritionMetric: "Nutrition",
     avgCaloriesMetric: "Avg kcal",
     avgProteinMetric: "Avg protein",

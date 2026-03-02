@@ -23,6 +23,11 @@ describe("i18n", () => {
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("athleteColumn")).toBe("Athlete");
+    expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
+    expect(translate("progressFiltersLabel")).toBe("Progress filters");
+    expect(translate("effortMetric")).toBe("Effort");
+    expect(translate("noNutritionFilteredLogs")).toBe("No nutrition logs match this filter.");
+    expect(translate("noProgressFilteredHistory")).toBe("No history matches this filter.");
     expect(translate("domainOperations")).toBe("Operations");
     expect(translate("settingsTitle")).toBe("Settings");
     expect(translate("legalSectionTitle")).toBe("Privacy and consent");
@@ -50,6 +55,13 @@ describe("i18n", () => {
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("athleteColumn")).toBe("Atleta");
+    expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
+    expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
+    expect(translate("effortMetric")).toBe("Esfuerzo");
+    expect(translate("noNutritionFilteredLogs")).toBe(
+      "No hay registros nutricionales para este filtro."
+    );
+    expect(translate("noProgressFilteredHistory")).toBe("No hay historial para este filtro.");
     expect(translate("domainAll")).toBe("Todo");
     expect(translate("domainTraining")).toBe("Entrenamiento");
     expect(translate("domainOperations")).toBe("Operaciones");
