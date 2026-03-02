@@ -15,6 +15,7 @@ describe("dashboard domain navigation", () => {
       "training",
       "operationsHub",
       "adminGovernance",
+      "auditCompliance",
       "recommendations",
       "nutrition",
       "progress",
@@ -36,6 +37,7 @@ describe("dashboard domain navigation", () => {
     expect(getVisibleModules("operations")).toEqual([
       "operationsHub",
       "adminGovernance",
+      "auditCompliance",
       "recommendations",
       "settings",
       "legal",
@@ -44,6 +46,7 @@ describe("dashboard domain navigation", () => {
     ]);
     expect(isModuleVisible("operationsHub", "operations")).toBe(true);
     expect(isModuleVisible("adminGovernance", "operations")).toBe(true);
+    expect(isModuleVisible("auditCompliance", "operations")).toBe(true);
     expect(isModuleVisible("recommendations", "operations")).toBe(true);
     expect(isModuleVisible("settings", "operations")).toBe(true);
     expect(isModuleVisible("legal", "operations")).toBe(true);

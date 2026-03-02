@@ -85,6 +85,33 @@ type AppTranslations = {
   governanceAllowedDomainsLabel: string;
   governanceSourceOperator: string;
   governanceSourceActivity: string;
+  auditTitle: string;
+  auditStatusLabel: string;
+  auditLoadTimeline: string;
+  auditExportCSV: string;
+  auditClearFilters: string;
+  auditSearchPlaceholder: string;
+  auditSourceFilterLabel: string;
+  auditCategoryFilterLabel: string;
+  auditSeverityFilterLabel: string;
+  auditDomainFilterPlaceholder: string;
+  auditFilterAllSources: string;
+  auditFilterAllCategories: string;
+  auditFilterAllSeverities: string;
+  auditCategoryAnalytics: string;
+  auditCategoryCrash: string;
+  auditSeverityInfo: string;
+  auditRowsLoadedLabel: string;
+  auditRowsFilteredLabel: string;
+  auditNoRows: string;
+  auditOccurredAtColumn: string;
+  auditSourceColumn: string;
+  auditCategoryColumn: string;
+  auditSeverityColumn: string;
+  auditNameColumn: string;
+  auditDomainColumn: string;
+  auditCorrelationColumn: string;
+  auditSummaryColumn: string;
   createPlan: string;
   loadPlans: string;
   logWorkout: string;
@@ -275,6 +302,33 @@ const translations: Record<AppLanguage, AppTranslations> = {
     governanceAllowedDomainsLabel: "Dominios permitidos",
     governanceSourceOperator: "operador",
     governanceSourceActivity: "actividad",
+    auditTitle: "Audit + compliance",
+    auditStatusLabel: "Audit",
+    auditLoadTimeline: "Cargar timeline audit",
+    auditExportCSV: "Exportar CSV audit",
+    auditClearFilters: "Limpiar filtros audit",
+    auditSearchPlaceholder: "buscar evento audit",
+    auditSourceFilterLabel: "fuente audit",
+    auditCategoryFilterLabel: "categoria audit",
+    auditSeverityFilterLabel: "severidad audit",
+    auditDomainFilterPlaceholder: "filtrar dominio audit",
+    auditFilterAllSources: "todas las fuentes",
+    auditFilterAllCategories: "todas las categorias",
+    auditFilterAllSeverities: "todas las severidades",
+    auditCategoryAnalytics: "analitica",
+    auditCategoryCrash: "crash",
+    auditSeverityInfo: "info",
+    auditRowsLoadedLabel: "Filas audit cargadas",
+    auditRowsFilteredLabel: "Filas audit filtradas",
+    auditNoRows: "No hay filas de audit para este filtro.",
+    auditOccurredAtColumn: "Momento",
+    auditSourceColumn: "Fuente",
+    auditCategoryColumn: "Categoria",
+    auditSeverityColumn: "Severidad",
+    auditNameColumn: "Evento",
+    auditDomainColumn: "Dominio",
+    auditCorrelationColumn: "Correlacion",
+    auditSummaryColumn: "Resumen",
     createPlan: "Crear plan",
     loadPlans: "Cargar planes",
     logWorkout: "Registrar sesion demo",
@@ -463,6 +517,33 @@ const translations: Record<AppLanguage, AppTranslations> = {
     governanceAllowedDomainsLabel: "Allowed domains",
     governanceSourceOperator: "operator",
     governanceSourceActivity: "activity",
+    auditTitle: "Audit + compliance",
+    auditStatusLabel: "Audit",
+    auditLoadTimeline: "Load audit timeline",
+    auditExportCSV: "Export audit CSV",
+    auditClearFilters: "Clear audit filters",
+    auditSearchPlaceholder: "search audit event",
+    auditSourceFilterLabel: "audit source",
+    auditCategoryFilterLabel: "audit category",
+    auditSeverityFilterLabel: "audit severity",
+    auditDomainFilterPlaceholder: "filter audit domain",
+    auditFilterAllSources: "all sources",
+    auditFilterAllCategories: "all categories",
+    auditFilterAllSeverities: "all severities",
+    auditCategoryAnalytics: "analytics",
+    auditCategoryCrash: "crash",
+    auditSeverityInfo: "info",
+    auditRowsLoadedLabel: "Audit rows loaded",
+    auditRowsFilteredLabel: "Audit rows filtered",
+    auditNoRows: "No audit rows match this filter.",
+    auditOccurredAtColumn: "Occurred at",
+    auditSourceColumn: "Source",
+    auditCategoryColumn: "Category",
+    auditSeverityColumn: "Severity",
+    auditNameColumn: "Event",
+    auditDomainColumn: "Domain",
+    auditCorrelationColumn: "Correlation",
+    auditSummaryColumn: "Summary",
     createPlan: "Create plan",
     loadPlans: "Load plans",
     logWorkout: "Log demo workout",

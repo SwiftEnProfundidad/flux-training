@@ -24,6 +24,7 @@ export type DashboardModule =
   | "training"
   | "operationsHub"
   | "adminGovernance"
+  | "auditCompliance"
   | "recommendations"
   | "nutrition"
   | "progress"
@@ -40,6 +41,7 @@ const domainModules: Record<DashboardDomain, DashboardModule[]> = {
     "training",
     "operationsHub",
     "adminGovernance",
+    "auditCompliance",
     "recommendations",
     "nutrition",
     "progress",
@@ -55,6 +57,7 @@ const domainModules: Record<DashboardDomain, DashboardModule[]> = {
   operations: [
     "operationsHub",
     "adminGovernance",
+    "auditCompliance",
     "recommendations",
     "settings",
     "legal",

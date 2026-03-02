@@ -26,6 +26,10 @@ describe("i18n", () => {
     expect(translate("governanceTitle")).toBe("Users + roles + RBAC");
     expect(translate("governanceLoadCapabilities")).toBe("Load RBAC matrix");
     expect(translate("governancePrincipalColumn")).toBe("User");
+    expect(translate("auditTitle")).toBe("Audit + compliance");
+    expect(translate("auditLoadTimeline")).toBe("Load audit timeline");
+    expect(translate("auditClearFilters")).toBe("Clear audit filters");
+    expect(translate("auditSummaryColumn")).toBe("Summary");
     expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
     expect(translate("progressFiltersLabel")).toBe("Progress filters");
     expect(translate("effortMetric")).toBe("Effort");
@@ -61,6 +65,10 @@ describe("i18n", () => {
     expect(translate("governanceTitle")).toBe("Usuarios + roles + RBAC");
     expect(translate("governanceLoadCapabilities")).toBe("Cargar matriz RBAC");
     expect(translate("governancePrincipalColumn")).toBe("Usuario");
+    expect(translate("auditTitle")).toBe("Audit + compliance");
+    expect(translate("auditLoadTimeline")).toBe("Cargar timeline audit");
+    expect(translate("auditClearFilters")).toBe("Limpiar filtros audit");
+    expect(translate("auditSummaryColumn")).toBe("Resumen");
     expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
     expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
     expect(translate("effortMetric")).toBe("Esfuerzo");

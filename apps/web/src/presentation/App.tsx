@@ -106,6 +106,14 @@ import {
   type ProgressSortMode
 } from "./nutrition-progress-operations";
 import {
+  buildAuditTimelineRows,
+  exportAuditTimelineRowsToCSV,
+  filterAuditTimelineRows,
+  type AuditCategoryFilter,
+  type AuditSeverityFilter,
+  type AuditSourceFilter
+} from "./audit-compliance";
+import {
   deriveModuleRuntimeStatus,
   type ModuleRuntimeStatus
 } from "./module-runtime-status";
@@ -290,6 +298,12 @@ export function App() {
   const [capabilitiesByRole, setCapabilitiesByRole] = useState<
     Partial<Record<DashboardRole, RoleCapabilities | null>>
   >({});
+  const [auditStatus, setAuditStatus] = useState<ModuleRuntimeStatus>("idle");
+  const [auditQuery, setAuditQuery] = useState("");
+  const [auditSourceFilter, setAuditSourceFilter] = useState<AuditSourceFilter>("all");
+  const [auditCategoryFilter, setAuditCategoryFilter] = useState<AuditCategoryFilter>("all");
+  const [auditSeverityFilter, setAuditSeverityFilter] = useState<AuditSeverityFilter>("all");
+  const [auditDomainFilter, setAuditDomainFilter] = useState("");
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -378,6 +392,28 @@ export function App() {
   const governanceRoleCoverage = useMemo(
     () => buildRoleCapabilityCoverage(capabilitiesByRole),
     [capabilitiesByRole]
+  );
+  const auditTimelineRowsBase = useMemo(
+    () => buildAuditTimelineRows(analyticsEvents, crashReports),
+    [analyticsEvents, crashReports]
+  );
+  const auditTimelineRows = useMemo(
+    () =>
+      filterAuditTimelineRows(auditTimelineRowsBase, {
+        query: auditQuery,
+        source: auditSourceFilter,
+        category: auditCategoryFilter,
+        severity: auditSeverityFilter,
+        domain: auditDomainFilter
+      }),
+    [
+      auditCategoryFilter,
+      auditDomainFilter,
+      auditQuery,
+      auditSeverityFilter,
+      auditSourceFilter,
+      auditTimelineRowsBase
+    ]
   );
   const nutritionMinProteinFilterParsed = useMemo(
     () => parseOptionalNumber(nutritionMinProteinFilter),
@@ -524,6 +560,25 @@ export function App() {
     governanceHasValidationError,
     governancePrincipals,
     governancePrincipalsBase.length
+  ]);
+
+  useEffect(() => {
+    setAuditStatus((current) =>
+      deriveModuleRuntimeStatus({
+        activeDomain,
+        moduleDomain: "operations",
+        activeDomainRuntimeState,
+        hasValidationError: false,
+        totalItems: auditTimelineRowsBase.length,
+        filteredItems: auditTimelineRows.length,
+        currentStatus: current
+      })
+    );
+  }, [
+    activeDomain,
+    activeDomainRuntimeState,
+    auditTimelineRows.length,
+    auditTimelineRowsBase.length
   ]);
 
   useEffect(() => {
@@ -984,6 +1039,15 @@ export function App() {
     }
   }
 
+  async function loadObservabilityCollections(): Promise<void> {
+    const [loadedEvents, loadedCrashReports] = await Promise.all([
+      manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
+      manageObservabilityUseCase.listCrashReports(demoUserId)
+    ]);
+    setAnalyticsEvents(loadedEvents);
+    setCrashReports(loadedCrashReports);
+  }
+
   async function handleTrackAnalyticsEvent() {
     setObservabilityStatus("loading");
     try {
@@ -1035,18 +1099,62 @@ export function App() {
   async function handleLoadObservabilityData() {
     setObservabilityStatus("loading");
     try {
-      const [loadedEvents, loadedCrashReports] = await Promise.all([
-        manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
-        manageObservabilityUseCase.listCrashReports(demoUserId)
-      ]);
-      setAnalyticsEvents(loadedEvents);
-      setCrashReports(loadedCrashReports);
+      await loadObservabilityCollections();
       setObservabilityStatus("loaded");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setObservabilityStatus("error");
+    }
+  }
+
+  async function handleLoadAuditTimeline() {
+    setAuditStatus("loading");
+    try {
+      await loadObservabilityCollections();
+      setAuditStatus("loaded");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setAuditStatus("error");
+    }
+  }
+
+  async function handleExportAuditCSV() {
+    if (auditTimelineRows.length === 0) {
+      setAuditStatus("empty");
+      return;
+    }
+    const csv = exportAuditTimelineRowsToCSV(auditTimelineRows);
+    if (typeof window !== "undefined") {
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = window.document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `flux-audit-${new Date().toISOString()}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+    try {
+      const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, "operations");
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: demoUserId,
+        name: "audit_timeline_exported",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          rowsExported: String(auditTimelineRows.length),
+          sourceFilter: auditSourceFilter,
+          categoryFilter: auditCategoryFilter,
+          severityFilter: auditSeverityFilter,
+          ...runtimeAttributes
+        }
+      });
+      setAuditStatus("saved");
+    } catch {
+      setAuditStatus("error");
     }
   }
 
@@ -1127,6 +1235,14 @@ export function App() {
   function handleClearProgressFilters() {
     setProgressMinSessionsFilter("");
     setProgressSortMode("date_desc");
+  }
+
+  function handleClearAuditFilters() {
+    setAuditQuery("");
+    setAuditSourceFilter("all");
+    setAuditCategoryFilter("all");
+    setAuditSeverityFilter("all");
+    setAuditDomainFilter("");
   }
 
   function handleToggleGovernancePrincipalSelection(principalId: string) {
@@ -2162,6 +2278,136 @@ export function App() {
                   </article>
                 ))}
               </div>
+            </div>
+            </article>
+          ) : null}
+
+          {isModuleVisible("auditCompliance", activeDomain) ? (
+            <article className="module-card">
+            <SectionHeader
+              title={translate("auditTitle")}
+              status={auditStatus}
+              statusLabel={translate("auditStatusLabel")}
+              language={language}
+            />
+            <div className="form-grid">
+              <div className="inline-inputs">
+                <button className="button ghost" onClick={handleLoadAuditTimeline} type="button">
+                  {translate("auditLoadTimeline")}
+                </button>
+                <button className="button primary" onClick={handleExportAuditCSV} type="button">
+                  {translate("auditExportCSV")}
+                </button>
+                <button className="button ghost" onClick={handleClearAuditFilters} type="button">
+                  {translate("auditClearFilters")}
+                </button>
+              </div>
+              <div className="inline-inputs">
+                <input
+                  aria-label={translate("auditSearchPlaceholder")}
+                  placeholder={translate("auditSearchPlaceholder")}
+                  value={auditQuery}
+                  onChange={(event) => setAuditQuery(event.target.value)}
+                />
+                <input
+                  aria-label={translate("auditDomainFilterPlaceholder")}
+                  placeholder={translate("auditDomainFilterPlaceholder")}
+                  value={auditDomainFilter}
+                  onChange={(event) => setAuditDomainFilter(event.target.value)}
+                />
+              </div>
+              <div className="inline-inputs">
+                <label className="compact-label">
+                  {translate("auditSourceFilterLabel")}
+                  <select
+                    aria-label={translate("auditSourceFilterLabel")}
+                    value={auditSourceFilter}
+                    onChange={(event) => setAuditSourceFilter(event.target.value as AuditSourceFilter)}
+                  >
+                    <option value="all">{translate("auditFilterAllSources")}</option>
+                    <option value="web">web</option>
+                    <option value="ios">ios</option>
+                    <option value="backend">backend</option>
+                  </select>
+                </label>
+                <label className="compact-label">
+                  {translate("auditCategoryFilterLabel")}
+                  <select
+                    aria-label={translate("auditCategoryFilterLabel")}
+                    value={auditCategoryFilter}
+                    onChange={(event) =>
+                      setAuditCategoryFilter(event.target.value as AuditCategoryFilter)
+                    }
+                  >
+                    <option value="all">{translate("auditFilterAllCategories")}</option>
+                    <option value="analytics">{translate("auditCategoryAnalytics")}</option>
+                    <option value="crash">{translate("auditCategoryCrash")}</option>
+                  </select>
+                </label>
+                <label className="compact-label">
+                  {translate("auditSeverityFilterLabel")}
+                  <select
+                    aria-label={translate("auditSeverityFilterLabel")}
+                    value={auditSeverityFilter}
+                    onChange={(event) =>
+                      setAuditSeverityFilter(event.target.value as AuditSeverityFilter)
+                    }
+                  >
+                    <option value="all">{translate("auditFilterAllSeverities")}</option>
+                    <option value="info">{translate("auditSeverityInfo")}</option>
+                    <option value="warning">warning</option>
+                    <option value="fatal">fatal</option>
+                  </select>
+                </label>
+              </div>
+              <StatLine
+                label={translate("auditRowsLoadedLabel")}
+                value={String(auditTimelineRowsBase.length)}
+                language={language}
+              />
+              <StatLine
+                label={translate("auditRowsFilteredLabel")}
+                value={String(auditTimelineRows.length)}
+                language={language}
+              />
+              {auditTimelineRows.length === 0 ? (
+                <p className="empty-state">{translate("auditNoRows")}</p>
+              ) : (
+                <div className="operations-table">
+                  <header className="operations-table-row operations-table-header">
+                    <span>{translate("auditOccurredAtColumn")}</span>
+                    <span>{translate("auditSourceColumn")}</span>
+                    <span>{translate("auditCategoryColumn")}</span>
+                    <span>{translate("auditSeverityColumn")}</span>
+                    <span>{translate("auditNameColumn")}</span>
+                    <span>{translate("auditDomainColumn")}</span>
+                    <span>{translate("auditCorrelationColumn")}</span>
+                    <span>{translate("auditSummaryColumn")}</span>
+                  </header>
+                  {auditTimelineRows.map((row) => (
+                    <div key={row.id} className="operations-table-row audit-table-row">
+                      <span>{row.occurredAt}</span>
+                      <span>{row.source}</span>
+                      <span>{row.category}</span>
+                      <span
+                        className={`status-pill status-${toStatusClass(
+                          row.severity === "fatal"
+                            ? "high"
+                            : row.severity === "warning"
+                              ? "medium"
+                              : "low"
+                        )}`}
+                      >
+                        {toHumanStatus(row.severity, language)}
+                      </span>
+                      <span>{row.name}</span>
+                      <span>{row.domain}</span>
+                      <span>{row.correlationId}</span>
+                      <span>{row.summary}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             </article>
           ) : null}
