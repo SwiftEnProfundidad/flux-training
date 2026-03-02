@@ -893,4 +893,46 @@ describe("DemoHttpServer", () => {
     expect(crashPayload.reports[0]?.severity).toBe("fatal");
     expect(crashPayload.reports[0]?.source).toBe("backend");
   });
+
+  it("exposes runtime profiles for endpoint latency and cache behavior", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    await fetch(`${server.baseUrl}/api/listTrainingPlans?userId=demo-user`, {
+      headers: clientHeaders
+    });
+    await fetch(`${server.baseUrl}/api/listTrainingPlans?userId=demo-user`, {
+      headers: clientHeaders
+    });
+    await fetch(`${server.baseUrl}/api/listObservabilitySummary?userId=demo-user`, {
+      headers: clientHeaders
+    });
+    await fetch(`${server.baseUrl}/api/listObservabilitySummary?userId=demo-user`, {
+      headers: clientHeaders
+    });
+
+    const response = await fetch(`${server.baseUrl}/api/listRuntimeProfiles`, {
+      headers: clientHeaders
+    });
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as {
+      profiles: Array<{
+        endpoint?: string;
+        calls?: number;
+        cacheHits?: number;
+        averageMs?: number;
+      }>;
+    };
+
+    expect(payload.profiles.length).toBeGreaterThan(0);
+    const plansProfile = payload.profiles.find((profile) => profile.endpoint === "listTrainingPlans");
+    const summaryProfile = payload.profiles.find(
+      (profile) => profile.endpoint === "listObservabilitySummary"
+    );
+
+    expect(plansProfile?.calls).toBe(2);
+    expect(summaryProfile?.calls).toBe(2);
+    expect((summaryProfile?.cacheHits ?? 0) >= 1).toBe(true);
+    expect((plansProfile?.averageMs ?? -1) >= 0).toBe(true);
+  });
 });

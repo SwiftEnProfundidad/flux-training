@@ -33,12 +33,12 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 |---|---|---|---|---|---|
 | V4-P2-T1 | Performance de frontend (iOS/Web) | V4-P2-T1.1 tiempos de carga; V4-P2-T1.2 listas densas/tablas; V4-P2-T1.3 optimizacion render | ✅ | V4-P1-T1 | UX estable bajo carga realista |
 | V4-P2-T2 | Performance backend/API | V4-P2-T2.1 perfiles por endpoint; V4-P2-T2.2 caching/colas; V4-P2-T2.3 tuning DB | ✅ | V4-P2-T1 | API dentro de SLO acordado |
-| V4-P2-T3 | Pruebas de carga y degradacion | V4-P2-T3.1 carga base; V4-P2-T3.2 stress; V4-P2-T3.3 criterios de degradacion controlada | 🚧 | V4-P2-T2 | Comportamiento predecible en picos |
+| V4-P2-T3 | Pruebas de carga y degradacion | V4-P2-T3.1 carga base; V4-P2-T3.2 stress; V4-P2-T3.3 criterios de degradacion controlada | ✅ | V4-P2-T2 | Comportamiento predecible en picos |
 
 ## Fase P3 - Release governance
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V4-P3-T1 | Gate de release enterprise | V4-P3-T1.1 checklist tecnico; V4-P3-T1.2 checklist legal; V4-P3-T1.3 checklist operacion | ⏳ | V4-P2-T3 | Go/No-Go auditable |
+| V4-P3-T1 | Gate de release enterprise | V4-P3-T1.1 checklist tecnico; V4-P3-T1.2 checklist legal; V4-P3-T1.3 checklist operacion | 🚧 | V4-P2-T3 | Go/No-Go auditable |
 | V4-P3-T2 | Plan de rollback y continuidad | V4-P3-T2.1 rollback por capa; V4-P3-T2.2 backup/restore; V4-P3-T2.3 simulacro | ⏳ | V4-P3-T1 | Recuperacion validada |
 | V4-P3-T3 | Cierre V4 y handoff a V5 | V4-P3-T3.1 reporte residual; V4-P3-T3.2 aprobacion release board; V4-P3-T3.3 apertura V5 | ⏳ | V4-P3-T2 | V4 cerrado para rollout controlado |
 
@@ -110,3 +110,12 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - regresión global validada en verde (`pnpm --filter backend build`, `pnpm --filter backend test`, `pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
 - Siguiente task activa:
   - `V4-P2-T3` (Pruebas de carga y degradacion) en `🚧`.
+- Cierre V4-P2-T3:
+  - suite de carga base añadida en backend para endpoints críticos con control de latencia p95 y cero errores de servidor.
+  - suite de estrés añadida con tráfico mixto concurrente (crash + analytics + observability) y validación de estabilidad operativa.
+  - criterios de degradación controlada validados mediante alertas (`fatal_crash_slo_breach`, `denied_access_spike`, `blocked_action_spike`) con runbooks enlazados.
+  - endpoint runtime `listRuntimeProfiles` publicado para inspección operativa de `calls`, `cacheHits` y latencias por endpoint.
+  - evidencia publicada: `docs/validation/V4_P2_T3_LOAD_DEGRADATION.json`.
+  - regresión global validada en verde (`pnpm --filter backend build`, `pnpm --filter backend test`, `pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
+- Siguiente task activa:
+  - `V4-P3-T1` (Gate de release enterprise) en `🚧`.

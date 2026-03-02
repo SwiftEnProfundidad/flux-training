@@ -78,6 +78,7 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/createCrashReport": "POST",
   "/api/listCrashReports": "GET",
   "/api/listObservabilitySummary": "GET",
+  "/api/listRuntimeProfiles": "GET",
   "/api/listOperationalAlerts": "GET",
   "/api/listOperationalRunbooks": "GET",
   "/api/listStructuredLogs": "GET",
@@ -733,6 +734,18 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: mapDomainError(error, "invalid_list_observability_summary_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listRuntimeProfiles") {
+    try {
+      const profiles = runtime.listRuntimeProfiles();
+      return { statusCode: 200, payload: { profiles } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_runtime_profiles_payload") }
       };
     }
   }
