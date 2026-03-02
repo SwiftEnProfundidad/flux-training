@@ -140,6 +140,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V6_P0_T3_GROWTH_OPERATING_MODEL.json`: evidencia del modelo operativo Growth-Product-Support (ownership, rituales y decision log).
 - `V6_P1_T1_FREEMIUM_PREMIUM_ARCHITECTURE.json`: evidencia de arquitectura de planes (tiering, límites por rol y rutas de upgrade contextuales).
 - `V6_P1_T2_CONTEXTUAL_PAYWALL_UPGRADES.json`: evidencia de paywall y upgrades contextuales (triggers de valor, copy ES/EN y marco experimental A/B).
+- `V6_P1_T3_BILLING_RECOVERY_RESILIENCE.json`: evidencia de resiliencia de billing y recovery (fallos de cobro, grace period y flujo win-back).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -238,6 +239,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v6_p0_t3_growth_operating_model.feature`
 - `features/v6_p1_t1_freemium_premium_architecture.feature`
 - `features/v6_p1_t2_contextual_paywall_upgrades.feature`
+- `features/v6_p1_t3_billing_recovery_resilience.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

@@ -26,12 +26,12 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 |---|---|---|---|---|---|
 | V6-P1-T1 | Arquitectura de planes freemium/premium | V6-P1-T1.1 packaging; V6-P1-T1.2 limites por rol; V6-P1-T1.3 upgrade paths | ✅ | V6-P0-T2 | Planes consistentes y accionables |
 | V6-P1-T2 | Paywall y upgrades contextuales | V6-P1-T2.1 triggers por valor; V6-P1-T2.2 copy ES/EN; V6-P1-T2.3 pruebas A/B | ✅ | V6-P1-T1 | Upgrade no intrusivo y trazable |
-| V6-P1-T3 | Billing resiliente y recovery | V6-P1-T3.1 fallo de cobro; V6-P1-T3.2 grace period; V6-P1-T3.3 win-back | 🚧 | V6-P1-T2 | Perdida de ingreso controlada |
+| V6-P1-T3 | Billing resiliente y recovery | V6-P1-T3.1 fallo de cobro; V6-P1-T3.2 grace period; V6-P1-T3.3 win-back | ✅ | V6-P1-T2 | Perdida de ingreso controlada |
 
 ## Fase P2 - Retencion y expansion
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V6-P2-T1 | Loops de activacion semanal | V6-P2-T1.1 primer valor en 24h; V6-P2-T1.2 continuidad D7; V6-P2-T1.3 coaching nudges | ⏳ | V6-P0-T2 | Activacion semanal en alza |
+| V6-P2-T1 | Loops de activacion semanal | V6-P2-T1.1 primer valor en 24h; V6-P2-T1.2 continuidad D7; V6-P2-T1.3 coaching nudges | 🚧 | V6-P0-T2 | Activacion semanal en alza |
 | V6-P2-T2 | CRM operativo multicanal | V6-P2-T2.1 in-app; V6-P2-T2.2 email/push; V6-P2-T2.3 segmentacion por riesgo | ⏳ | V6-P2-T1 | Re-engagement automatizado |
 | V6-P2-T3 | Prevencion de churn y win-back | V6-P2-T3.1 score de churn; V6-P2-T3.2 intervenciones; V6-P2-T3.3 medicion incremental | ⏳ | V6-P2-T2 | Churn contenido por cohortes |
 
@@ -82,3 +82,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P1_T2_CONTEXTUAL_PAYWALL_UPGRADES.json`.
 - Siguiente task activa:
   - `V6-P1-T3` (Billing resiliente y recovery) en `🚧`.
+- Cierre V6-P1-T3:
+  - estrategia de fallos de cobro definida con clasificación (`soft_decline`, `hard_decline`, `processor_error`) y acciones de recuperación por tipo.
+  - política de `grace period` definida por plan/tier con degradación progresiva de capacidades y avisos bilingües trazables.
+  - flujo de win-back definido para cancelaciones involuntarias y churn reciente con ofertas contextuales y medición incremental.
+  - evidencia publicada: `docs/validation/V6_P1_T3_BILLING_RECOVERY_RESILIENCE.json`.
+- Siguiente task activa:
+  - `V6-P2-T1` (Loops de activacion semanal) en `🚧`.
