@@ -38,8 +38,8 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 ## Fase P3 - Cierre y gobierno V6
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V6-P3-T1 | Consolidar resultados V6 | V6-P3-T1.1 impacto negocio; V6-P3-T1.2 impacto operacion; V6-P3-T1.3 riesgos residuales | 🚧 | V6-P2-T3 | Resultado ejecutivo auditable |
-| V6-P3-T2 | Definir backlog V7 | V6-P3-T2.1 priorizacion; V6-P3-T2.2 dependencias; V6-P3-T2.3 capacidad | ⏳ | V6-P3-T1 | Backlog V7 listo |
+| V6-P3-T1 | Consolidar resultados V6 | V6-P3-T1.1 impacto negocio; V6-P3-T1.2 impacto operacion; V6-P3-T1.3 riesgos residuales | ✅ | V6-P2-T3 | Resultado ejecutivo auditable |
+| V6-P3-T2 | Definir backlog V7 | V6-P3-T2.1 priorizacion; V6-P3-T2.2 dependencias; V6-P3-T2.3 capacidad | 🚧 | V6-P3-T1 | Backlog V7 listo |
 | V6-P3-T3 | Cierre ejecutivo V6 | V6-P3-T3.1 reporte final; V6-P3-T3.2 decision continuidad; V6-P3-T3.3 handoff | ⏳ | V6-P3-T2 | V6 cerrado formalmente |
 
 ## Bitacora V6 (2026-03-03)
@@ -110,3 +110,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P2_T3_CHURN_PREVENTION_WINBACK.json`.
 - Siguiente task activa:
   - `V6-P3-T1` (Consolidar resultados V6) en `🚧`.
+- Cierre V6-P3-T1:
+  - impacto de negocio V6 consolidado con evolución de conversión freemium, reactivación D30 y retención neta de ingresos.
+  - impacto operativo consolidado con métricas de soporte, estabilidad de flujos de billing recovery y efectividad CRM multicanal.
+  - riesgos residuales consolidados y priorizados con mitigación, owner y fecha objetivo para arranque de V7.
+  - evidencia publicada: `docs/validation/V6_P3_T1_V6_RESULTS_CONSOLIDATION.json`.
+- Siguiente task activa:
+  - `V6-P3-T2` (Definir backlog V7) en `🚧`.
