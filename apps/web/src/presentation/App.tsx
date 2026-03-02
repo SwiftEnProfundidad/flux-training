@@ -78,20 +78,58 @@ import {
   nextDeniedEventAttributes,
   nextEventAttributes
 } from "./runtime-observability";
+import {
+  resolveDomainAccessDecision,
+  type RoleCapabilitiesStatus
+} from "./role-domain-access";
 import "./app.css";
 
-type SessionStatus = "idle" | "saved" | "error";
-type OnboardingStatus = "idle" | "saved" | "error";
-type TrainingStatus = "idle" | "saved" | "loaded" | "queued" | "error";
-type NutritionStatus = "idle" | "saved" | "loaded" | "queued" | "error";
-type ProgressStatus = "idle" | "loaded" | "error";
-type SyncStatus = "idle" | "synced" | "error";
-type ObservabilityStatus = "idle" | "event_saved" | "crash_saved" | "loaded" | "error";
+type SessionStatus = "idle" | "loading" | "saved" | "queued" | "validation_error" | "error";
+type OnboardingStatus =
+  | "idle"
+  | "loading"
+  | "saved"
+  | "validation_error"
+  | "consent_required"
+  | "error";
+type TrainingStatus =
+  | "idle"
+  | "loading"
+  | "saved"
+  | "loaded"
+  | "queued"
+  | "validation_error"
+  | "error";
+type NutritionStatus =
+  | "idle"
+  | "loading"
+  | "saved"
+  | "loaded"
+  | "empty"
+  | "queued"
+  | "validation_error"
+  | "error";
+type ProgressStatus = "idle" | "loading" | "loaded" | "empty" | "validation_error" | "error";
+type SyncStatus = "idle" | "loading" | "synced" | "error";
+type ObservabilityStatus =
+  | "idle"
+  | "loading"
+  | "event_saved"
+  | "crash_saved"
+  | "loaded"
+  | "error";
 type ReleaseCompatibilityStatus = "compatible" | "upgrade_required";
-type LegalStatus = "idle" | "consent_saved" | "deletion_requested" | "exported" | "error";
-type SettingsStatus = "idle" | "saved";
-type VideoStatus = "idle" | "loaded" | "error";
-type RecommendationsStatus = "idle" | "loaded" | "error";
+type LegalStatus =
+  | "idle"
+  | "loading"
+  | "saved"
+  | "consent_required"
+  | "deletion_requested"
+  | "exported"
+  | "error";
+type SettingsStatus = "idle" | "loading" | "saved";
+type VideoStatus = "idle" | "loading" | "loaded" | "error";
+type RecommendationsStatus = "idle" | "loading" | "loaded" | "empty" | "error";
 
 const demoUserId = "demo-user";
 const languageStorageKey = "flux_training_language";
@@ -220,12 +258,12 @@ export function App() {
     readRolePreference()
   );
   const [roleCapabilities, setRoleCapabilities] = useState<RoleCapabilities | null>(null);
-  const [roleCapabilitiesStatus, setRoleCapabilitiesStatus] = useState<
-    "idle" | "loading" | "loaded" | "error"
-  >("idle");
+  const [roleCapabilitiesStatus, setRoleCapabilitiesStatus] =
+    useState<RoleCapabilitiesStatus>("idle");
   const [domainRuntimeStates, setDomainRuntimeStates] = useState<DomainRuntimeStates>(() =>
     createInitialDomainRuntimeStates()
   );
+  const [roleCapabilitiesReloadNonce, setRoleCapabilitiesReloadNonce] = useState(0);
   const isInitialDomainRender = useRef(true);
   const isInitialRoleRender = useRef(true);
   const runtimeObservabilitySessionRef = useRef(createRuntimeObservabilitySession());
@@ -276,6 +314,10 @@ export function App() {
     return false;
   }
 
+  function hasValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
   useEffect(() => {
     void refreshPendingQueue();
   }, []);
@@ -293,6 +335,22 @@ export function App() {
     }
     void trackDomainChange(activeDomain);
   }, [activeDomain]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    function handlePopState(): void {
+      const domainFromURL = readDashboardDomainFromURL(window.location.href);
+      if (domainFromURL !== null) {
+        setActiveDomain(domainFromURL);
+      }
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -322,16 +380,26 @@ export function App() {
     return () => {
       isCancelled = true;
     };
-  }, [activeRole, manageRoleCapabilitiesUseCase]);
+  }, [activeRole, manageRoleCapabilitiesUseCase, roleCapabilitiesReloadNonce]);
 
   useEffect(() => {
     if (activeDomain === "all") {
       return;
     }
-    const allowed = canAccessActiveRoleDomain(activeDomain);
+    const decision = resolveDomainAccessDecision(
+      activeDomain,
+      roleCapabilitiesStatus,
+      roleCapabilities
+    );
     setDomainRuntimeStates((currentStates) => {
       const currentState = currentStates[activeDomain];
-      if (!allowed && currentState !== "denied") {
+      if (decision === "pending" && currentState !== "loading") {
+        return { ...currentStates, [activeDomain]: "loading" };
+      }
+      if (decision === "error" && currentState !== "error") {
+        return { ...currentStates, [activeDomain]: "error" };
+      }
+      if (decision === "denied" && currentState !== "denied") {
         const correlationId = nextCorrelationId(
           runtimeObservabilitySessionRef.current,
           activeDomain,
@@ -346,7 +414,7 @@ export function App() {
         );
         return { ...currentStates, [activeDomain]: "denied" };
       }
-      if (allowed && currentState === "denied") {
+      if (decision === "allowed" && (currentState === "denied" || currentState === "loading")) {
         return { ...currentStates, [activeDomain]: "success" };
       }
       return currentStates;
@@ -363,6 +431,7 @@ export function App() {
   }, [activeRole]);
 
   async function handleAppleSignIn() {
+    setAuthStatus("loading");
     try {
       const session = await createAuthSessionUseCase.executeWithApple();
       setAuthStatus(`signed_in:${session.identity.provider}`);
@@ -375,6 +444,11 @@ export function App() {
   }
 
   async function handleEmailSignIn() {
+    setAuthStatus("loading");
+    if (!hasValidEmail(email) || password.trim().length < 6) {
+      setAuthStatus("validation_error");
+      return;
+    }
     try {
       const session = await createAuthSessionUseCase.executeWithEmail(email, password);
       setAuthStatus(`signed_in:${session.identity.provider}`);
@@ -386,7 +460,30 @@ export function App() {
     }
   }
 
+  function handleEmailRecovery(channel: "email" | "sms") {
+    if (!hasValidEmail(email)) {
+      setAuthStatus("validation_error");
+      return;
+    }
+    setAuthStatus(channel === "email" ? "recovery_sent_email" : "recovery_sent_sms");
+  }
+
   async function handleCompleteOnboarding() {
+    setOnboardingStatus("loading");
+    if (!privacyPolicyAccepted || !termsAccepted || !medicalDisclaimerAccepted) {
+      setOnboardingStatus("consent_required");
+      return;
+    }
+    if (
+      displayName.trim().length === 0 ||
+      Number.isNaN(Number(age)) ||
+      Number.isNaN(Number(heightCm)) ||
+      Number.isNaN(Number(weightKg)) ||
+      Number.isNaN(Number(availableDaysPerWeek))
+    ) {
+      setOnboardingStatus("validation_error");
+      return;
+    }
     try {
       await completeOnboardingUseCase.execute({
         userId: demoUserId,
@@ -410,11 +507,16 @@ export function App() {
       if (shouldStopForUpgrade(error)) {
         return;
       }
-      setOnboardingStatus("error");
+      setOnboardingStatus("validation_error");
     }
   }
 
   async function handleSubmitLegalConsent() {
+    setLegalStatus("loading");
+    if (!privacyPolicyAccepted || !termsAccepted || !medicalDisclaimerAccepted) {
+      setLegalStatus("consent_required");
+      return;
+    }
     try {
       await manageLegalUseCase.submitConsent({
         userId: demoUserId,
@@ -423,7 +525,7 @@ export function App() {
         termsAccepted,
         medicalDisclaimerAccepted
       });
-      setLegalStatus("consent_saved");
+      setLegalStatus("saved");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -433,6 +535,11 @@ export function App() {
   }
 
   async function handleRequestDataDeletion() {
+    setLegalStatus("loading");
+    if (!privacyPolicyAccepted || !termsAccepted || !medicalDisclaimerAccepted) {
+      setLegalStatus("consent_required");
+      return;
+    }
     try {
       await manageLegalUseCase.requestDataDeletion({
         userId: demoUserId,
@@ -450,14 +557,25 @@ export function App() {
   }
 
   function handleSaveSettings() {
+    setSettingsStatus("loading");
     setSettingsStatus("saved");
   }
 
   function handleExportData() {
+    setLegalStatus("loading");
+    if (!privacyPolicyAccepted || !termsAccepted) {
+      setLegalStatus("consent_required");
+      return;
+    }
     setLegalStatus("exported");
   }
 
   async function handleCreatePlan() {
+    if (planName.trim().length === 0) {
+      setTrainingStatus("validation_error");
+      return;
+    }
+    setTrainingStatus("loading");
     const queuedPlanInput = {
       id: `plan-${Date.now()}`,
       userId: demoUserId,
@@ -498,6 +616,7 @@ export function App() {
   }
 
   async function handleLoadPlans() {
+    setTrainingStatus("loading");
     try {
       const loadedPlans = await manageTrainingUseCase.listTrainingPlans(demoUserId);
       setPlans(loadedPlans);
@@ -505,7 +624,7 @@ export function App() {
       if (firstPlan !== undefined && selectedPlanId.length === 0) {
         setSelectedPlanId(firstPlan.id);
       }
-      setTrainingStatus("loaded");
+      setTrainingStatus(loadedPlans.length === 0 ? "validation_error" : "loaded");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -515,9 +634,10 @@ export function App() {
   }
 
   async function handleLogWorkoutSession() {
+    setSessionStatus("loading");
     const planId = selectedPlanId || plans[0]?.id;
     if (planId === undefined || planId.length === 0) {
-      setSessionStatus("error");
+      setSessionStatus("validation_error");
       return;
     }
     const endedAt = new Date();
@@ -556,6 +676,7 @@ export function App() {
   }
 
   async function handleLoadSessions() {
+    setSessionStatus("loading");
     try {
       const loadedSessions = await manageTrainingUseCase.listWorkoutSessions(
         demoUserId,
@@ -572,6 +693,7 @@ export function App() {
   }
 
   async function handleCreateNutritionLog() {
+    setNutritionStatus("loading");
     const queuedLog = {
       userId: demoUserId,
       date: nutritionDate,
@@ -602,10 +724,11 @@ export function App() {
   }
 
   async function handleLoadNutritionLogs() {
+    setNutritionStatus("loading");
     try {
       const logs = await manageNutritionUseCase.listNutritionLogs(demoUserId);
       setNutritionLogs(logs);
-      setNutritionStatus("loaded");
+      setNutritionStatus(logs.length === 0 ? "empty" : "loaded");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -615,10 +738,15 @@ export function App() {
   }
 
   async function handleLoadProgressSummary() {
+    setProgressStatus("loading");
     try {
       const summary = await manageProgressUseCase.getSummary(demoUserId);
       setProgressSummary(summary);
-      setProgressStatus("loaded");
+      setProgressStatus(
+        summary.workoutSessionsCount === 0 && summary.nutritionLogsCount === 0
+          ? "empty"
+          : "loaded"
+      );
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -628,6 +756,7 @@ export function App() {
   }
 
   async function handleSyncOfflineQueue() {
+    setSyncStatus("loading");
     try {
       const result = await offlineSyncQueueUseCase.syncPending(demoUserId);
       await refreshPendingQueue();
@@ -642,6 +771,7 @@ export function App() {
   }
 
   async function handleTrackAnalyticsEvent() {
+    setObservabilityStatus("loading");
     try {
       await manageObservabilityUseCase.createAnalyticsEvent({
         userId: demoUserId,
@@ -663,6 +793,7 @@ export function App() {
   }
 
   async function handleReportDemoCrash() {
+    setObservabilityStatus("loading");
     try {
       try {
         throw new Error("Simulated crash for observability validation");
@@ -688,6 +819,7 @@ export function App() {
   }
 
   async function handleLoadObservabilityData() {
+    setObservabilityStatus("loading");
     try {
       const [loadedEvents, loadedCrashReports] = await Promise.all([
         manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
@@ -705,6 +837,7 @@ export function App() {
   }
 
   async function handleLoadExerciseVideos() {
+    setVideoStatus("loading");
     try {
       const videos = await manageTrainingUseCase.listExerciseVideos(
         selectedExerciseForVideos,
@@ -721,6 +854,7 @@ export function App() {
   }
 
   async function handleLoadRecommendations() {
+    setRecommendationsStatus("loading");
     const estimatedDaysSinceWorkout = sessions.length === 0 ? 3 : 0;
     const estimatedCompletionRate =
       plans.length === 0 ? 0.4 : Math.min(1, sessions.length / Math.max(plans.length * 2, 1));
@@ -737,7 +871,7 @@ export function App() {
         }
       );
       setRecommendations(loadedRecommendations);
-      setRecommendationsStatus("loaded");
+      setRecommendationsStatus(loadedRecommendations.length === 0 ? "empty" : "loaded");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -893,27 +1027,34 @@ export function App() {
   }
 
   function canAccessActiveRoleDomain(domain: DashboardDomain): boolean {
-    if (domain === "all") {
-      return true;
-    }
-    if (roleCapabilitiesStatus !== "loaded" || roleCapabilities === null) {
-      return false;
-    }
-    return manageRoleCapabilitiesUseCase.canAccessDomain(roleCapabilities, domain);
+    return resolveDomainAccessDecision(domain, roleCapabilitiesStatus, roleCapabilities) === "allowed";
   }
 
   function setActiveDomainRuntimeState(targetState: EnterpriseRuntimeState) {
-    if (activeDomain !== "all" && !canAccessActiveRoleDomain(activeDomain)) {
+    const accessDecision = resolveDomainAccessDecision(
+      activeDomain,
+      roleCapabilitiesStatus,
+      roleCapabilities
+    );
+    if (activeDomain !== "all" && accessDecision !== "allowed") {
+      const blockedState: EnterpriseRuntimeState =
+        accessDecision === "pending"
+          ? "loading"
+          : accessDecision === "error"
+            ? "error"
+            : "denied";
       setDomainRuntimeStates((currentStates) =>
-        setRuntimeStateForActiveDomain(activeDomain, "denied", currentStates)
+        setRuntimeStateForActiveDomain(activeDomain, blockedState, currentStates)
       );
-      const correlationId = nextCorrelationId(
-        runtimeObservabilitySessionRef.current,
-        activeDomain,
-        "runtime_state_change"
-      );
-      void trackDeniedDomainAccess(activeDomain, "runtime_state_change", correlationId);
-      void trackBlockedAction(activeDomain, "runtime_state_change", "domain_denied", correlationId);
+      if (blockedState === "denied") {
+        const correlationId = nextCorrelationId(
+          runtimeObservabilitySessionRef.current,
+          activeDomain,
+          "runtime_state_change"
+        );
+        void trackDeniedDomainAccess(activeDomain, "runtime_state_change", correlationId);
+        void trackBlockedAction(activeDomain, "runtime_state_change", "domain_denied", correlationId);
+      }
       return;
     }
     setDomainRuntimeStates((currentStates) =>
@@ -926,7 +1067,27 @@ export function App() {
     if (domain === "all") {
       return;
     }
-    if (!canAccessActiveRoleDomain(domain)) {
+    const accessDecision = resolveDomainAccessDecision(
+      domain,
+      roleCapabilitiesStatus,
+      roleCapabilities
+    );
+    if (accessDecision === "allowed") {
+      return;
+    }
+    if (accessDecision === "pending") {
+      setDomainRuntimeStates((currentStates) =>
+        setRuntimeStateForActiveDomain(domain, "loading", currentStates)
+      );
+      return;
+    }
+    if (accessDecision === "error") {
+      setDomainRuntimeStates((currentStates) =>
+        setRuntimeStateForActiveDomain(domain, "error", currentStates)
+      );
+      return;
+    }
+    if (accessDecision === "denied") {
       setDomainRuntimeStates((currentStates) =>
         setRuntimeStateForActiveDomain(domain, "denied", currentStates)
       );
@@ -941,17 +1102,30 @@ export function App() {
   }
 
   async function recoverActiveDomainState() {
-    if (activeDomain !== "all" && !canAccessActiveRoleDomain(activeDomain)) {
+    const accessDecision = resolveDomainAccessDecision(
+      activeDomain,
+      roleCapabilitiesStatus,
+      roleCapabilities
+    );
+    if (activeDomain !== "all" && accessDecision !== "allowed") {
+      const blockedState: EnterpriseRuntimeState =
+        accessDecision === "pending"
+          ? "loading"
+          : accessDecision === "error"
+            ? "error"
+            : "denied";
       setDomainRuntimeStates((currentStates) =>
-        setRuntimeStateForActiveDomain(activeDomain, "denied", currentStates)
+        setRuntimeStateForActiveDomain(activeDomain, blockedState, currentStates)
       );
-      const correlationId = nextCorrelationId(
-        runtimeObservabilitySessionRef.current,
-        activeDomain,
-        "recover"
-      );
-      await trackDeniedDomainAccess(activeDomain, "recover", correlationId);
-      await trackBlockedAction(activeDomain, "recover", "domain_denied", correlationId);
+      if (blockedState === "denied") {
+        const correlationId = nextCorrelationId(
+          runtimeObservabilitySessionRef.current,
+          activeDomain,
+          "recover"
+        );
+        await trackDeniedDomainAccess(activeDomain, "recover", correlationId);
+        await trackBlockedAction(activeDomain, "recover", "domain_denied", correlationId);
+      }
       return;
     }
     setDomainRuntimeStates((currentStates) =>
@@ -1017,6 +1191,22 @@ export function App() {
                 />
                 <button className="button ghost" onClick={handleEmailSignIn} type="button">
                   {translate("signInWithEmail")}
+                </button>
+              </div>
+              <div className="inline-inputs">
+                <button
+                  className="button ghost"
+                  onClick={() => handleEmailRecovery("email")}
+                  type="button"
+                >
+                  {translate("recoverByEmail")}
+                </button>
+                <button
+                  className="button ghost"
+                  onClick={() => handleEmailRecovery("sms")}
+                  type="button"
+                >
+                  {translate("recoverBySMS")}
                 </button>
               </div>
             </div>
@@ -1123,6 +1313,15 @@ export function App() {
                   : toHumanStatus(roleCapabilitiesStatus, language)
               }
             />
+            {roleCapabilitiesStatus === "error" ? (
+              <button
+                className="button ghost"
+                onClick={() => setRoleCapabilitiesReloadNonce((current) => current + 1)}
+                type="button"
+              >
+                {translate("retryRoleCapabilities")}
+              </button>
+            ) : null}
           </div>
         </section>
 

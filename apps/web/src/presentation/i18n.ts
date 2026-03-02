@@ -9,6 +9,8 @@ type AppTranslations = {
   heroCopy: string;
   signInWithApple: string;
   signInWithEmail: string;
+  recoverByEmail: string;
+  recoverBySMS: string;
   languageLabel: string;
   emailPlaceholder: string;
   passwordPlaceholder: string;
@@ -107,6 +109,7 @@ type AppTranslations = {
   roleAthlete: string;
   roleCoach: string;
   roleAdmin: string;
+  retryRoleCapabilities: string;
   noModulesForSelectedDomain: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
@@ -133,6 +136,8 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heroCopy: "Panel personal para autenticacion, onboarding, rutina, nutricion y operacion.",
     signInWithApple: "Iniciar con Apple",
     signInWithEmail: "Iniciar con email",
+    recoverByEmail: "Recuperar por email",
+    recoverBySMS: "Recuperar por SMS",
     languageLabel: "Idioma",
     emailPlaceholder: "correo",
     passwordPlaceholder: "contrasena",
@@ -232,6 +237,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     roleAthlete: "Atleta",
     roleCoach: "Coach",
     roleAdmin: "Admin",
+    retryRoleCapabilities: "Reintentar capacidades",
     noModulesForSelectedDomain: "No hay modulos para el dominio seleccionado.",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
@@ -256,6 +262,8 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heroCopy: "Personal dashboard for auth, onboarding, training, nutrition and operations.",
     signInWithApple: "Sign in with Apple",
     signInWithEmail: "Email sign in",
+    recoverByEmail: "Recover by email",
+    recoverBySMS: "Recover by SMS",
     languageLabel: "Language",
     emailPlaceholder: "email",
     passwordPlaceholder: "password",
@@ -355,6 +363,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     roleAthlete: "Athlete",
     roleCoach: "Coach",
     roleAdmin: "Admin",
+    retryRoleCapabilities: "Retry capabilities",
     noModulesForSelectedDomain: "No modules are available for the selected domain.",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
@@ -426,6 +435,10 @@ export function goalLabel(goal: Goal, language: AppLanguage): string {
 const knownStatuses: Record<AppLanguage, Record<string, string>> = {
   es: {
     signed_out: "sin sesion",
+    validation_error: "error de validacion",
+    consent_required: "consentimiento requerido",
+    recovery_sent_email: "recuperacion enviada por email",
+    recovery_sent_sms: "recuperacion enviada por sms",
     auth_error: "error de auth",
     idle: "inactivo",
     saved: "guardado",
@@ -436,6 +449,7 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     crash_saved: "crash guardado",
     error: "error",
     exported: "exportado",
+    deletion_requested: "borrado solicitado",
     success: "operativo",
     loading: "cargando",
     empty: "sin datos",
@@ -451,6 +465,10 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
   },
   en: {
     signed_out: "signed out",
+    validation_error: "validation error",
+    consent_required: "consent required",
+    recovery_sent_email: "recovery sent by email",
+    recovery_sent_sms: "recovery sent by sms",
     auth_error: "auth error",
     idle: "idle",
     saved: "saved",
@@ -461,6 +479,7 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     crash_saved: "crash saved",
     error: "error",
     exported: "exported",
+    deletion_requested: "deletion requested",
     success: "operational",
     loading: "loading",
     empty: "empty",

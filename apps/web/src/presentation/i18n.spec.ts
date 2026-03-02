@@ -17,6 +17,9 @@ describe("i18n", () => {
     expect(translate("roleAthlete")).toBe("Athlete");
     expect(translate("roleCoach")).toBe("Coach");
     expect(translate("roleAdmin")).toBe("Admin");
+    expect(translate("recoverByEmail")).toBe("Recover by email");
+    expect(translate("recoverBySMS")).toBe("Recover by SMS");
+    expect(translate("retryRoleCapabilities")).toBe("Retry capabilities");
     expect(translate("domainOperations")).toBe("Operations");
     expect(translate("settingsTitle")).toBe("Settings");
     expect(translate("legalSectionTitle")).toBe("Privacy and consent");
@@ -38,6 +41,9 @@ describe("i18n", () => {
     expect(translate("roleAthlete")).toBe("Atleta");
     expect(translate("roleCoach")).toBe("Coach");
     expect(translate("roleAdmin")).toBe("Admin");
+    expect(translate("recoverByEmail")).toBe("Recuperar por email");
+    expect(translate("recoverBySMS")).toBe("Recuperar por SMS");
+    expect(translate("retryRoleCapabilities")).toBe("Reintentar capacidades");
     expect(translate("domainAll")).toBe("Todo");
     expect(translate("domainTraining")).toBe("Entrenamiento");
     expect(translate("domainOperations")).toBe("Operaciones");
@@ -65,8 +71,18 @@ describe("i18n", () => {
     expect(humanizeStatus("signed_out", "en")).toBe("signed out");
     expect(humanizeStatus("upgrade_required", "es")).toBe("actualizacion requerida");
     expect(humanizeStatus("upgrade_required", "en")).toBe("upgrade required");
+    expect(humanizeStatus("validation_error", "es")).toBe("error de validacion");
+    expect(humanizeStatus("validation_error", "en")).toBe("validation error");
+    expect(humanizeStatus("consent_required", "es")).toBe("consentimiento requerido");
+    expect(humanizeStatus("consent_required", "en")).toBe("consent required");
+    expect(humanizeStatus("recovery_sent_email", "es")).toBe("recuperacion enviada por email");
+    expect(humanizeStatus("recovery_sent_email", "en")).toBe("recovery sent by email");
+    expect(humanizeStatus("recovery_sent_sms", "es")).toBe("recuperacion enviada por sms");
+    expect(humanizeStatus("recovery_sent_sms", "en")).toBe("recovery sent by sms");
     expect(humanizeStatus("exported", "es")).toBe("exportado");
     expect(humanizeStatus("exported", "en")).toBe("exported");
+    expect(humanizeStatus("deletion_requested", "es")).toBe("borrado solicitado");
+    expect(humanizeStatus("deletion_requested", "en")).toBe("deletion requested");
     expect(humanizeStatus("loading", "es")).toBe("cargando");
     expect(humanizeStatus("loading", "en")).toBe("loading");
     expect(humanizeStatus("offline", "es")).toBe("sin conexion");
