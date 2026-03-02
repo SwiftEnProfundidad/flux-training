@@ -32,8 +32,8 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V5-P2-T1 | Soporte enterprise y SLA | V5-P2-T1.1 catalogo de incidencias; V5-P2-T1.2 tiempos objetivo; V5-P2-T1.3 flujo de escalado | ✅ | V5-P1-T1 | Soporte con SLA definido |
-| V5-P2-T2 | Knowledge base y autoservicio | V5-P2-T2.1 ayuda por modulo; V5-P2-T2.2 FAQ; V5-P2-T2.3 runbooks usuario/admin | 🚧 | V5-P2-T1 | Reduccion de tickets repetitivos |
-| V5-P2-T3 | Calidad continua post-release | V5-P2-T3.1 regression schedule; V5-P2-T3.2 deuda tecnica priorizada; V5-P2-T3.3 health review mensual | ⏳ | V5-P2-T2 | Operacion estable y mejora continua |
+| V5-P2-T2 | Knowledge base y autoservicio | V5-P2-T2.1 ayuda por modulo; V5-P2-T2.2 FAQ; V5-P2-T2.3 runbooks usuario/admin | ✅ | V5-P2-T1 | Reduccion de tickets repetitivos |
+| V5-P2-T3 | Calidad continua post-release | V5-P2-T3.1 regression schedule; V5-P2-T3.2 deuda tecnica priorizada; V5-P2-T3.3 health review mensual | 🚧 | V5-P2-T2 | Operacion estable y mejora continua |
 
 ## Fase P3 - Roadmap siguiente ciclo
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -96,3 +96,10 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - evidencia publicada: `docs/validation/V5_P2_T1_ENTERPRISE_SUPPORT_SLA.json`.
 - Siguiente task activa:
   - `V5-P2-T2` (Knowledge base y autoservicio) en `🚧`.
+- Cierre V5-P2-T2:
+  - estructura de knowledge base definida por módulos de producto y por perfil (`athlete`, `coach`, `admin`, `ops`).
+  - set base de FAQ operativas definido con cobertura para acceso, entrenamiento, nutrición, suscripción y recuperación.
+  - runbooks de autoservicio definidos para usuario final y admin con pasos de diagnóstico, mitigación y escalado.
+  - evidencia publicada: `docs/validation/V5_P2_T2_KB_SELF_SERVICE.json`.
+- Siguiente task activa:
+  - `V5-P2-T3` (Calidad continua post-release) en `🚧`.
