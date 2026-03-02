@@ -137,6 +137,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V5_P3_T3_V5_EXECUTIVE_CLOSURE.json`: evidencia de cierre ejecutivo de V5 (reporte final, decisión de continuidad y transición preparada a V6).
 - `V6_P0_T1_GROWTH_NORTH_STAR.json`: evidencia de fundación V6 (north-star de negocio, guardrails de monetización y baseline por segmento).
 - `V6_P0_T2_CONVERSION_INSTRUMENTATION.json`: evidencia de instrumentación de conversion freemium (taxonomía de eventos, funnel y alertas de fuga).
+- `V6_P0_T3_GROWTH_OPERATING_MODEL.json`: evidencia del modelo operativo Growth-Product-Support (ownership, rituales y decision log).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -232,6 +233,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v5_p3_t3_v5_executive_closure.feature`
 - `features/v6_p0_t1_growth_north_star.feature`
 - `features/v6_p0_t2_conversion_instrumentation.feature`
+- `features/v6_p0_t3_growth_operating_model.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

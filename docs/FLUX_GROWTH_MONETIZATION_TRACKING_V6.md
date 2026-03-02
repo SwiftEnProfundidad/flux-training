@@ -19,12 +19,12 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 |---|---|---|---|---|---|
 | V6-P0-T1 | Definir north-star y guardrails de negocio | V6-P0-T1.1 north-star monetizacion; V6-P0-T1.2 guardrails UX/operacion; V6-P0-T1.3 baseline por segmento | ✅ | V5-P3-T3 | Marco de crecimiento medible |
 | V6-P0-T2 | Instrumentacion de conversion freemium | V6-P0-T2.1 eventos paywall; V6-P0-T2.2 conversion funnel; V6-P0-T2.3 alertas de fuga | ✅ | V6-P0-T1 | Funnel de conversion observable |
-| V6-P0-T3 | Modelo operativo Growth-Product-Support | V6-P0-T3.1 ownership semanal; V6-P0-T3.2 rituales; V6-P0-T3.3 decision log | 🚧 | V6-P0-T2 | Cadencia operativa activa |
+| V6-P0-T3 | Modelo operativo Growth-Product-Support | V6-P0-T3.1 ownership semanal; V6-P0-T3.2 rituales; V6-P0-T3.3 decision log | ✅ | V6-P0-T2 | Cadencia operativa activa |
 
 ## Fase P1 - Monetizacion y pricing
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V6-P1-T1 | Arquitectura de planes freemium/premium | V6-P1-T1.1 packaging; V6-P1-T1.2 limites por rol; V6-P1-T1.3 upgrade paths | ⏳ | V6-P0-T2 | Planes consistentes y accionables |
+| V6-P1-T1 | Arquitectura de planes freemium/premium | V6-P1-T1.1 packaging; V6-P1-T1.2 limites por rol; V6-P1-T1.3 upgrade paths | 🚧 | V6-P0-T2 | Planes consistentes y accionables |
 | V6-P1-T2 | Paywall y upgrades contextuales | V6-P1-T2.1 triggers por valor; V6-P1-T2.2 copy ES/EN; V6-P1-T2.3 pruebas A/B | ⏳ | V6-P1-T1 | Upgrade no intrusivo y trazable |
 | V6-P1-T3 | Billing resiliente y recovery | V6-P1-T3.1 fallo de cobro; V6-P1-T3.2 grace period; V6-P1-T3.3 win-back | ⏳ | V6-P1-T2 | Perdida de ingreso controlada |
 
@@ -61,3 +61,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P0_T2_CONVERSION_INSTRUMENTATION.json`.
 - Siguiente task activa:
   - `V6-P0-T3` (Modelo operativo Growth-Product-Support) en `🚧`.
+- Cierre V6-P0-T3:
+  - modelo operativo Growth-Product-Support definido con ownership semanal (`growth`, `product`, `engineering`, `support`, `analytics`) y métricas por rol.
+  - rituales de ejecución definidos (daily triage, weekly growth review, biweekly experiment council, monthly executive check).
+  - decision log formalizado con plantilla única (`context`, `decision`, `impact`, `owner`, `rollback`) y trazabilidad a backlog.
+  - evidencia publicada: `docs/validation/V6_P0_T3_GROWTH_OPERATING_MODEL.json`.
+- Siguiente task activa:
+  - `V6-P1-T1` (Arquitectura de planes freemium/premium) en `🚧`.
