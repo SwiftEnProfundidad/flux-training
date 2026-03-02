@@ -34,12 +34,12 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 |---|---|---|---|---|---|
 | V3-P2-T1 | Shell + acceso + dashboard web | V3-P2-T1.1 app shell y navegacion; V3-P2-T1.2 acceso por rol; V3-P2-T1.3 dashboard operativo | ✅ | V3-P0-T3 | Entrada web robusta por rol |
 | V3-P2-T2 | Operaciones core web | V3-P2-T2.1 athletes/plans/sessions; V3-P2-T2.2 nutrition/progress ops; V3-P2-T2.3 estados enterprise | ✅ | V3-P2-T1 | Operacion core web completa |
-| V3-P2-T3 | Admin + governance web | V3-P2-T3.1 users/roles/RBAC; V3-P2-T3.2 audit/compliance; V3-P2-T3.3 billing/support | 🚧 | V3-P2-T2 | Modulos enterprise web cerrados |
+| V3-P2-T3 | Admin + governance web | V3-P2-T3.1 users/roles/RBAC; V3-P2-T3.2 audit/compliance; V3-P2-T3.3 billing/support | ✅ | V3-P2-T2 | Modulos enterprise web cerrados |
 
 ## Fase P3 - Backend y contratos
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P3-T1 | Alineacion contracts<->backend | V3-P3-T1.1 versionado de contratos; V3-P3-T1.2 compatibilidad de payloads; V3-P3-T1.3 tests de contrato | ⏳ | V3-P0-T3 | Contratos coherentes y estables |
+| V3-P3-T1 | Alineacion contracts<->backend | V3-P3-T1.1 versionado de contratos; V3-P3-T1.2 compatibilidad de payloads; V3-P3-T1.3 tests de contrato | 🚧 | V3-P0-T3 | Contratos coherentes y estables |
 | V3-P3-T2 | Endpoints funcionales por dominio | V3-P3-T2.1 auth/onboarding; V3-P3-T2.2 training/nutrition/progress; V3-P3-T2.3 legal/admin/audit | ⏳ | V3-P3-T1 | Backend cubre flujos del board |
 | V3-P3-T3 | Resiliencia backend operativa | V3-P3-T3.1 errores estandarizados; V3-P3-T3.2 trazabilidad; V3-P3-T3.3 politicas de retry/idempotencia | ⏳ | V3-P3-T2 | Backend listo para carga operativa |
 
@@ -173,4 +173,19 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - validación de cierre `V3-P2-T3.2` en PASS:
     - `pnpm --filter @flux/web check`
     - `pnpm --filter @flux/web test` (`31` ficheros, `75` tests, `0` fallos).
-  - siguiente subtask activa: `V3-P2-T3.3` (`billing/support`) para cerrar `V3-P2-T3`.
+  - subtask `V3-P2-T3.3` cerrada: módulo `billingSupport` implementado con vista dual de facturación + incidencias de soporte, filtros enterprise y resolución en lote con trazabilidad de analítica (`billing_support_incidents_resolved`).
+  - cobertura técnica añadida:
+    - `apps/web/src/presentation/billing-support.ts`
+    - `apps/web/src/presentation/billing-support.spec.ts`
+    - actualización de `apps/web/src/presentation/App.tsx`
+    - actualización de `apps/web/src/presentation/app.css`
+    - actualización de `apps/web/src/presentation/i18n.ts`
+    - actualización de `apps/web/src/presentation/i18n.spec.ts`
+    - actualización de `apps/web/src/presentation/dashboard-domains.ts`
+    - actualización de `apps/web/src/presentation/dashboard-domains.spec.ts`
+  - validación de cierre `V3-P2-T3.3` en PASS:
+    - `pnpm --filter @flux/web check`
+    - `pnpm --filter @flux/web test` (`32` ficheros, `79` tests, `0` fallos).
+  - cierre de task `V3-P2-T3`: bloque web enterprise (`users/roles/RBAC`, `audit/compliance`, `billing/support`) completado.
+- Inicio V3-P3-T1:
+  - foco en alinear contratos compartidos y backend para cubrir gaps enterprise detectados en `billing/incidents/approvals` y cerrar drift payload<->consumidores.
