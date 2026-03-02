@@ -40,7 +40,7 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 |---|---|---|---|---|---|
 | V5-P3-T1 | Consolidar aprendizaje V5 | V5-P3-T1.1 insights producto; V5-P3-T1.2 insights operacion; V5-P3-T1.3 riesgos residuales | ✅ | V5-P2-T3 | Base objetiva para roadmap |
 | V5-P3-T2 | Definir backlog V6 | V5-P3-T2.1 priorizacion impacto/esfuerzo; V5-P3-T2.2 dependencias; V5-P3-T2.3 capacidad | ✅ | V5-P3-T1 | Backlog V6 listo |
-| V5-P3-T3 | Cierre ejecutivo V5 | V5-P3-T3.1 reporte final; V5-P3-T3.2 decision de continuidad; V5-P3-T3.3 apertura V6 | 🚧 | V5-P3-T2 | Ciclo V5 formalmente cerrado |
+| V5-P3-T3 | Cierre ejecutivo V5 | V5-P3-T3.1 reporte final; V5-P3-T3.2 decision de continuidad; V5-P3-T3.3 apertura V6 | ✅ | V5-P3-T2 | Ciclo V5 formalmente cerrado |
 
 ## Bitacora V5 (2026-03-02)
 - Inicio V5-P0-T1:
@@ -124,3 +124,10 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - evidencia publicada: `docs/validation/V5_P3_T2_V6_BACKLOG_DEFINITION.json`.
 - Siguiente task activa:
   - `V5-P3-T3` (Cierre ejecutivo V5) en `🚧`.
+- Cierre V5-P3-T3:
+  - reporte ejecutivo de V5 consolidado con resultados de rollout, adopción y operación a escala.
+  - decisión de continuidad formalizada con criterios de salida cumplidos y riesgos residuales registrados.
+  - transición operativa a ciclo V6 preparada con backlog priorizado, capacidad base y dependencias críticas trazadas.
+  - evidencia publicada: `docs/validation/V5_P3_T3_V5_EXECUTIVE_CLOSURE.json`.
+- Estado de ciclo:
+  - V5 cerrado en `✅` sin tasks pendientes.
