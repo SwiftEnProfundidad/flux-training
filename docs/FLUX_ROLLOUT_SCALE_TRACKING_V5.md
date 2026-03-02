@@ -19,12 +19,12 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 |---|---|---|---|---|
 | V5-P0-T1 | Estrategia de despliegue por oleadas | V5-P0-T1.1 cohortes; V5-P0-T1.2 ventanas de release; V5-P0-T1.3 criterios de avance | ✅ | Plan de rollout aprobado |
 | V5-P0-T2 | Entornos y feature flags | V5-P0-T2.1 toggles por modulo; V5-P0-T2.2 gating por rol; V5-P0-T2.3 estrategia de rollback por flag | ✅ | Rollout reversible y seguro |
-| V5-P0-T3 | Comunicacion de cambio | V5-P0-T3.1 notas release; V5-P0-T3.2 soporte interno; V5-P0-T3.3 mensajes in-app | 🚧 | Cambio comunicado sin friccion |
+| V5-P0-T3 | Comunicacion de cambio | V5-P0-T3.1 notas release; V5-P0-T3.2 soporte interno; V5-P0-T3.3 mensajes in-app | ✅ | Cambio comunicado sin friccion |
 
 ## Fase P1 - Adopcion y valor de negocio
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V5-P1-T1 | KPI framework de adopcion | V5-P1-T1.1 norte y guardrails; V5-P1-T1.2 eventos de negocio; V5-P1-T1.3 panel ejecutivo | ⏳ | V5-P0-T3 | KPI accionables y visibles |
+| V5-P1-T1 | KPI framework de adopcion | V5-P1-T1.1 norte y guardrails; V5-P1-T1.2 eventos de negocio; V5-P1-T1.3 panel ejecutivo | 🚧 | V5-P0-T3 | KPI accionables y visibles |
 | V5-P1-T2 | Embudos y retencion | V5-P1-T2.1 funnel acceso->uso; V5-P1-T2.2 cohortes de retencion; V5-P1-T2.3 alertas de caida | ⏳ | V5-P1-T1 | Decisiones de producto basadas en datos |
 | V5-P1-T3 | Experimentacion controlada | V5-P1-T3.1 backlog de experimentos; V5-P1-T3.2 criterios estadisticos; V5-P1-T3.3 cierre de aprendizaje | ⏳ | V5-P1-T2 | Experimentos ejecutables y trazables |
 
@@ -61,3 +61,10 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - evidencia publicada: `docs/validation/V5_P0_T2_ENV_FLAGS_STRATEGY.json`.
 - Siguiente task activa:
   - `V5-P0-T3` (Comunicacion de cambio) en `🚧`.
+- Cierre V5-P0-T3:
+  - plan de comunicación cross-funcional definido para release notes externas, briefing de soporte interno y mensajes in-app.
+  - matriz de audiencia/canal/frecuencia definida para admin/coaches/athletes con fallback de escalado a soporte.
+  - checklist de calidad de comunicación definido con criterios de claridad, consistencia legal y trazabilidad de cambios.
+  - evidencia publicada: `docs/validation/V5_P0_T3_CHANGE_COMMUNICATION.json`.
+- Siguiente task activa:
+  - `V5-P1-T1` (KPI framework de adopcion) en `🚧`.
