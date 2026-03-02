@@ -26,12 +26,12 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 |---|---|---|---|---|---|
 | V4-P1-T1 | Telemetria unificada iOS/Web/Backend | V4-P1-T1.1 eventos canonicos; V4-P1-T1.2 correlacion cross-layer; V4-P1-T1.3 dashboard operativo | ✅ | V4-P0-T3 | Trazabilidad end-to-end estable |
 | V4-P1-T2 | Alerting y runbooks | V4-P1-T2.1 alertas por SLO; V4-P1-T2.2 playbooks; V4-P1-T2.3 ownership on-call | ✅ | V4-P1-T1 | Incidentes operables sin ambiguedad |
-| V4-P1-T3 | Logging/audit trail completo | V4-P1-T3.1 logs estructurados; V4-P1-T3.2 activity log; V4-P1-T3.3 export forense | 🚧 | V4-P1-T2 | Auditoria enterprise lista |
+| V4-P1-T3 | Logging/audit trail completo | V4-P1-T3.1 logs estructurados; V4-P1-T3.2 activity log; V4-P1-T3.3 export forense | ✅ | V4-P1-T2 | Auditoria enterprise lista |
 
 ## Fase P2 - Performance y escalabilidad
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V4-P2-T1 | Performance de frontend (iOS/Web) | V4-P2-T1.1 tiempos de carga; V4-P2-T1.2 listas densas/tablas; V4-P2-T1.3 optimizacion render | ⏳ | V4-P1-T1 | UX estable bajo carga realista |
+| V4-P2-T1 | Performance de frontend (iOS/Web) | V4-P2-T1.1 tiempos de carga; V4-P2-T1.2 listas densas/tablas; V4-P2-T1.3 optimizacion render | 🚧 | V4-P1-T1 | UX estable bajo carga realista |
 | V4-P2-T2 | Performance backend/API | V4-P2-T2.1 perfiles por endpoint; V4-P2-T2.2 caching/colas; V4-P2-T2.3 tuning DB | ⏳ | V4-P2-T1 | API dentro de SLO acordado |
 | V4-P2-T3 | Pruebas de carga y degradacion | V4-P2-T3.1 carga base; V4-P2-T3.2 stress; V4-P2-T3.3 criterios de degradacion controlada | ⏳ | V4-P2-T2 | Comportamiento predecible en picos |
 
@@ -86,3 +86,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
 - Siguiente task activa:
   - `V4-P1-T3` (Logging/audit trail completo) en `🚧`.
+- Cierre V4-P1-T3:
+  - contratos ampliados con `structuredLog`, `activityLogEntry` y `forensicAuditExport` para trazabilidad auditable.
+  - backend alineado con use cases de `listStructuredLogs`, `listActivityLog` y `exportForensicAudit` + endpoints demo/Firebase.
+  - web alineada con consumo de logs/actividad y export forense desde el modulo audit/compliance.
+  - evidencia publicada: `docs/validation/V4_P1_T3_LOGGING_AUDIT_TRAIL.json`.
+  - regresión global validada en verde (`pnpm -r build`, `pnpm -r test`, `cd apps/ios && swift test`).
+- Siguiente task activa:
+  - `V4-P2-T1` (Performance de frontend iOS/Web) en `🚧`.
