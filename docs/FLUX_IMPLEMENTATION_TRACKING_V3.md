@@ -161,3 +161,16 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - validación parcial en PASS:
     - `pnpm --filter @flux/web check`
     - `pnpm --filter @flux/web test` (`30` ficheros, `72` tests, `0` fallos).
+  - subtask `V3-P2-T3.2` cerrada: módulo `auditCompliance` integrado en web con timeline unificado (analytics + crash), filtros enterprise (`source/category/severity/domain/query`) y export CSV auditable.
+  - cobertura técnica añadida:
+    - `apps/web/src/presentation/audit-compliance.ts`
+    - `apps/web/src/presentation/audit-compliance.spec.ts`
+    - actualización de `apps/web/src/presentation/App.tsx`
+    - actualización de `apps/web/src/presentation/dashboard-domains.ts`
+    - actualización de `apps/web/src/presentation/dashboard-domains.spec.ts`
+    - actualización de `apps/web/src/presentation/i18n.ts`
+    - actualización de `apps/web/src/presentation/i18n.spec.ts`
+  - validación de cierre `V3-P2-T3.2` en PASS:
+    - `pnpm --filter @flux/web check`
+    - `pnpm --filter @flux/web test` (`31` ficheros, `75` tests, `0` fallos).
+  - siguiente subtask activa: `V3-P2-T3.3` (`billing/support`) para cerrar `V3-P2-T3`.
