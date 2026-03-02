@@ -86,17 +86,26 @@ public enum CopyKey: Sendable {
   case recommendationsStatusLabel
   case noRecommendations
   case trainingTitle
+  case trainingCockpitTitle
+  case refreshTrainingCockpit
   case planName
   case createPlan
+  case plansLoadedLabel
   case noPlansYet
   case logDemoSession
   case sessionsLabel
+  case todaySessionsLabel
   case statusLabel
+  case sessionStatusLabel
+  case lastSessionLabel
   case exerciseVideosTitle
   case exercisePicker
   case localePicker
   case loadVideos
   case videoStatusLabel
+  case videoFallbackNotice
+  case videoOfflineNotice
+  case videoEmptyNotice
   case noVideosLoaded
   case openVideo
   case settingsTitle
@@ -186,6 +195,8 @@ public struct LocalizedCopy: Sendable {
         "consent_required": "consentimiento requerido",
         "recovery_sent_email": "recuperacion enviada por email",
         "recovery_sent_sms": "recuperacion enviada por sms",
+        "session_active": "sesion activa",
+        "fallback_loaded": "fallback cargado",
         "idle": "inactivo",
         "saved": "guardado",
         "loaded": "cargado",
@@ -212,6 +223,8 @@ public struct LocalizedCopy: Sendable {
         "consent_required": "consent required",
         "recovery_sent_email": "recovery sent by email",
         "recovery_sent_sms": "recovery sent by sms",
+        "session_active": "session active",
+        "fallback_loaded": "fallback loaded",
         "idle": "idle",
         "saved": "saved",
         "loaded": "loaded",
@@ -403,18 +416,30 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Todavia no hay recomendaciones cargadas"
   case .trainingTitle:
     return "Entrenamiento"
+  case .trainingCockpitTitle:
+    return "Cockpit diario"
+  case .refreshTrainingCockpit:
+    return "Actualizar cockpit"
   case .planName:
     return "Nombre del plan"
   case .createPlan:
     return "Crear plan"
+  case .plansLoadedLabel:
+    return "Planes cargados"
   case .noPlansYet:
     return "Todavia no hay planes"
   case .logDemoSession:
     return "Registrar sesion demo"
   case .sessionsLabel:
     return "Sesiones"
+  case .todaySessionsLabel:
+    return "Sesiones hoy"
   case .statusLabel:
     return "Estado"
+  case .sessionStatusLabel:
+    return "Estado de sesion"
+  case .lastSessionLabel:
+    return "Ultima sesion"
   case .exerciseVideosTitle:
     return "Videos de ejercicios"
   case .exercisePicker:
@@ -425,6 +450,12 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Cargar videos"
   case .videoStatusLabel:
     return "Estado de videos"
+  case .videoFallbackNotice:
+    return "Mostrando fallback EN por falta de video en idioma solicitado."
+  case .videoOfflineNotice:
+    return "Sin conexion para cargar videos. Reintenta con red disponible."
+  case .videoEmptyNotice:
+    return "No hay videos para este ejercicio."
   case .noVideosLoaded:
     return "Todavia no hay videos cargados"
   case .openVideo:
@@ -618,18 +649,30 @@ private func englishCopy(for key: CopyKey) -> String {
     return "No recommendations loaded yet"
   case .trainingTitle:
     return "Training"
+  case .trainingCockpitTitle:
+    return "Daily cockpit"
+  case .refreshTrainingCockpit:
+    return "Refresh cockpit"
   case .planName:
     return "Plan name"
   case .createPlan:
     return "Create plan"
+  case .plansLoadedLabel:
+    return "Plans loaded"
   case .noPlansYet:
     return "No plans yet"
   case .logDemoSession:
     return "Log demo session"
   case .sessionsLabel:
     return "Sessions"
+  case .todaySessionsLabel:
+    return "Sessions today"
   case .statusLabel:
     return "Status"
+  case .sessionStatusLabel:
+    return "Session status"
+  case .lastSessionLabel:
+    return "Last session"
   case .exerciseVideosTitle:
     return "Exercise videos"
   case .exercisePicker:
@@ -640,6 +683,12 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Load videos"
   case .videoStatusLabel:
     return "Video status"
+  case .videoFallbackNotice:
+    return "Showing EN fallback because requested locale has no video."
+  case .videoOfflineNotice:
+    return "No connection to load videos. Retry when network is available."
+  case .videoEmptyNotice:
+    return "No videos available for this exercise."
   case .noVideosLoaded:
     return "No videos loaded yet"
   case .openVideo:
