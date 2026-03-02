@@ -1,0 +1,38 @@
+{
+  "cycle": "V3",
+  "phase": "P4",
+  "task": "V3-P4-T3",
+  "title": "Quality gate V3",
+  "status": "pass",
+  "executedAt": "2026-03-02T20:40:00Z",
+  "commands": [
+    "pnpm -r test",
+    "cd apps/ios && swift test"
+  ],
+  "results": {
+    "pnpm-r-test": {
+      "contracts": {
+        "testsPassed": 25,
+        "testsFailed": 0
+      },
+      "backend": {
+        "testsPassed": 60,
+        "testsFailed": 0
+      },
+      "web": {
+        "testsPassed": 85,
+        "testsFailed": 0
+      }
+    },
+    "swift-test": {
+      "testsPassed": 83,
+      "testsFailed": 0
+    }
+  },
+  "acceptanceCriteria": [
+    "Suites de pruebas de workspace JS/TS en PASS.",
+    "Suite completa iOS en PASS.",
+    "Evidencia publicada en docs/validation."
+  ],
+  "nextTask": "V3-P5-T1"
+}

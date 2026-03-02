@@ -48,12 +48,12 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 |---|---|---|---|---|---|
 | V3-P4-T1 | Paridad iOS/Web funcional | V3-P4-T1.1 matriz de paridad; V3-P4-T1.2 ajustes de comportamiento; V3-P4-T1.3 smoke cross-platform | ✅ | V3-P1-T3, V3-P2-T3 | Paridad cerrada por dominio |
 | V3-P4-T2 | E2E de flujos criticos | V3-P4-T2.1 happy paths; V3-P4-T2.2 edge cases; V3-P4-T2.3 recovery paths | ✅ | V3-P4-T1 | Flujos criticos sin roturas |
-| V3-P4-T3 | Gate de calidad V3 | V3-P4-T3.1 `pnpm -r test`; V3-P4-T3.2 `swift test`; V3-P4-T3.3 evidencia docs/validation | 🚧 | V3-P4-T2 | Gate V3 en PASS |
+| V3-P4-T3 | Gate de calidad V3 | V3-P4-T3.1 `pnpm -r test`; V3-P4-T3.2 `swift test`; V3-P4-T3.3 evidencia docs/validation | ✅ | V3-P4-T2 | Gate V3 en PASS |
 
 ## Fase P5 - Cierre V3 y traspaso a V4
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P5-T1 | Checklist de cierre de implementacion | V3-P5-T1.1 cobertura por modulo; V3-P5-T1.2 deuda explicita; V3-P5-T1.3 riesgos abiertos | ⏳ | V3-P4-T3 | Cierre V3 completo y auditable |
+| V3-P5-T1 | Checklist de cierre de implementacion | V3-P5-T1.1 cobertura por modulo; V3-P5-T1.2 deuda explicita; V3-P5-T1.3 riesgos abiertos | 🚧 | V3-P4-T3 | Cierre V3 completo y auditable |
 | V3-P5-T2 | Congelar baseline release candidate | V3-P5-T2.1 snapshot tecnico; V3-P5-T2.2 snapshot funcional; V3-P5-T2.3 docs actualizadas | ⏳ | V3-P5-T1 | RC estable para hardening |
 | V3-P5-T3 | Abrir ciclo V4 formalmente | V3-P5-T3.1 handoff de riesgos; V3-P5-T3.2 task activa V4; V3-P5-T3.3 cierre ejecutivo V3 | ⏳ | V3-P5-T2 | Transicion controlada a production readiness |
 
@@ -362,3 +362,17 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
       - `pnpm test:recovery-paths` (`backend 60/60`, `web 85/85`, `ios 1/1`, `0` fallos)
   - cierre de task `V3-P4-T2`: happy paths + edge cases + recovery paths en PASS cross-platform.
   - siguiente task activa: `V3-P4-T3` (gate de calidad V3).
+- Inicio V3-P4-T3:
+  - foco en consolidar gate de calidad V3 sobre toda la base implementada (JS/TS + iOS) antes de pasar a cierre de ciclo.
+- Cierre V3-P4-T3:
+  - validación de suites workspace en PASS:
+    - `pnpm -r test`
+    - resultados: `contracts 25/25`, `backend 60/60`, `web 85/85`.
+  - validación iOS completa en PASS:
+    - `cd apps/ios && swift test`
+    - resultados: `83/83` tests en verde.
+  - evidencias publicadas:
+    - `docs/validation/V3_P4_T3_QUALITY_GATE.json`
+    - `docs/validation/features/v3_p4_t3_quality_gate.feature`
+  - resultado: fase P4 cerrada en `✅`.
+  - siguiente task activa: `V3-P5-T1` (checklist de cierre de implementación).
