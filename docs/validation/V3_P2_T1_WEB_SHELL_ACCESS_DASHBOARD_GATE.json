@@ -1,0 +1,51 @@
+{
+  "taskId": "V3-P2-T1",
+  "title": "web shell access and dashboard gate",
+  "status": "done",
+  "subtasks": {
+    "V3-P2-T1.1": {
+      "name": "App shell y navegacion",
+      "result": "PASS",
+      "evidence": [
+        "apps/web/src/presentation/App.tsx",
+        "apps/web/src/presentation/dashboard-domains.ts",
+        "apps/web/src/presentation/dashboard-domains.spec.ts"
+      ]
+    },
+    "V3-P2-T1.2": {
+      "name": "Acceso por rol",
+      "result": "PASS",
+      "evidence": [
+        "apps/web/src/presentation/role-domain-access.ts",
+        "apps/web/src/presentation/role-domain-access.spec.ts",
+        "apps/web/src/application/manage-role-capabilities.spec.ts"
+      ]
+    },
+    "V3-P2-T1.3": {
+      "name": "Dashboard operativo",
+      "result": "PASS",
+      "evidence": [
+        "apps/web/src/presentation/App.tsx",
+        "apps/web/src/presentation/i18n.ts",
+        "apps/web/src/presentation/i18n.spec.ts",
+        "apps/web/src/application/critical-regression-suite.spec.ts"
+      ]
+    }
+  },
+  "qualityChecks": [
+    {
+      "command": "pnpm --filter @flux/web check",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm --filter @flux/web test",
+      "result": "PASS",
+      "details": {
+        "testFiles": 26,
+        "totalTests": 59,
+        "failures": 0
+      }
+    }
+  ],
+  "nextTask": "V3-P2-T2"
+}

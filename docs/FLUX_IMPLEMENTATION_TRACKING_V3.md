@@ -32,8 +32,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 ## Fase P2 - Implementacion Web por dominios
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P2-T1 | Shell + acceso + dashboard web | V3-P2-T1.1 app shell y navegacion; V3-P2-T1.2 acceso por rol; V3-P2-T1.3 dashboard operativo | 🚧 | V3-P0-T3 | Entrada web robusta por rol |
-| V3-P2-T2 | Operaciones core web | V3-P2-T2.1 athletes/plans/sessions; V3-P2-T2.2 nutrition/progress ops; V3-P2-T2.3 estados enterprise | ⏳ | V3-P2-T1 | Operacion core web completa |
+| V3-P2-T1 | Shell + acceso + dashboard web | V3-P2-T1.1 app shell y navegacion; V3-P2-T1.2 acceso por rol; V3-P2-T1.3 dashboard operativo | ✅ | V3-P0-T3 | Entrada web robusta por rol |
+| V3-P2-T2 | Operaciones core web | V3-P2-T2.1 athletes/plans/sessions; V3-P2-T2.2 nutrition/progress ops; V3-P2-T2.3 estados enterprise | 🚧 | V3-P2-T1 | Operacion core web completa |
 | V3-P2-T3 | Admin + governance web | V3-P2-T3.1 users/roles/RBAC; V3-P2-T3.2 audit/compliance; V3-P2-T3.3 billing/support | ⏳ | V3-P2-T2 | Modulos enterprise web cerrados |
 
 ## Fase P3 - Backend y contratos
@@ -124,3 +124,16 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - verificación técnica: `cd apps/ios && swift test` en PASS (`79` tests, `0` fallos).
 - Inicio V3-P2-T1:
   - foco en shell web, acceso por rol y dashboard operativo para abrir bloque de implementación web.
+- Cierre V3-P2-T1:
+  - shell y navegación endurecidos con persistencia/restauración segura de dominio (`URL + localStorage + popstate`) en `apps/web/src/presentation/App.tsx`.
+  - control de acceso por rol desacoplado y determinista con `resolveDomainAccessDecision` (`allowed/pending/denied/error`) en `apps/web/src/presentation/role-domain-access.ts`.
+  - estados enterprise reforzados en dashboard (`loading`, `validation_error`, `consent_required`, `empty`, `recovery_sent_email`, `recovery_sent_sms`) con i18n ES/EN.
+  - evidencias publicadas:
+    - `docs/validation/V3_P2_T1_WEB_SHELL_ACCESS_DASHBOARD_COVERAGE.csv`
+    - `docs/validation/V3_P2_T1_WEB_SHELL_ACCESS_DASHBOARD_GATE.json`
+    - `docs/validation/features/v3_p2_t1_web_shell_access_dashboard.feature`
+  - verificación técnica:
+    - `pnpm --filter @flux/web check` en PASS.
+    - `pnpm --filter @flux/web test` en PASS (`26` ficheros, `59` tests, `0` fallos).
+- Inicio V3-P2-T2:
+  - foco en operaciones core web (athletes/plans/sessions + nutrition/progress ops) y cierre de estados enterprise por módulo.

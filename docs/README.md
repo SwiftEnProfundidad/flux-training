@@ -16,7 +16,7 @@
 ## Current QA
 - Fase activa de continuidad: QA visual y checklist de demo.
 - Estado de implementación post-board: `FLUX_UIUX_EXECUTION_TRACKING_V2.md` cerrado en `✅` hasta `C7-T3`.
-- Estado de ejecución actual: `FLUX_IMPLEMENTATION_TRACKING_V3.md` con `V3-P2-T1` en `🚧` (bloque iOS `V3-P1` cerrado).
+- Estado de ejecución actual: `FLUX_IMPLEMENTATION_TRACKING_V3.md` con `V3-P2-T2` en `🚧` (bloque iOS `V3-P1` y `V3-P2-T1` cerrados).
 - Estado fase enterprise: `FLUX_ENTERPRISE_REMEDIATION_TRACKING_V1.md` cerrado en `GO` con mitigaciones residuales completadas.
 - Mitigaciones residuales post-cierre: `R1`, `R2` y `R3` cerradas en `✅`.
 - Evidencia visual local (Playwright): `output/playwright/`.
