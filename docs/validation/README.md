@@ -123,6 +123,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V4_P3_T1_RELEASE_GATE_ENTERPRISE.json`: evidencia del gate enterprise técnico/legal/operación con consolidación GO/NO-GO auditable para release.
 - `V4_P3_T2_ROLLBACK_CONTINUITY.json`: evidencia del plan de rollback por capa, backup/restore operativo y simulacro de continuidad multi-plataforma.
 - `V4_P3_T3_V5_HANDOFF.json`: evidencia de cierre formal de V4 (gate final + residual review) y handoff operativo de arranque a V5.
+- `V5_P0_T1_ROLLOUT_WAVE_STRATEGY.json`: evidencia de estrategia de despliegue por oleadas (cohortes, ventanas y criterios de avance/rollback).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -204,6 +205,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v4_p3_t1_release_gate_enterprise.feature`
 - `features/v4_p3_t2_rollback_continuity.feature`
 - `features/v4_p3_t3_v5_handoff.feature`
+- `features/v5_p0_t1_rollout_wave_strategy.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

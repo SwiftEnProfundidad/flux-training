@@ -17,8 +17,8 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 ## Fase P0 - Rollout controlado
 | ID | Task | Subtasks | Estado | Criterio de aceptacion |
 |---|---|---|---|---|
-| V5-P0-T1 | Estrategia de despliegue por oleadas | V5-P0-T1.1 cohortes; V5-P0-T1.2 ventanas de release; V5-P0-T1.3 criterios de avance | 🚧 | Plan de rollout aprobado |
-| V5-P0-T2 | Entornos y feature flags | V5-P0-T2.1 toggles por modulo; V5-P0-T2.2 gating por rol; V5-P0-T2.3 estrategia de rollback por flag | ⏳ | Rollout reversible y seguro |
+| V5-P0-T1 | Estrategia de despliegue por oleadas | V5-P0-T1.1 cohortes; V5-P0-T1.2 ventanas de release; V5-P0-T1.3 criterios de avance | ✅ | Plan de rollout aprobado |
+| V5-P0-T2 | Entornos y feature flags | V5-P0-T2.1 toggles por modulo; V5-P0-T2.2 gating por rol; V5-P0-T2.3 estrategia de rollback por flag | 🚧 | Rollout reversible y seguro |
 | V5-P0-T3 | Comunicacion de cambio | V5-P0-T3.1 notas release; V5-P0-T3.2 soporte interno; V5-P0-T3.3 mensajes in-app | ⏳ | Cambio comunicado sin friccion |
 
 ## Fase P1 - Adopcion y valor de negocio
@@ -47,3 +47,10 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
   - ciclo V5 activado tras cierre formal de V4 (`V4-P3-T3` en `✅`).
   - objetivo inmediato: estrategia de despliegue por oleadas con cohortes, ventanas de release y criterios de avance.
   - evidencia de handoff: `docs/validation/V4_P3_T3_V5_HANDOFF.json`.
+- Cierre V5-P0-T1:
+  - cohortes de rollout definidas por criticidad de rol (internal/admin, coaches enterprise, atletas activos, long-tail) con ownership operativo.
+  - ventanas de release definidas con freeze de fin de semana y checkpoints de salud por ola.
+  - criterios de avance/rollback definidos por SLO (crash, error rate, denied spike, sync backlog, tickets P1).
+  - evidencia publicada: `docs/validation/V5_P0_T1_ROLLOUT_WAVE_STRATEGY.json`.
+- Siguiente task activa:
+  - `V5-P0-T2` (Entornos y feature flags) en `🚧`.

@@ -1,0 +1,80 @@
+{
+  "taskId": "V5-P0-T1",
+  "cycle": "V5",
+  "status": "passed",
+  "date": "2026-03-02",
+  "branch": "feature/uiux-code-implementation-phase1",
+  "summary": {
+    "cohorts": "rollout cohorts defined by enterprise criticality and role impact",
+    "releaseWindows": "controlled windows defined with post-release checkpoints and weekend freeze policy",
+    "advanceCriteria": "objective promotion criteria defined with SLO thresholds and rollback triggers"
+  },
+  "rolloutPlan": {
+    "waves": [
+      {
+        "waveId": "W0",
+        "cohort": "internal-admin-ops",
+        "scopePercent": 5,
+        "entryCriteria": "release gate green + on-call owner confirmed",
+        "successCriteria": "0 P1 incidents, crash-free sessions >= 99.8%, denied_access_spike not triggered",
+        "rollbackTrigger": "any P1 incident or fatal_crash_slo_breach"
+      },
+      {
+        "waveId": "W1",
+        "cohort": "enterprise-coaches",
+        "scopePercent": 20,
+        "entryCriteria": "W0 stable for 24h",
+        "successCriteria": "support backlog stable, sync queue SLA green, no critical auth regressions",
+        "rollbackTrigger": "blocked_action_spike sustained > 30m"
+      },
+      {
+        "waveId": "W2",
+        "cohort": "active-athletes",
+        "scopePercent": 50,
+        "entryCriteria": "W1 stable for 48h",
+        "successCriteria": "no SLO breach in telemetry dashboard for 2 consecutive windows",
+        "rollbackTrigger": "denied_access_spike or sync backlog saturation"
+      },
+      {
+        "waveId": "W3",
+        "cohort": "long-tail-and-full-rollout",
+        "scopePercent": 100,
+        "entryCriteria": "W2 stable for 72h",
+        "successCriteria": "weekly health review in green and incident trend non-increasing",
+        "rollbackTrigger": "major legal/compliance or reliability incident"
+      }
+    ],
+    "releaseWindows": [
+      {
+        "name": "weekday-morning",
+        "slot": "Mon-Thu 09:00-11:00 Europe/Madrid",
+        "checkpoint": "T+30m, T+2h, T+24h"
+      },
+      {
+        "name": "weekday-afternoon",
+        "slot": "Mon-Thu 16:00-18:00 Europe/Madrid",
+        "checkpoint": "T+30m, T+2h, next-day 09:00"
+      }
+    ],
+    "freezePolicy": "No releases Fri 16:00 -> Mon 09:00 unless emergency hotfix approved"
+  },
+  "commands": [
+    "pnpm release:check",
+    "test -f docs/validation/V4_P3_T3_V5_HANDOFF.json"
+  ],
+  "results": {
+    "strategyDefined": "passed",
+    "cohortsDefined": "passed",
+    "releaseWindowsDefined": "passed",
+    "criteriaDefined": "passed"
+  },
+  "evidence": {
+    "tracking": [
+      "docs/FLUX_ROLLOUT_SCALE_TRACKING_V5.md",
+      "docs/REFRACTOR_PROGRESS.md"
+    ],
+    "handoff": [
+      "docs/validation/V4_P3_T3_V5_HANDOFF.json"
+    ]
+  }
+}
