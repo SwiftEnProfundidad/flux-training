@@ -1,0 +1,52 @@
+{
+  "cycle": "V4",
+  "phase": "P0",
+  "task": "V4-P0-T3",
+  "title": "Enterprise access control with RBAC actions, conditional permissions and denied-access audit",
+  "status": "pass",
+  "executedAt": "2026-03-02T19:25:00Z",
+  "scope": {
+    "contracts": [
+      "packages/contracts/src/index.ts",
+      "packages/contracts/src/index.spec.ts"
+    ],
+    "backend": [
+      "apps/backend/src/application/list-role-capabilities.ts",
+      "apps/backend/src/application/evaluate-role-access.ts",
+      "apps/backend/src/application/record-denied-access-audit.ts",
+      "apps/backend/src/application/list-denied-access-audits.ts",
+      "apps/backend/src/presentation/demo-api-runtime.ts",
+      "apps/backend/src/presentation/demo-http-server.ts",
+      "apps/backend/src/presentation/http.ts"
+    ],
+    "web": [
+      "apps/web/src/application/manage-role-capabilities.ts",
+      "apps/web/src/application/manage-access-control.ts",
+      "apps/web/src/infrastructure/access-control-client.ts",
+      "apps/web/src/presentation/App.tsx"
+    ],
+    "ios": []
+  },
+  "commands": [
+    "pnpm -r build",
+    "pnpm -r test",
+    "cd apps/ios && swift test"
+  ],
+  "results": {
+    "workspaceBuild": "pass",
+    "workspaceTests": "pass",
+    "iosTests": "pass"
+  },
+  "acceptanceCriteria": [
+    "Las capacidades de rol incluyen permisos por dominio con acciones y condiciones explícitas.",
+    "La evaluación de acceso soporta condiciones de ownership y consentimiento médico.",
+    "Las denegaciones de acceso se registran en auditoría formal y son consultables por usuario.",
+    "Web integra evaluación/registro de denegaciones en la ruta de acciones bloqueadas.",
+    "La regresión cross-platform se mantiene en verde tras el hardening de acceso."
+  ],
+  "notes": [
+    "Se añaden endpoints runtime: /api/evaluateAccessDecision, /api/recordDeniedAccessAudit y /api/listDeniedAccessAudits.",
+    "Se conserva compatibilidad con allowedDomains y se extiende con permissions action-level.",
+    "Con cierre de V4-P0-T3 se activa V4-P1-T1 (telemetría unificada iOS/Web/Backend)."
+  ]
+}
