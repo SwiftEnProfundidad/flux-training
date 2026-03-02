@@ -88,6 +88,8 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V3_P0_T2_DONE_CRITERIA.json`: definición de done por capa y checklist de aceptación para cierre de módulos V3.
 - `V3_P0_T3_MIN_TEST_MATRIX.csv`: matriz ejecutada de calidad mínima por capa con comandos, resultados y evidencia del gate V3.
 - `V3_P0_T3_QUALITY_GATE.json`: consolidado auditable del gate técnico V3 (`tests mínimos`, `smoke crítico`, `checklist de evidencia`) y transición a P1.
+- `V3_P1_T1_IOS_AUTH_ONBOARDING_CONSENT_COVERAGE.csv`: cobertura de pantallas, estados, recovery paths e identificadores a11y del dominio iOS de acceso.
+- `V3_P1_T1_IOS_AUTH_ONBOARDING_CONSENT_GATE.json`: consolidado de cierre de task V3-P1-T1 con evidencia de tests y criterios por subtask.
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -142,6 +144,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v3_p0_t1_implementation_inventory.feature`
 - `features/v3_p0_t2_ownership_matrix.feature`
 - `features/v3_p0_t3_quality_gate.feature`
+- `features/v3_p1_t1_ios_auth_onboarding_consent.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

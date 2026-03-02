@@ -25,8 +25,8 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
 ## Fase P1 - Implementacion iOS por dominios
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V3-P1-T1 | Auth + onboarding + consent (iOS) | V3-P1-T1.1 pantallas/estados; V3-P1-T1.2 validaciones y recovery; V3-P1-T1.3 i18n/a11y | 🚧 | V3-P0-T3 | Flujos de acceso iOS completos y testeados |
-| V3-P1-T2 | Today + training + video (iOS) | V3-P1-T2.1 cockpit diario; V3-P1-T2.2 sesion activa; V3-P1-T2.3 video/fallback/offline | ⏳ | V3-P1-T1 | Dominio diario iOS operativo |
+| V3-P1-T1 | Auth + onboarding + consent (iOS) | V3-P1-T1.1 pantallas/estados; V3-P1-T1.2 validaciones y recovery; V3-P1-T1.3 i18n/a11y | ✅ | V3-P0-T3 | Flujos de acceso iOS completos y testeados |
+| V3-P1-T2 | Today + training + video (iOS) | V3-P1-T2.1 cockpit diario; V3-P1-T2.2 sesion activa; V3-P1-T2.3 video/fallback/offline | 🚧 | V3-P1-T1 | Dominio diario iOS operativo |
 | V3-P1-T3 | Nutrition + progress + AI + settings (iOS) | V3-P1-T3.1 nutricion/progreso; V3-P1-T3.2 recomendaciones IA; V3-P1-T3.3 settings/legal GDPR | ⏳ | V3-P1-T2 | iOS completo por dominios core y legales |
 
 ## Fase P2 - Implementacion Web por dominios
@@ -87,3 +87,16 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - feature BDD de gate V3 publicado en `docs/validation/features/v3_p0_t3_quality_gate.feature`.
 - Inicio V3-P1-T1:
   - foco en implementar en código el dominio iOS de acceso (`auth + onboarding + consent`) con cobertura de estados enterprise, i18n ES/EN y a11y.
+- Cierre V3-P1-T1:
+  - `auth`: validación de credenciales y recovery explícito (`email/sms`) implementados en `AuthViewModel`.
+  - `onboarding`: validación de perfil + gate de consentimiento implementados en `OnboardingViewModel`.
+  - `consent`: flujo legal operativo en `ExperienceHubView` con estados `saved/exported/deletion_requested`.
+  - i18n ES/EN reforzada en `LocalizedCopy` y cobertura de estatus enterprise (`validation_error`, `consent_required`, recovery).
+  - accesibilidad aplicada con `accessibilityIdentifier` en controles clave de auth/onboarding/legal.
+  - evidencias publicadas:
+    - `docs/validation/V3_P1_T1_IOS_AUTH_ONBOARDING_CONSENT_COVERAGE.csv`
+    - `docs/validation/V3_P1_T1_IOS_AUTH_ONBOARDING_CONSENT_GATE.json`
+    - `docs/validation/features/v3_p1_t1_ios_auth_onboarding_consent.feature`
+  - verificación técnica: `cd apps/ios && swift test` en PASS (`68` tests, `0` fallos).
+- Inicio V3-P1-T2:
+  - foco en dominio diario iOS (`today + training + video`) incluyendo estados de sesión activa, fallback de video y continuidad offline.
