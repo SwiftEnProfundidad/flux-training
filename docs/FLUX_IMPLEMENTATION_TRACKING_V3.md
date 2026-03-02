@@ -244,3 +244,14 @@ Implementar en codigo (iOS + Web + Backend + contratos) todo el alcance funciona
   - cierre de task `V3-P3-T2`: endpoints funcionales por dominio completados (`auth/onboarding`, `training/nutrition/progress`, `legal/admin/audit`).
 - Inicio V3-P3-T3:
   - foco en resiliencia backend operativa con estandarización de errores, trazabilidad por correlación y políticas de retry/idempotencia.
+- Avance V3-P3-T3 (en curso):
+  - subtask `V3-P3-T3.1` cerrada:
+    - estandarización de errores backend aplicada en capa demo y API:
+      - payload de error normalizado con `error`, `correlationId` y `retryable`.
+      - propagación de `x-correlation-id` en demo HTTP para trazabilidad extremo a extremo.
+      - helper común en Firebase handlers (`sendStandardError`) para uniformidad de respuestas 4xx/5xx.
+    - cobertura añadida en `demo-http-server.spec.ts` validando correlación y contrato de error (`method_not_allowed`, `client_update_required`).
+    - validación en PASS:
+      - `pnpm --filter @flux/backend check`
+      - `pnpm --filter @flux/backend test` (`27` ficheros, `55` tests, `0` fallos)
+  - siguiente subtask activa: `V3-P3-T3.2` (trazabilidad operativa y correlación en eventos/logs).
