@@ -85,6 +85,12 @@ type ListAIRecommendationsInput = {
   locale: string;
 };
 
+type DateRangeListOptions = {
+  fromDate?: string | undefined;
+  toDate?: string | undefined;
+  limit?: number | undefined;
+};
+
 class InMemoryUserProfileRepository implements UserProfileRepository {
   private readonly records: OnboardingResult["profile"][] = [];
 
@@ -207,6 +213,32 @@ class DemoAuthTokenVerifier implements AuthTokenVerifier {
   }
 }
 
+function filterByDateRangeAndLimit<T>(
+  records: T[],
+  options: DateRangeListOptions | undefined,
+  dateResolver: (record: T) => string
+): T[] {
+  if (options === undefined) {
+    return records;
+  }
+
+  const filteredByFromDate =
+    options.fromDate === undefined
+      ? records
+      : records.filter((record) => dateResolver(record) >= options.fromDate!);
+
+  const filteredByRange =
+    options.toDate === undefined
+      ? filteredByFromDate
+      : filteredByFromDate.filter((record) => dateResolver(record) <= options.toDate!);
+
+  if (options.limit === undefined) {
+    return filteredByRange;
+  }
+
+  return filteredByRange.slice(0, options.limit);
+}
+
 export type DemoApiRuntime = {
   createAuthSession(providerToken: string): Promise<Awaited<ReturnType<CreateAuthSessionUseCase["execute"]>>>;
   requestAuthRecovery(payload: AuthRecoveryRequest): Promise<AuthRecoveryResult>;
@@ -219,10 +251,14 @@ export type DemoApiRuntime = {
   createTrainingPlan(payload: Omit<TrainingPlan, "createdAt">): Promise<TrainingPlan>;
   listTrainingPlans(userId: string): Promise<TrainingPlan[]>;
   createWorkoutSession(payload: WorkoutSessionInput): Promise<WorkoutSessionInput>;
-  listWorkoutSessions(userId: string, planId?: string): Promise<WorkoutSessionInput[]>;
+  listWorkoutSessions(
+    userId: string,
+    planId?: string,
+    options?: DateRangeListOptions
+  ): Promise<WorkoutSessionInput[]>;
   createNutritionLog(payload: NutritionLog): Promise<NutritionLog>;
-  listNutritionLogs(userId: string): Promise<NutritionLog[]>;
-  getProgressSummary(userId: string): Promise<ProgressSummary>;
+  listNutritionLogs(userId: string, options?: DateRangeListOptions): Promise<NutritionLog[]>;
+  getProgressSummary(userId: string, generatedAt?: string): Promise<ProgressSummary>;
   processSyncQueue(input: { userId: string; items: SyncQueueItem[] }): Promise<SyncQueueProcessResult>;
   createAnalyticsEvent(payload: AnalyticsEvent): Promise<AnalyticsEvent>;
   listAnalyticsEvents(userId: string): Promise<AnalyticsEvent[]>;
@@ -337,24 +373,30 @@ export function createDemoApiRuntime(): DemoApiRuntime {
       return createWorkoutSessionUseCase.execute(payload);
     },
 
-    async listWorkoutSessions(userId: string, planId?: string) {
+    async listWorkoutSessions(userId: string, planId?: string, options?: DateRangeListOptions) {
       const sessions = await listWorkoutSessionsUseCase.execute(userId, planId);
+      const filteredByDate = filterByDateRangeAndLimit(
+        sessions,
+        options,
+        (session) => session.endedAt
+      );
       if (planId === undefined || planId.length === 0) {
-        return sessions;
+        return filteredByDate;
       }
-      return sessions.filter((session) => session.planId === planId);
+      return filteredByDate.filter((session) => session.planId === planId);
     },
 
     async createNutritionLog(payload: NutritionLog) {
       return createNutritionLogUseCase.execute(payload);
     },
 
-    async listNutritionLogs(userId: string) {
-      return listNutritionLogsUseCase.execute(userId);
+    async listNutritionLogs(userId: string, options?: DateRangeListOptions) {
+      const logs = await listNutritionLogsUseCase.execute(userId);
+      return filterByDateRangeAndLimit(logs, options, (log) => log.date);
     },
 
-    async getProgressSummary(userId: string) {
-      return getProgressSummaryUseCase.execute(userId);
+    async getProgressSummary(userId: string, generatedAt?: string) {
+      return getProgressSummaryUseCase.execute(userId, generatedAt);
     },
 
     async processSyncQueue(input: { userId: string; items: SyncQueueItem[] }) {

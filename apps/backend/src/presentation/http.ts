@@ -135,6 +135,37 @@ function normalizeHeaderValue(value: string | string[] | undefined): string {
   return "";
 }
 
+function parseOptionalPositiveIntegerQuery(value: unknown): number | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  const normalized = String(value).trim();
+  if (normalized.length === 0) {
+    return undefined;
+  }
+  const numeric = Number.parseInt(normalized, 10);
+  if (Number.isNaN(numeric) || numeric <= 0) {
+    throw new Error("invalid_limit_query");
+  }
+  return numeric;
+}
+
+function parseOptionalDateQuery(value: unknown): string | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  const normalized = String(value).trim();
+  if (normalized.length === 0) {
+    return undefined;
+  }
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(normalized);
+  const isDateTime = Number.isNaN(Date.parse(normalized)) === false;
+  if (isDateOnly || isDateTime) {
+    return normalized;
+  }
+  throw new Error("invalid_date_query");
+}
+
 function shouldRejectUnsupportedClient(
   request: HeaderRequest,
   response: JsonResponse
@@ -301,8 +332,21 @@ export const listWorkoutSessions = onRequest(async (request, response) => {
     const userId = String(request.query.userId ?? "");
     const planId =
       request.query.planId === undefined ? undefined : String(request.query.planId);
+    const fromDate = parseOptionalDateQuery(request.query.fromDate);
+    const toDate = parseOptionalDateQuery(request.query.toDate);
+    const limit = parseOptionalPositiveIntegerQuery(request.query.limit);
     const sessions = await listWorkoutSessionsUseCase.execute(userId, planId);
-    response.status(200).json({ sessions });
+    const sessionsFilteredByFromDate =
+      fromDate === undefined
+        ? sessions
+        : sessions.filter((session) => session.endedAt >= fromDate);
+    const sessionsFilteredByRange =
+      toDate === undefined
+        ? sessionsFilteredByFromDate
+        : sessionsFilteredByFromDate.filter((session) => session.endedAt <= toDate);
+    const payloadSessions =
+      limit === undefined ? sessionsFilteredByRange : sessionsFilteredByRange.slice(0, limit);
+    response.status(200).json({ sessions: payloadSessions });
   } catch {
     response.status(400).json({ error: "invalid_list_workout_sessions_payload" });
   }
@@ -346,7 +390,17 @@ export const listNutritionLogs = onRequest(async (request, response) => {
     }
     const userId = String(request.query.userId ?? "");
     const logs = await listNutritionLogsUseCase.execute(userId);
-    response.status(200).json({ logs });
+    const fromDate = parseOptionalDateQuery(request.query.fromDate);
+    const toDate = parseOptionalDateQuery(request.query.toDate);
+    const limit = parseOptionalPositiveIntegerQuery(request.query.limit);
+    const logsFilteredByFromDate =
+      fromDate === undefined ? logs : logs.filter((log) => log.date >= fromDate);
+    const logsFilteredByRange =
+      toDate === undefined
+        ? logsFilteredByFromDate
+        : logsFilteredByFromDate.filter((log) => log.date <= toDate);
+    const payloadLogs = limit === undefined ? logsFilteredByRange : logsFilteredByRange.slice(0, limit);
+    response.status(200).json({ logs: payloadLogs });
   } catch {
     response.status(400).json({ error: "invalid_list_nutrition_logs_payload" });
   }
@@ -358,7 +412,8 @@ export const getProgressSummary = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
-    const summary = await getProgressSummaryUseCase.execute(userId);
+    const generatedAt = parseOptionalDateQuery(request.query.generatedAt);
+    const summary = await getProgressSummaryUseCase.execute(userId, generatedAt);
     response.status(200).json({ summary });
   } catch {
     response.status(400).json({ error: "invalid_get_progress_summary_payload" });

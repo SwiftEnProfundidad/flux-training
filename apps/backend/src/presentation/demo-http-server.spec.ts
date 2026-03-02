@@ -234,4 +234,118 @@ describe("DemoHttpServer", () => {
     expect(incidentsPayload.incidents.length).toBe(2);
     expect(incidentsPayload.incidents[0]?.severity).toBe("high");
   });
+
+  it("supports range filters for workout/nutrition lists and generatedAt for summary", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    await fetch(`${server.baseUrl}/api/createTrainingPlan`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        id: "plan-1",
+        userId: "demo-user",
+        name: "Starter",
+        weeks: 4,
+        days: [
+          {
+            dayIndex: 1,
+            exercises: [{ exerciseId: "goblet-squat", targetSets: 4, targetReps: 8 }]
+          }
+        ]
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createWorkoutSession`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        planId: "plan-1",
+        startedAt: "2026-03-01T08:00:00.000Z",
+        endedAt: "2026-03-01T08:45:00.000Z",
+        exercises: [{ exerciseId: "goblet-squat", sets: [{ reps: 8, loadKg: 40, rpe: 7 }] }]
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createWorkoutSession`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        planId: "plan-1",
+        startedAt: "2026-03-02T08:00:00.000Z",
+        endedAt: "2026-03-02T08:45:00.000Z",
+        exercises: [{ exerciseId: "goblet-squat", sets: [{ reps: 8, loadKg: 42, rpe: 8 }] }]
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createNutritionLog`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        date: "2026-03-01",
+        calories: 2200,
+        proteinGrams: 150,
+        carbsGrams: 230,
+        fatsGrams: 70
+      })
+    });
+
+    await fetch(`${server.baseUrl}/api/createNutritionLog`, {
+      method: "POST",
+      headers: {
+        ...clientHeaders,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: "demo-user",
+        date: "2026-03-02",
+        calories: 2100,
+        proteinGrams: 145,
+        carbsGrams: 220,
+        fatsGrams: 65
+      })
+    });
+
+    const sessionsResponse = await fetch(
+      `${server.baseUrl}/api/listWorkoutSessions?userId=demo-user&fromDate=2026-03-02T00:00:00.000Z&limit=1`,
+      { headers: clientHeaders }
+    );
+    const logsResponse = await fetch(
+      `${server.baseUrl}/api/listNutritionLogs?userId=demo-user&fromDate=2026-03-02&limit=1`,
+      { headers: clientHeaders }
+    );
+    const summaryResponse = await fetch(
+      `${server.baseUrl}/api/getProgressSummary?userId=demo-user&generatedAt=2026-03-03T00:00:00.000Z`,
+      { headers: clientHeaders }
+    );
+
+    expect(sessionsResponse.status).toBe(200);
+    expect(logsResponse.status).toBe(200);
+    expect(summaryResponse.status).toBe(200);
+
+    const sessionsPayload = (await sessionsResponse.json()) as { sessions: unknown[] };
+    const logsPayload = (await logsResponse.json()) as { logs: unknown[] };
+    const summaryPayload = (await summaryResponse.json()) as {
+      summary?: { generatedAt?: string; workoutSessionsCount?: number };
+    };
+
+    expect(sessionsPayload.sessions.length).toBe(1);
+    expect(logsPayload.logs.length).toBe(1);
+    expect(summaryPayload.summary?.generatedAt).toBe("2026-03-03T00:00:00.000Z");
+    expect(summaryPayload.summary?.workoutSessionsCount).toBe(2);
+  });
 });

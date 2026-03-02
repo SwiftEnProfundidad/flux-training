@@ -120,6 +120,30 @@ function parseNumberQuery(value: string | null): number {
   return numeric;
 }
 
+function parseOptionalPositiveIntegerQuery(value: string | null): number | undefined {
+  if (value === null || value.trim().length === 0) {
+    return undefined;
+  }
+  const numeric = Number.parseInt(value, 10);
+  if (Number.isNaN(numeric) || numeric <= 0) {
+    throw new Error("invalid_limit_query");
+  }
+  return numeric;
+}
+
+function parseOptionalDateQuery(value: string | null): string | undefined {
+  if (value === null || value.trim().length === 0) {
+    return undefined;
+  }
+  const normalized = value.trim();
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(normalized);
+  const isDateTime = Number.isNaN(Date.parse(normalized)) === false;
+  if (isDateOnly || isDateTime) {
+    return normalized;
+  }
+  throw new Error("invalid_date_query");
+}
+
 function parseGoal(value: string | null): Goal {
   return goalSchema.parse(value ?? "");
 }
@@ -339,7 +363,11 @@ async function routeApiRequest(
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
       const rawPlanId = url.searchParams.get("planId");
-      const sessions = await runtime.listWorkoutSessions(userId, rawPlanId ?? undefined);
+      const sessions = await runtime.listWorkoutSessions(userId, rawPlanId ?? undefined, {
+        fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+        toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+        limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"))
+      });
       return { statusCode: 200, payload: { sessions } };
     } catch (error) {
       return {
@@ -362,7 +390,11 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/listNutritionLogs") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
-      const logs = await runtime.listNutritionLogs(userId);
+      const logs = await runtime.listNutritionLogs(userId, {
+        fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+        toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+        limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"))
+      });
       return { statusCode: 200, payload: { logs } };
     } catch (error) {
       return {
@@ -375,7 +407,10 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/getProgressSummary") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
-      const summary = await runtime.getProgressSummary(userId);
+      const summary = await runtime.getProgressSummary(
+        userId,
+        parseOptionalDateQuery(url.searchParams.get("generatedAt"))
+      );
       return { statusCode: 200, payload: { summary } };
     } catch (error) {
       return {
