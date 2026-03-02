@@ -83,15 +83,59 @@ function normalizeHeaderValue(value: string | string[] | undefined): string {
   return "";
 }
 
-function sendJson(response: ServerResponse, statusCode: number, payload: JsonPayload): void {
+function createCorrelationIdSeed(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function resolveCorrelationId(request: IncomingMessage): string {
+  const requestedCorrelationId = normalizeHeaderValue(request.headers["x-correlation-id"]).trim();
+  if (requestedCorrelationId.length > 0) {
+    return requestedCorrelationId;
+  }
+  return `flux-${createCorrelationIdSeed()}`;
+}
+
+function normalizeErrorPayload(
+  request: IncomingMessage,
+  statusCode: number,
+  payload: JsonPayload
+): JsonPayload {
+  if (typeof payload.error !== "string") {
+    return payload;
+  }
+  const correlationId =
+    typeof payload.correlationId === "string" && payload.correlationId.trim().length > 0
+      ? payload.correlationId
+      : resolveCorrelationId(request);
+  const retryable =
+    typeof payload.retryable === "boolean" ? payload.retryable : statusCode >= 500;
+  return {
+    ...payload,
+    correlationId,
+    retryable
+  };
+}
+
+function sendJson(
+  request: IncomingMessage,
+  response: ServerResponse,
+  statusCode: number,
+  payload: JsonPayload
+): void {
+  const normalizedPayload = normalizeErrorPayload(request, statusCode, payload);
+  const correlationIdHeader =
+    typeof normalizedPayload.correlationId === "string"
+      ? { "x-correlation-id": normalizedPayload.correlationId }
+      : {};
   response.writeHead(statusCode, {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
-      "Content-Type,x-flux-client-platform,x-flux-client-version",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
+      "Content-Type,x-flux-client-platform,x-flux-client-version,x-correlation-id",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    ...correlationIdHeader
   });
-  response.end(JSON.stringify(payload));
+  response.end(JSON.stringify(normalizedPayload));
 }
 
 async function readJsonBody(request: IncomingMessage): Promise<unknown> {
@@ -201,7 +245,7 @@ export async function startDemoHttpServer(
 
   const server = createServer(async (request, response) => {
     if (request.method === "OPTIONS") {
-      sendJson(response, 204, {});
+      sendJson(request, response, 204, {});
       return;
     }
 
@@ -209,26 +253,26 @@ export async function startDemoHttpServer(
     const url = new URL(request.url ?? "/", "http://localhost");
 
     if (url.pathname === "/api/health") {
-      sendJson(response, 200, { status: "ok" });
+      sendJson(request, response, 200, { status: "ok" });
       return;
     }
 
     if (url.pathname.startsWith("/api/") === false) {
-      sendJson(response, 404, { error: "route_not_found" });
+      sendJson(request, response, 404, { error: "route_not_found" });
       return;
     }
 
     const unsupportedClientResult = guardUnsupportedClientVersion(request);
     if (unsupportedClientResult !== null) {
-      sendJson(response, unsupportedClientResult.statusCode, unsupportedClientResult.payload);
+      sendJson(request, response, unsupportedClientResult.statusCode, unsupportedClientResult.payload);
       return;
     }
 
     try {
       const result = await routeApiRequest(method, url, request, runtime);
-      sendJson(response, result.statusCode, result.payload);
+      sendJson(request, response, result.statusCode, result.payload);
     } catch {
-      sendJson(response, 500, { error: "internal_error" });
+      sendJson(request, response, 500, { error: "internal_error" });
     }
   });
 

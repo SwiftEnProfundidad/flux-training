@@ -53,9 +53,17 @@ describe("DemoHttpServer", () => {
 
     expect(response.status).toBe(426);
 
-    const payload = (await response.json()) as { error?: string; minimumVersion?: string };
+    const payload = (await response.json()) as {
+      error?: string;
+      minimumVersion?: string;
+      correlationId?: string;
+      retryable?: boolean;
+    };
     expect(payload.error).toBe("client_update_required");
     expect(payload.minimumVersion).toBe("0.2.0");
+    expect(payload.correlationId?.startsWith("flux-")).toBe(true);
+    expect(payload.retryable).toBe(false);
+    expect(response.headers.get("x-correlation-id")).toBe(payload.correlationId);
   });
 
   it("returns method_not_allowed for known routes with invalid HTTP method", async () => {
@@ -67,8 +75,15 @@ describe("DemoHttpServer", () => {
     });
 
     expect(response.status).toBe(405);
-    const payload = (await response.json()) as { error?: string };
+    const payload = (await response.json()) as {
+      error?: string;
+      correlationId?: string;
+      retryable?: boolean;
+    };
     expect(payload.error).toBe("method_not_allowed");
+    expect(payload.correlationId?.startsWith("flux-")).toBe(true);
+    expect(payload.retryable).toBe(false);
+    expect(response.headers.get("x-correlation-id")).toBe(payload.correlationId);
   });
 
   it("serves auth recovery endpoint for email and sms channels", async () => {

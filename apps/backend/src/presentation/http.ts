@@ -183,6 +183,41 @@ function parseOptionalEnumQuery<T extends string>(
   throw new Error("invalid_enum_query");
 }
 
+function createCorrelationIdSeed(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function resolveCorrelationId(request: HeaderRequest): string {
+  const requestedCorrelationId = normalizeHeaderValue(request.header("x-correlation-id")).trim();
+  if (requestedCorrelationId.length > 0) {
+    return requestedCorrelationId;
+  }
+  return `flux-${createCorrelationIdSeed()}`;
+}
+
+function createStandardErrorPayload(
+  request: HeaderRequest,
+  error: string,
+  retryable: boolean
+): Record<string, unknown> {
+  return {
+    error,
+    correlationId: resolveCorrelationId(request),
+    retryable
+  };
+}
+
+function sendStandardError(
+  request: HeaderRequest,
+  response: JsonResponse,
+  statusCode: number,
+  error: string
+): void {
+  response.status(statusCode).json(
+    createStandardErrorPayload(request, error, statusCode >= 500)
+  );
+}
+
 function shouldRejectUnsupportedClient(
   request: HeaderRequest,
   response: JsonResponse
@@ -196,13 +231,13 @@ function shouldRejectUnsupportedClient(
   } catch (error) {
     if (error instanceof ClientUpdateRequiredError) {
       response.status(426).json({
-        error: error.code,
+        ...createStandardErrorPayload(request, error.code, false),
         platform: error.platform,
         minimumVersion: error.minimumVersion
       });
       return true;
     }
-    response.status(400).json({ error: "invalid_client_version" });
+    sendStandardError(request, response, 400, "invalid_client_version");
     return true;
   }
 }
@@ -219,7 +254,7 @@ export const createWorkoutSession = onRequest(async (request, response) => {
     const payload = await createWorkoutSessionUseCase.execute(request.body);
     response.status(201).json({ payload });
   } catch {
-    response.status(400).json({ error: "invalid_workout_session_payload" });
+    sendStandardError(request, response, 400, "invalid_workout_session_payload");
   }
 });
 
@@ -230,14 +265,14 @@ export const createAuthSession = onRequest(async (request, response) => {
     }
     const providerToken = String(request.body?.providerToken ?? "");
     if (providerToken.length === 0) {
-      response.status(400).json({ error: "missing_provider_token" });
+      sendStandardError(request, response, 400, "missing_provider_token");
       return;
     }
 
     const session = await createAuthSessionUseCase.execute(providerToken);
     response.status(201).json({ session });
   } catch {
-    response.status(401).json({ error: "invalid_provider_token" });
+    sendStandardError(request, response, 401, "invalid_provider_token");
   }
 });
 
@@ -251,10 +286,10 @@ export const requestAuthRecovery = onRequest(async (request, response) => {
     response.status(201).json({ recovery: authRecoveryResultSchema.parse(result) });
   } catch (error) {
     if (error instanceof Error && error.message === "invalid_recovery_identifier") {
-      response.status(400).json({ error: "invalid_recovery_identifier" });
+      sendStandardError(request, response, 400, "invalid_recovery_identifier");
       return;
     }
-    response.status(400).json({ error: "invalid_auth_recovery_payload" });
+    sendStandardError(request, response, 400, "invalid_auth_recovery_payload");
   }
 });
 
@@ -268,10 +303,10 @@ export const recordLegalConsent = onRequest(async (request, response) => {
     response.status(201).json({ consent });
   } catch (error) {
     if (error instanceof Error && error.message === "legal_consent_incomplete") {
-      response.status(400).json({ error: "legal_consent_incomplete" });
+      sendStandardError(request, response, 400, "legal_consent_incomplete");
       return;
     }
-    response.status(400).json({ error: "invalid_legal_consent_payload" });
+    sendStandardError(request, response, 400, "invalid_legal_consent_payload");
   }
 });
 
@@ -284,7 +319,7 @@ export const requestDataDeletion = onRequest(async (request, response) => {
     const deletionRequest = await requestDataDeletionUseCase.execute(payload);
     response.status(201).json({ request: deletionRequest });
   } catch {
-    response.status(400).json({ error: "invalid_data_deletion_request_payload" });
+    sendStandardError(request, response, 400, "invalid_data_deletion_request_payload");
   }
 });
 
@@ -300,7 +335,7 @@ export const createHealthScreening = onRequest(async (request, response) => {
     });
     response.status(201).json({ screening });
   } catch {
-    response.status(400).json({ error: "invalid_health_screening_payload" });
+    sendStandardError(request, response, 400, "invalid_health_screening_payload");
   }
 });
 
@@ -312,7 +347,7 @@ export const completeOnboarding = onRequest(async (request, response) => {
     const result = await completeOnboardingUseCase.execute(request.body);
     response.status(201).json({ result });
   } catch {
-    response.status(400).json({ error: "invalid_onboarding_payload" });
+    sendStandardError(request, response, 400, "invalid_onboarding_payload");
   }
 });
 
@@ -324,7 +359,7 @@ export const createTrainingPlan = onRequest(async (request, response) => {
     const plan = await createTrainingPlanUseCase.execute(request.body);
     response.status(201).json({ plan });
   } catch {
-    response.status(400).json({ error: "invalid_training_plan_payload" });
+    sendStandardError(request, response, 400, "invalid_training_plan_payload");
   }
 });
 
@@ -337,7 +372,7 @@ export const listTrainingPlans = onRequest(async (request, response) => {
     const plans = await listTrainingPlansUseCase.execute(userId);
     response.status(200).json({ plans });
   } catch {
-    response.status(400).json({ error: "invalid_list_training_plans_payload" });
+    sendStandardError(request, response, 400, "invalid_list_training_plans_payload");
   }
 });
 
@@ -365,7 +400,7 @@ export const listWorkoutSessions = onRequest(async (request, response) => {
       limit === undefined ? sessionsFilteredByRange : sessionsFilteredByRange.slice(0, limit);
     response.status(200).json({ sessions: payloadSessions });
   } catch {
-    response.status(400).json({ error: "invalid_list_workout_sessions_payload" });
+    sendStandardError(request, response, 400, "invalid_list_workout_sessions_payload");
   }
 });
 
@@ -384,7 +419,7 @@ export const listExerciseVideos = onRequest(async (request, response) => {
     });
     response.status(200).json({ videos });
   } catch {
-    response.status(400).json({ error: "invalid_list_exercise_videos_payload" });
+    sendStandardError(request, response, 400, "invalid_list_exercise_videos_payload");
   }
 });
 
@@ -396,7 +431,7 @@ export const createNutritionLog = onRequest(async (request, response) => {
     const log = await createNutritionLogUseCase.execute(request.body);
     response.status(201).json({ log });
   } catch {
-    response.status(400).json({ error: "invalid_nutrition_log_payload" });
+    sendStandardError(request, response, 400, "invalid_nutrition_log_payload");
   }
 });
 
@@ -419,7 +454,7 @@ export const listNutritionLogs = onRequest(async (request, response) => {
     const payloadLogs = limit === undefined ? logsFilteredByRange : logsFilteredByRange.slice(0, limit);
     response.status(200).json({ logs: payloadLogs });
   } catch {
-    response.status(400).json({ error: "invalid_list_nutrition_logs_payload" });
+    sendStandardError(request, response, 400, "invalid_list_nutrition_logs_payload");
   }
 });
 
@@ -433,7 +468,7 @@ export const getProgressSummary = onRequest(async (request, response) => {
     const summary = await getProgressSummaryUseCase.execute(userId, generatedAt);
     response.status(200).json({ summary });
   } catch {
-    response.status(400).json({ error: "invalid_get_progress_summary_payload" });
+    sendStandardError(request, response, 400, "invalid_get_progress_summary_payload");
   }
 });
 
@@ -463,7 +498,7 @@ export const listAIRecommendations = onRequest(async (request, response) => {
     });
     response.status(200).json({ recommendations });
   } catch {
-    response.status(400).json({ error: "invalid_list_ai_recommendations_payload" });
+    sendStandardError(request, response, 400, "invalid_list_ai_recommendations_payload");
   }
 });
 
@@ -476,7 +511,7 @@ export const listRoleCapabilities = onRequest(async (request, response) => {
     const capabilities = listRoleCapabilitiesUseCase.execute(role);
     response.status(200).json({ capabilities });
   } catch {
-    response.status(400).json({ error: "invalid_list_role_capabilities_payload" });
+    sendStandardError(request, response, 400, "invalid_list_role_capabilities_payload");
   }
 });
 
@@ -489,7 +524,7 @@ export const listBillingInvoices = onRequest(async (request, response) => {
     const invoices = await listBillingInvoicesUseCase.execute(userId);
     response.status(200).json({ invoices: billingInvoiceSchema.array().parse(invoices) });
   } catch {
-    response.status(400).json({ error: "invalid_list_billing_invoices_payload" });
+    sendStandardError(request, response, 400, "invalid_list_billing_invoices_payload");
   }
 });
 
@@ -502,7 +537,7 @@ export const listSupportIncidents = onRequest(async (request, response) => {
     const incidents = await listSupportIncidentsUseCase.execute(userId);
     response.status(200).json({ incidents: supportIncidentSchema.array().parse(incidents) });
   } catch {
-    response.status(400).json({ error: "invalid_list_support_incidents_payload" });
+    sendStandardError(request, response, 400, "invalid_list_support_incidents_payload");
   }
 });
 
@@ -515,7 +550,7 @@ export const processSyncQueue = onRequest(async (request, response) => {
     const result = await processSyncQueueUseCase.execute(payload.userId, payload.items);
     response.status(200).json({ result });
   } catch {
-    response.status(400).json({ error: "invalid_process_sync_queue_payload" });
+    sendStandardError(request, response, 400, "invalid_process_sync_queue_payload");
   }
 });
 
@@ -528,7 +563,7 @@ export const createAnalyticsEvent = onRequest(async (request, response) => {
     const payload = await createAnalyticsEventUseCase.execute(event);
     response.status(201).json({ event: payload });
   } catch {
-    response.status(400).json({ error: "invalid_analytics_event_payload" });
+    sendStandardError(request, response, 400, "invalid_analytics_event_payload");
   }
 });
 
@@ -572,7 +607,7 @@ export const listAnalyticsEvents = onRequest(async (request, response) => {
       limit === undefined ? eventsFilteredByQuery : eventsFilteredByQuery.slice(0, limit);
     response.status(200).json({ events: payloadEvents });
   } catch {
-    response.status(400).json({ error: "invalid_list_analytics_events_payload" });
+    sendStandardError(request, response, 400, "invalid_list_analytics_events_payload");
   }
 });
 
@@ -585,7 +620,7 @@ export const createCrashReport = onRequest(async (request, response) => {
     const payload = await createCrashReportUseCase.execute(report);
     response.status(201).json({ report: payload });
   } catch {
-    response.status(400).json({ error: "invalid_crash_report_payload" });
+    sendStandardError(request, response, 400, "invalid_crash_report_payload");
   }
 });
 
@@ -628,6 +663,6 @@ export const listCrashReports = onRequest(async (request, response) => {
       limit === undefined ? reportsFilteredByQuery : reportsFilteredByQuery.slice(0, limit);
     response.status(200).json({ reports: payloadReports });
   } catch {
-    response.status(400).json({ error: "invalid_list_crash_reports_payload" });
+    sendStandardError(request, response, 400, "invalid_list_crash_reports_payload");
   }
 });
