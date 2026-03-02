@@ -17,7 +17,7 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 ## Fase P0 - Rollout controlado
 | ID | Task | Subtasks | Estado | Criterio de aceptacion |
 |---|---|---|---|---|
-| V5-P0-T1 | Estrategia de despliegue por oleadas | V5-P0-T1.1 cohortes; V5-P0-T1.2 ventanas de release; V5-P0-T1.3 criterios de avance | ⏳ | Plan de rollout aprobado |
+| V5-P0-T1 | Estrategia de despliegue por oleadas | V5-P0-T1.1 cohortes; V5-P0-T1.2 ventanas de release; V5-P0-T1.3 criterios de avance | 🚧 | Plan de rollout aprobado |
 | V5-P0-T2 | Entornos y feature flags | V5-P0-T2.1 toggles por modulo; V5-P0-T2.2 gating por rol; V5-P0-T2.3 estrategia de rollback por flag | ⏳ | Rollout reversible y seguro |
 | V5-P0-T3 | Comunicacion de cambio | V5-P0-T3.1 notas release; V5-P0-T3.2 soporte interno; V5-P0-T3.3 mensajes in-app | ⏳ | Cambio comunicado sin friccion |
 
@@ -41,3 +41,9 @@ Ejecutar rollout controlado, activar adopcion y consolidar operacion a escala co
 | V5-P3-T1 | Consolidar aprendizaje V5 | V5-P3-T1.1 insights producto; V5-P3-T1.2 insights operacion; V5-P3-T1.3 riesgos residuales | ⏳ | V5-P2-T3 | Base objetiva para roadmap |
 | V5-P3-T2 | Definir backlog V6 | V5-P3-T2.1 priorizacion impacto/esfuerzo; V5-P3-T2.2 dependencias; V5-P3-T2.3 capacidad | ⏳ | V5-P3-T1 | Backlog V6 listo |
 | V5-P3-T3 | Cierre ejecutivo V5 | V5-P3-T3.1 reporte final; V5-P3-T3.2 decision de continuidad; V5-P3-T3.3 apertura V6 | ⏳ | V5-P3-T2 | Ciclo V5 formalmente cerrado |
+
+## Bitacora V5 (2026-03-02)
+- Inicio V5-P0-T1:
+  - ciclo V5 activado tras cierre formal de V4 (`V4-P3-T3` en `✅`).
+  - objetivo inmediato: estrategia de despliegue por oleadas con cohortes, ventanas de release y criterios de avance.
+  - evidencia de handoff: `docs/validation/V4_P3_T3_V5_HANDOFF.json`.

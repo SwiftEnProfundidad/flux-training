@@ -40,7 +40,7 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
 |---|---|---|---|---|---|
 | V4-P3-T1 | Gate de release enterprise | V4-P3-T1.1 checklist tecnico; V4-P3-T1.2 checklist legal; V4-P3-T1.3 checklist operacion | ✅ | V4-P2-T3 | Go/No-Go auditable |
 | V4-P3-T2 | Plan de rollback y continuidad | V4-P3-T2.1 rollback por capa; V4-P3-T2.2 backup/restore; V4-P3-T2.3 simulacro | ✅ | V4-P3-T1 | Recuperacion validada |
-| V4-P3-T3 | Cierre V4 y handoff a V5 | V4-P3-T3.1 reporte residual; V4-P3-T3.2 aprobacion release board; V4-P3-T3.3 apertura V5 | 🚧 | V4-P3-T2 | V4 cerrado para rollout controlado |
+| V4-P3-T3 | Cierre V4 y handoff a V5 | V4-P3-T3.1 reporte residual; V4-P3-T3.2 aprobacion release board; V4-P3-T3.3 apertura V5 | ✅ | V4-P3-T2 | V4 cerrado para rollout controlado |
 
 ## Bitacora V4 (2026-03-02)
 - Inicio V4-P0-T1:
@@ -131,5 +131,11 @@ Endurecer el producto para entorno productivo enterprise: seguridad, compliance,
   - simulacro de continuidad multi-plataforma ejecutado en verde (backend/web/iOS) con evidencia de recuperación de flujo crítico.
   - evidencia publicada: `docs/validation/V4_P3_T2_ROLLBACK_CONTINUITY.json`.
   - checklist maestro actualizado: `docs/RELEASE_CHECKLIST_V1.md`.
-- Siguiente task activa:
-  - `V4-P3-T3` (Cierre V4 y handoff a V5) en `🚧`.
+- Cierre V4-P3-T3:
+  - re-ejecución de gate final enterprise (`pnpm release:check`) en verde para confirmar estabilidad post-rollback plan.
+  - validación de completitud de artefactos V4 (`V4_P0_*` .. `V4_P3_T2`) en verde.
+  - reporte residual consolidado sin bloqueos críticos de release para V5.
+  - evidencia publicada: `docs/validation/V4_P3_T3_V5_HANDOFF.json`.
+  - ciclo V4 cerrado y handoff formal a V5 completado.
+- Estado de ciclo:
+  - `V4` finaliza en `✅` y transiciona a `V5-P0-T1` como task activa en `docs/FLUX_ROLLOUT_SCALE_TRACKING_V5.md`.
