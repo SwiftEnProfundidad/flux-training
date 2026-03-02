@@ -18,8 +18,8 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V6-P0-T1 | Definir north-star y guardrails de negocio | V6-P0-T1.1 north-star monetizacion; V6-P0-T1.2 guardrails UX/operacion; V6-P0-T1.3 baseline por segmento | ✅ | V5-P3-T3 | Marco de crecimiento medible |
-| V6-P0-T2 | Instrumentacion de conversion freemium | V6-P0-T2.1 eventos paywall; V6-P0-T2.2 conversion funnel; V6-P0-T2.3 alertas de fuga | 🚧 | V6-P0-T1 | Funnel de conversion observable |
-| V6-P0-T3 | Modelo operativo Growth-Product-Support | V6-P0-T3.1 ownership semanal; V6-P0-T3.2 rituales; V6-P0-T3.3 decision log | ⏳ | V6-P0-T2 | Cadencia operativa activa |
+| V6-P0-T2 | Instrumentacion de conversion freemium | V6-P0-T2.1 eventos paywall; V6-P0-T2.2 conversion funnel; V6-P0-T2.3 alertas de fuga | ✅ | V6-P0-T1 | Funnel de conversion observable |
+| V6-P0-T3 | Modelo operativo Growth-Product-Support | V6-P0-T3.1 ownership semanal; V6-P0-T3.2 rituales; V6-P0-T3.3 decision log | 🚧 | V6-P0-T2 | Cadencia operativa activa |
 
 ## Fase P1 - Monetizacion y pricing
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -54,3 +54,10 @@ Acelerar crecimiento sostenible y monetizacion freemium con retencion saludable,
   - evidencia publicada: `docs/validation/V6_P0_T1_GROWTH_NORTH_STAR.json`.
 - Siguiente task activa:
   - `V6-P0-T2` (Instrumentacion de conversion freemium) en `🚧`.
+- Cierre V6-P0-T2:
+  - taxonomía de eventos de conversión freemium definida para web+iOS (`paywall_view`, `upgrade_cta_click`, `checkout_start`, `checkout_success`, `checkout_failed`, `downgrade`).
+  - funnel de conversión formalizado con etapas instrumentadas y desagregación por rol/canal/plataforma.
+  - alertas de fuga configuradas con umbrales de caída por etapa y ownership de respuesta.
+  - evidencia publicada: `docs/validation/V6_P0_T2_CONVERSION_INSTRUMENTATION.json`.
+- Siguiente task activa:
+  - `V6-P0-T3` (Modelo operativo Growth-Product-Support) en `🚧`.

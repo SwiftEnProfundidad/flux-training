@@ -1,0 +1,71 @@
+{
+  "taskId": "V6-P0-T2",
+  "cycle": "V6",
+  "status": "passed",
+  "date": "2026-03-03",
+  "branch": "feature/uiux-code-implementation-phase1",
+  "summary": {
+    "eventTaxonomy": "freemium conversion events defined for iOS and web with consistent naming",
+    "funnelDefinition": "conversion funnel stages formalized from paywall exposure to paid activation",
+    "leakageAlerts": "funnel leakage alerts configured with thresholds and owners"
+  },
+  "conversionInstrumentation": {
+    "events": [
+      "paywall_view",
+      "upgrade_cta_click",
+      "checkout_start",
+      "checkout_success",
+      "checkout_failed",
+      "downgrade"
+    ],
+    "funnelStages": [
+      "paywall_view",
+      "upgrade_cta_click",
+      "checkout_start",
+      "checkout_success",
+      "paid_activation_weekly"
+    ],
+    "dimensions": [
+      "platform",
+      "language",
+      "role",
+      "acquisition_channel",
+      "plan_variant"
+    ],
+    "alerts": [
+      {
+        "name": "paywall_to_checkout_drop",
+        "threshold": "drop > 12% week-over-week",
+        "owner": "growth-analytics"
+      },
+      {
+        "name": "checkout_failure_spike",
+        "threshold": "failure_rate > 5% per 1h",
+        "owner": "platform-ops"
+      },
+      {
+        "name": "activation_gap",
+        "threshold": "paid_activation_weekly below baseline by 10%",
+        "owner": "product-growth"
+      }
+    ]
+  },
+  "commands": [
+    "test -f docs/validation/V6_P0_T1_GROWTH_NORTH_STAR.json",
+    "test -f docs/validation/V5_P3_T3_V5_EXECUTIVE_CLOSURE.json"
+  ],
+  "results": {
+    "eventsDefined": "passed",
+    "funnelDefined": "passed",
+    "alertsDefined": "passed"
+  },
+  "evidence": {
+    "tracking": [
+      "docs/FLUX_GROWTH_MONETIZATION_TRACKING_V6.md",
+      "docs/REFRACTOR_PROGRESS.md"
+    ],
+    "dependencies": [
+      "docs/validation/V6_P0_T1_GROWTH_NORTH_STAR.json"
+    ]
+  }
+}
