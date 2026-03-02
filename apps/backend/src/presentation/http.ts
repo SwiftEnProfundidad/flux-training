@@ -125,6 +125,15 @@ type JsonResponse = {
   };
 };
 
+type IdempotencyCacheEntry = {
+  statusCode: number;
+  payload: Record<string, unknown>;
+  expiresAt: number;
+};
+
+const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000;
+const idempotencyResponseCache = new Map<string, IdempotencyCacheEntry>();
+
 function normalizeHeaderValue(value: string | string[] | undefined): string {
   if (typeof value === "string") {
     return value;
@@ -218,6 +227,86 @@ function sendStandardError(
   );
 }
 
+function resolveIdempotencyCacheKey(
+  request: HeaderRequest,
+  operation: string
+): string | undefined {
+  const rawIdempotencyKey = normalizeHeaderValue(request.header("x-idempotency-key")).trim();
+  if (rawIdempotencyKey.length === 0) {
+    return undefined;
+  }
+  return `${operation}:${rawIdempotencyKey}`;
+}
+
+function withIdempotencyMetadata(
+  payload: Record<string, unknown>,
+  cacheKey: string | undefined,
+  replayed: boolean
+): Record<string, unknown> {
+  if (cacheKey === undefined) {
+    return payload;
+  }
+  return {
+    ...payload,
+    idempotency: {
+      key: cacheKey,
+      replayed,
+      ttlSeconds: Math.floor(IDEMPOTENCY_TTL_MS / 1000)
+    }
+  };
+}
+
+function readIdempotencyCacheEntry(
+  cacheKey: string
+): IdempotencyCacheEntry | undefined {
+  const cachedEntry = idempotencyResponseCache.get(cacheKey);
+  if (cachedEntry === undefined) {
+    return undefined;
+  }
+  if (cachedEntry.expiresAt < Date.now()) {
+    idempotencyResponseCache.delete(cacheKey);
+    return undefined;
+  }
+  return cachedEntry;
+}
+
+function sendReplayFromIdempotencyCache(
+  request: HeaderRequest,
+  response: JsonResponse,
+  operation: string
+): string | undefined | null {
+  const cacheKey = resolveIdempotencyCacheKey(request, operation);
+  if (cacheKey === undefined) {
+    return undefined;
+  }
+  const cachedEntry = readIdempotencyCacheEntry(cacheKey);
+  if (cachedEntry === undefined) {
+    return cacheKey;
+  }
+  response
+    .status(cachedEntry.statusCode)
+    .json(withIdempotencyMetadata(cachedEntry.payload, cacheKey, true));
+  return null;
+}
+
+function sendSuccessWithIdempotency(
+  response: JsonResponse,
+  cacheKey: string | undefined,
+  statusCode: number,
+  payload: Record<string, unknown>
+): void {
+  const payloadWithIdempotency = withIdempotencyMetadata(payload, cacheKey, false);
+  response.status(statusCode).json(payloadWithIdempotency);
+  if (cacheKey === undefined || statusCode >= 500) {
+    return;
+  }
+  idempotencyResponseCache.set(cacheKey, {
+    statusCode,
+    payload,
+    expiresAt: Date.now() + IDEMPOTENCY_TTL_MS
+  });
+}
+
 function shouldRejectUnsupportedClient(
   request: HeaderRequest,
   response: JsonResponse
@@ -251,8 +340,16 @@ export const createWorkoutSession = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const idempotencyCacheKey = sendReplayFromIdempotencyCache(
+      request,
+      response,
+      "createWorkoutSession"
+    );
+    if (idempotencyCacheKey === null) {
+      return;
+    }
     const payload = await createWorkoutSessionUseCase.execute(request.body);
-    response.status(201).json({ payload });
+    sendSuccessWithIdempotency(response, idempotencyCacheKey, 201, { payload });
   } catch {
     sendStandardError(request, response, 400, "invalid_workout_session_payload");
   }
@@ -428,8 +525,16 @@ export const createNutritionLog = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const idempotencyCacheKey = sendReplayFromIdempotencyCache(
+      request,
+      response,
+      "createNutritionLog"
+    );
+    if (idempotencyCacheKey === null) {
+      return;
+    }
     const log = await createNutritionLogUseCase.execute(request.body);
-    response.status(201).json({ log });
+    sendSuccessWithIdempotency(response, idempotencyCacheKey, 201, { log });
   } catch {
     sendStandardError(request, response, 400, "invalid_nutrition_log_payload");
   }
@@ -546,9 +651,17 @@ export const processSyncQueue = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const idempotencyCacheKey = sendReplayFromIdempotencyCache(
+      request,
+      response,
+      "processSyncQueue"
+    );
+    if (idempotencyCacheKey === null) {
+      return;
+    }
     const payload = syncQueueProcessInputSchema.parse(request.body);
     const result = await processSyncQueueUseCase.execute(payload.userId, payload.items);
-    response.status(200).json({ result });
+    sendSuccessWithIdempotency(response, idempotencyCacheKey, 200, { result });
   } catch {
     sendStandardError(request, response, 400, "invalid_process_sync_queue_payload");
   }
@@ -557,6 +670,14 @@ export const processSyncQueue = onRequest(async (request, response) => {
 export const createAnalyticsEvent = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const idempotencyCacheKey = sendReplayFromIdempotencyCache(
+      request,
+      response,
+      "createAnalyticsEvent"
+    );
+    if (idempotencyCacheKey === null) {
       return;
     }
     const baseEvent = analyticsEventSchema.parse(request.body);
@@ -572,7 +693,7 @@ export const createAnalyticsEvent = onRequest(async (request, response) => {
             : requestCorrelationId
       }
     });
-    response.status(201).json({ event: payload });
+    sendSuccessWithIdempotency(response, idempotencyCacheKey, 201, { event: payload });
   } catch {
     sendStandardError(request, response, 400, "invalid_analytics_event_payload");
   }
@@ -627,6 +748,14 @@ export const createCrashReport = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const idempotencyCacheKey = sendReplayFromIdempotencyCache(
+      request,
+      response,
+      "createCrashReport"
+    );
+    if (idempotencyCacheKey === null) {
+      return;
+    }
     const parsedInput = crashReportSchema.parse(request.body);
     const report = {
       ...parsedInput,
@@ -636,7 +765,7 @@ export const createCrashReport = onRequest(async (request, response) => {
           : resolveCorrelationId(request)
     };
     const payload = await createCrashReportUseCase.execute(report);
-    response.status(201).json({ report: payload });
+    sendSuccessWithIdempotency(response, idempotencyCacheKey, 201, { report: payload });
   } catch {
     sendStandardError(request, response, 400, "invalid_crash_report_payload");
   }

@@ -40,6 +40,14 @@ type RouteResult = {
   payload: JsonPayload;
 };
 
+type IdempotencyCacheEntry = {
+  statusCode: number;
+  payload: JsonPayload;
+  expiresAt: number;
+};
+
+const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000;
+
 const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/createAuthSession": "POST",
   "/api/requestAuthRecovery": "POST",
@@ -95,6 +103,54 @@ function resolveCorrelationId(request: IncomingMessage): string {
   return `flux-${createCorrelationIdSeed()}`;
 }
 
+function resolveIdempotencyKey(
+  request: IncomingMessage,
+  method: string,
+  pathname: string
+): string | undefined {
+  if (method !== "POST") {
+    return undefined;
+  }
+  const rawValue = normalizeHeaderValue(request.headers["x-idempotency-key"]).trim();
+  if (rawValue.length === 0) {
+    return undefined;
+  }
+  return `${method}:${pathname}:${rawValue}`;
+}
+
+function withIdempotencyMetadata(
+  payload: JsonPayload,
+  idempotencyKey: string | undefined,
+  replayed: boolean
+): JsonPayload {
+  if (idempotencyKey === undefined) {
+    return payload;
+  }
+  return {
+    ...payload,
+    idempotency: {
+      key: idempotencyKey,
+      replayed,
+      ttlSeconds: Math.floor(IDEMPOTENCY_TTL_MS / 1000)
+    }
+  };
+}
+
+function readIdempotencyCacheEntry(
+  cache: Map<string, IdempotencyCacheEntry>,
+  idempotencyKey: string
+): IdempotencyCacheEntry | undefined {
+  const cachedEntry = cache.get(idempotencyKey);
+  if (cachedEntry === undefined) {
+    return undefined;
+  }
+  if (cachedEntry.expiresAt < Date.now()) {
+    cache.delete(idempotencyKey);
+    return undefined;
+  }
+  return cachedEntry;
+}
+
 function normalizeErrorPayload(
   request: IncomingMessage,
   statusCode: number,
@@ -131,7 +187,7 @@ function sendJson(
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
-      "Content-Type,x-flux-client-platform,x-flux-client-version,x-correlation-id",
+      "Content-Type,x-flux-client-platform,x-flux-client-version,x-correlation-id,x-idempotency-key",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
     ...correlationIdHeader
   });
@@ -240,6 +296,7 @@ export async function startDemoHttpServer(
 ): Promise<DemoHttpServer> {
   const runtime = createDemoApiRuntime();
   const guardUnsupportedClientVersion = createUnsupportedClientVersionGuard(options);
+  const idempotencyCache = new Map<string, IdempotencyCacheEntry>();
   const host = options.host ?? "127.0.0.1";
   const requestedPort = options.port ?? Number(process.env.FLUX_DEMO_API_PORT ?? "8787");
 
@@ -251,6 +308,7 @@ export async function startDemoHttpServer(
 
     const method = request.method ?? "GET";
     const url = new URL(request.url ?? "/", "http://localhost");
+    const idempotencyKey = resolveIdempotencyKey(request, method, url.pathname);
 
     if (url.pathname === "/api/health") {
       sendJson(request, response, 200, { status: "ok" });
@@ -268,9 +326,34 @@ export async function startDemoHttpServer(
       return;
     }
 
+    if (idempotencyKey !== undefined) {
+      const cachedEntry = readIdempotencyCacheEntry(idempotencyCache, idempotencyKey);
+      if (cachedEntry !== undefined) {
+        sendJson(
+          request,
+          response,
+          cachedEntry.statusCode,
+          withIdempotencyMetadata(cachedEntry.payload, idempotencyKey, true)
+        );
+        return;
+      }
+    }
+
     try {
       const result = await routeApiRequest(method, url, request, runtime);
-      sendJson(request, response, result.statusCode, result.payload);
+      if (idempotencyKey !== undefined && result.statusCode < 500) {
+        idempotencyCache.set(idempotencyKey, {
+          statusCode: result.statusCode,
+          payload: result.payload,
+          expiresAt: Date.now() + IDEMPOTENCY_TTL_MS
+        });
+      }
+      sendJson(
+        request,
+        response,
+        result.statusCode,
+        withIdempotencyMetadata(result.payload, idempotencyKey, false)
+      );
     } catch {
       sendJson(request, response, 500, { error: "internal_error" });
     }

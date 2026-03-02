@@ -192,6 +192,61 @@ describe("DemoHttpServer", () => {
     expect(filteredCrashesPayload.reports.length).toBe(1);
   });
 
+  it("applies idempotency policy for critical post endpoints", async () => {
+    server = await startDemoHttpServer({ port: 0 });
+
+    const idempotentHeaders = {
+      ...clientHeaders,
+      "content-type": "application/json",
+      "x-idempotency-key": "idem-workout-1"
+    };
+
+    const requestBody = {
+      userId: "demo-user",
+      planId: "starter-plan",
+      startedAt: "2026-03-02T12:00:00.000Z",
+      endedAt: "2026-03-02T12:35:00.000Z",
+      exercises: [
+        {
+          exerciseId: "goblet-squat",
+          sets: [{ reps: 10, loadKg: 24, rpe: 8 }]
+        }
+      ]
+    };
+
+    const firstResponse = await fetch(`${server.baseUrl}/api/createWorkoutSession`, {
+      method: "POST",
+      headers: idempotentHeaders,
+      body: JSON.stringify(requestBody)
+    });
+    const secondResponse = await fetch(`${server.baseUrl}/api/createWorkoutSession`, {
+      method: "POST",
+      headers: idempotentHeaders,
+      body: JSON.stringify(requestBody)
+    });
+    const sessionsResponse = await fetch(
+      `${server.baseUrl}/api/listWorkoutSessions?userId=demo-user`,
+      { headers: clientHeaders }
+    );
+
+    expect(firstResponse.status).toBe(201);
+    expect(secondResponse.status).toBe(201);
+    expect(sessionsResponse.status).toBe(200);
+
+    const firstPayload = (await firstResponse.json()) as {
+      idempotency?: { key?: string; replayed?: boolean };
+    };
+    const secondPayload = (await secondResponse.json()) as {
+      idempotency?: { key?: string; replayed?: boolean };
+    };
+    const sessionsPayload = (await sessionsResponse.json()) as { sessions: unknown[] };
+
+    expect(firstPayload.idempotency?.key).toContain("idem-workout-1");
+    expect(firstPayload.idempotency?.replayed).toBe(false);
+    expect(secondPayload.idempotency?.replayed).toBe(true);
+    expect(sessionsPayload.sessions.length).toBe(1);
+  });
+
   it("serves createHealthScreening endpoint for onboarding precheck", async () => {
     server = await startDemoHttpServer({ port: 0 });
 
