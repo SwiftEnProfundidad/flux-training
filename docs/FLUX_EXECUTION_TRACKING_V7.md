@@ -26,12 +26,12 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
 |---|---|---|---|---|---|
 | V7-P1-T1 | Tunear paywall por cohortes | V7-P1-T1.1 cohort matrix; V7-P1-T1.2 triggers por friccion; V7-P1-T1.3 guardrails de fatiga | ✅ | V7-P0-T2 | Conversion por cohorte en mejora |
 | V7-P1-T2 | Experimentacion de hipotesis de retencion | V7-P1-T2.1 hipotesis por rol; V7-P1-T2.2 setup A/B; V7-P1-T2.3 cierre learnings | ✅ | V7-P1-T1 | Retencion D7/D30 optimizada |
-| V7-P1-T3 | Remediacion de fricciones de conversion | V7-P1-T3.1 checkout friction; V7-P1-T3.2 auth friction; V7-P1-T3.3 fallback UX | 🚧 | V7-P1-T2 | Dropoff critico reducido |
+| V7-P1-T3 | Remediacion de fricciones de conversion | V7-P1-T3.1 checkout friction; V7-P1-T3.2 auth friction; V7-P1-T3.3 fallback UX | ✅ | V7-P1-T2 | Dropoff critico reducido |
 
 ## Fase P2 - Operacion y fiabilidad
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V7-P2-T1 | Hardening billing por proveedor | V7-P2-T1.1 retries inteligentes; V7-P2-T1.2 rutas fallback; V7-P2-T1.3 monitoreo por proveedor | ⏳ | V7-P0-T3 | Variabilidad de recovery controlada |
+| V7-P2-T1 | Hardening billing por proveedor | V7-P2-T1.1 retries inteligentes; V7-P2-T1.2 rutas fallback; V7-P2-T1.3 monitoreo por proveedor | 🚧 | V7-P0-T3 | Variabilidad de recovery controlada |
 | V7-P2-T2 | Paridad de runbooks en churn scenarios | V7-P2-T2.1 top scenarios; V7-P2-T2.2 acciones por rol; V7-P2-T2.3 auditoria SLA | ⏳ | V7-P2-T1 | Soporte consistente y trazable |
 | V7-P2-T3 | Governance operativo semanal | V7-P2-T3.1 tablero de decisiones; V7-P2-T3.2 revision riesgos; V7-P2-T3.3 cierre semanal | ⏳ | V7-P2-T2 | Cadencia estable de ejecucion |
 
@@ -72,5 +72,10 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
   - setup A/B definido con segmentos, exposición, métrica primaria y criterio de significancia para D7/D30.
   - loop de cierre de aprendizaje fijado para promoción, iteración o rollback por experimento.
   - evidencia publicada: `docs/validation/V7_P1_T2_RETENTION_HYPOTHESIS_EXPERIMENTATION.json`.
+- Cierre V7-P1-T3:
+  - fricciones de conversión mitigadas en checkout, autenticación y fallback UX para rutas de upgrade.
+  - definido backlog de remediación sobre abandono por validación, caída de sesión y errores de pago.
+  - fijadas contramedidas de recovery contextual para reducir drop-off en pasos críticos.
+  - evidencia publicada: `docs/validation/V7_P1_T3_CONVERSION_FRICTION_REMEDIATION.json`.
 - Siguiente task activa:
-  - `V7-P1-T3` (Remediacion de fricciones de conversion) en `🚧`.
+  - `V7-P2-T1` (Hardening billing por proveedor) en `🚧`.
