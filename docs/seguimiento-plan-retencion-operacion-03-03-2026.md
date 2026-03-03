@@ -16,8 +16,8 @@
 - Historico completo disponible en `docs/archive/`.
 
 ## Estado actual
-- Task activa: **Definir backlog del siguiente ciclo** (`🚧`).
-- Siguiente task: **Cierre ejecutivo y handoff** (`⏳`).
+- Task activa: Ninguna. Ciclo cerrado (`✅`).
+- Siguiente task: Pendiente de apertura del siguiente ciclo.
 
 ## Fase 1 - Arranque del ciclo
 | Task | Estado | Resumen |
@@ -44,5 +44,5 @@
 | Task | Estado | Resumen |
 |---|---|---|
 | Consolidar resultados del ciclo | ✅ | Cerrar impacto de negocio y operacion con riesgos residuales. |
-| Definir backlog del siguiente ciclo | 🚧 | Priorizar trabajo siguiente con dependencias y capacidad. |
-| Cierre ejecutivo y handoff | ⏳ | Emitir reporte final y dejar continuidad preparada. |
+| Definir backlog del siguiente ciclo | ✅ | Priorizar trabajo siguiente con dependencias y capacidad. |
+| Cierre ejecutivo y handoff | ✅ | Emitir reporte final y dejar continuidad preparada. |
