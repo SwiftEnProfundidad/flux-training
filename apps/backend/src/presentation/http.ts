@@ -79,8 +79,10 @@ import { FirestoreTrainingPlanRepository } from "../infrastructure/firestore-tra
 import { FirestoreUserProfileRepository } from "../infrastructure/firestore-user-profile-repository";
 import { FirestoreWorkoutSessionRepository } from "../infrastructure/firestore-workout-session-repository";
 import { FirestoreDataDeletionRequestRepository } from "../infrastructure/firestore-data-deletion-request-repository";
+import { FirestoreDataExportRequestRepository } from "../infrastructure/firestore-data-export-request-repository";
 import { StaticExerciseVideoRepository } from "../infrastructure/static-exercise-video-repository";
-import type { DeniedAccessAuditRepository } from "../domain/denied-access-audit-repository";
+import { FirestoreDeniedAccessAuditRepository } from "../infrastructure/firestore-denied-access-audit-repository";
+import { FirestoreLegalConsentAuditRepository } from "../infrastructure/firestore-legal-consent-audit-repository";
 
 const repository = new FirestoreWorkoutSessionRepository();
 const createWorkoutSessionUseCase = new CreateWorkoutSessionUseCase(repository);
@@ -148,29 +150,19 @@ const authTokenVerifier = new FirebaseAuthTokenVerifier();
 const createAuthSessionUseCase = new CreateAuthSessionUseCase(authTokenVerifier);
 const requestAuthRecoveryUseCase = new RequestAuthRecoveryUseCase();
 const legalConsentRepository = new FirestoreLegalConsentRepository();
-const recordLegalConsentUseCase = new RecordLegalConsentUseCase(legalConsentRepository);
-const requestDataExportUseCase = new RequestDataExportUseCase({
-  async save() {}
-});
+const legalConsentAuditRepository = new FirestoreLegalConsentAuditRepository();
+const recordLegalConsentUseCase = new RecordLegalConsentUseCase(
+  legalConsentRepository,
+  legalConsentAuditRepository
+);
+const dataExportRequestRepository = new FirestoreDataExportRequestRepository();
+const requestDataExportUseCase = new RequestDataExportUseCase(dataExportRequestRepository);
 const dataDeletionRequestRepository = new FirestoreDataDeletionRequestRepository();
 const requestDataDeletionUseCase = new RequestDataDeletionUseCase(
   dataDeletionRequestRepository
 );
 const listDataRetentionPoliciesUseCase = new ListDataRetentionPoliciesUseCase();
-
-class InMemoryDeniedAccessAuditRepository implements DeniedAccessAuditRepository {
-  private readonly records: DeniedAccessAudit[] = [];
-
-  async save(audit: DeniedAccessAudit): Promise<void> {
-    this.records.push(audit);
-  }
-
-  async listByUserId(userId: string): Promise<DeniedAccessAudit[]> {
-    return this.records.filter((record) => record.userId === userId);
-  }
-}
-
-const deniedAccessAuditRepository = new InMemoryDeniedAccessAuditRepository();
+const deniedAccessAuditRepository = new FirestoreDeniedAccessAuditRepository();
 const recordDeniedAccessAuditUseCase = new RecordDeniedAccessAuditUseCase(
   deniedAccessAuditRepository
 );

@@ -57,7 +57,7 @@ async function createBackendSession(providerToken: string): Promise<AuthSession>
 class FirebaseAuthGateway implements AuthGateway {
   async signInWithApple(): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
-      return createBackendSession("apple-demo-token");
+      throw new Error("missing_firebase_web_config");
     }
 
     const auth = getClientAuth();
@@ -69,11 +69,7 @@ class FirebaseAuthGateway implements AuthGateway {
 
   async signInWithEmail(email: string, password: string): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
-      const normalizedEmail = email.trim();
-      if (normalizedEmail.length === 0 || password.trim().length === 0) {
-        throw new Error("invalid_credentials");
-      }
-      return createBackendSession(normalizedEmail);
+      throw new Error("missing_firebase_web_config");
     }
 
     const auth = getClientAuth();

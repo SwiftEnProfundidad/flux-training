@@ -4,6 +4,7 @@ import {
   ActivityLogEntry,
   AIRecommendation,
   AnalyticsEvent,
+  AuthSession,
   CrashReport,
   ExerciseVideo,
   ForensicAuditExport,
@@ -192,7 +193,7 @@ type ObservabilityCollectionsPayload = {
   activityLog: ActivityLogEntry[];
 };
 
-const demoUserId = "demo-user";
+const defaultUserId = "demo-user";
 const languageStorageKey = "flux_training_language";
 const dashboardDomainStorageKey = "flux_training_dashboard_domain";
 const dashboardRoleStorageKey = "flux_training_dashboard_role";
@@ -248,6 +249,7 @@ export function App() {
   const settingsLegalDefaults = useMemo(() => createDefaultSettingsLegalScreenModel(), []);
 
   const [authStatus, setAuthStatus] = useState("signed_out");
+  const [activeSession, setActiveSession] = useState<AuthSession | null>(null);
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("idle");
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>("idle");
   const [trainingStatus, setTrainingStatus] = useState<TrainingStatus>("idle");
@@ -380,6 +382,7 @@ export function App() {
   const [billingIncidentRowsVisibleCount, setBillingIncidentRowsVisibleCount] = useState(
     denseTableInitialRows
   );
+  const activeUserId = activeSession?.userId ?? defaultUserId;
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -461,7 +464,7 @@ export function App() {
   const governancePrincipalsBase = useMemo(
     () =>
       buildGovernancePrincipals({
-        operatorId: demoUserId,
+        operatorId: activeUserId,
         activeRole,
         plans,
         sessions,
@@ -612,7 +615,7 @@ export function App() {
     visibleBillingIncidentRows.length < supportIncidentRows.length;
 
   async function refreshPendingQueue(): Promise<void> {
-    const pending = await offlineSyncQueueUseCase.listPending(demoUserId);
+    const pending = await offlineSyncQueueUseCase.listPending(activeUserId);
     setPendingQueueCount(pending.length);
   }
 
@@ -683,7 +686,7 @@ export function App() {
 
   useEffect(() => {
     void refreshPendingQueue();
-  }, []);
+  }, [activeUserId]);
 
   useEffect(() => {
     persistLanguagePreference(language);
@@ -960,11 +963,13 @@ export function App() {
     setAuthStatus("loading");
     try {
       const session = await createAuthSessionUseCase.executeWithApple();
+      setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setActiveSession(null);
       setAuthStatus("auth_error");
     }
   }
@@ -977,11 +982,13 @@ export function App() {
     }
     try {
       const session = await createAuthSessionUseCase.executeWithEmail(email, password);
+      setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setActiveSession(null);
       setAuthStatus("auth_error");
     }
   }
@@ -1012,7 +1019,7 @@ export function App() {
     }
     try {
       await completeOnboardingUseCase.execute({
-        userId: demoUserId,
+        userId: activeUserId,
         goal,
         onboardingProfile: {
           displayName,
@@ -1045,7 +1052,7 @@ export function App() {
     }
     try {
       await manageLegalUseCase.submitConsent({
-        userId: demoUserId,
+        userId: activeUserId,
         acceptedAt: new Date().toISOString(),
         privacyPolicyAccepted,
         termsAccepted,
@@ -1071,7 +1078,7 @@ export function App() {
     }
     try {
       await manageLegalUseCase.requestDataDeletion({
-        userId: demoUserId,
+        userId: activeUserId,
         requestedAt: new Date().toISOString(),
         reason: "user_request",
         status: "pending",
@@ -1100,7 +1107,7 @@ export function App() {
     }
     try {
       await manageLegalUseCase.requestDataExport({
-        userId: demoUserId,
+        userId: activeUserId,
         requestedAt: new Date().toISOString(),
         format: "json"
       });
@@ -1121,7 +1128,7 @@ export function App() {
     setTrainingStatus("loading");
     const queuedPlanInput = {
       id: `plan-${Date.now()}`,
-      userId: demoUserId,
+      userId: activeUserId,
       name: planName,
       weeks: 4,
       days: [
@@ -1139,14 +1146,14 @@ export function App() {
       const createdPlan = await manageTrainingUseCase.createTrainingPlan(queuedPlanInput);
       setSelectedPlanId(createdPlan.id);
       setTrainingStatus("saved");
-      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(demoUserId);
+      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(activeUserId);
       setPlans(loadedPlans);
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       try {
-        await offlineSyncQueueUseCase.queueTrainingPlan(demoUserId, queuedPlanInput);
+        await offlineSyncQueueUseCase.queueTrainingPlan(activeUserId, queuedPlanInput);
         await refreshPendingQueue();
         setTrainingStatus("queued");
       } catch (queueError) {
@@ -1161,7 +1168,7 @@ export function App() {
   async function handleLoadPlans() {
     setTrainingStatus("loading");
     try {
-      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(demoUserId);
+      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(activeUserId);
       setPlans(loadedPlans);
       const firstPlan = loadedPlans[0];
       if (firstPlan !== undefined && selectedPlanId.length === 0) {
@@ -1185,7 +1192,7 @@ export function App() {
     }
     const endedAt = new Date();
     const queuedSession = {
-      userId: demoUserId,
+      userId: activeUserId,
       planId,
       startedAt: new Date(endedAt.getTime() - 35 * 60 * 1000).toISOString(),
       endedAt: endedAt.toISOString(),
@@ -1205,7 +1212,7 @@ export function App() {
         return;
       }
       try {
-        await offlineSyncQueueUseCase.queueWorkoutSession(demoUserId, queuedSession);
+        await offlineSyncQueueUseCase.queueWorkoutSession(activeUserId, queuedSession);
         await refreshPendingQueue();
         setSessionStatus("saved");
         setTrainingStatus("queued");
@@ -1222,7 +1229,7 @@ export function App() {
     setSessionStatus("loading");
     try {
       const loadedSessions = await manageTrainingUseCase.listWorkoutSessions(
-        demoUserId,
+        activeUserId,
         selectedPlanId || undefined
       );
       setSessions(loadedSessions);
@@ -1238,7 +1245,7 @@ export function App() {
   async function handleCreateNutritionLog() {
     setNutritionStatus("loading");
     const queuedLog = {
-      userId: demoUserId,
+      userId: activeUserId,
       date: nutritionDate,
       calories: Number(calories),
       proteinGrams: Number(proteinGrams),
@@ -1254,7 +1261,7 @@ export function App() {
         return;
       }
       try {
-        await offlineSyncQueueUseCase.queueNutritionLog(demoUserId, queuedLog);
+        await offlineSyncQueueUseCase.queueNutritionLog(activeUserId, queuedLog);
         await refreshPendingQueue();
         setNutritionStatus("queued");
       } catch (queueError) {
@@ -1269,7 +1276,7 @@ export function App() {
   async function handleLoadNutritionLogs() {
     setNutritionStatus("loading");
     try {
-      const logs = await manageNutritionUseCase.listNutritionLogs(demoUserId);
+      const logs = await manageNutritionUseCase.listNutritionLogs(activeUserId);
       setNutritionLogs(logs);
       setNutritionStatus(logs.length === 0 ? "empty" : "loaded");
     } catch (error) {
@@ -1283,7 +1290,7 @@ export function App() {
   async function handleLoadProgressSummary() {
     setProgressStatus("loading");
     try {
-      const summary = await manageProgressUseCase.getSummary(demoUserId);
+      const summary = await manageProgressUseCase.getSummary(activeUserId);
       setProgressSummary(summary);
       setProgressStatus(
         summary.workoutSessionsCount === 0 && summary.nutritionLogsCount === 0
@@ -1301,7 +1308,7 @@ export function App() {
   async function handleSyncOfflineQueue() {
     setSyncStatus("loading");
     try {
-      const result = await offlineSyncQueueUseCase.syncPending(demoUserId);
+      const result = await offlineSyncQueueUseCase.syncPending(activeUserId);
       await refreshPendingQueue();
       setLastSyncRejectedCount(result.rejected.length);
       setLastSyncIdempotency(result.idempotency);
@@ -1349,13 +1356,13 @@ export function App() {
       loadedStructuredLogs,
       loadedActivityLog
     ] = await Promise.all([
-      manageObservabilityUseCase.listAnalyticsEvents(demoUserId),
-      manageObservabilityUseCase.listCrashReports(demoUserId),
-      manageObservabilityUseCase.listObservabilitySummary(demoUserId),
-      manageObservabilityUseCase.listOperationalAlerts(demoUserId),
+      manageObservabilityUseCase.listAnalyticsEvents(activeUserId),
+      manageObservabilityUseCase.listCrashReports(activeUserId),
+      manageObservabilityUseCase.listObservabilitySummary(activeUserId),
+      manageObservabilityUseCase.listOperationalAlerts(activeUserId),
       manageObservabilityUseCase.listOperationalRunbooks(),
-      manageObservabilityUseCase.listStructuredLogs(demoUserId),
-      manageObservabilityUseCase.listActivityLog(demoUserId)
+      manageObservabilityUseCase.listStructuredLogs(activeUserId),
+      manageObservabilityUseCase.listActivityLog(activeUserId)
     ]);
     const payload: ObservabilityCollectionsPayload = {
       events: loadedEvents,
@@ -1374,7 +1381,7 @@ export function App() {
     setObservabilityStatus("loading");
     try {
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "dashboard_interaction",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1402,7 +1409,7 @@ export function App() {
         const message = error instanceof Error ? error.message : "unknown_error";
         const stackTrace = error instanceof Error ? error.stack : undefined;
         await manageObservabilityUseCase.createCrashReport({
-          userId: demoUserId,
+          userId: activeUserId,
           source: "web",
           message,
           stackTrace,
@@ -1478,7 +1485,7 @@ export function App() {
     try {
       const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, "operations");
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "audit_timeline_exported",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1500,7 +1507,7 @@ export function App() {
     setAuditStatus("loading");
     try {
       const exportResult = await manageObservabilityUseCase.exportForensicAudit({
-        userId: demoUserId,
+        userId: activeUserId,
         format: "csv",
         fromDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         toDate: new Date().toISOString(),
@@ -1542,7 +1549,7 @@ export function App() {
 
     try {
       const loadedRecommendations = await manageRecommendationsUseCase.listRecommendations(
-        demoUserId,
+        activeUserId,
         language === "es" ? "es-ES" : "en-US",
         {
           goal,
@@ -1701,7 +1708,7 @@ export function App() {
         "operations"
       );
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "billing_support_incidents_resolved",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1785,7 +1792,7 @@ export function App() {
         "operations"
       );
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "governance_bulk_role_assignment_saved",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1811,7 +1818,7 @@ export function App() {
       const payloadValidation = resolveDomainPayloadValidation(buildDomainPayloadValidationInput(domain));
       const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, domain);
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "dashboard_domain_changed",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1836,7 +1843,7 @@ export function App() {
     try {
       const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, activeDomain);
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "dashboard_role_changed",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1864,7 +1871,7 @@ export function App() {
         correlationId
       );
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "dashboard_domain_access_denied",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1919,7 +1926,7 @@ export function App() {
 
     try {
       await manageAccessControlUseCase.recordDeniedAccessAudit({
-        userId: demoUserId,
+        userId: activeUserId,
         role: activeRole,
         domain,
         action: "view",
@@ -1940,7 +1947,7 @@ export function App() {
     );
     try {
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: demoUserId,
+        userId: activeUserId,
         name: "dashboard_action_blocked",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1965,7 +1972,7 @@ export function App() {
   function buildDomainPayloadValidationInput(domain: DashboardDomain) {
     return {
       domain,
-      userId: demoUserId,
+      userId: activeUserId,
       goal,
       displayName,
       age: Number(age),
