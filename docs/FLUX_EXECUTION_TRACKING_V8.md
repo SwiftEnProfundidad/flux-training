@@ -31,8 +31,8 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
 ## Fase P2 - Streams P1 operativos
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V8-P2-T1 | Support automation playbooks | V8-P2-T1.1 automation matrix; V8-P2-T1.2 assisted responses; V8-P2-T1.3 escalation control | 🚧 | V8-P1-T3 | MTTR y carga soporte optimizados |
-| V8-P2-T2 | Governance automation | V8-P2-T2.1 decision-log automation; V8-P2-T2.2 SLA watchdog; V8-P2-T2.3 audit exports | ⏳ | V8-P2-T1 | Gobernanza auditable a escala |
+| V8-P2-T1 | Support automation playbooks | V8-P2-T1.1 automation matrix; V8-P2-T1.2 assisted responses; V8-P2-T1.3 escalation control | ✅ | V8-P1-T3 | MTTR y carga soporte optimizados |
+| V8-P2-T2 | Governance automation | V8-P2-T2.1 decision-log automation; V8-P2-T2.2 SLA watchdog; V8-P2-T2.3 audit exports | 🚧 | V8-P2-T1 | Gobernanza auditable a escala |
 | V8-P2-T3 | Hardening cross-stream | V8-P2-T3.1 resilience checks; V8-P2-T3.2 parity iOS/web/backend; V8-P2-T3.3 runbook rehearsal | ⏳ | V8-P2-T2 | Operación robusta multi-stream |
 
 ## Fase P3 - Cierre y continuidad
@@ -77,5 +77,10 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
   - routing de ownership definido por dominio y criticidad para intervención en ventana útil.
   - SLA de intervención temprana fijado con reglas de escalado para riesgo alto.
   - evidencia publicada: `docs/validation/V8_P1_T3_INTERVENTION_SIGNAL_INTEGRATION.json`.
+- Cierre V8-P2-T1:
+  - playbooks de soporte automatizado consolidados con matriz de decisión por tipo de incidente y severidad.
+  - respuestas asistidas habilitadas con rutas de confirmación humana para casos críticos.
+  - control de escalado definido con límites de SLA y fallback a operación manual.
+  - evidencia publicada: `docs/validation/V8_P2_T1_SUPPORT_AUTOMATION_PLAYBOOKS.json`.
 - Siguiente task activa:
-  - `V8-P2-T1` (Support automation playbooks) en `🚧`.
+  - `V8-P2-T2` (Governance automation) en `🚧`.

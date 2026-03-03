@@ -165,6 +165,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V8_P1_T1_RETENTION_SCALING.json`: evidencia de escalado de retención V8 (expansión de cohortes, nudges personalizados y guardrails de fatiga).
 - `V8_P1_T2_BILLING_ANOMALY_INTELLIGENCE.json`: evidencia de inteligencia de anomalías de billing V8 (clasificador, auto-routing de fallback y reporte forense).
 - `V8_P1_T3_INTERVENTION_SIGNAL_INTEGRATION.json`: evidencia de integración de señales para intervención temprana (churn-risk feed, ownership routing y SLA).
+- `V8_P2_T1_SUPPORT_AUTOMATION_PLAYBOOKS.json`: evidencia de automatización de playbooks de soporte V8 (matriz de automatización, respuestas asistidas y control de escalado).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -288,6 +289,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v8_p1_t1_retention_scaling.feature`
 - `features/v8_p1_t2_billing_anomaly_intelligence.feature`
 - `features/v8_p1_t3_intervention_signal_integration.feature`
+- `features/v8_p2_t1_support_automation_playbooks.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
