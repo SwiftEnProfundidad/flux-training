@@ -19,12 +19,12 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
 |---|---|---|---|---|---|
 | V7-P0-T1 | Kickoff ejecutivo V7 y baseline | V7-P0-T1.1 baseline KPI; V7-P0-T1.2 owners confirmados; V7-P0-T1.3 calendario de olas | ✅ | V6-P3-T3 | Arranque formal V7 validado |
 | V7-P0-T2 | Congelar contrato de tracking V7 | V7-P0-T2.1 schema eventos; V7-P0-T2.2 diccionario metricas; V7-P0-T2.3 reglas QA tracking | ✅ | V7-P0-T1 | Data contract estable |
-| V7-P0-T3 | Readiness de fallback por proveedor | V7-P0-T3.1 paths por proveedor; V7-P0-T3.2 alertas; V7-P0-T3.3 runbook tecnico | 🚧 | V7-P0-T2 | Billing resiliente listo |
+| V7-P0-T3 | Readiness de fallback por proveedor | V7-P0-T3.1 paths por proveedor; V7-P0-T3.2 alertas; V7-P0-T3.3 runbook tecnico | ✅ | V7-P0-T2 | Billing resiliente listo |
 
 ## Fase P1 - Growth y retencion por cohortes
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V7-P1-T1 | Tunear paywall por cohortes | V7-P1-T1.1 cohort matrix; V7-P1-T1.2 triggers por friccion; V7-P1-T1.3 guardrails de fatiga | ⏳ | V7-P0-T2 | Conversion por cohorte en mejora |
+| V7-P1-T1 | Tunear paywall por cohortes | V7-P1-T1.1 cohort matrix; V7-P1-T1.2 triggers por friccion; V7-P1-T1.3 guardrails de fatiga | 🚧 | V7-P0-T2 | Conversion por cohorte en mejora |
 | V7-P1-T2 | Experimentacion de hipotesis de retencion | V7-P1-T2.1 hipotesis por rol; V7-P1-T2.2 setup A/B; V7-P1-T2.3 cierre learnings | ⏳ | V7-P1-T1 | Retencion D7/D30 optimizada |
 | V7-P1-T3 | Remediacion de fricciones de conversion | V7-P1-T3.1 checkout friction; V7-P1-T3.2 auth friction; V7-P1-T3.3 fallback UX | ⏳ | V7-P1-T2 | Dropoff critico reducido |
 
@@ -57,5 +57,10 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
   - taxonomia establecida para eventos de conversion, retencion, monetizacion y soporte.
   - reglas de calidad definidas para consistencia de nombres, cardinalidad y ownership por evento.
   - evidencia publicada: `docs/validation/V7_P0_T2_TRACKING_CONTRACT_FREEZE.json`.
+- Cierre V7-P0-T3:
+  - readiness de fallback por proveedor consolidada para `stripe`, `apple_iap` y `google_play`.
+  - definidos paths primario/secundario por proveedor con criterio de degradacion y recuperación.
+  - alertas de operación y runbook técnico acordados para incidentes de cobro/reintento.
+  - evidencia publicada: `docs/validation/V7_P0_T3_PROVIDER_FALLBACK_READINESS.json`.
 - Siguiente task activa:
-  - `V7-P0-T3` (Readiness de fallback por proveedor) en `🚧`.
+  - `V7-P1-T1` (Tunear paywall por cohortes) en `🚧`.

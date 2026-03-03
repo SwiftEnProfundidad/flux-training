@@ -149,6 +149,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V6_P3_T3_V6_EXECUTIVE_CLOSURE.json`: evidencia de cierre ejecutivo de V6 (reporte final, decisión de continuidad y handoff a V7).
 - `V7_P0_T1_V7_KICKOFF_BASELINE.json`: evidencia de kickoff V7 (baseline KPI, owners cross-domain y calendario por olas).
 - `V7_P0_T2_TRACKING_CONTRACT_FREEZE.json`: evidencia de congelación del contrato de tracking V7 (event schema, métricas y reglas QA).
+- `V7_P0_T3_PROVIDER_FALLBACK_READINESS.json`: evidencia de readiness de fallback por proveedor (paths, alerting y runbook técnico).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -256,6 +257,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v6_p3_t3_v6_executive_closure.feature`
 - `features/v7_p0_t1_v7_kickoff_baseline.feature`
 - `features/v7_p0_t2_tracking_contract_freeze.feature`
+- `features/v7_p0_t3_provider_fallback_readiness.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
