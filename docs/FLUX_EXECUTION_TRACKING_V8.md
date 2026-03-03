@@ -26,12 +26,12 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
 |---|---|---|---|---|---|
 | V8-P1-T1 | Retention scaling | V8-P1-T1.1 cohort expansion; V8-P1-T1.2 personalized nudges; V8-P1-T1.3 guardrails fatigue | ✅ | V8-P0-T2 | D30 retention uplift sostenido |
 | V8-P1-T2 | Billing anomaly intelligence | V8-P1-T2.1 anomaly classifier; V8-P1-T2.2 fallback auto-routing; V8-P1-T2.3 forensic reporting | ✅ | V8-P1-T1 | Variabilidad de recovery reducida |
-| V8-P1-T3 | Integración de señales para intervención | V8-P1-T3.1 churn-risk feed; V8-P1-T3.2 ownership routing; V8-P1-T3.3 intervention SLA | 🚧 | V8-P1-T2 | Intervención temprana consistente |
+| V8-P1-T3 | Integración de señales para intervención | V8-P1-T3.1 churn-risk feed; V8-P1-T3.2 ownership routing; V8-P1-T3.3 intervention SLA | ✅ | V8-P1-T2 | Intervención temprana consistente |
 
 ## Fase P2 - Streams P1 operativos
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V8-P2-T1 | Support automation playbooks | V8-P2-T1.1 automation matrix; V8-P2-T1.2 assisted responses; V8-P2-T1.3 escalation control | ⏳ | V8-P1-T3 | MTTR y carga soporte optimizados |
+| V8-P2-T1 | Support automation playbooks | V8-P2-T1.1 automation matrix; V8-P2-T1.2 assisted responses; V8-P2-T1.3 escalation control | 🚧 | V8-P1-T3 | MTTR y carga soporte optimizados |
 | V8-P2-T2 | Governance automation | V8-P2-T2.1 decision-log automation; V8-P2-T2.2 SLA watchdog; V8-P2-T2.3 audit exports | ⏳ | V8-P2-T1 | Gobernanza auditable a escala |
 | V8-P2-T3 | Hardening cross-stream | V8-P2-T3.1 resilience checks; V8-P2-T3.2 parity iOS/web/backend; V8-P2-T3.3 runbook rehearsal | ⏳ | V8-P2-T2 | Operación robusta multi-stream |
 
@@ -72,5 +72,10 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
   - auto-routing de fallback activado por proveedor/causa con rutas de recuperación deterministas.
   - reporte forense normalizado para auditoría de incidentes y trazabilidad de decisiones.
   - evidencia publicada: `docs/validation/V8_P1_T2_BILLING_ANOMALY_INTELLIGENCE.json`.
+- Cierre V8-P1-T3:
+  - integración de señales de churn-risk consolidada en feed operativo con prioridad por severidad.
+  - routing de ownership definido por dominio y criticidad para intervención en ventana útil.
+  - SLA de intervención temprana fijado con reglas de escalado para riesgo alto.
+  - evidencia publicada: `docs/validation/V8_P1_T3_INTERVENTION_SIGNAL_INTEGRATION.json`.
 - Siguiente task activa:
-  - `V8-P1-T3` (Integración de señales para intervención) en `🚧`.
+  - `V8-P2-T1` (Support automation playbooks) en `🚧`.
