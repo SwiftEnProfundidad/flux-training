@@ -14,6 +14,7 @@ public enum CompositionRoot {
       progressViewModel: dependencies.progressViewModel,
       offlineSyncViewModel: dependencies.offlineSyncViewModel,
       observabilityViewModel: dependencies.observabilityViewModel,
+      loadRoleCapabilitiesHandler: dependencies.loadRoleCapabilitiesHandler,
       userID: configuration.defaultUserID
     )
   }
@@ -125,6 +126,7 @@ public enum CompositionRoot {
     let progressViewModel: ProgressViewModel
     let offlineSyncViewModel: OfflineSyncViewModel
     let observabilityViewModel: ObservabilityViewModel
+    let loadRoleCapabilitiesHandler: @Sendable (ExperienceRole) async -> Set<ExperienceDomain>?
   }
 
   @MainActor
@@ -142,6 +144,7 @@ public enum CompositionRoot {
       sessionStore: sessionStore,
       configuration: configuration.backendConfiguration
     )
+    let roleCapabilitiesGateway = RemoteRoleCapabilitiesGateway(client: client)
     let authViewModel = AuthViewModel(
       createAuthSessionUseCase: CreateAuthSessionUseCase(authGateway: authGateway)
     )
@@ -223,6 +226,19 @@ public enum CompositionRoot {
       )
     )
 
+    let loadRoleCapabilitiesHandler: @Sendable (ExperienceRole) async -> Set<ExperienceDomain>? = {
+      role in
+      do {
+        let allowedRawValues = try await roleCapabilitiesGateway.listAllowedDomainRawValues(
+          roleRawValue: role.rawValue
+        )
+        let allowedDomains = Set(allowedRawValues.compactMap(ExperienceDomain.init(rawValue:)))
+        return allowedDomains
+      } catch {
+        return nil
+      }
+    }
+
     return ProductionDependencies(
       authViewModel: authViewModel,
       onboardingViewModel: onboardingViewModel,
@@ -230,7 +246,8 @@ public enum CompositionRoot {
       nutritionViewModel: nutritionViewModel,
       progressViewModel: progressViewModel,
       offlineSyncViewModel: offlineSyncViewModel,
-      observabilityViewModel: observabilityViewModel
+      observabilityViewModel: observabilityViewModel,
+      loadRoleCapabilitiesHandler: loadRoleCapabilitiesHandler
     )
   }
 }

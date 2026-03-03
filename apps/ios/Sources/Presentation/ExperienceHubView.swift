@@ -47,6 +47,7 @@ public struct ExperienceHubView: View {
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
+  private let loadRoleCapabilitiesHandler: @Sendable (ExperienceRole) async -> Set<ExperienceDomain>?
 
   public init(
     authViewModel: AuthViewModel,
@@ -58,6 +59,7 @@ public struct ExperienceHubView: View {
     observabilityViewModel: ObservabilityViewModel,
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase =
       GenerateAIRecommendationsUseCase(),
+    loadRoleCapabilitiesHandler: @escaping @Sendable (ExperienceRole) async -> Set<ExperienceDomain>? = { _ in nil },
     userID: String = "demo-user"
   ) {
     _authViewModel = State(initialValue: authViewModel)
@@ -68,6 +70,7 @@ public struct ExperienceHubView: View {
     _offlineSyncViewModel = State(initialValue: offlineSyncViewModel)
     _observabilityViewModel = State(initialValue: observabilityViewModel)
     self.generateAIRecommendationsUseCase = generateAIRecommendationsUseCase
+    self.loadRoleCapabilitiesHandler = loadRoleCapabilitiesHandler
     self.userID = userID
   }
 
@@ -184,6 +187,15 @@ public struct ExperienceHubView: View {
       Task {
         await loadRoleCapabilities(for: newValue)
         await trackRoleChange(newValue)
+      }
+    }
+    .onChange(of: authViewModel.authStatus) { _, newValue in
+      guard newValue.hasPrefix("signed_in:") else {
+        return
+      }
+      Task {
+        await loadRoleCapabilities(for: activeRole)
+        await recoverActiveDomainState()
       }
     }
   }
@@ -978,42 +990,14 @@ public struct ExperienceHubView: View {
   @MainActor
   private func loadRoleCapabilities(for role: ExperienceRole) async {
     let fallbackDomains = activeRoleAllowedDomains.isEmpty ? Set([ExperienceDomain.all]) : activeRoleAllowedDomains
-
-    guard let url = URL(
-      string: "http://127.0.0.1:8787/api/listRoleCapabilities?role=\(role.rawValue)"
-    ) else {
-      activeRoleAllowedDomains = fallbackDomains
+    let loadedDomains = await loadRoleCapabilitiesHandler(role)
+    if let loadedDomains, loadedDomains.isEmpty == false {
+      activeRoleAllowedDomains = loadedDomains
       reconcileRuntimeStateForRole()
       return
     }
-
-    var request = URLRequest(url: url)
-    request.setValue("ios", forHTTPHeaderField: "x-flux-client-platform")
-    request.setValue("0.1.0", forHTTPHeaderField: "x-flux-client-version")
-
-    struct RoleCapabilitiesEnvelope: Decodable {
-      struct Capabilities: Decodable {
-        let role: String
-        let allowedDomains: [String]
-      }
-      let capabilities: Capabilities
-    }
-
-    do {
-      let (data, response) = try await URLSession.shared.data(for: request)
-      guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-        activeRoleAllowedDomains = fallbackDomains
-        reconcileRuntimeStateForRole()
-        return
-      }
-      let decoded = try JSONDecoder().decode(RoleCapabilitiesEnvelope.self, from: data)
-      let allowed = Set(decoded.capabilities.allowedDomains.compactMap(ExperienceDomain.init(rawValue:)))
-      activeRoleAllowedDomains = allowed.isEmpty ? fallbackDomains : allowed
-      reconcileRuntimeStateForRole()
-    } catch {
-      activeRoleAllowedDomains = fallbackDomains
-      reconcileRuntimeStateForRole()
-    }
+    activeRoleAllowedDomains = fallbackDomains
+    reconcileRuntimeStateForRole()
   }
 
   private func trackRoleChange(_ role: ExperienceRole) async {
