@@ -32,8 +32,8 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V7-P2-T1 | Hardening billing por proveedor | V7-P2-T1.1 retries inteligentes; V7-P2-T1.2 rutas fallback; V7-P2-T1.3 monitoreo por proveedor | ✅ | V7-P0-T3 | Variabilidad de recovery controlada |
-| V7-P2-T2 | Paridad de runbooks en churn scenarios | V7-P2-T2.1 top scenarios; V7-P2-T2.2 acciones por rol; V7-P2-T2.3 auditoria SLA | 🚧 | V7-P2-T1 | Soporte consistente y trazable |
-| V7-P2-T3 | Governance operativo semanal | V7-P2-T3.1 tablero de decisiones; V7-P2-T3.2 revision riesgos; V7-P2-T3.3 cierre semanal | ⏳ | V7-P2-T2 | Cadencia estable de ejecucion |
+| V7-P2-T2 | Paridad de runbooks en churn scenarios | V7-P2-T2.1 top scenarios; V7-P2-T2.2 acciones por rol; V7-P2-T2.3 auditoria SLA | ✅ | V7-P2-T1 | Soporte consistente y trazable |
+| V7-P2-T3 | Governance operativo semanal | V7-P2-T3.1 tablero de decisiones; V7-P2-T3.2 revision riesgos; V7-P2-T3.3 cierre semanal | 🚧 | V7-P2-T2 | Cadencia estable de ejecucion |
 
 ## Fase P3 - Cierre y continuidad
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -82,5 +82,10 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
   - retries inteligentes y rutas fallback estabilizadas con reconciliación determinista.
   - modelo de monitoreo con SLO/alertas fijado para recovery y variabilidad por proveedor.
   - evidencia publicada: `docs/validation/V7_P2_T1_BILLING_PROVIDER_HARDENING.json`.
+- Cierre V7-P2-T2:
+  - paridad de runbooks de churn consolidada con escenarios críticos y acciones coordinadas por rol.
+  - cobertura operativa fijada para riesgos de pago, continuidad de sesión y estancamiento de activación.
+  - auditoría SLA definida para detectar y resolver degradaciones con trazabilidad semanal.
+  - evidencia publicada: `docs/validation/V7_P2_T2_CHURN_RUNBOOK_PARITY.json`.
 - Siguiente task activa:
-  - `V7-P2-T2` (Paridad de runbooks en churn scenarios) en `🚧`.
+  - `V7-P2-T3` (Governance operativo semanal) en `🚧`.
