@@ -33,9 +33,9 @@ Transformar la base demo en producto real iOS/Web: autenticacion real, persisten
 ## Fase 4 — iOS productiva real
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Crear app real en `apps/ios` | 🚧 | Bootstrap de app final sin dependencia host demo |
-| Sustituir gateways in-memory/demo | ⏳ | Networking y persistencia reales |
-| Navegacion final por secciones | ⏳ | Flujo alineado con Pencil para codificar release |
+| Crear app real en `apps/ios` | ✅ | Bootstrap de app final sin dependencia host demo |
+| Sustituir gateways in-memory/demo | ✅ | Networking y persistencia reales |
+| Navegacion final por secciones | 🚧 | Flujo alineado con Pencil para codificar release |
 
 ## Fase 5 — Cierre de producto
 | Task | Estado | Resultado esperado |

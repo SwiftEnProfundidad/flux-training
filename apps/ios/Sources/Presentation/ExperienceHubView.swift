@@ -85,6 +85,13 @@ public struct ExperienceHubView: View {
     )
   }
 
+  @MainActor
+  public static func makeProduction(
+    configuration: FluxTrainingAppConfiguration = .production
+  ) -> ExperienceHubView {
+    CompositionRoot.makeProductionExperienceHub(configuration: configuration)
+  }
+
   private var readinessSnapshot: UXReadinessSnapshot {
     UXReadinessBuilder.make(
       authStatus: authViewModel.authStatus,
@@ -100,6 +107,15 @@ public struct ExperienceHubView: View {
 
   private var copy: LocalizedCopy {
     LocalizedCopy(language: language)
+  }
+
+  private var activeUserID: String {
+    let sessionUserID = authViewModel.currentUserID?.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let sessionUserID, sessionUserID.isEmpty == false {
+      return sessionUserID
+    }
+    let fallbackUserID = userID.trimmingCharacters(in: .whitespacesAndNewlines)
+    return fallbackUserID.isEmpty ? "demo-user" : fallbackUserID
   }
 
   private var activeDomainRuntimeState: EnterpriseRuntimeState {
@@ -190,7 +206,7 @@ public struct ExperienceHubView: View {
                 onboardingSection
               }
               if moduleVisible(.training) {
-                TrainingFlowView(viewModel: trainingViewModel, userID: userID, copy: copy)
+                TrainingFlowView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
                   .cardSurface()
               }
               if moduleVisible(.nutrition) {
@@ -218,7 +234,7 @@ public struct ExperienceHubView: View {
           runtimeStateSection
           if activeDomainRuntimeState == .success {
             if moduleVisible(.progress) {
-              ProgressSummaryView(viewModel: progressViewModel, userID: userID, copy: copy)
+              ProgressSummaryView(viewModel: progressViewModel, userID: activeUserID, copy: copy)
                 .cardSurface()
             } else {
               noModulesSection
@@ -243,11 +259,11 @@ public struct ExperienceHubView: View {
           if activeDomainRuntimeState == .success {
             if hasOperationsContent {
               if moduleVisible(.offlineSync) {
-                OfflineSyncView(viewModel: offlineSyncViewModel, userID: userID, copy: copy)
+                OfflineSyncView(viewModel: offlineSyncViewModel, userID: activeUserID, copy: copy)
                   .cardSurface()
               }
               if moduleVisible(.observability) {
-                ObservabilityView(viewModel: observabilityViewModel, userID: userID, copy: copy)
+                ObservabilityView(viewModel: observabilityViewModel, userID: activeUserID, copy: copy)
                   .cardSurface()
               }
               if moduleVisible(.recommendations) {
@@ -495,7 +511,7 @@ public struct ExperienceHubView: View {
         ]
         Task {
           await onboardingViewModel.complete(
-            userID: userID,
+            userID: activeUserID,
             consent: OnboardingConsentChecklist(
               privacyPolicyAccepted: privacyPolicyAccepted,
               termsAccepted: termsAccepted,
@@ -537,12 +553,12 @@ public struct ExperienceHubView: View {
       }
       HStack {
         Button(copy.text(.saveLog)) {
-          Task { await nutritionViewModel.saveLog(userID: userID) }
+          Task { await nutritionViewModel.saveLog(userID: activeUserID) }
         }
         .buttonStyle(.borderedProminent)
         .tint(.orange)
         Button(copy.text(.loadLogs)) {
-          Task { await nutritionViewModel.refreshLogs(userID: userID) }
+          Task { await nutritionViewModel.refreshLogs(userID: activeUserID) }
         }
         .buttonStyle(.bordered)
       }
@@ -622,7 +638,7 @@ public struct ExperienceHubView: View {
   }
 
   private func loadRecommendations() async {
-    let resolvedUserID = userID.trimmingCharacters(in: .whitespacesAndNewlines)
+    let resolvedUserID = activeUserID
     guard resolvedUserID.isEmpty == false else {
       recommendations = []
       recommendationsStatus = NutritionProgressAIScreenStatus.validationError.rawValue
@@ -877,21 +893,22 @@ public struct ExperienceHubView: View {
       return
     }
     runtimeStateStore.reset(for: sectionShell.activeDomain)
+    let runtimeUserID = activeUserID
     switch sectionShell.activeDomain {
     case .training:
       do {
-        try await trainingViewModel.refreshPlans(userID: userID)
-        try await trainingViewModel.refreshSessions(userID: userID)
+        try await trainingViewModel.refreshPlans(userID: runtimeUserID)
+        try await trainingViewModel.refreshSessions(userID: runtimeUserID)
       } catch {
         return
       }
     case .nutrition:
-      await nutritionViewModel.refreshLogs(userID: userID)
+      await nutritionViewModel.refreshLogs(userID: runtimeUserID)
     case .progress:
-      await progressViewModel.refresh(userID: userID)
+      await progressViewModel.refresh(userID: runtimeUserID)
     case .operations:
-      await offlineSyncViewModel.refresh(userID: userID)
-      await observabilityViewModel.refresh(userID: userID)
+      await offlineSyncViewModel.refresh(userID: runtimeUserID)
+      await observabilityViewModel.refresh(userID: runtimeUserID)
     case .onboarding, .all:
       return
     }
@@ -1002,7 +1019,7 @@ public struct ExperienceHubView: View {
   private func trackRoleChange(_ role: ExperienceRole) async {
     let runtimeAttributes = nextEventRuntimeAttributes(domain: sectionShell.activeDomain)
     await observabilityViewModel.trackRuntimeEvent(
-      userID: userID,
+      userID: activeUserID,
       name: "dashboard_role_changed",
       attributes: [
         "role": role.rawValue,
@@ -1021,7 +1038,7 @@ public struct ExperienceHubView: View {
     )
     let runtimeAttributes = nextEventRuntimeAttributes(domain: domain)
     await observabilityViewModel.trackRuntimeEvent(
-      userID: userID,
+      userID: activeUserID,
       name: "dashboard_domain_changed",
       attributes: [
         "role": activeRole.rawValue,
@@ -1051,7 +1068,7 @@ public struct ExperienceHubView: View {
       correlationID: correlationID
     )
     await observabilityViewModel.trackRuntimeEvent(
-      userID: userID,
+      userID: activeUserID,
       name: "dashboard_domain_access_denied",
       attributes: [
         "role": activeRole.rawValue,
@@ -1083,7 +1100,7 @@ public struct ExperienceHubView: View {
       correlationID: correlationID
     )
     await observabilityViewModel.trackRuntimeEvent(
-      userID: userID,
+      userID: activeUserID,
       name: "dashboard_action_blocked",
       attributes: [
         "role": activeRole.rawValue,
@@ -1135,7 +1152,7 @@ public struct ExperienceHubView: View {
 
   private var domainPayloadValidationInput: DomainPayloadValidationInput {
     DomainPayloadValidationInput(
-      userID: userID,
+      userID: activeUserID,
       goal: onboardingViewModel.selectedGoal.rawValue,
       onboardingDisplayName: onboardingViewModel.displayName,
       onboardingAge: onboardingViewModel.age,

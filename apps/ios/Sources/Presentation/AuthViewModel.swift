@@ -10,6 +10,10 @@ public enum RecoveryChannel: String, Sendable, Equatable {
 @Observable
 public final class AuthViewModel {
   public private(set) var authStatus: String = "signed_out"
+  public private(set) var currentSession: AuthSession?
+  public var currentUserID: String? {
+    currentSession?.userID
+  }
   private let createAuthSessionUseCase: CreateAuthSessionUseCase
 
   public init(createAuthSessionUseCase: CreateAuthSessionUseCase) {
@@ -20,8 +24,10 @@ public final class AuthViewModel {
     authStatus = "loading"
     do {
       let session = try await createAuthSessionUseCase.execute(method: .apple)
+      currentSession = session
       authStatus = "signed_in:\(session.identity.provider.rawValue)"
     } catch {
+      currentSession = nil
       authStatus = "auth_error"
     }
   }
@@ -37,8 +43,10 @@ public final class AuthViewModel {
       let session = try await createAuthSessionUseCase.execute(
         method: .email(email: email, password: password)
       )
+      currentSession = session
       authStatus = "signed_in:\(session.identity.provider.rawValue)"
     } catch {
+      currentSession = nil
       authStatus = "auth_error"
     }
   }

@@ -2,6 +2,23 @@ import Foundation
 
 public enum CompositionRoot {
   @MainActor
+  public static func makeProductionExperienceHub(
+    configuration: FluxTrainingAppConfiguration = .production
+  ) -> ExperienceHubView {
+    let dependencies = makeProductionDependencies(configuration: configuration)
+    return ExperienceHubView(
+      authViewModel: dependencies.authViewModel,
+      onboardingViewModel: dependencies.onboardingViewModel,
+      trainingViewModel: dependencies.trainingViewModel,
+      nutritionViewModel: dependencies.nutritionViewModel,
+      progressViewModel: dependencies.progressViewModel,
+      offlineSyncViewModel: dependencies.offlineSyncViewModel,
+      observabilityViewModel: dependencies.observabilityViewModel,
+      userID: configuration.defaultUserID
+    )
+  }
+
+  @MainActor
   public static func makeOnboardingViewModel() -> OnboardingViewModel {
     let userProfileRepository = InMemoryUserProfileRepository()
     let useCase = CompleteOnboardingUseCase(userProfileRepository: userProfileRepository)
@@ -97,6 +114,123 @@ public enum CompositionRoot {
       listCrashReportsUseCase: ListCrashReportsUseCase(
         repository: crashReportRepository
       )
+    )
+  }
+
+  private struct ProductionDependencies {
+    let authViewModel: AuthViewModel
+    let onboardingViewModel: OnboardingViewModel
+    let trainingViewModel: TrainingFlowViewModel
+    let nutritionViewModel: NutritionViewModel
+    let progressViewModel: ProgressViewModel
+    let offlineSyncViewModel: OfflineSyncViewModel
+    let observabilityViewModel: ObservabilityViewModel
+  }
+
+  @MainActor
+  private static func makeProductionDependencies(
+    configuration: FluxTrainingAppConfiguration
+  ) -> ProductionDependencies {
+    let sessionStore = FluxSessionStore()
+    let client = FluxBackendClient(
+      configuration: configuration.backendConfiguration,
+      sessionStore: sessionStore
+    )
+
+    let authGateway = RemoteAuthGateway(
+      client: client,
+      sessionStore: sessionStore,
+      configuration: configuration.backendConfiguration
+    )
+    let authViewModel = AuthViewModel(
+      createAuthSessionUseCase: CreateAuthSessionUseCase(authGateway: authGateway)
+    )
+
+    let userProfileRepository = PersistentUserProfileRepository()
+    let onboardingViewModel = OnboardingViewModel(
+      completeOnboardingUseCase: CompleteOnboardingUseCase(
+        userProfileRepository: userProfileRepository
+      )
+    )
+
+    let trainingPlanRepository = RemoteTrainingPlanRepository(client: client)
+    let workoutSessionRepository = RemoteWorkoutSessionRepository(client: client)
+    let exerciseVideoRepository = RemoteExerciseVideoRepository(client: client)
+    let trainingViewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(
+        repository: trainingPlanRepository
+      ),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(
+        repository: trainingPlanRepository
+      ),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(
+        repository: workoutSessionRepository
+      ),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(
+        repository: workoutSessionRepository
+      ),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(
+        repository: exerciseVideoRepository
+      )
+    )
+
+    let nutritionRepository = RemoteNutritionLogRepository(client: client)
+    let nutritionViewModel = NutritionViewModel(
+      createNutritionLogUseCase: CreateNutritionLogUseCase(
+        repository: nutritionRepository
+      ),
+      listNutritionLogsUseCase: ListNutritionLogsUseCase(
+        repository: nutritionRepository
+      )
+    )
+
+    let progressViewModel = ProgressViewModel(
+      buildProgressSummaryUseCase: BuildProgressSummaryUseCase(
+        listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(
+          repository: workoutSessionRepository
+        ),
+        listNutritionLogsUseCase: ListNutritionLogsUseCase(
+          repository: nutritionRepository
+        )
+      )
+    )
+
+    let queueRepository = PersistentOfflineSyncQueueRepository()
+    let offlineSyncViewModel = OfflineSyncViewModel(
+      queueOfflineActionUseCase: QueueOfflineActionUseCase(
+        repository: queueRepository
+      ),
+      syncOfflineQueueUseCase: SyncOfflineQueueUseCase(
+        repository: queueRepository,
+        gateway: RemoteOfflineSyncGateway(client: client)
+      )
+    )
+
+    let analyticsRepository = RemoteAnalyticsEventRepository(client: client)
+    let crashReportRepository = RemoteCrashReportRepository(client: client)
+    let observabilityViewModel = ObservabilityViewModel(
+      createAnalyticsEventUseCase: CreateAnalyticsEventUseCase(
+        repository: analyticsRepository
+      ),
+      listAnalyticsEventsUseCase: ListAnalyticsEventsUseCase(
+        repository: analyticsRepository
+      ),
+      createCrashReportUseCase: CreateCrashReportUseCase(
+        repository: crashReportRepository
+      ),
+      listCrashReportsUseCase: ListCrashReportsUseCase(
+        repository: crashReportRepository
+      )
+    )
+
+    return ProductionDependencies(
+      authViewModel: authViewModel,
+      onboardingViewModel: onboardingViewModel,
+      trainingViewModel: trainingViewModel,
+      nutritionViewModel: nutritionViewModel,
+      progressViewModel: progressViewModel,
+      offlineSyncViewModel: offlineSyncViewModel,
+      observabilityViewModel: observabilityViewModel
     )
   }
 }
