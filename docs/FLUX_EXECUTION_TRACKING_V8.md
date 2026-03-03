@@ -19,12 +19,12 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
 |---|---|---|---|---|---|
 | V8-P0-T1 | Kickoff ejecutivo V8 y baseline | V8-P0-T1.1 baseline KPI V8; V8-P0-T1.2 owners confirmados; V8-P0-T1.3 olas W1/W2/W3 validadas | ✅ | V7-P3-T3 | Arranque formal V8 validado |
 | V8-P0-T2 | Congelar contrato operativo V8 | V8-P0-T2.1 diccionario señales; V8-P0-T2.2 dependencias cross-domain; V8-P0-T2.3 reglas QA operativa | ✅ | V8-P0-T1 | Contrato operativo estable |
-| V8-P0-T3 | Readiness gate de ejecución V8 | V8-P0-T3.1 riesgos críticos; V8-P0-T3.2 buffers incident/deuda; V8-P0-T3.3 checklist arranque | 🚧 | V8-P0-T2 | Gate de inicio en verde |
+| V8-P0-T3 | Readiness gate de ejecución V8 | V8-P0-T3.1 riesgos críticos; V8-P0-T3.2 buffers incident/deuda; V8-P0-T3.3 checklist arranque | ✅ | V8-P0-T2 | Gate de inicio en verde |
 
 ## Fase P1 - Streams P0 de impacto
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V8-P1-T1 | Retention scaling | V8-P1-T1.1 cohort expansion; V8-P1-T1.2 personalized nudges; V8-P1-T1.3 guardrails fatigue | ⏳ | V8-P0-T2 | D30 retention uplift sostenido |
+| V8-P1-T1 | Retention scaling | V8-P1-T1.1 cohort expansion; V8-P1-T1.2 personalized nudges; V8-P1-T1.3 guardrails fatigue | 🚧 | V8-P0-T2 | D30 retention uplift sostenido |
 | V8-P1-T2 | Billing anomaly intelligence | V8-P1-T2.1 anomaly classifier; V8-P1-T2.2 fallback auto-routing; V8-P1-T2.3 forensic reporting | ⏳ | V8-P1-T1 | Variabilidad de recovery reducida |
 | V8-P1-T3 | Integración de señales para intervención | V8-P1-T3.1 churn-risk feed; V8-P1-T3.2 ownership routing; V8-P1-T3.3 intervention SLA | ⏳ | V8-P1-T2 | Intervención temprana consistente |
 
@@ -57,5 +57,10 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
   - ownership y secuencia de dependencias fijados para ejecución sin ambigüedades.
   - reglas de calidad operativa establecidas para nombre, frescura, ownership y escalado.
   - evidencia publicada: `docs/validation/V8_P0_T2_OPERATING_CONTRACT_FREEZE.json`.
+- Cierre V8-P0-T3:
+  - readiness gate validado con matriz de riesgos críticos, buffers de incidente/deuda y checklist de arranque.
+  - reglas de escalado, ownership on-call y ventanas de estabilización declaradas como precondición de ejecución.
+  - criterios de salida P0 marcados en verde para iniciar streams de impacto.
+  - evidencia publicada: `docs/validation/V8_P0_T3_EXECUTION_READINESS_GATE.json`.
 - Siguiente task activa:
-  - `V8-P0-T3` (Readiness gate de ejecución V8) en `🚧`.
+  - `V8-P1-T1` (Retention scaling) en `🚧`.
