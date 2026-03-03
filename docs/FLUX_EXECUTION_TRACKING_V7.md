@@ -33,12 +33,12 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
 |---|---|---|---|---|---|
 | V7-P2-T1 | Hardening billing por proveedor | V7-P2-T1.1 retries inteligentes; V7-P2-T1.2 rutas fallback; V7-P2-T1.3 monitoreo por proveedor | ✅ | V7-P0-T3 | Variabilidad de recovery controlada |
 | V7-P2-T2 | Paridad de runbooks en churn scenarios | V7-P2-T2.1 top scenarios; V7-P2-T2.2 acciones por rol; V7-P2-T2.3 auditoria SLA | ✅ | V7-P2-T1 | Soporte consistente y trazable |
-| V7-P2-T3 | Governance operativo semanal | V7-P2-T3.1 tablero de decisiones; V7-P2-T3.2 revision riesgos; V7-P2-T3.3 cierre semanal | 🚧 | V7-P2-T2 | Cadencia estable de ejecucion |
+| V7-P2-T3 | Governance operativo semanal | V7-P2-T3.1 tablero de decisiones; V7-P2-T3.2 revision riesgos; V7-P2-T3.3 cierre semanal | ✅ | V7-P2-T2 | Cadencia estable de ejecucion |
 
 ## Fase P3 - Cierre y continuidad
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V7-P3-T1 | Consolidar resultados V7 | V7-P3-T1.1 impacto negocio; V7-P3-T1.2 impacto operativo; V7-P3-T1.3 riesgos residuales | ⏳ | V7-P2-T3 | Resultado V7 consolidado |
+| V7-P3-T1 | Consolidar resultados V7 | V7-P3-T1.1 impacto negocio; V7-P3-T1.2 impacto operativo; V7-P3-T1.3 riesgos residuales | 🚧 | V7-P2-T3 | Resultado V7 consolidado |
 | V7-P3-T2 | Definir backlog V8 | V7-P3-T2.1 priorizacion; V7-P3-T2.2 dependencias; V7-P3-T2.3 capacidad | ⏳ | V7-P3-T1 | Backlog V8 listo |
 | V7-P3-T3 | Cierre ejecutivo V7 | V7-P3-T3.1 reporte final; V7-P3-T3.2 decision continuidad; V7-P3-T3.3 handoff | ⏳ | V7-P3-T2 | V7 cerrado formalmente |
 
@@ -87,5 +87,10 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
   - cobertura operativa fijada para riesgos de pago, continuidad de sesión y estancamiento de activación.
   - auditoría SLA definida para detectar y resolver degradaciones con trazabilidad semanal.
   - evidencia publicada: `docs/validation/V7_P2_T2_CHURN_RUNBOOK_PARITY.json`.
+- Cierre V7-P2-T3:
+  - governance operativo semanal institucionalizado con tablero de decisiones y rutina de seguimiento.
+  - revisión de riesgos y dependencias cruzadas formalizada entre `product`, `growth`, `billing`, `support` y `data`.
+  - cierre semanal con acta de decisiones, owners y fecha compromiso para pendientes críticos.
+  - evidencia publicada: `docs/validation/V7_P2_T3_WEEKLY_OPERATING_GOVERNANCE.json`.
 - Siguiente task activa:
-  - `V7-P2-T3` (Governance operativo semanal) en `🚧`.
+  - `V7-P3-T1` (Consolidar resultados V7) en `🚧`.
