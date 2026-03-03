@@ -31,8 +31,8 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
 ## Fase P2 - Operacion y fiabilidad
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V7-P2-T1 | Hardening billing por proveedor | V7-P2-T1.1 retries inteligentes; V7-P2-T1.2 rutas fallback; V7-P2-T1.3 monitoreo por proveedor | 🚧 | V7-P0-T3 | Variabilidad de recovery controlada |
-| V7-P2-T2 | Paridad de runbooks en churn scenarios | V7-P2-T2.1 top scenarios; V7-P2-T2.2 acciones por rol; V7-P2-T2.3 auditoria SLA | ⏳ | V7-P2-T1 | Soporte consistente y trazable |
+| V7-P2-T1 | Hardening billing por proveedor | V7-P2-T1.1 retries inteligentes; V7-P2-T1.2 rutas fallback; V7-P2-T1.3 monitoreo por proveedor | ✅ | V7-P0-T3 | Variabilidad de recovery controlada |
+| V7-P2-T2 | Paridad de runbooks en churn scenarios | V7-P2-T2.1 top scenarios; V7-P2-T2.2 acciones por rol; V7-P2-T2.3 auditoria SLA | 🚧 | V7-P2-T1 | Soporte consistente y trazable |
 | V7-P2-T3 | Governance operativo semanal | V7-P2-T3.1 tablero de decisiones; V7-P2-T3.2 revision riesgos; V7-P2-T3.3 cierre semanal | ⏳ | V7-P2-T2 | Cadencia estable de ejecucion |
 
 ## Fase P3 - Cierre y continuidad
@@ -77,5 +77,10 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
   - definido backlog de remediación sobre abandono por validación, caída de sesión y errores de pago.
   - fijadas contramedidas de recovery contextual para reducir drop-off en pasos críticos.
   - evidencia publicada: `docs/validation/V7_P1_T3_CONVERSION_FRICTION_REMEDIATION.json`.
+- Cierre V7-P2-T1:
+  - hardening de billing por proveedor completado para `stripe`, `apple_iap` y `google_play`.
+  - retries inteligentes y rutas fallback estabilizadas con reconciliación determinista.
+  - modelo de monitoreo con SLO/alertas fijado para recovery y variabilidad por proveedor.
+  - evidencia publicada: `docs/validation/V7_P2_T1_BILLING_PROVIDER_HARDENING.json`.
 - Siguiente task activa:
-  - `V7-P2-T1` (Hardening billing por proveedor) en `🚧`.
+  - `V7-P2-T2` (Paridad de runbooks en churn scenarios) en `🚧`.
