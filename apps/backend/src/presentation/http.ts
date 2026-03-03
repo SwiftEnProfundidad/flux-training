@@ -27,8 +27,12 @@ import {
   structuredLogSchema,
   supportIncidentSchema,
   syncQueueProcessInputSchema,
+  type AccessAction,
+  type AccessRole,
+  type DashboardDomain,
   type DeniedAccessAudit,
-  type DeniedAccessAuditInput
+  type DeniedAccessAuditInput,
+  type DeniedAccessTrigger
 } from "@flux/contracts";
 import { onRequest } from "firebase-functions/v2/https";
 import { CreateAnalyticsEventUseCase } from "../application/create-analytics-event";
@@ -83,6 +87,11 @@ import { FirestoreDataExportRequestRepository } from "../infrastructure/firestor
 import { StaticExerciseVideoRepository } from "../infrastructure/static-exercise-video-repository";
 import { FirestoreDeniedAccessAuditRepository } from "../infrastructure/firestore-denied-access-audit-repository";
 import { FirestoreLegalConsentAuditRepository } from "../infrastructure/firestore-legal-consent-audit-repository";
+import {
+  parseAccessRoleHeader,
+  parseBearerTokenHeader,
+  toDeniedAccessReason
+} from "./request-auth-guards";
 
 const repository = new FirestoreWorkoutSessionRepository();
 const createWorkoutSessionUseCase = new CreateWorkoutSessionUseCase(repository);
@@ -202,6 +211,20 @@ type IdempotencyCacheEntry = {
   statusCode: number;
   payload: Record<string, unknown>;
   expiresAt: number;
+};
+
+type AuthenticatedActor = {
+  userId: string;
+  role: AccessRole;
+};
+
+type AuthorizationGuardInput = {
+  domain: DashboardDomain;
+  action: AccessAction;
+  targetUserId?: string;
+  requireTargetUserId?: boolean;
+  medicalDisclaimerAccepted?: boolean;
+  trigger?: DeniedAccessTrigger;
 };
 
 const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000;
@@ -404,6 +427,84 @@ function shouldRejectUnsupportedClient(
   }
 }
 
+async function authenticateRequest(
+  request: HeaderRequest,
+  response: JsonResponse
+): Promise<AuthenticatedActor | undefined> {
+  const token = parseBearerTokenHeader(normalizeHeaderValue(request.header("authorization")));
+  if (token === null) {
+    sendStandardError(request, response, 401, "missing_authorization_bearer");
+    return undefined;
+  }
+
+  let role: AccessRole;
+  try {
+    role = parseAccessRoleHeader(normalizeHeaderValue(request.header("x-flux-access-role")));
+  } catch {
+    sendStandardError(request, response, 400, "invalid_access_role");
+    return undefined;
+  }
+
+  try {
+    const identity = await authTokenVerifier.verify(token);
+    return {
+      userId: identity.providerUserId,
+      role
+    };
+  } catch {
+    sendStandardError(request, response, 401, "invalid_authorization_bearer");
+    return undefined;
+  }
+}
+
+async function authorizeRequest(
+  request: HeaderRequest,
+  response: JsonResponse,
+  input: AuthorizationGuardInput
+): Promise<AuthenticatedActor | undefined> {
+  const actor = await authenticateRequest(request, response);
+  if (actor === undefined) {
+    return undefined;
+  }
+
+  const targetUserId = input.targetUserId?.trim();
+  if (input.requireTargetUserId === true && (targetUserId === undefined || targetUserId.length === 0)) {
+    sendStandardError(request, response, 400, "missing_user_id");
+    return undefined;
+  }
+
+  const decision = evaluateRoleAccessUseCase.execute({
+    role: actor.role,
+    domain: input.domain,
+    action: input.action,
+    context: {
+      isOwner: targetUserId === undefined || targetUserId.length === 0 || targetUserId === actor.userId,
+      medicalDisclaimerAccepted: input.medicalDisclaimerAccepted ?? true
+    }
+  });
+
+  if (decision.allowed) {
+    return actor;
+  }
+
+  try {
+    await recordDeniedAccessAuditUseCase.execute({
+      userId: actor.userId,
+      role: actor.role,
+      domain: input.domain,
+      action: input.action,
+      reason: toDeniedAccessReason(decision.reason),
+      trigger: input.trigger ?? "governance_action",
+      correlationId: resolveCorrelationId(request)
+    } satisfies DeniedAccessAuditInput);
+  } catch {
+    // Denied access logging must not block the response path.
+  }
+
+  sendStandardError(request, response, 403, decision.reason);
+  return undefined;
+}
+
 export const health = onRequest((_request, response) => {
   response.json({ status: "ok" });
 });
@@ -411,6 +512,16 @@ export const health = onRequest((_request, response) => {
 export const createWorkoutSession = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const actor = await authorizeRequest(request, response, {
+      domain: "training",
+      action: "create",
+      targetUserId: String(request.body?.userId ?? ""),
+      requireTargetUserId: true,
+      medicalDisclaimerAccepted: true
+    });
+    if (actor === undefined) {
       return;
     }
     const idempotencyCacheKey = sendReplayFromIdempotencyCache(
@@ -469,6 +580,16 @@ export const recordLegalConsent = onRequest(async (request, response) => {
       return;
     }
     const payload = legalConsentSubmissionSchema.parse(request.body);
+    const actor = await authorizeRequest(request, response, {
+      domain: "onboarding",
+      action: "update",
+      targetUserId: payload.userId,
+      requireTargetUserId: true,
+      medicalDisclaimerAccepted: payload.medicalDisclaimerAccepted
+    });
+    if (actor === undefined) {
+      return;
+    }
     const consent = await recordLegalConsentUseCase.execute(payload);
     response.status(201).json({ consent });
   } catch (error) {
@@ -486,6 +607,15 @@ export const requestDataExport = onRequest(async (request, response) => {
       return;
     }
     const payload = dataExportRequestInputSchema.parse(request.body);
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "export",
+      targetUserId: payload.userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const exportRequest = await requestDataExportUseCase.execute(payload);
     response.status(201).json({ request: exportRequest });
   } catch {
@@ -499,6 +629,15 @@ export const requestDataDeletion = onRequest(async (request, response) => {
       return;
     }
     const payload = dataDeletionRequestSchema.parse(request.body);
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "delete",
+      targetUserId: payload.userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const deletionRequest = await requestDataDeletionUseCase.execute(payload);
     response.status(201).json({ request: deletionRequest });
   } catch {
@@ -509,6 +648,13 @@ export const requestDataDeletion = onRequest(async (request, response) => {
 export const listDataRetentionPolicies = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view"
+    });
+    if (actor === undefined) {
       return;
     }
     const policies = listDataRetentionPoliciesUseCase.execute();
@@ -530,6 +676,15 @@ export const createHealthScreening = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const actor = await authorizeRequest(request, response, {
+      domain: "onboarding",
+      action: "create",
+      targetUserId: String(request.body?.userId ?? ""),
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const screening = await createHealthScreeningUseCase.execute({
       userId: String(request.body?.userId ?? ""),
       onboardingProfile: request.body?.onboardingProfile,
@@ -546,6 +701,15 @@ export const completeOnboarding = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const actor = await authorizeRequest(request, response, {
+      domain: "onboarding",
+      action: "update",
+      targetUserId: String(request.body?.userId ?? ""),
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const result = await completeOnboardingUseCase.execute(request.body);
     response.status(201).json({ result });
   } catch {
@@ -556,6 +720,16 @@ export const completeOnboarding = onRequest(async (request, response) => {
 export const createTrainingPlan = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const actor = await authorizeRequest(request, response, {
+      domain: "training",
+      action: "create",
+      targetUserId: String(request.body?.userId ?? ""),
+      requireTargetUserId: true,
+      medicalDisclaimerAccepted: true
+    });
+    if (actor === undefined) {
       return;
     }
     const plan = await createTrainingPlanUseCase.execute(request.body);
@@ -571,6 +745,16 @@ export const listTrainingPlans = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "training",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true,
+      medicalDisclaimerAccepted: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const plans = await listTrainingPlansUseCase.execute(userId);
     response.status(200).json({ plans });
   } catch {
@@ -584,6 +768,16 @@ export const listWorkoutSessions = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "training",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true,
+      medicalDisclaimerAccepted: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const planId =
       request.query.planId === undefined ? undefined : String(request.query.planId);
     const fromDate = parseOptionalDateQuery(request.query.fromDate);
@@ -612,6 +806,16 @@ export const listExerciseVideos = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "training",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true,
+      medicalDisclaimerAccepted: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const exerciseId = String(request.query.exerciseId ?? "");
     const locale = String(request.query.locale ?? "es-ES");
     const videos = await listExerciseVideosUseCase.execute({
@@ -628,6 +832,15 @@ export const listExerciseVideos = onRequest(async (request, response) => {
 export const createNutritionLog = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const actor = await authorizeRequest(request, response, {
+      domain: "nutrition",
+      action: "create",
+      targetUserId: String(request.body?.userId ?? ""),
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
       return;
     }
     const idempotencyCacheKey = sendReplayFromIdempotencyCache(
@@ -651,6 +864,15 @@ export const listNutritionLogs = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "nutrition",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const logs = await listNutritionLogsUseCase.execute(userId);
     const fromDate = parseOptionalDateQuery(request.query.fromDate);
     const toDate = parseOptionalDateQuery(request.query.toDate);
@@ -674,6 +896,15 @@ export const getProgressSummary = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "progress",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const generatedAt = parseOptionalDateQuery(request.query.generatedAt);
     const summary = await getProgressSummaryUseCase.execute(userId, generatedAt);
     response.status(200).json({ summary });
@@ -685,6 +916,16 @@ export const getProgressSummary = onRequest(async (request, response) => {
 export const listAIRecommendations = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const requestedUserId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "nutrition",
+      action: "view",
+      targetUserId: requestedUserId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
       return;
     }
     const pendingQueueCount = Number.parseInt(
@@ -699,7 +940,7 @@ export const listAIRecommendations = onRequest(async (request, response) => {
       String(request.query.recentCompletionRate ?? "1")
     );
     const recommendations = await generateAIRecommendationsUseCase.execute({
-      userId: String(request.query.userId ?? ""),
+      userId: requestedUserId,
       goal: goalSchema.parse(String(request.query.goal ?? "recomposition")),
       pendingQueueCount: Number.isNaN(pendingQueueCount) ? 0 : pendingQueueCount,
       daysSinceLastWorkout: Number.isNaN(daysSinceLastWorkout) ? 0 : daysSinceLastWorkout,
@@ -717,6 +958,13 @@ export const listRoleCapabilities = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view"
+    });
+    if (actor === undefined) {
+      return;
+    }
     const role = accessRoleSchema.parse(String(request.query.role ?? "athlete"));
     const capabilities = listRoleCapabilitiesUseCase.execute(role);
     response.status(200).json({ capabilities });
@@ -728,6 +976,13 @@ export const listRoleCapabilities = onRequest(async (request, response) => {
 export const evaluateAccessDecision = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view"
+    });
+    if (actor === undefined) {
       return;
     }
     const payload = accessDecisionInputSchema.parse(request.body);
@@ -746,6 +1001,15 @@ export const recordDeniedAccessAudit = onRequest(async (request, response) => {
     const payload = deniedAccessAuditInputSchema.parse(
       request.body
     ) as DeniedAccessAuditInput;
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "create",
+      targetUserId: payload.userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const audit = await recordDeniedAccessAuditUseCase.execute(payload);
     response.status(201).json({ audit: deniedAccessAuditSchema.parse(audit) });
   } catch {
@@ -759,6 +1023,15 @@ export const listDeniedAccessAudits = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "").trim();
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     if (userId.length === 0) {
       throw new Error("missing_user_id");
     }
@@ -775,6 +1048,15 @@ export const listBillingInvoices = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const invoices = await listBillingInvoicesUseCase.execute(userId);
     response.status(200).json({ invoices: billingInvoiceSchema.array().parse(invoices) });
   } catch {
@@ -788,6 +1070,15 @@ export const listSupportIncidents = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const incidents = await listSupportIncidentsUseCase.execute(userId);
     response.status(200).json({ incidents: supportIncidentSchema.array().parse(incidents) });
   } catch {
@@ -800,6 +1091,16 @@ export const processSyncQueue = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const payload = syncQueueProcessInputSchema.parse(request.body);
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "update",
+      targetUserId: payload.userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const idempotencyCacheKey = sendReplayFromIdempotencyCache(
       request,
       response,
@@ -808,7 +1109,6 @@ export const processSyncQueue = onRequest(async (request, response) => {
     if (idempotencyCacheKey === null) {
       return;
     }
-    const payload = syncQueueProcessInputSchema.parse(request.body);
     const result = await processSyncQueueUseCase.execute(payload.userId, payload.items);
     sendSuccessWithIdempotency(response, idempotencyCacheKey, 200, { result });
   } catch {
@@ -821,6 +1121,16 @@ export const createAnalyticsEvent = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const baseEvent = analyticsEventSchema.parse(request.body);
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "create",
+      targetUserId: baseEvent.userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const idempotencyCacheKey = sendReplayFromIdempotencyCache(
       request,
       response,
@@ -829,7 +1139,6 @@ export const createAnalyticsEvent = onRequest(async (request, response) => {
     if (idempotencyCacheKey === null) {
       return;
     }
-    const baseEvent = analyticsEventSchema.parse(request.body);
     const requestCorrelationId = resolveCorrelationId(request);
     const payload = await createAnalyticsEventUseCase.execute({
       ...baseEvent,
@@ -854,6 +1163,15 @@ export const listAnalyticsEvents = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const events = await listAnalyticsEventsUseCase.execute(userId);
     const sourceFilter = parseOptionalEnumQuery(
       request.query.source,
@@ -897,6 +1215,16 @@ export const createCrashReport = onRequest(async (request, response) => {
     if (shouldRejectUnsupportedClient(request, response)) {
       return;
     }
+    const parsedInput = crashReportSchema.parse(request.body);
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "create",
+      targetUserId: parsedInput.userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const idempotencyCacheKey = sendReplayFromIdempotencyCache(
       request,
       response,
@@ -905,7 +1233,6 @@ export const createCrashReport = onRequest(async (request, response) => {
     if (idempotencyCacheKey === null) {
       return;
     }
-    const parsedInput = crashReportSchema.parse(request.body);
     const report = {
       ...parsedInput,
       correlationId:
@@ -926,6 +1253,15 @@ export const listCrashReports = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const reports = await listCrashReportsUseCase.execute(userId);
     const sourceFilter = parseOptionalEnumQuery(
       request.query.source,
@@ -971,6 +1307,15 @@ export const listObservabilitySummary = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const summary = await listObservabilitySummaryUseCase.execute(userId);
     response.status(200).json({ summary: observabilitySummarySchema.parse(summary) });
   } catch {
@@ -984,6 +1329,15 @@ export const listOperationalAlerts = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const alerts = await listOperationalAlertsUseCase.execute(userId);
     response.status(200).json({ alerts: operationalAlertSchema.array().parse(alerts) });
   } catch {
@@ -994,6 +1348,13 @@ export const listOperationalAlerts = onRequest(async (request, response) => {
 export const listOperationalRunbooks = onRequest(async (request, response) => {
   try {
     if (shouldRejectUnsupportedClient(request, response)) {
+      return;
+    }
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view"
+    });
+    if (actor === undefined) {
       return;
     }
     const runbooks = listOperationalRunbooksUseCase.execute();
@@ -1009,6 +1370,15 @@ export const listStructuredLogs = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const logs = await listStructuredLogsUseCase.execute(userId, {
       fromDate: parseOptionalDateQuery(request.query.fromDate),
       toDate: parseOptionalDateQuery(request.query.toDate),
@@ -1033,6 +1403,15 @@ export const listActivityLog = onRequest(async (request, response) => {
       return;
     }
     const userId = String(request.query.userId ?? "");
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "view",
+      targetUserId: userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const activityLog = await listActivityLogUseCase.execute(userId, {
       fromDate: parseOptionalDateQuery(request.query.fromDate),
       toDate: parseOptionalDateQuery(request.query.toDate),
@@ -1057,6 +1436,15 @@ export const exportForensicAudit = onRequest(async (request, response) => {
       return;
     }
     const payload = forensicAuditExportRequestSchema.parse(request.body);
+    const actor = await authorizeRequest(request, response, {
+      domain: "operations",
+      action: "export",
+      targetUserId: payload.userId,
+      requireTargetUserId: true
+    });
+    if (actor === undefined) {
+      return;
+    }
     const exportResult = await exportForensicAuditUseCase.execute(payload);
     response.status(201).json({ exportResult: forensicAuditExportSchema.parse(exportResult) });
   } catch {
