@@ -6,3 +6,5 @@ nutrition,"nutrition","nutrition","sin gap crítico",PASS
 progress,"progress","progress","sin gap crítico",PASS
 operations,"recommendations|offlineSync|observability","offlineSync|observability|recommendations","sin gap crítico",PASS
 persistence_reload,"dominio training restaurado tras reload runtime","dominio training restaurado desde AppStorage al relanzar","sin gap crítico",PASS
+session_user_binding,"auth session + payloads ligados al userId autenticado","auth session + payloads ligados al userId autenticado","sin gap crítico tras resolver userId runtime por sesión",PASS
+role_capabilities_auth,"RBAC por rol con endpoint autenticado y fallback controlado","RBAC por rol con endpoint autenticado y fallback controlado","sin gap crítico",PASS

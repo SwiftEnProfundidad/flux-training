@@ -35,11 +35,11 @@ Transformar la base demo en producto real iOS/Web: autenticacion real, persisten
 |---|---|---|
 | Crear app real en `apps/ios` | ✅ | Bootstrap de app final sin dependencia host demo |
 | Sustituir gateways in-memory/demo | ✅ | Networking y persistencia reales |
-| Navegacion final por secciones | 🚧 | Flujo alineado con Pencil para codificar release |
+| Navegacion final por secciones | ✅ | Flujo alineado con Pencil para codificar release |
 
 ## Fase 5 — Cierre de producto
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Matriz de paridad Pencil->Codigo | ⏳ | Cobertura de pantallas y estados por plataforma |
-| QA funcional E2E iOS/Web/Backend | ⏳ | Evidencia real de flujo completo |
-| Gate final MVP productivo | ⏳ | Release candidate sin comportamiento mock |
+| Matriz de paridad Pencil->Codigo | ✅ | Cobertura de pantallas y estados por plataforma |
+| QA funcional E2E iOS/Web/Backend | ✅ | Evidencia real de flujo completo |
+| Gate final MVP productivo | ✅ | Release candidate sin comportamiento mock |

@@ -28,8 +28,8 @@
 | F1 | Limpieza de tracking y artefactos de seguimiento | ✅ |
 | F2 | Backend productivo con auth/persistencia real end-to-end | ✅ |
 | F3 | Web productiva sin `demo-user`, con sesion real | ✅ |
-| F4 | iOS productiva con navegacion final y gateways reales | 🚧 |
-| F5 | Paridad Pencil -> codigo + QA final de release | ⏳ |
+| F4 | iOS productiva con navegacion final y gateways reales | ✅ |
+| F5 | Paridad Pencil -> codigo + QA final de release | ✅ |
 
 ## Regla de operacion
 - Solo una task en `🚧`.

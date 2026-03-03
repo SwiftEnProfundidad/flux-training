@@ -6,3 +6,5 @@ nutrition,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"sin gap crítico",PASS
 progress,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"sin gap crítico",PASS
 operations,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"offlineSync/recommendations/observability alineados",PASS
 persistence_reload,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"dominio activo restaurado tras reload/relanzado en iOS y web",PASS
+session_user_binding,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"payloads y queries usan userId de sesión autenticada en iOS/web",PASS
+role_capabilities_auth,PASS,PASS,PASS,PASS,PASS,PASS,PASS,"roles/capacidades cargados desde endpoint autenticado con fallback seguro",PASS
