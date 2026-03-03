@@ -25,8 +25,8 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V7-P1-T1 | Tunear paywall por cohortes | V7-P1-T1.1 cohort matrix; V7-P1-T1.2 triggers por friccion; V7-P1-T1.3 guardrails de fatiga | ✅ | V7-P0-T2 | Conversion por cohorte en mejora |
-| V7-P1-T2 | Experimentacion de hipotesis de retencion | V7-P1-T2.1 hipotesis por rol; V7-P1-T2.2 setup A/B; V7-P1-T2.3 cierre learnings | 🚧 | V7-P1-T1 | Retencion D7/D30 optimizada |
-| V7-P1-T3 | Remediacion de fricciones de conversion | V7-P1-T3.1 checkout friction; V7-P1-T3.2 auth friction; V7-P1-T3.3 fallback UX | ⏳ | V7-P1-T2 | Dropoff critico reducido |
+| V7-P1-T2 | Experimentacion de hipotesis de retencion | V7-P1-T2.1 hipotesis por rol; V7-P1-T2.2 setup A/B; V7-P1-T2.3 cierre learnings | ✅ | V7-P1-T1 | Retencion D7/D30 optimizada |
+| V7-P1-T3 | Remediacion de fricciones de conversion | V7-P1-T3.1 checkout friction; V7-P1-T3.2 auth friction; V7-P1-T3.3 fallback UX | 🚧 | V7-P1-T2 | Dropoff critico reducido |
 
 ## Fase P2 - Operacion y fiabilidad
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -67,5 +67,10 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
   - definidas estrategias diferenciadas para `new_trial`, `at_risk_churn`, `returning_user` y `high_intent_upgrade`.
   - activados guardrails de presión comercial para proteger retención y reducir rechazo de upgrade.
   - evidencia publicada: `docs/validation/V7_P1_T1_COHORT_PAYWALL_TUNING.json`.
+- Cierre V7-P1-T2:
+  - hipótesis de retención estructuradas por rol (`athlete`, `coach`, `admin`) con diseño de experimento y guardrails.
+  - setup A/B definido con segmentos, exposición, métrica primaria y criterio de significancia para D7/D30.
+  - loop de cierre de aprendizaje fijado para promoción, iteración o rollback por experimento.
+  - evidencia publicada: `docs/validation/V7_P1_T2_RETENTION_HYPOTHESIS_EXPERIMENTATION.json`.
 - Siguiente task activa:
-  - `V7-P1-T2` (Experimentacion de hipotesis de retencion) en `🚧`.
+  - `V7-P1-T3` (Remediacion de fricciones de conversion) en `🚧`.
