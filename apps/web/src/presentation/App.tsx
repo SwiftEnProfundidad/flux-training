@@ -41,7 +41,7 @@ import { apiTrainingGateway } from "../infrastructure/training-client";
 import { apiRecommendationsGateway } from "../infrastructure/recommendations-client";
 import { apiRoleCapabilitiesGateway } from "../infrastructure/role-capabilities-client";
 import { apiAccessControlGateway } from "../infrastructure/access-control-client";
-import { isClientUpdateRequiredError } from "../infrastructure/api-client";
+import { isClientUpdateRequiredError, setApiAuthSession } from "../infrastructure/api-client";
 import { apiLegalGateway } from "../infrastructure/legal-client";
 import { buildUXReadinessSnapshot, type UXReadinessSnapshot } from "./ux-readiness";
 import {
@@ -627,6 +627,41 @@ export function App() {
     return false;
   }
 
+  function resolveFailureRuntimeState(error: unknown): EnterpriseRuntimeState {
+    if (error instanceof TypeError) {
+      return "offline";
+    }
+    if (error instanceof Error) {
+      const code = error.message.trim().toLowerCase();
+      if (code === "failed to fetch" || code.includes("network")) {
+        return "offline";
+      }
+      if (
+        code === "missing_authorization_bearer" ||
+        code === "invalid_authorization_bearer" ||
+        code.endsWith("_denied") ||
+        code === "ownership_required" ||
+        code === "medical_consent_required"
+      ) {
+        return "denied";
+      }
+    }
+    return "error";
+  }
+
+  function markDomainFailure(domain: DashboardDomain, error: unknown): void {
+    const failureState = resolveFailureRuntimeState(error);
+    setDomainRuntimeStates((currentStates) =>
+      setRuntimeStateForActiveDomain(domain, failureState, currentStates)
+    );
+  }
+
+  function markDomainSuccess(domain: DashboardDomain): void {
+    setDomainRuntimeStates((currentStates) =>
+      setRuntimeStateForActiveDomain(domain, "success", currentStates)
+    );
+  }
+
   function hasValidEmail(value: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
@@ -959,18 +994,24 @@ export function App() {
     void trackRoleChange(activeRole);
   }, [activeRole]);
 
+  useEffect(() => {
+    setApiAuthSession(activeSession);
+  }, [activeSession]);
+
   async function handleAppleSignIn() {
     setAuthStatus("loading");
     try {
       const session = await createAuthSessionUseCase.executeWithApple();
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
+      markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setActiveSession(null);
       setAuthStatus("auth_error");
+      markDomainFailure("onboarding", error);
     }
   }
 
@@ -984,12 +1025,14 @@ export function App() {
       const session = await createAuthSessionUseCase.executeWithEmail(email, password);
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
+      markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setActiveSession(null);
       setAuthStatus("auth_error");
+      markDomainFailure("onboarding", error);
     }
   }
 
@@ -1036,11 +1079,13 @@ export function App() {
         ]
       });
       setOnboardingStatus("saved");
+      markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setOnboardingStatus("validation_error");
+      markDomainFailure("onboarding", error);
     }
   }
 
@@ -1062,11 +1107,13 @@ export function App() {
         source: "web"
       });
       setLegalStatus("saved");
+      markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setLegalStatus("error");
+      markDomainFailure("onboarding", error);
     }
   }
 
@@ -1086,11 +1133,13 @@ export function App() {
         exportFormat: "json"
       });
       setLegalStatus("deletion_requested");
+      markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setLegalStatus("error");
+      markDomainFailure("onboarding", error);
     }
   }
 
@@ -1112,11 +1161,13 @@ export function App() {
         format: "json"
       });
       setLegalStatus("exported");
+      markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setLegalStatus("error");
+      markDomainFailure("onboarding", error);
     }
   }
 
@@ -1148,6 +1199,7 @@ export function App() {
       setTrainingStatus("saved");
       const loadedPlans = await manageTrainingUseCase.listTrainingPlans(activeUserId);
       setPlans(loadedPlans);
+      markDomainSuccess("training");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -1156,11 +1208,13 @@ export function App() {
         await offlineSyncQueueUseCase.queueTrainingPlan(activeUserId, queuedPlanInput);
         await refreshPendingQueue();
         setTrainingStatus("queued");
+        markDomainSuccess("training");
       } catch (queueError) {
         if (shouldStopForUpgrade(queueError)) {
           return;
         }
         setTrainingStatus("error");
+        markDomainFailure("training", queueError);
       }
     }
   }
@@ -1175,11 +1229,13 @@ export function App() {
         setSelectedPlanId(firstPlan.id);
       }
       setTrainingStatus(loadedPlans.length === 0 ? "validation_error" : "loaded");
+      markDomainSuccess("training");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setTrainingStatus("error");
+      markDomainFailure("training", error);
     }
   }
 
@@ -1207,6 +1263,7 @@ export function App() {
     try {
       await manageTrainingUseCase.createWorkoutSession(queuedSession);
       setSessionStatus("saved");
+      markDomainSuccess("training");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -1216,11 +1273,13 @@ export function App() {
         await refreshPendingQueue();
         setSessionStatus("saved");
         setTrainingStatus("queued");
+        markDomainSuccess("training");
       } catch (queueError) {
         if (shouldStopForUpgrade(queueError)) {
           return;
         }
         setSessionStatus("error");
+        markDomainFailure("training", queueError);
       }
     }
   }
@@ -1234,11 +1293,13 @@ export function App() {
       );
       setSessions(loadedSessions);
       setSessionStatus("saved");
+      markDomainSuccess("training");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setSessionStatus("error");
+      markDomainFailure("training", error);
     }
   }
 
@@ -1256,6 +1317,7 @@ export function App() {
     try {
       await manageNutritionUseCase.createNutritionLog(queuedLog);
       setNutritionStatus("saved");
+      markDomainSuccess("nutrition");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
@@ -1264,11 +1326,13 @@ export function App() {
         await offlineSyncQueueUseCase.queueNutritionLog(activeUserId, queuedLog);
         await refreshPendingQueue();
         setNutritionStatus("queued");
+        markDomainSuccess("nutrition");
       } catch (queueError) {
         if (shouldStopForUpgrade(queueError)) {
           return;
         }
         setNutritionStatus("error");
+        markDomainFailure("nutrition", queueError);
       }
     }
   }
@@ -1279,11 +1343,13 @@ export function App() {
       const logs = await manageNutritionUseCase.listNutritionLogs(activeUserId);
       setNutritionLogs(logs);
       setNutritionStatus(logs.length === 0 ? "empty" : "loaded");
+      markDomainSuccess("nutrition");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setNutritionStatus("error");
+      markDomainFailure("nutrition", error);
     }
   }
 
@@ -1297,11 +1363,13 @@ export function App() {
           ? "empty"
           : "loaded"
       );
+      markDomainSuccess("progress");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setProgressStatus("error");
+      markDomainFailure("progress", error);
     }
   }
 
@@ -1313,12 +1381,14 @@ export function App() {
       setLastSyncRejectedCount(result.rejected.length);
       setLastSyncIdempotency(result.idempotency);
       setSyncStatus("synced");
+      markDomainSuccess("operations");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setLastSyncIdempotency(null);
       setSyncStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1392,11 +1462,13 @@ export function App() {
       });
       observabilityCollectionsCacheRef.current = null;
       setObservabilityStatus("event_saved");
+      markDomainSuccess("operations");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setObservabilityStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1419,11 +1491,13 @@ export function App() {
       }
       observabilityCollectionsCacheRef.current = null;
       setObservabilityStatus("crash_saved");
+      markDomainSuccess("operations");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setObservabilityStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1432,11 +1506,13 @@ export function App() {
     try {
       await loadObservabilityCollections({ force: true });
       setObservabilityStatus("loaded");
+      markDomainSuccess("operations");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setObservabilityStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1445,11 +1521,13 @@ export function App() {
     try {
       await loadObservabilityCollections();
       setAuditStatus("loaded");
+      markDomainSuccess("operations");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setAuditStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1459,11 +1537,13 @@ export function App() {
     try {
       await loadObservabilityCollections();
       setBillingSupportStatus("loaded");
+      markDomainSuccess("operations");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setBillingSupportStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1498,8 +1578,9 @@ export function App() {
         }
       });
       setAuditStatus("saved");
-    } catch {
+    } catch (error) {
       setAuditStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1516,11 +1597,13 @@ export function App() {
       });
       setForensicExportResult(exportResult);
       setAuditStatus("saved");
+      markDomainSuccess("operations");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setAuditStatus("error");
+      markDomainFailure("operations", error);
     }
   }
 
@@ -1533,11 +1616,13 @@ export function App() {
       );
       setExerciseVideos(videos);
       setVideoStatus("loaded");
+      markDomainSuccess("training");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setVideoStatus("error");
+      markDomainFailure("training", error);
     }
   }
 
@@ -1560,11 +1645,13 @@ export function App() {
       );
       setRecommendations(loadedRecommendations);
       setRecommendationsStatus(loadedRecommendations.length === 0 ? "empty" : "loaded");
+      markDomainSuccess("nutrition");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
       setRecommendationsStatus("error");
+      markDomainFailure("nutrition", error);
     }
   }
 
@@ -2099,6 +2186,7 @@ export function App() {
 
     switch (activeDomain) {
       case "onboarding":
+        setActiveSession(null);
         setAuthStatus("signed_out");
         setOnboardingStatus("idle");
         return;

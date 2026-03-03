@@ -1,7 +1,10 @@
+import type { AuthSession } from "@flux/contracts";
+
 type EnvMap = Record<string, string | undefined>;
 
 const defaultWebVersion = "0.1.0";
 const clientUpdateRequiredErrorCode = "client_update_required";
+let activeApiSession: Pick<AuthSession, "token" | "userId"> | null = null;
 
 function readDefaultEnv(): EnvMap {
   const importMeta = import.meta as ImportMeta & { env?: EnvMap };
@@ -21,10 +24,28 @@ export function createApiHeaders(env: EnvMap = readDefaultEnv(), useJson = false
     "x-flux-client-platform": "web",
     "x-flux-client-version": resolveWebClientVersion(env)
   };
+  if (activeApiSession !== null) {
+    headers.Authorization = `Bearer ${activeApiSession.token}`;
+  }
   if (useJson) {
     headers["Content-Type"] = "application/json";
   }
   return headers;
+}
+
+export function setApiAuthSession(session: AuthSession | null): void {
+  if (session === null) {
+    activeApiSession = null;
+    return;
+  }
+  activeApiSession = {
+    token: session.token,
+    userId: session.userId
+  };
+}
+
+export function getApiAuthUserId(): string | undefined {
+  return activeApiSession?.userId;
 }
 
 async function readApiErrorCode(response: Response): Promise<string | null> {
