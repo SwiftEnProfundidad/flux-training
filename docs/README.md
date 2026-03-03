@@ -13,5 +13,5 @@
 - `docs/validation/`
 
 ## Estado rapido
-- Task activa actual: **Consolidar resultados del ciclo** (`🚧`).
+- Task activa actual: **Definir backlog del siguiente ciclo** (`🚧`).
 - Regla: solo 1 task en construccion.
