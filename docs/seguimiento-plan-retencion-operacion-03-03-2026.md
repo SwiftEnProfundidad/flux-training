@@ -16,8 +16,8 @@
 - Historico completo disponible en `docs/archive/`.
 
 ## Estado actual
-- Task activa: **Hardening transversal de resiliencia y paridad** (`🚧`).
-- Siguiente task: **Consolidar resultados del ciclo** (`⏳`).
+- Task activa: **Consolidar resultados del ciclo** (`🚧`).
+- Siguiente task: **Definir backlog del siguiente ciclo** (`⏳`).
 
 ## Fase 1 - Arranque del ciclo
 | Task | Estado | Resumen |
@@ -38,11 +38,11 @@
 |---|---|---|
 | Automatizar playbooks de soporte | ✅ | Matriz de automatizacion, respuestas asistidas y escalado listos. |
 | Automatizar gobernanza operativa | ✅ | Decision log automatizado, watchdog de SLA y exportes de auditoria. |
-| Hardening transversal | 🚧 | Resiliencia multi-stream, paridad iOS/web/backend y simulacro de runbooks. |
+| Hardening transversal | ✅ | Resiliencia multi-stream, paridad iOS/web/backend y simulacro de runbooks. |
 
 ## Fase 4 - Cierre del ciclo
 | Task | Estado | Resumen |
 |---|---|---|
-| Consolidar resultados del ciclo | ⏳ | Cerrar impacto de negocio y operacion con riesgos residuales. |
+| Consolidar resultados del ciclo | 🚧 | Cerrar impacto de negocio y operacion con riesgos residuales. |
 | Definir backlog del siguiente ciclo | ⏳ | Priorizar trabajo siguiente con dependencias y capacidad. |
 | Cierre ejecutivo y handoff | ⏳ | Emitir reporte final y dejar continuidad preparada. |

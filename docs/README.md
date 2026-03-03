@@ -13,5 +13,5 @@
 - `docs/validation/`
 
 ## Estado rapido
-- Task activa actual: **Hardening transversal de resiliencia y paridad** (`🚧`).
+- Task activa actual: **Consolidar resultados del ciclo** (`🚧`).
 - Regla: solo 1 task en construccion.
