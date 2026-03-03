@@ -156,6 +156,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V7_P2_T1_BILLING_PROVIDER_HARDENING.json`: evidencia de hardening de billing por proveedor (retries inteligentes, fallback y monitoreo).
 - `V7_P2_T2_CHURN_RUNBOOK_PARITY.json`: evidencia de paridad de runbooks en escenarios de churn (roles, playbooks y auditoría SLA).
 - `V7_P2_T3_WEEKLY_OPERATING_GOVERNANCE.json`: evidencia de governance operativo semanal (tablero, revisión de riesgos y cierre auditable).
+- `V7_P3_T1_V7_RESULTS_CONSOLIDATION.json`: evidencia de consolidación de resultados V7 (impacto de negocio, impacto operativo y riesgos residuales).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -270,6 +271,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v7_p2_t1_billing_provider_hardening.feature`
 - `features/v7_p2_t2_churn_runbook_parity.feature`
 - `features/v7_p2_t3_weekly_operating_governance.feature`
+- `features/v7_p3_t1_v7_results_consolidation.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`
