@@ -19,21 +19,21 @@ Transformar la base demo en producto real iOS/Web: autenticacion real, persisten
 ## Fase 2 — Backend productivo real
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Cerrar separacion demo vs productivo | 🚧 | Rutas reales con persistencia de Firestore |
-| Endurecer auth + autorizacion por endpoint | ⏳ | Flujo seguro de sesion y permisos |
-| Validar smoke de APIs criticas | ⏳ | Auth/onboarding/training/nutrition/progress/legal OK |
+| Cerrar separacion demo vs productivo | ✅ | Rutas reales con persistencia de Firestore |
+| Endurecer auth + autorizacion por endpoint | ✅ | Flujo seguro de sesion y permisos |
+| Validar smoke de APIs criticas | ✅ | Auth/onboarding/training/nutrition/progress/legal OK |
 
 ## Fase 3 — Web productiva real
 | Task | Estado | Resultado esperado |
 |---|---|---|
 | Quitar hardcode `demo-user` | ✅ | Operacion con userId de sesion real |
-| Cerrar login y operacion con backend real | ⏳ | Flujos funcionales sin fallback estatico |
-| Completar estados de pantalla | ⏳ | default/loading/empty/error/offline/denied/success |
+| Cerrar login y operacion con backend real | ✅ | Flujos funcionales sin fallback estatico |
+| Completar estados de pantalla | ✅ | default/loading/empty/error/offline/denied/success |
 
 ## Fase 4 — iOS productiva real
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Crear app real en `apps/ios` | ⏳ | Bootstrap de app final sin dependencia host demo |
+| Crear app real en `apps/ios` | 🚧 | Bootstrap de app final sin dependencia host demo |
 | Sustituir gateways in-memory/demo | ⏳ | Networking y persistencia reales |
 | Navegacion final por secciones | ⏳ | Flujo alineado con Pencil para codificar release |
 
