@@ -24,8 +24,8 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
 ## Fase P1 - Growth y retencion por cohortes
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V7-P1-T1 | Tunear paywall por cohortes | V7-P1-T1.1 cohort matrix; V7-P1-T1.2 triggers por friccion; V7-P1-T1.3 guardrails de fatiga | 🚧 | V7-P0-T2 | Conversion por cohorte en mejora |
-| V7-P1-T2 | Experimentacion de hipotesis de retencion | V7-P1-T2.1 hipotesis por rol; V7-P1-T2.2 setup A/B; V7-P1-T2.3 cierre learnings | ⏳ | V7-P1-T1 | Retencion D7/D30 optimizada |
+| V7-P1-T1 | Tunear paywall por cohortes | V7-P1-T1.1 cohort matrix; V7-P1-T1.2 triggers por friccion; V7-P1-T1.3 guardrails de fatiga | ✅ | V7-P0-T2 | Conversion por cohorte en mejora |
+| V7-P1-T2 | Experimentacion de hipotesis de retencion | V7-P1-T2.1 hipotesis por rol; V7-P1-T2.2 setup A/B; V7-P1-T2.3 cierre learnings | 🚧 | V7-P1-T1 | Retencion D7/D30 optimizada |
 | V7-P1-T3 | Remediacion de fricciones de conversion | V7-P1-T3.1 checkout friction; V7-P1-T3.2 auth friction; V7-P1-T3.3 fallback UX | ⏳ | V7-P1-T2 | Dropoff critico reducido |
 
 ## Fase P2 - Operacion y fiabilidad
@@ -62,5 +62,10 @@ Ejecutar el backlog priorizado de V7 para profundizar retencion por cohortes, en
   - definidos paths primario/secundario por proveedor con criterio de degradacion y recuperación.
   - alertas de operación y runbook técnico acordados para incidentes de cobro/reintento.
   - evidencia publicada: `docs/validation/V7_P0_T3_PROVIDER_FALLBACK_READINESS.json`.
+- Cierre V7-P1-T1:
+  - paywall ajustado por cohortes con matriz de segmentos, disparadores contextuales y límite de fatiga.
+  - definidas estrategias diferenciadas para `new_trial`, `at_risk_churn`, `returning_user` y `high_intent_upgrade`.
+  - activados guardrails de presión comercial para proteger retención y reducir rechazo de upgrade.
+  - evidencia publicada: `docs/validation/V7_P1_T1_COHORT_PAYWALL_TUNING.json`.
 - Siguiente task activa:
-  - `V7-P1-T1` (Tunear paywall por cohortes) en `🚧`.
+  - `V7-P1-T2` (Experimentacion de hipotesis de retencion) en `🚧`.
