@@ -8,6 +8,7 @@
 - `FLUX_PRODUCTION_READINESS_TRACKING_V4.md`: ciclo de hardening productivo enterprise (security, compliance, SLO, performance, release governance).
 - `FLUX_ROLLOUT_SCALE_TRACKING_V5.md`: ciclo de rollout controlado, adopcion y operacion a escala.
 - `FLUX_GROWTH_MONETIZATION_TRACKING_V6.md`: ciclo de crecimiento y monetizacion freemium (conversion, retencion, expansion y cierre ejecutivo).
+- `FLUX_EXECUTION_TRACKING_V7.md`: ciclo activo de ejecucion V7 (tracking contract, hardening billing por proveedor y gobernanza operativa).
 - `FLUX_UIUX_EXECUTION_TRACKING.md`: histórico de seguimiento previo (no canónico).
 - `RELEASE_CHECKLIST_V1.md`: checklist operativo GO/NO-GO para la v1.
 - `ROADMAP_V1_1.md`: plan de producto/técnico post-release.
@@ -19,6 +20,6 @@
 - Estado de implementación producto: `FLUX_IMPLEMENTATION_TRACKING_V3.md` cerrado en `✅`.
 - Estado de hardening enterprise: `FLUX_PRODUCTION_READINESS_TRACKING_V4.md` cerrado en `✅`.
 - Estado de rollout/adopción: `FLUX_ROLLOUT_SCALE_TRACKING_V5.md` cerrado en `✅`.
-- Estado activo actual: `FLUX_GROWTH_MONETIZATION_TRACKING_V6.md` cerrado en `✅`.
+- Estado activo actual: `FLUX_EXECUTION_TRACKING_V7.md` en `🚧` (task activa `V7-P0-T3`).
 - Evidencia visual local (Playwright): `output/playwright/`.
 - Evidencia iOS host simulador: `output/ios/`.
