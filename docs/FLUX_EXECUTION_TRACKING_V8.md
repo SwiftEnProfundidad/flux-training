@@ -18,8 +18,8 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V8-P0-T1 | Kickoff ejecutivo V8 y baseline | V8-P0-T1.1 baseline KPI V8; V8-P0-T1.2 owners confirmados; V8-P0-T1.3 olas W1/W2/W3 validadas | ✅ | V7-P3-T3 | Arranque formal V8 validado |
-| V8-P0-T2 | Congelar contrato operativo V8 | V8-P0-T2.1 diccionario señales; V8-P0-T2.2 dependencias cross-domain; V8-P0-T2.3 reglas QA operativa | 🚧 | V8-P0-T1 | Contrato operativo estable |
-| V8-P0-T3 | Readiness gate de ejecución V8 | V8-P0-T3.1 riesgos críticos; V8-P0-T3.2 buffers incident/deuda; V8-P0-T3.3 checklist arranque | ⏳ | V8-P0-T2 | Gate de inicio en verde |
+| V8-P0-T2 | Congelar contrato operativo V8 | V8-P0-T2.1 diccionario señales; V8-P0-T2.2 dependencias cross-domain; V8-P0-T2.3 reglas QA operativa | ✅ | V8-P0-T1 | Contrato operativo estable |
+| V8-P0-T3 | Readiness gate de ejecución V8 | V8-P0-T3.1 riesgos críticos; V8-P0-T3.2 buffers incident/deuda; V8-P0-T3.3 checklist arranque | 🚧 | V8-P0-T2 | Gate de inicio en verde |
 
 ## Fase P1 - Streams P0 de impacto
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -52,5 +52,10 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
   - owners cross-domain confirmados para `product`, `growth`, `billing`, `support`, `data` y `platform`.
   - calendario W1/W2/W3 validado con buffers de incidente y deuda técnica.
   - evidencia publicada: `docs/validation/V8_P0_T1_V8_KICKOFF_BASELINE.json`.
+- Cierre V8-P0-T2:
+  - contrato operativo V8 congelado con diccionario de señales, dependencias inter-dominio y reglas QA.
+  - ownership y secuencia de dependencias fijados para ejecución sin ambigüedades.
+  - reglas de calidad operativa establecidas para nombre, frescura, ownership y escalado.
+  - evidencia publicada: `docs/validation/V8_P0_T2_OPERATING_CONTRACT_FREEZE.json`.
 - Siguiente task activa:
-  - `V8-P0-T2` (Congelar contrato operativo V8) en `🚧`.
+  - `V8-P0-T3` (Readiness gate de ejecución V8) en `🚧`.
