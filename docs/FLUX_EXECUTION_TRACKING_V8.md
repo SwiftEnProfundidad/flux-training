@@ -24,8 +24,8 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
 ## Fase P1 - Streams P0 de impacto
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
-| V8-P1-T1 | Retention scaling | V8-P1-T1.1 cohort expansion; V8-P1-T1.2 personalized nudges; V8-P1-T1.3 guardrails fatigue | 🚧 | V8-P0-T2 | D30 retention uplift sostenido |
-| V8-P1-T2 | Billing anomaly intelligence | V8-P1-T2.1 anomaly classifier; V8-P1-T2.2 fallback auto-routing; V8-P1-T2.3 forensic reporting | ⏳ | V8-P1-T1 | Variabilidad de recovery reducida |
+| V8-P1-T1 | Retention scaling | V8-P1-T1.1 cohort expansion; V8-P1-T1.2 personalized nudges; V8-P1-T1.3 guardrails fatigue | ✅ | V8-P0-T2 | D30 retention uplift sostenido |
+| V8-P1-T2 | Billing anomaly intelligence | V8-P1-T2.1 anomaly classifier; V8-P1-T2.2 fallback auto-routing; V8-P1-T2.3 forensic reporting | 🚧 | V8-P1-T1 | Variabilidad de recovery reducida |
 | V8-P1-T3 | Integración de señales para intervención | V8-P1-T3.1 churn-risk feed; V8-P1-T3.2 ownership routing; V8-P1-T3.3 intervention SLA | ⏳ | V8-P1-T2 | Intervención temprana consistente |
 
 ## Fase P2 - Streams P1 operativos
@@ -62,5 +62,10 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
   - reglas de escalado, ownership on-call y ventanas de estabilización declaradas como precondición de ejecución.
   - criterios de salida P0 marcados en verde para iniciar streams de impacto.
   - evidencia publicada: `docs/validation/V8_P0_T3_EXECUTION_READINESS_GATE.json`.
+- Cierre V8-P1-T1:
+  - retención escalada con expansión de cohortes y priorización por riesgo de abandono.
+  - nudges personalizados activados por dominio con control de frecuencia y ventanas horarias.
+  - guardrails de fatiga definidos para limitar sobre-contacto y preservar señal de valor.
+  - evidencia publicada: `docs/validation/V8_P1_T1_RETENTION_SCALING.json`.
 - Siguiente task activa:
-  - `V8-P1-T1` (Retention scaling) en `🚧`.
+  - `V8-P1-T2` (Billing anomaly intelligence) en `🚧`.
