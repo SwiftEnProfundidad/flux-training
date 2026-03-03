@@ -13,5 +13,5 @@
 - `docs/validation/`
 
 ## Estado rapido
-- Task activa actual: **Automatizar gobernanza operativa** (`🚧`).
+- Task activa actual: **Hardening transversal de resiliencia y paridad** (`🚧`).
 - Regla: solo 1 task en construccion.

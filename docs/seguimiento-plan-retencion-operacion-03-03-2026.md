@@ -16,8 +16,8 @@
 - Historico completo disponible en `docs/archive/`.
 
 ## Estado actual
-- Task activa: **Automatizar gobernanza operativa** (`🚧`).
-- Siguiente task: **Hardening transversal de resiliencia y paridad** (`⏳`).
+- Task activa: **Hardening transversal de resiliencia y paridad** (`🚧`).
+- Siguiente task: **Consolidar resultados del ciclo** (`⏳`).
 
 ## Fase 1 - Arranque del ciclo
 | Task | Estado | Resumen |
@@ -37,8 +37,8 @@
 | Task | Estado | Resumen |
 |---|---|---|
 | Automatizar playbooks de soporte | ✅ | Matriz de automatizacion, respuestas asistidas y escalado listos. |
-| Automatizar gobernanza operativa | 🚧 | Decision log automatizado, watchdog de SLA y exportes de auditoria. |
-| Hardening transversal | ⏳ | Resiliencia multi-stream, paridad iOS/web/backend y simulacro de runbooks. |
+| Automatizar gobernanza operativa | ✅ | Decision log automatizado, watchdog de SLA y exportes de auditoria. |
+| Hardening transversal | 🚧 | Resiliencia multi-stream, paridad iOS/web/backend y simulacro de runbooks. |
 
 ## Fase 4 - Cierre del ciclo
 | Task | Estado | Resumen |
