@@ -163,6 +163,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `V8_P0_T2_OPERATING_CONTRACT_FREEZE.json`: evidencia de congelación del contrato operativo V8 (señales, dependencias y reglas QA).
 - `V8_P0_T3_EXECUTION_READINESS_GATE.json`: evidencia del readiness gate de ejecución V8 (riesgos críticos, buffers y checklist de arranque).
 - `V8_P1_T1_RETENTION_SCALING.json`: evidencia de escalado de retención V8 (expansión de cohortes, nudges personalizados y guardrails de fatiga).
+- `V8_P1_T2_BILLING_ANOMALY_INTELLIGENCE.json`: evidencia de inteligencia de anomalías de billing V8 (clasificador, auto-routing de fallback y reporte forense).
 - `R1_MCP_LAYOUT_EVIDENCE_V1.json`: evidencia MCP de layout para `flux.pen` (histórico de intentos + cierre en PASS).
 - `R2_COLOR_OUTLIER_NORMALIZATION_LOG_V1.json`: log de normalización de outliers de color no semánticos sobre `flux.pen`.
 - `R2_COLOR_OUTLIER_VALIDATION_V1.json`: validación before/after de outliers y estado de `P7_T2` tras normalización.
@@ -284,6 +285,7 @@ This folder contains BDD scenarios and execution validation artifacts used durin
 - `features/v8_p0_t2_operating_contract_freeze.feature`
 - `features/v8_p0_t3_execution_readiness_gate.feature`
 - `features/v8_p1_t1_retention_scaling.feature`
+- `features/v8_p1_t2_billing_anomaly_intelligence.feature`
 - `features/p0_t1_forensic_inventory.feature`
 - `features/p0_t3_executable_backlog.feature`
 - `features/p1_t1_board_noise_cleanup.feature`

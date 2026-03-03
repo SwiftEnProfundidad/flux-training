@@ -25,8 +25,8 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
 |---|---|---|---|---|---|
 | V8-P1-T1 | Retention scaling | V8-P1-T1.1 cohort expansion; V8-P1-T1.2 personalized nudges; V8-P1-T1.3 guardrails fatigue | ✅ | V8-P0-T2 | D30 retention uplift sostenido |
-| V8-P1-T2 | Billing anomaly intelligence | V8-P1-T2.1 anomaly classifier; V8-P1-T2.2 fallback auto-routing; V8-P1-T2.3 forensic reporting | 🚧 | V8-P1-T1 | Variabilidad de recovery reducida |
-| V8-P1-T3 | Integración de señales para intervención | V8-P1-T3.1 churn-risk feed; V8-P1-T3.2 ownership routing; V8-P1-T3.3 intervention SLA | ⏳ | V8-P1-T2 | Intervención temprana consistente |
+| V8-P1-T2 | Billing anomaly intelligence | V8-P1-T2.1 anomaly classifier; V8-P1-T2.2 fallback auto-routing; V8-P1-T2.3 forensic reporting | ✅ | V8-P1-T1 | Variabilidad de recovery reducida |
+| V8-P1-T3 | Integración de señales para intervención | V8-P1-T3.1 churn-risk feed; V8-P1-T3.2 ownership routing; V8-P1-T3.3 intervention SLA | 🚧 | V8-P1-T2 | Intervención temprana consistente |
 
 ## Fase P2 - Streams P1 operativos
 | ID | Task | Subtasks | Estado | Dependencia | Criterio de aceptacion |
@@ -67,5 +67,10 @@ Ejecutar el backlog V8 priorizado para escalar retención, endurecer detección 
   - nudges personalizados activados por dominio con control de frecuencia y ventanas horarias.
   - guardrails de fatiga definidos para limitar sobre-contacto y preservar señal de valor.
   - evidencia publicada: `docs/validation/V8_P1_T1_RETENTION_SCALING.json`.
+- Cierre V8-P1-T2:
+  - inteligencia de anomalías de billing consolidada con clasificador por severidad y confianza.
+  - auto-routing de fallback activado por proveedor/causa con rutas de recuperación deterministas.
+  - reporte forense normalizado para auditoría de incidentes y trazabilidad de decisiones.
+  - evidencia publicada: `docs/validation/V8_P1_T2_BILLING_ANOMALY_INTELLIGENCE.json`.
 - Siguiente task activa:
-  - `V8-P1-T2` (Billing anomaly intelligence) en `🚧`.
+  - `V8-P1-T3` (Integración de señales para intervención) en `🚧`.
