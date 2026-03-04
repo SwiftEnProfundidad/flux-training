@@ -24,6 +24,7 @@ public struct FluxTrainingProductRootView: View {
   @State private var selectedTrainingStage: TrainingStage = .today
   @State private var selectedProgressStage: ProgressStage = .metrics
   @State private var selectedNutritionStage: NutritionStage = .hub
+  @State private var selectedSettingsStage: SettingsStage = .home
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
@@ -350,16 +351,28 @@ public struct FluxTrainingProductRootView: View {
 
   private var settingsTab: some View {
     NavigationStack {
-      SettingsHomeView(
-        viewModel: settingsHomeViewModel,
-        accountProfileViewModel: accountProfileViewModel,
-        notificationsViewModel: notificationsViewModel,
-        privacyConsentViewModel: privacyConsentViewModel,
-        exportDataViewModel: exportDataViewModel,
-        deleteAccountViewModel: deleteAccountViewModel,
-        userID: activeUserID,
-        copy: copy
-      )
+      VStack(spacing: 8) {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 8) {
+            ForEach(SettingsStage.allCases, id: \.self) { stage in
+              Button(stage.title(copy: copy)) {
+                selectedSettingsStage = stage
+              }
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(stage == selectedSettingsStage ? Color.black : Color.white.opacity(0.85))
+              .padding(.horizontal, 12)
+              .padding(.vertical, 8)
+              .background(stage == selectedSettingsStage ? Color.orange : Color.white.opacity(0.10))
+              .clipShape(.rect(cornerRadius: 10))
+              .accessibilityIdentifier("settings.stage.\(stage.rawValue)")
+            }
+          }
+          .padding(.horizontal, 16)
+          .padding(.top, 8)
+        }
+        selectedSettingsStageView
+      }
+      .background(backgroundGradient)
       .navigationTitle(copy.text(.settingsTitle))
       .toolbar {
         ToolbarItem(placement: .primaryAction) {
@@ -480,6 +493,7 @@ public struct FluxTrainingProductRootView: View {
     selectedTrainingStage = .today
     selectedProgressStage = .metrics
     selectedNutritionStage = .hub
+    selectedSettingsStage = .home
   }
 
   private func syncOnboardingStateWithPersistedProfile() async {
@@ -570,6 +584,65 @@ public struct FluxTrainingProductRootView: View {
         .padding(16)
     }
   }
+
+  @ViewBuilder
+  private var selectedSettingsStageView: some View {
+    switch selectedSettingsStage {
+    case .home:
+      SettingsHomeView(
+        viewModel: settingsHomeViewModel,
+        accountProfileViewModel: accountProfileViewModel,
+        notificationsViewModel: notificationsViewModel,
+        privacyConsentViewModel: privacyConsentViewModel,
+        exportDataViewModel: exportDataViewModel,
+        deleteAccountViewModel: deleteAccountViewModel,
+        userID: activeUserID,
+        copy: copy
+      )
+      .productCardSurface()
+      .padding(16)
+    case .accountProfile:
+      AccountProfileView(
+        viewModel: accountProfileViewModel,
+        userID: activeUserID,
+        copy: copy
+      )
+      .productCardSurface()
+      .padding(16)
+    case .notifications:
+      NotificationsView(
+        viewModel: notificationsViewModel,
+        userID: activeUserID,
+        copy: copy
+      )
+      .productCardSurface()
+      .padding(16)
+    case .legal:
+      PrivacyConsentView(
+        viewModel: privacyConsentViewModel,
+        userID: activeUserID,
+        copy: copy
+      )
+      .productCardSurface()
+      .padding(16)
+    case .exportData:
+      ExportDataView(
+        viewModel: exportDataViewModel,
+        userID: activeUserID,
+        copy: copy
+      )
+      .productCardSurface()
+      .padding(16)
+    case .deleteAccount:
+      DeleteAccountView(
+        viewModel: deleteAccountViewModel,
+        userID: activeUserID,
+        copy: copy
+      )
+      .productCardSurface()
+      .padding(16)
+    }
+  }
 }
 
 @available(iOS 17, macOS 14, *)
@@ -658,6 +731,33 @@ private enum NutritionStage: String, CaseIterable {
       return copy.text(.nutritionTitle)
     case .logMeal:
       return copy.text(.loadLogs)
+    }
+  }
+}
+
+@available(iOS 17, macOS 14, *)
+private enum SettingsStage: String, CaseIterable {
+  case home
+  case accountProfile
+  case notifications
+  case legal
+  case exportData
+  case deleteAccount
+
+  func title(copy: LocalizedCopy) -> String {
+    switch self {
+    case .home:
+      return copy.text(.settingsTitle)
+    case .accountProfile:
+      return copy.text(.accountProfileTitle)
+    case .notifications:
+      return copy.text(.notificationsTitle)
+    case .legal:
+      return copy.text(.legalSectionTitle)
+    case .exportData:
+      return copy.text(.exportDataTitle)
+    case .deleteAccount:
+      return copy.text(.deleteAccountTitle)
     }
   }
 }

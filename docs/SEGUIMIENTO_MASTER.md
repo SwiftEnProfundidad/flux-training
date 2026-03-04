@@ -158,6 +158,7 @@
 - iOS Today/Entrenamiento ya no renderiza un catalogo continuo: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla de entrenamiento por vez (cockpit, plan, setup, workout, RPE, sustitucion, biblioteca, video, resumen).
 - iOS Progreso ya no renderiza bloque continuo de cards: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (metricas, review semanal, ajuste de objetivo, IA coach).
 - iOS Nutricion ya no renderiza bloque continuo de cards: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (hub nutricional o registro de comida).
+- iOS Ajustes ya no renderiza flujo tecnico por enlaces: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (home, perfil, notificaciones, legal, exportacion, borrado).
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
