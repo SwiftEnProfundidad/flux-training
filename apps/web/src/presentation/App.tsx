@@ -78,7 +78,7 @@ import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
 import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract";
 import { createDashboardKpisLaneScreenModel } from "./dashboard-kpis-lane-contract";
 import { createReadinessMonitorLaneScreenModel } from "./readiness-monitor-lane-contract";
-import { createAlertsFullScreenModel } from "./alerts-full-contract";
+import { createAlertsFullLaneScreenModel } from "./alerts-full-lane-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
 import {
@@ -595,7 +595,8 @@ export function App() {
   );
   const alertsFullScreenModel = useMemo(
     () =>
-      createAlertsFullScreenModel({
+      createAlertsFullLaneScreenModel({
+        lane: webLane,
         dashboardHomeStatus: dashboardHomeScreenModel.status,
         observabilityStatus,
         openAlertsCount: openOperationalAlerts.length,
@@ -605,7 +606,8 @@ export function App() {
       dashboardHomeScreenModel.status,
       observabilityStatus,
       openOperationalAlerts.length,
-      operationalRunbooks.length
+      operationalRunbooks.length,
+      webLane
     ]
   );
   const recentActivityScreenModel = useMemo(
@@ -3269,7 +3271,7 @@ export function App() {
                 className="module-card"
                 data-screen-id={alertsFullScreenModel.screenId}
                 data-route-id={alertsFullScreenModel.routeId}
-                data-status-id="web.alertsFull.status"
+                data-status-id={`${alertsFullScreenModel.screenId}.status`}
               >
                 <SectionHeader
                   title={translate("alertsFullTitle")}
@@ -3304,7 +3306,7 @@ export function App() {
                     <button
                       className="button primary"
                       type="button"
-                      data-action-id="web.alertsFull.refresh"
+                      data-action-id={alertsFullScreenModel.actions.refresh}
                       onClick={() => void handleRefreshAlertsFull()}
                     >
                       {translate("alertsFullRefreshAction")}
@@ -3312,7 +3314,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.alertsFull.audit"
+                      data-action-id={alertsFullScreenModel.actions.audit}
                       onClick={() => void handleLoadAuditTimeline()}
                     >
                       {translate("alertsFullAuditAction")}

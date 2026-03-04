@@ -205,7 +205,7 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 |---|---|---|---|---|---|---|---|---|---|
 | 4.4.1 | WEB-200_Dashboard_Tablet | `Cjyyr` | ✅ | `web.route.light.dashboardKpis -> web.light.dashboardKpis.screen` | `createDashboardKpisLaneScreenModel` + datos reales de `plans/sessions/nutrition/recommendations/alerts/queue` | Refrescar KPI tablet (`web.light.dashboardKpis.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/dashboard-kpis-lane-contract.spec.ts` + `presentation/dashboard-kpis-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ lane route/screen/action tablet instrumentados (`web.route.light.dashboardKpis`, `web.light.dashboardKpis.*`) |
 | 4.4.2 | WEB-210_Readiness_Tablet | `UhMJE` | ✅ | `web.route.light.readinessMonitor -> web.light.readinessMonitor.screen` | `createReadinessMonitorLaneScreenModel` + runtime real (`readinessScore`, `auth.status`, `dashboardHome.status`) | Refrescar readiness tablet (`web.light.readinessMonitor.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/readiness-monitor-lane-contract.spec.ts` + `presentation/readiness-monitor-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ lane route/screen/action tablet instrumentados (`web.route.light.readinessMonitor`, `web.light.readinessMonitor.*`) |
-| 4.4.3 | WEB-220_Alerts_Tablet | `x8NM6` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.4.3 | WEB-220_Alerts_Tablet | `x8NM6` | ✅ | `web.route.light.alertsFull -> web.light.alertsFull.screen` | `createAlertsFullLaneScreenModel` + `ManageObservabilityUseCase` (`listOperationalAlerts`, `listOperationalRunbooks`, `listActivityLog`) | Operar alertas tablet (`web.light.alertsFull.refresh`, `web.light.alertsFull.audit`) | loading|empty|error|success|denied|offline | ✅ `presentation/alerts-full-lane-contract.spec.ts` + `presentation/alerts-full-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ lane route/screen/actions/table tablet instrumentados (`web.route.light.alertsFull`, `web.light.alertsFull.*`) |
 
 ### Task 4.5 — Web — Analítica + IA + Admin/Compliance / WEB_ANALYTICS_MAIN_LANE
 - Total pantallas en este bloque: **5**
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.4.3 WEB-220_Alerts_Tablet**
-- Siguiente task: **4.5.1 WEB-500_ANALYTICS_OVERVIEW**
+- Task en construccion: **4.5.1 WEB-500_ANALYTICS_OVERVIEW**
+- Siguiente task: **4.5.2 WEB-510_PROGRESS_TRENDS**

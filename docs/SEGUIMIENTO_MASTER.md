@@ -101,6 +101,7 @@
 - `WEB-240_SHORTCUTS` ya esta operativo con pantalla dedicada (`web.route.shortcuts -> web.shortcuts.screen`), atajos de ejecucion por dominio/rol y acciones reales (`web.shortcuts.run`, `web.shortcuts.refresh`, `web.shortcuts.recoverDomain`) sobre runtime del dashboard.
 - `WEB-200_Dashboard_Tablet` ya esta operativo con lane secundaria para KPI (`web.route.light.dashboardKpis -> web.light.dashboardKpis.screen`) y accion dedicada de refresco (`web.light.dashboardKpis.refresh`).
 - `WEB-210_Readiness_Tablet` ya esta operativo con lane secundaria de readiness (`web.route.light.readinessMonitor -> web.light.readinessMonitor.screen`) y accion dedicada de refresco (`web.light.readinessMonitor.refresh`).
+- `WEB-220_Alerts_Tablet` ya esta operativo con lane secundaria de alertas (`web.route.light.alertsFull -> web.light.alertsFull.screen`) y acciones dedicadas (`web.light.alertsFull.refresh`, `web.light.alertsFull.audit`) sobre observabilidad real.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
