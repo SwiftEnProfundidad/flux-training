@@ -273,6 +273,15 @@ type AppTranslations = {
   quickActionsStatusLabel: string;
   quickActionsSummary: string;
   quickActionsRunAll: string;
+  alertCenterTitle: string;
+  alertCenterStatusLabel: string;
+  alertCenterSummary: string;
+  alertCenterLoadAction: string;
+  alertCenterAuditAction: string;
+  alertCenterOpenCountLabel: string;
+  alertCenterHighSeverityLabel: string;
+  alertCenterRunbooksLabel: string;
+  alertCenterNoAlerts: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -564,6 +573,15 @@ const translations: Record<AppLanguage, AppTranslations> = {
     quickActionsStatusLabel: "Quick actions",
     quickActionsSummary: "Atajos para cargar bloques criticos del dashboard en un solo paso.",
     quickActionsRunAll: "Ejecutar acciones rapidas",
+    alertCenterTitle: "Centro de alertas",
+    alertCenterStatusLabel: "Alertas",
+    alertCenterSummary: "Monitorea incidencias criticas, severidad y runbooks activos.",
+    alertCenterLoadAction: "Cargar alertas",
+    alertCenterAuditAction: "Abrir audit",
+    alertCenterOpenCountLabel: "Alertas abiertas",
+    alertCenterHighSeverityLabel: "Severidad critica",
+    alertCenterRunbooksLabel: "Runbooks activos",
+    alertCenterNoAlerts: "No hay alertas operativas abiertas.",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -853,6 +871,15 @@ const translations: Record<AppLanguage, AppTranslations> = {
     quickActionsStatusLabel: "Quick actions",
     quickActionsSummary: "Shortcuts to load critical dashboard blocks in one step.",
     quickActionsRunAll: "Run quick actions",
+    alertCenterTitle: "Alert center",
+    alertCenterStatusLabel: "Alerts",
+    alertCenterSummary: "Monitor critical incidents, severity and active runbooks.",
+    alertCenterLoadAction: "Load alerts",
+    alertCenterAuditAction: "Open audit",
+    alertCenterOpenCountLabel: "Open alerts",
+    alertCenterHighSeverityLabel: "Critical severity",
+    alertCenterRunbooksLabel: "Active runbooks",
+    alertCenterNoAlerts: "No operational alerts are open.",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:

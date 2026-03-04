@@ -86,6 +86,7 @@
 - `WEB-010_SIGN_IN` ya esta operativo con instrumentacion de pantalla/acciones (`web.signIn.screen`, `web.signIn.apple`, `web.signIn.email`) y estados reales de autenticacion/recovery.
 - `WEB-020_DASHBOARD_HOME` ya esta operativo con contrato de pantalla (`web.route.dashboardHome -> web.dashboardHome.screen`), estado trazable (`web.dashboardHome.status`) y accion real de refresco (`web.dashboardHome.refresh`) conectada a capacidades RBAC, observabilidad y cola offline.
 - `WEB-030_QUICK_ACTIONS` ya esta operativo con pantalla dedicada (`web.quickActions.screen`) y acciones rapidas reales instrumentadas (`web.quickActions.runAll`, `loadPlans`, `loadSessions`, `loadRecommendations`, `refreshDashboard`) para ejecutar operaciones clave del dashboard.
+- `WEB-040_ALERT_CENTER` ya esta operativo con pantalla dedicada (`web.alertCenter.screen`), estado trazable (`web.alertCenter.status`) y carga real de alertas/runbooks (`web.alertCenter.load`, `web.alertCenter.audit`) sobre observabilidad.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

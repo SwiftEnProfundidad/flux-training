@@ -69,6 +69,7 @@ import {
 } from "./dashboard-domains";
 import { createDashboardHomeScreenModel } from "./dashboard-home-contract";
 import { createQuickActionsScreenModel } from "./quick-actions-contract";
+import { createAlertCenterScreenModel } from "./alert-center-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -493,6 +494,19 @@ export function App() {
       syncStatus,
       trainingStatus
     ]
+  );
+  const openOperationalAlerts = useMemo(
+    () => operationalAlerts.filter((alert) => alert.state !== "resolved"),
+    [operationalAlerts]
+  );
+  const alertCenterScreenModel = useMemo(
+    () =>
+      createAlertCenterScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        observabilityStatus,
+        openAlertsCount: openOperationalAlerts.length
+      }),
+    [dashboardHomeScreenModel.status, observabilityStatus, openOperationalAlerts.length]
   );
   const athleteOperationRowsBase = useMemo(
     () => buildAthleteOperationsRows(plans, sessions, nutritionLogs, progressSummary),
@@ -2444,6 +2458,10 @@ export function App() {
     ]);
   }
 
+  async function handleRefreshAlertCenter() {
+    await Promise.all([handleLoadObservabilityData(), handleLoadAuditTimeline()]);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -2829,6 +2847,81 @@ export function App() {
                       {translate("loadRecommendations")}
                     </button>
                   </div>
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={alertCenterScreenModel.screenId}
+                data-route-id={alertCenterScreenModel.routeId}
+                data-status-id="web.alertCenter.status"
+              >
+                <SectionHeader
+                  title={translate("alertCenterTitle")}
+                  status={alertCenterScreenModel.status}
+                  statusLabel={translate("alertCenterStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("alertCenterSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("alertCenterOpenCountLabel")}
+                      value={String(openOperationalAlerts.length)}
+                    />
+                    <Metric
+                      title={translate("alertCenterHighSeverityLabel")}
+                      value={String(
+                        openOperationalAlerts.filter((alert) => alert.severity === "critical")
+                          .length
+                      )}
+                    />
+                    <Metric
+                      title={translate("alertCenterRunbooksLabel")}
+                      value={String(operationalRunbooks.length)}
+                    />
+                  </div>
+                  <div className="inline-inputs">
+                    <button
+                      className="button primary"
+                      type="button"
+                      data-action-id="web.alertCenter.load"
+                      onClick={() => void handleRefreshAlertCenter()}
+                    >
+                      {translate("alertCenterLoadAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.alertCenter.audit"
+                      onClick={() => void handleLoadAuditTimeline()}
+                    >
+                      {translate("alertCenterAuditAction")}
+                    </button>
+                  </div>
+                  {openOperationalAlerts.length === 0 ? (
+                    <p className="empty-state">{translate("alertCenterNoAlerts")}</p>
+                  ) : (
+                    <div className="dense-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>{translate("auditDateColumn")}</th>
+                            <th>{translate("auditSeverityColumn")}</th>
+                            <th>{translate("auditSummaryColumn")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {openOperationalAlerts.slice(0, 3).map((alert) => (
+                            <tr key={alert.id}>
+                              <td>{new Date(alert.detectedAt).toLocaleString()}</td>
+                              <td>{toHumanStatus(alert.severity, language)}</td>
+                              <td>{alert.title}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </article>
               {visibleModulesForDomain.length === 0 ? (

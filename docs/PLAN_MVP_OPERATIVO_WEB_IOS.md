@@ -175,8 +175,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 4.1.2 | WEB-010_SIGN_IN | `u0Exo` | ✅ | `web.signIn.screen` | `CreateAuthSessionUseCase.executeWithApple/executeWithEmail` + `setApiAuthSession` (sesion real) | Iniciar sesion + recovery (`web.signIn.apple`, `web.signIn.email`, `recoverByEmail/SMS`) | signed_out|loading|validation_error|auth_error|recovery_sent_email|recovery_sent_sms|signed_in | ✅ `domain/auth.spec.ts` + `infrastructure/api-client.spec.ts` + `presentation/i18n.spec.ts` | ✅ screen y acciones instrumentadas (`web.signIn.screen`, `web.signIn.apple`, `web.signIn.email`) |
 | 4.1.3 | WEB-020_DASHBOARD_HOME | `fAOUV` | ✅ | `web.route.dashboardHome -> web.dashboardHome.screen` | `ManageRoleCapabilitiesUseCase.listRoleCapabilities` + `loadObservabilityCollections(force)` + `refreshPendingQueue` | Refrescar dashboard home (`web.dashboardHome.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/dashboard-home-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ route/screen/status/action instrumentados (`web.route.dashboardHome`, `web.dashboardHome.screen`, `web.dashboardHome.status`, `web.dashboardHome.refresh`) |
 | 4.1.4 | WEB-030_QUICK_ACTIONS | `xJyx8` | ✅ | `web.route.dashboardHome -> web.quickActions.screen` | `ManageTrainingUseCase` + `ManageNutritionUseCase` + `ManageProgressUseCase` + `ManageRecommendationsUseCase` + `OfflineSyncQueueUseCase` | Ejecutar quick actions (`web.quickActions.runAll`, `web.quickActions.loadPlans`, `web.quickActions.loadSessions`, `web.quickActions.loadRecommendations`, `web.quickActions.refreshDashboard`) | loading|empty|error|success|denied|offline | ✅ `presentation/quick-actions-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ screen/status/actions instrumentados (`web.quickActions.screen`, `web.quickActions.status`, `web.quickActions.*`) |
-| 4.1.5 | WEB-040_ALERT_CENTER | `WmuDh` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 4.1.6 | WEB-050_SYSTEM_STATUS | `7tRaG` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.1.5 | WEB-040_ALERT_CENTER | `WmuDh` | ✅ | `web.route.dashboardHome -> web.alertCenter.screen` | `ManageObservabilityUseCase` (`listOperationalAlerts`, `listOperationalRunbooks`, `listActivityLog`) + `loadObservabilityCollections` | Cargar centro de alertas (`web.alertCenter.load`, `web.alertCenter.audit`) | loading|empty|error|success|denied|offline | ✅ `presentation/alert-center-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ screen/status/actions instrumentados (`web.alertCenter.screen`, `web.alertCenter.status`, `web.alertCenter.*`) |
+| 4.1.6 | WEB-050_SYSTEM_STATUS | `7tRaG` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
 ### Task 4.2 — Web — Acceso y Dashboard operativo / WEB_ACCESS_SECONDARY_LANE
 - Total pantallas en este bloque: **6**
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.1.5 WEB-040_ALERT_CENTER**
-- Siguiente task: **4.1.6 WEB-050_SYSTEM_STATUS**
+- Task en construccion: **4.1.6 WEB-050_SYSTEM_STATUS**
+- Siguiente task: **4.2.1 WEB-L-000_ACCESS_GATE**
