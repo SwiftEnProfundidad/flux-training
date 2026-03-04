@@ -75,6 +75,7 @@ import {
   createAccessGateLaneScreenModel,
   type WebLane
 } from "./access-gate-lane-contract";
+import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -499,6 +500,14 @@ export function App() {
         authStatus
       }),
     [authStatus, hasAuthenticatedSession, webLane]
+  );
+  const signInScreenModel = useMemo(
+    () =>
+      createSignInLaneScreenModel({
+        lane: webLane,
+        authStatus
+      }),
+    [authStatus, webLane]
   );
   const accessGateAppleActionId =
     webLane === "main" ? "web.accessGate.apple" : "web.light.accessGate.apple";
@@ -2518,7 +2527,9 @@ export function App() {
       <main className="app-main">
         <section
           className="hero-card"
-          data-screen-id="web.signIn.screen"
+          data-screen-id={signInScreenModel.screenId}
+          data-route-id={signInScreenModel.routeId}
+          data-status-id={signInScreenModel.statusId}
           aria-busy={isAuthLoading}
         >
           <div className="hero-content">
@@ -2531,7 +2542,7 @@ export function App() {
                 onClick={handleAppleSignIn}
                 type="button"
                 disabled={isAuthLoading}
-                data-action-id="web.signIn.apple"
+                data-action-id={signInScreenModel.actions.apple}
               >
                 {translate("signInWithApple")}
               </button>
@@ -2554,7 +2565,7 @@ export function App() {
                   onClick={handleEmailSignIn}
                   type="button"
                   disabled={isAuthLoading}
-                  data-action-id="web.signIn.email"
+                  data-action-id={signInScreenModel.actions.email}
                 >
                   {translate("signInWithEmail")}
                 </button>
@@ -2565,6 +2576,7 @@ export function App() {
                   onClick={() => handleEmailRecovery("email")}
                   type="button"
                   disabled={isAuthLoading}
+                  data-action-id={signInScreenModel.actions.recoverEmail}
                 >
                   {translate("recoverByEmail")}
                 </button>
@@ -2573,12 +2585,13 @@ export function App() {
                   onClick={() => handleEmailRecovery("sms")}
                   type="button"
                   disabled={isAuthLoading}
+                  data-action-id={signInScreenModel.actions.recoverSMS}
                 >
                   {translate("recoverBySMS")}
                 </button>
               </div>
-              <p className="hero-copy" data-status-id="web.signIn.status">
-                {humanizeStatus(authStatus, language)}
+              <p className="hero-copy" data-status-id={signInScreenModel.statusId}>
+                {humanizeStatus(signInScreenModel.status, language)}
               </p>
             </div>
           </div>

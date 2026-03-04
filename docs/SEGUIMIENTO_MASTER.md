@@ -89,6 +89,7 @@
 - `WEB-040_ALERT_CENTER` ya esta operativo con pantalla dedicada (`web.alertCenter.screen`), estado trazable (`web.alertCenter.status`) y carga real de alertas/runbooks (`web.alertCenter.load`, `web.alertCenter.audit`) sobre observabilidad.
 - `WEB-050_SYSTEM_STATUS` ya esta operativo con pantalla dedicada (`web.systemStatus.screen`), estado trazable (`web.systemStatus.status`) y acciones de resiliencia (`web.systemStatus.syncQueue`, `recoverDomain`, `reloadCapabilities`) conectadas al runtime real.
 - `WEB-L-000_ACCESS_GATE` ya esta operativo con selector de lane (`main|secondary`) y ruta/pantalla light dedicadas (`web.route.light.accessGate -> web.light.accessGate.screen`) manteniendo acciones de acceso instrumentadas por lane.
+- `WEB-L-010_SIGN_IN` ya esta operativo con lane light dedicado (`web.route.light.signIn -> web.light.signIn.screen`) y acciones de login/recovery instrumentadas por variante (`web.light.signIn.*`).
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
