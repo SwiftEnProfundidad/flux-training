@@ -1272,6 +1272,28 @@ public struct ExperienceHubView: View {
       }
       .buttonStyle(.plain)
       .accessibilityIdentifier(NutritionRouteContract.logMealDarkRouteID)
+
+      NavigationLink {
+        NutritionLogMealLightView(
+          viewModel: nutritionViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.saveLog)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.nutritionStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(nutritionProgressAIScreenContract.nutritionStatus.rawValue))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(NutritionRouteContract.logMealLightRouteID)
     }
     .cardSurface()
   }
