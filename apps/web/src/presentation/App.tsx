@@ -72,6 +72,10 @@ import { createQuickActionsScreenModel } from "./quick-actions-contract";
 import { createAlertCenterScreenModel } from "./alert-center-contract";
 import { createSystemStatusScreenModel } from "./system-status-contract";
 import {
+  createAccessGateLaneScreenModel,
+  type WebLane
+} from "./access-gate-lane-contract";
+import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
   resolveActiveDomainRuntimeState,
@@ -148,6 +152,15 @@ import {
 import "./app.css";
 
 type SessionStatus = "idle" | "loading" | "saved" | "queued" | "validation_error" | "error";
+type AuthStatus =
+  | "signed_out"
+  | "loading"
+  | "validation_error"
+  | "auth_error"
+  | "session_required"
+  | "recovery_sent_email"
+  | "recovery_sent_sms"
+  | `signed_in:${string}`;
 type OnboardingStatus =
   | "idle"
   | "loading"
@@ -255,7 +268,7 @@ export function App() {
   );
   const settingsLegalDefaults = useMemo(() => createDefaultSettingsLegalScreenModel(), []);
 
-  const [authStatus, setAuthStatus] = useState("signed_out");
+  const [authStatus, setAuthStatus] = useState<AuthStatus>("signed_out");
   const [activeSession, setActiveSession] = useState<AuthSession | null>(null);
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("idle");
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>("idle");
@@ -392,6 +405,7 @@ export function App() {
   const activeUserId = activeSession?.userId.trim() ?? "";
   const hasAuthenticatedSession = activeUserId.length > 0;
   const isAuthLoading = authStatus === "loading";
+  const [webLane, setWebLane] = useState<WebLane>("main");
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -477,6 +491,19 @@ export function App() {
       visibleModulesForDomain.length
     ]
   );
+  const accessGateScreenModel = useMemo(
+    () =>
+      createAccessGateLaneScreenModel({
+        lane: webLane,
+        hasAuthenticatedSession,
+        authStatus
+      }),
+    [authStatus, hasAuthenticatedSession, webLane]
+  );
+  const accessGateAppleActionId =
+    webLane === "main" ? "web.accessGate.apple" : "web.light.accessGate.apple";
+  const accessGateEmailActionId =
+    webLane === "main" ? "web.accessGate.email" : "web.light.accessGate.email";
   const quickActionsScreenModel = useMemo(
     () =>
       createQuickActionsScreenModel({
@@ -2573,6 +2600,23 @@ export function App() {
                 EN
               </button>
             </div>
+            <span>{translate("laneLabel")}</span>
+            <div className="language-toggle-buttons">
+              <button
+                className={`button ghost language-button ${webLane === "main" ? "active" : ""}`}
+                onClick={() => setWebLane("main")}
+                type="button"
+              >
+                {translate("laneMain")}
+              </button>
+              <button
+                className={`button ghost language-button ${webLane === "secondary" ? "active" : ""}`}
+                onClick={() => setWebLane("secondary")}
+                type="button"
+              >
+                {translate("laneSecondary")}
+              </button>
+            </div>
           </div>
           <div className="readiness-panel">
             <p className="readiness-label">{translate("readinessLabel")}</p>
@@ -2722,22 +2766,34 @@ export function App() {
           {hasAuthenticatedSession === false ? (
             <article
               className="module-card access-gate-card"
-              data-screen-id="web.accessGate.screen"
+              data-screen-id={accessGateScreenModel.screenId}
+              data-route-id={accessGateScreenModel.routeId}
+              data-status-id="web.accessGate.status"
               aria-live="polite"
             >
               <SectionHeader
                 title={translate("heroTitle")}
-                status={authStatus}
+                status={accessGateScreenModel.status}
                 statusLabel={translate("authMetric")}
                 language={language}
               />
               <div className="form-grid">
                 <p className="runtime-state-copy">{translate("heroCopy")}</p>
                 <div className="inline-inputs">
-                  <button className="button primary" onClick={handleAppleSignIn} type="button">
+                  <button
+                    className="button primary"
+                    onClick={handleAppleSignIn}
+                    type="button"
+                    data-action-id={accessGateAppleActionId}
+                  >
                     {translate("signInWithApple")}
                   </button>
-                  <button className="button ghost" onClick={handleEmailSignIn} type="button">
+                  <button
+                    className="button ghost"
+                    onClick={handleEmailSignIn}
+                    type="button"
+                    data-action-id={accessGateEmailActionId}
+                  >
                     {translate("signInWithEmail")}
                   </button>
                 </div>

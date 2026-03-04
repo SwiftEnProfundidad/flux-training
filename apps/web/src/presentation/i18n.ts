@@ -12,6 +12,9 @@ type AppTranslations = {
   recoverByEmail: string;
   recoverBySMS: string;
   languageLabel: string;
+  laneLabel: string;
+  laneMain: string;
+  laneSecondary: string;
   emailPlaceholder: string;
   passwordPlaceholder: string;
   displayNamePlaceholder: string;
@@ -317,6 +320,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     recoverByEmail: "Recuperar por email",
     recoverBySMS: "Recuperar por SMS",
     languageLabel: "Idioma",
+    laneLabel: "Lane",
+    laneMain: "Main",
+    laneSecondary: "Secondary",
     emailPlaceholder: "correo",
     passwordPlaceholder: "contrasena",
     displayNamePlaceholder: "nombre",
@@ -622,6 +628,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     recoverByEmail: "Recover by email",
     recoverBySMS: "Recover by SMS",
     languageLabel: "Language",
+    laneLabel: "Lane",
+    laneMain: "Main",
+    laneSecondary: "Secondary",
     emailPlaceholder: "email",
     passwordPlaceholder: "password",
     displayNamePlaceholder: "display name",

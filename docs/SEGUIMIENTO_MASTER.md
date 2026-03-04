@@ -88,6 +88,7 @@
 - `WEB-030_QUICK_ACTIONS` ya esta operativo con pantalla dedicada (`web.quickActions.screen`) y acciones rapidas reales instrumentadas (`web.quickActions.runAll`, `loadPlans`, `loadSessions`, `loadRecommendations`, `refreshDashboard`) para ejecutar operaciones clave del dashboard.
 - `WEB-040_ALERT_CENTER` ya esta operativo con pantalla dedicada (`web.alertCenter.screen`), estado trazable (`web.alertCenter.status`) y carga real de alertas/runbooks (`web.alertCenter.load`, `web.alertCenter.audit`) sobre observabilidad.
 - `WEB-050_SYSTEM_STATUS` ya esta operativo con pantalla dedicada (`web.systemStatus.screen`), estado trazable (`web.systemStatus.status`) y acciones de resiliencia (`web.systemStatus.syncQueue`, `recoverDomain`, `reloadCapabilities`) conectadas al runtime real.
+- `WEB-L-000_ACCESS_GATE` ya esta operativo con selector de lane (`main|secondary`) y ruta/pantalla light dedicadas (`web.route.light.accessGate -> web.light.accessGate.screen`) manteniendo acciones de acceso instrumentadas por lane.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
