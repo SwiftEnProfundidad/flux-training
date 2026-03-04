@@ -68,6 +68,7 @@ import {
   type DashboardRole
 } from "./dashboard-domains";
 import { createDashboardHomeScreenModel } from "./dashboard-home-contract";
+import { createQuickActionsScreenModel } from "./quick-actions-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -472,6 +473,25 @@ export function App() {
       effectiveDashboardHomeRuntimeState,
       hasAuthenticatedSession,
       visibleModulesForDomain.length
+    ]
+  );
+  const quickActionsScreenModel = useMemo(
+    () =>
+      createQuickActionsScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        trainingStatus,
+        nutritionStatus,
+        progressStatus,
+        recommendationsStatus,
+        syncStatus
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      nutritionStatus,
+      progressStatus,
+      recommendationsStatus,
+      syncStatus,
+      trainingStatus
     ]
   );
   const athleteOperationRowsBase = useMemo(
@@ -2407,6 +2427,23 @@ export function App() {
     }
   }
 
+  async function handleRunQuickActions() {
+    if (hasAuthenticatedSession === false) {
+      setAuthStatus("session_required");
+      setDashboardHomeRuntimeStateOverride("denied");
+      return;
+    }
+
+    await Promise.all([
+      handleLoadPlans(),
+      handleLoadSessions(),
+      handleLoadNutritionLogs(),
+      handleLoadProgressSummary(),
+      handleLoadRecommendations(),
+      handleSyncOfflineQueue()
+    ]);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -2730,6 +2767,68 @@ export function App() {
                   >
                     {translate("dashboardHomeRefreshAction")}
                   </button>
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={quickActionsScreenModel.screenId}
+                data-route-id={quickActionsScreenModel.routeId}
+                data-status-id="web.quickActions.status"
+              >
+                <SectionHeader
+                  title={translate("quickActionsTitle")}
+                  status={quickActionsScreenModel.status}
+                  statusLabel={translate("quickActionsStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("quickActionsSummary")}</p>
+                  <div className="inline-inputs">
+                    <button
+                      className="button primary"
+                      type="button"
+                      data-action-id="web.quickActions.runAll"
+                      onClick={() => void handleRunQuickActions()}
+                      disabled={quickActionsScreenModel.status === "loading"}
+                    >
+                      {translate("quickActionsRunAll")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.quickActions.refreshDashboard"
+                      onClick={() => void handleRefreshDashboardHome()}
+                      disabled={quickActionsScreenModel.status === "loading"}
+                    >
+                      {translate("dashboardHomeRefreshAction")}
+                    </button>
+                  </div>
+                  <div className="inline-inputs">
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.quickActions.loadPlans"
+                      onClick={() => void handleLoadPlans()}
+                    >
+                      {translate("loadPlans")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.quickActions.loadSessions"
+                      onClick={() => void handleLoadSessions()}
+                    >
+                      {translate("loadSessions")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.quickActions.loadRecommendations"
+                      onClick={() => void handleLoadRecommendations()}
+                    >
+                      {translate("loadRecommendations")}
+                    </button>
+                  </div>
                 </div>
               </article>
               {visibleModulesForDomain.length === 0 ? (

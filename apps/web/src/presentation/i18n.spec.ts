@@ -25,6 +25,9 @@ describe("i18n", () => {
     expect(translate("dashboardHomeVisibleModulesLabel")).toBe("Visible modules");
     expect(translate("dashboardHomeActiveDomainLabel")).toBe("Active domain");
     expect(translate("dashboardHomeRefreshAction")).toBe("Refresh dashboard");
+    expect(translate("quickActionsTitle")).toBe("Quick actions");
+    expect(translate("quickActionsStatusLabel")).toBe("Quick actions");
+    expect(translate("quickActionsRunAll")).toBe("Run quick actions");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -90,6 +93,9 @@ describe("i18n", () => {
     expect(translate("dashboardHomeVisibleModulesLabel")).toBe("Modulos visibles");
     expect(translate("dashboardHomeActiveDomainLabel")).toBe("Dominio activo");
     expect(translate("dashboardHomeRefreshAction")).toBe("Refrescar dashboard");
+    expect(translate("quickActionsTitle")).toBe("Acciones rapidas");
+    expect(translate("quickActionsStatusLabel")).toBe("Quick actions");
+    expect(translate("quickActionsRunAll")).toBe("Ejecutar acciones rapidas");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");

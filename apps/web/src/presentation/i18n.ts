@@ -269,6 +269,10 @@ type AppTranslations = {
   dashboardHomeVisibleModulesLabel: string;
   dashboardHomeActiveDomainLabel: string;
   dashboardHomeRefreshAction: string;
+  quickActionsTitle: string;
+  quickActionsStatusLabel: string;
+  quickActionsSummary: string;
+  quickActionsRunAll: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -556,6 +560,10 @@ const translations: Record<AppLanguage, AppTranslations> = {
     dashboardHomeVisibleModulesLabel: "Modulos visibles",
     dashboardHomeActiveDomainLabel: "Dominio activo",
     dashboardHomeRefreshAction: "Refrescar dashboard",
+    quickActionsTitle: "Acciones rapidas",
+    quickActionsStatusLabel: "Quick actions",
+    quickActionsSummary: "Atajos para cargar bloques criticos del dashboard en un solo paso.",
+    quickActionsRunAll: "Ejecutar acciones rapidas",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -841,6 +849,10 @@ const translations: Record<AppLanguage, AppTranslations> = {
     dashboardHomeVisibleModulesLabel: "Visible modules",
     dashboardHomeActiveDomainLabel: "Active domain",
     dashboardHomeRefreshAction: "Refresh dashboard",
+    quickActionsTitle: "Quick actions",
+    quickActionsStatusLabel: "Quick actions",
+    quickActionsSummary: "Shortcuts to load critical dashboard blocks in one step.",
+    quickActionsRunAll: "Run quick actions",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:
