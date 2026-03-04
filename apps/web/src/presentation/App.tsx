@@ -281,6 +281,7 @@ type ObservabilityCollectionsPayload = {
 const languageStorageKey = "flux_training_language";
 const dashboardDomainStorageKey = "flux_training_dashboard_domain";
 const dashboardRoleStorageKey = "flux_training_dashboard_role";
+const webRuntimeModeStorageKey = "flux_training_web_runtime_mode";
 const denseTableInitialRows = 24;
 const denseTableRowsStep = 24;
 
@@ -7585,15 +7586,19 @@ const SectionHeader = memo(function SectionHeader({
   status,
   language
 }: SectionHeaderProps) {
+  const shouldShowStatus = readWebRuntimeMode() === "qa";
+
   return (
     <header className="module-header">
       <h2>{title}</h2>
-      <p>
-        {statusLabel}:{" "}
-        <span className={`status-pill status-${toStatusClass(status)}`}>
-          {toHumanStatus(status, language)}
-        </span>
-      </p>
+      {shouldShowStatus ? (
+        <p>
+          {statusLabel}:{" "}
+          <span className={`status-pill status-${toStatusClass(status)}`}>
+            {toHumanStatus(status, language)}
+          </span>
+        </p>
+      ) : null}
     </header>
   );
 });
@@ -7801,8 +7806,29 @@ function readWebRuntimeMode(): "qa" | "product" {
   const rawValue = String(importMeta.env?.VITE_WEB_RUNTIME_MODE ?? "product")
     .trim()
     .toLowerCase();
-  if (rawValue === "qa") {
+  if (rawValue !== "qa") {
+    return "product";
+  }
+
+  if (typeof window === "undefined") {
+    return "product";
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const qaFlag = params.get("qa");
+  if (qaFlag === "1") {
+    window.localStorage.setItem(webRuntimeModeStorageKey, "qa");
     return "qa";
   }
+  if (qaFlag === "0") {
+    window.localStorage.setItem(webRuntimeModeStorageKey, "product");
+    return "product";
+  }
+
+  const persistedMode = window.localStorage.getItem(webRuntimeModeStorageKey);
+  if (persistedMode === "qa") {
+    return "qa";
+  }
+
   return "product";
 }
