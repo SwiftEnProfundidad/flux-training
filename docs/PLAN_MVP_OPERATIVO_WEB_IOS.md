@@ -187,13 +187,13 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 4.2.3 | WEB-L-020_DASHBOARD_HOME | `WrrZF` | ✅ | `web.route.light.dashboardHome -> web.light.dashboardHome.screen` | `createDashboardHomeLaneScreenModel` + `resolveDashboardHomeStatus` + runtime real (`DomainRuntimeStates`) | Refrescar dashboard light (`web.dashboardHome.refresh` con lane secondary) | loading|empty|error|success|denied|offline | ✅ `presentation/dashboard-home-lane-contract.spec.ts` + `presentation/dashboard-home-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ route/screen light instrumentados (`web.route.light.dashboardHome`, `web.light.dashboardHome.screen`) |
 | 4.2.4 | WEB-L-030_QUICK_ACTIONS | `nnRoY` | ✅ | `web.route.dashboardHome -> web.light.quickActions.screen` | `createQuickActionsLaneScreenModel` + `ManageTrainingUseCase` + `ManageNutritionUseCase` + `ManageProgressUseCase` + `ManageRecommendationsUseCase` | Ejecutar quick actions light (`web.light.quickActions.runAll`, `refreshDashboard`, `loadPlans`, `loadSessions`, `loadRecommendations`) | loading|empty|error|success|denied|offline | ✅ `presentation/quick-actions-lane-contract.spec.ts` + `presentation/quick-actions-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ screen/status/actions light instrumentados (`web.light.quickActions.*`) |
 | 4.2.5 | WEB-L-040_ALERT_CENTER | `94bpd` | ✅ | `web.route.dashboardHome -> web.light.alertCenter.screen` | `createAlertCenterLaneScreenModel` + `ManageObservabilityUseCase` (`listOperationalAlerts`, `listOperationalRunbooks`) | Cargar alert center light (`web.light.alertCenter.load`, `web.light.alertCenter.audit`) | loading|empty|error|success|denied|offline | ✅ `presentation/alert-center-lane-contract.spec.ts` + `presentation/alert-center-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ screen/status/actions light instrumentados (`web.light.alertCenter.*`) |
-| 4.2.6 | WEB-L-050_SYSTEM_STATUS | `FdXQL` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.2.6 | WEB-L-050_SYSTEM_STATUS | `FdXQL` | ✅ | `web.route.dashboardHome -> web.light.systemStatus.screen` | `createSystemStatusLaneScreenModel` + `OfflineSyncQueueUseCase` + `ManageRoleCapabilitiesUseCase` + runtime state | Operar system status light (`web.light.systemStatus.syncQueue`, `recoverDomain`, `reloadCapabilities`) | loading|empty|error|success|denied|offline | ✅ `presentation/system-status-lane-contract.spec.ts` + `presentation/system-status-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ screen/status/actions light instrumentados (`web.light.systemStatus.*`) |
 
 ### Task 4.3 — Web — Acceso y Dashboard operativo / WEB_DASHBOARD_MAIN_LANE
 - Total pantallas en este bloque: **5**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
-| 4.3.1 | WEB-200_DASHBOARD_KPIS | `ZvoLJ` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.3.1 | WEB-200_DASHBOARD_KPIS | `ZvoLJ` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.3.2 | WEB-210_READINESS_MONITOR | `BylLP` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.3.3 | WEB-220_ALERTS_FULL | `NN703` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.3.4 | WEB-230_RECENT_ACTIVITY | `CvIve` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.2.6 WEB-L-050_SYSTEM_STATUS**
-- Siguiente task: **4.3.1 WEB-200_DASHBOARD_KPIS**
+- Task en construccion: **4.3.1 WEB-200_DASHBOARD_KPIS**
+- Siguiente task: **4.3.2 WEB-210_READINESS_MONITOR**

@@ -69,7 +69,7 @@ import {
 } from "./dashboard-domains";
 import { createDashboardHomeLaneScreenModel } from "./dashboard-home-lane-contract";
 import { createAlertCenterLaneScreenModel } from "./alert-center-lane-contract";
-import { createSystemStatusScreenModel } from "./system-status-contract";
+import { createSystemStatusLaneScreenModel } from "./system-status-lane-contract";
 import {
   createAccessGateLaneScreenModel,
   type WebLane
@@ -552,7 +552,8 @@ export function App() {
   );
   const systemStatusScreenModel = useMemo(
     () =>
-      createSystemStatusScreenModel({
+      createSystemStatusLaneScreenModel({
+        lane: webLane,
         dashboardHomeStatus: dashboardHomeScreenModel.status,
         releaseCompatibilityStatus,
         roleCapabilitiesStatus,
@@ -561,6 +562,7 @@ export function App() {
       }),
     [
       dashboardHomeScreenModel.status,
+      webLane,
       pendingQueueCount,
       releaseCompatibilityStatus,
       roleCapabilitiesStatus,
@@ -3024,7 +3026,7 @@ export function App() {
                 className="module-card"
                 data-screen-id={systemStatusScreenModel.screenId}
                 data-route-id={systemStatusScreenModel.routeId}
-                data-status-id="web.systemStatus.status"
+                data-status-id={`${systemStatusScreenModel.screenId}.status`}
               >
                 <SectionHeader
                   title={translate("systemStatusTitle")}
@@ -3056,7 +3058,7 @@ export function App() {
                     <button
                       className="button primary"
                       type="button"
-                      data-action-id="web.systemStatus.syncQueue"
+                      data-action-id={systemStatusScreenModel.actions.syncQueue}
                       onClick={() => void handleSyncOfflineQueue()}
                     >
                       {translate("syncQueue")}
@@ -3064,7 +3066,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.systemStatus.recoverDomain"
+                      data-action-id={systemStatusScreenModel.actions.recoverDomain}
                       onClick={() => void recoverActiveDomainState()}
                     >
                       {translate("runtimeStateRecoveryAction")}
@@ -3072,7 +3074,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.systemStatus.reloadCapabilities"
+                      data-action-id={systemStatusScreenModel.actions.reloadCapabilities}
                       onClick={handleReloadRoleCapabilitiesMatrix}
                     >
                       {translate("retryRoleCapabilities")}
