@@ -72,6 +72,7 @@
 - `IOS-L-250_WEEKLY_REVIEW` ya esta operativo como variante light con ruta/pantalla propias (`progress.route.weeklyReviewLight`, `progress.weeklyReview.light.screen`) y refresco real del resumen semanal con estados `loading|empty|error|loaded|denied|offline`.
 - `IOS-100_TODAY` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.today`, `training.today.screen`) y refresco real del cockpit diario con estados `loading|empty|error|loaded|denied|offline`.
 - `IOS-110_PLAN_ACTIVE` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.planActive`, `training.planActive.screen`) y gestion real de plan activo con estados `loading|empty|error|saved|validation_error|denied|offline`.
+- `IOS-120_SESSION_SETUP` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.inWorkoutSetup`, `training.inWorkoutSetup.screen`) y preparacion real de sesion con estados `loading|empty|error|saved|validation_error|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
