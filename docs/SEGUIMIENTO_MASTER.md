@@ -145,6 +145,7 @@
 - `WEB-350_PUBLISH_REVIEW` ya esta operativo con ruta/pantalla propias (`web.route.light.publishReview -> web.light.publishReview.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de publicacion (`web.light.publishReview.previewPlan`, `web.light.publishReview.runChecklist`, `web.light.publishReview.publishPlan`, `web.light.publishReview.clearReview`) con checklist operativo y evento de release.
 - Web runtime endurecido para producto: el modo QA deja de activarse por defecto aunque exista `VITE_WEB_RUNTIME_MODE=qa`; ahora requiere opt-in explicito (`?qa=1`) y los badges tecnicos de estado solo se muestran en QA.
 - iOS runtime endurecido para producto: `ExperienceHub` ahora soporta `displayMode` y en entorno de produccion se fuerza `.product`, renderizando `FluxTrainingProductRootView` en lugar del catalogo tecnico de rutas.
+- Endurecimiento adicional de entrada productiva: se elimina la persistencia local de modo QA en Web (no queda "pegado" entre sesiones) y `ExperienceHubView.makeDemo` pasa a abrir tambien en `displayMode: .product` para evitar arranque accidental en catalogo tecnico.
 - QA E2E ejecutado y en verde: `pnpm -r test` (contracts/backend/web) + `swift test` (iOS) sin fallos.
 - Runtime web+iOS endurecido contra comportamiento demo: se eliminaron fallback locales de autenticacion (`apple-local-dev-token` y tokens sinteticos), se retiraron defaults `demo-user` en runtime productivo y se fijo backend cloud como target por defecto para ejecucion productiva.
 

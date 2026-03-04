@@ -107,7 +107,7 @@ public struct ExperienceHubView: View {
       deleteAccountViewModel: CompositionRoot.makeDeleteAccountViewModel(),
       offlineSyncViewModel: CompositionRoot.makeOfflineSyncViewModel(),
       observabilityViewModel: CompositionRoot.makeObservabilityViewModel(),
-      displayMode: .catalog,
+      displayMode: .product,
       userID: userID
     )
   }
