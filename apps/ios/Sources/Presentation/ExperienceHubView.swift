@@ -980,6 +980,28 @@ public struct ExperienceHubView: View {
       .accessibilityIdentifier(TrainingRouteContract.inWorkoutSetupLightRouteID)
 
       NavigationLink {
+        WorkoutActiveView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.sessionStatusLabel))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.substitutionStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.substitutionStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.workoutActiveDarkRouteID)
+
+      NavigationLink {
         RPERatingView(
           viewModel: trainingViewModel,
           userID: activeUserID,

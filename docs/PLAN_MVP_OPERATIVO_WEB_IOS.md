@@ -150,8 +150,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 3.11.1 | IOS-100_TODAY | `JNePm` | ✅ | `todayTab -> training.route.today -> training.today.screen` | `TrainingFlowViewModel.refreshDashboard` + `ListTrainingPlansUseCase` + `ListWorkoutSessionsUseCase` (repositorios reales/configurados) | Refrescar cockpit diario (`training.today.refresh`) | loading|empty|error|loaded|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.today`, `training.today.screen`) |
 | 3.11.2 | IOS-110_PLAN_ACTIVE | `dXK7d` | ✅ | `todayTab -> training.route.planActive -> training.planActive.screen` | `TrainingFlowViewModel.createStarterPlan` + `ListTrainingPlansUseCase` (repositorios reales/configurados) | Crear/seleccionar plan activo (`training.planActive.createPlan`) | loading|empty|error|saved|validation_error|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.planActive`, `training.planActive.screen`) |
 | 3.11.3 | IOS-120_SESSION_SETUP | `A0a4R` | ✅ | `todayTab -> training.route.inWorkoutSetup -> training.inWorkoutSetup.screen` | `TrainingFlowViewModel.prepareInWorkoutSetup` + `ListTrainingPlansUseCase` + `ListWorkoutSessionsUseCase` + `ListExerciseVideosUseCase` (repositorios reales/configurados) | Preparar sesion (`training.inWorkoutSetup.prepare`) | loading|empty|error|saved|validation_error|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.inWorkoutSetup`, `training.inWorkoutSetup.screen`) |
-| 3.11.4 | IOS-130_WORKOUT_ACTIVE | `L2ntB` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 3.11.5 | IOS-140_EXERCISE_VIDEO | `kQ5o5` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 3.11.4 | IOS-130_WORKOUT_ACTIVE | `L2ntB` | ✅ | `todayTab -> training.route.workoutActive -> training.workoutActive.screen` | `TrainingFlowViewModel.applyExerciseSubstitution` + `ListTrainingPlansUseCase` + `ListExerciseVideosUseCase` (repositorios reales/configurados) | Ajustar ejercicio activo (`training.substitution.apply`) | loading|empty|error|saved|validation_error|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.workoutActive`, `training.workoutActive.screen`) |
+| 3.11.5 | IOS-140_EXERCISE_VIDEO | `kQ5o5` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 3.11.6 | IOS-150_SESSION_SUMMARY | `uixTO` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
 ### Task 3.12 — iOS — Today + Entrenamiento + Sesión / IOS_TRAINING_LIGHT_LANE
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **3.11.4 IOS-130_WORKOUT_ACTIVE**
-- Siguiente task: **3.11.5 IOS-140_EXERCISE_VIDEO**
+- Task en construccion: **3.11.5 IOS-140_EXERCISE_VIDEO**
+- Siguiente task: **3.11.6 IOS-150_SESSION_SUMMARY**
