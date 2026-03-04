@@ -103,6 +103,10 @@ describe("i18n", () => {
     expect(translate("planTemplatesLoadAction")).toBe("Load templates");
     expect(translate("planTemplatesApplyAction")).toBe("Apply template");
     expect(translate("planTemplatesClearAction")).toBe("Clear template");
+    expect(translate("publishReviewTitle")).toBe("Publish review");
+    expect(translate("publishReviewStatusLabel")).toBe("Release");
+    expect(translate("publishReviewChecklistAction")).toBe("Run checklist");
+    expect(translate("publishReviewPublishAction")).toBe("Publish plan");
     expect(translate("planAssignmentTitle")).toBe("Plan assignment");
     expect(translate("planAssignmentStatusLabel")).toBe("Assignment");
     expect(translate("planAssignmentPlanLabel")).toBe("Active plan");

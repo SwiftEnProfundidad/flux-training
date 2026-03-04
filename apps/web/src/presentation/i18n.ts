@@ -223,6 +223,24 @@ type AppTranslations = {
   planTemplatesStrengthFocus: string;
   planTemplatesHypertrophyFocus: string;
   planTemplatesRecompositionFocus: string;
+  publishReviewTitle: string;
+  publishReviewStatusLabel: string;
+  publishReviewSummary: string;
+  publishReviewPreviewAction: string;
+  publishReviewChecklistAction: string;
+  publishReviewPublishAction: string;
+  publishReviewClearAction: string;
+  publishReviewCheckPlan: string;
+  publishReviewCheckTemplate: string;
+  publishReviewCheckConfiguration: string;
+  publishReviewCheckAthletes: string;
+  publishReviewCheckOk: string;
+  publishReviewCheckPending: string;
+  publishReviewPlanLabel: string;
+  publishReviewChecklistLabel: string;
+  publishReviewResultLabel: string;
+  publishReviewNoResult: string;
+  publishReviewPublishedPrefix: string;
   planAssignmentTitle: string;
   planAssignmentStatusLabel: string;
   planAssignmentSummary: string;
@@ -718,6 +736,24 @@ const translations: Record<AppLanguage, AppTranslations> = {
     planTemplatesStrengthFocus: "fuerza base",
     planTemplatesHypertrophyFocus: "volumen progresivo",
     planTemplatesRecompositionFocus: "equilibrio fuerza/cardio",
+    publishReviewTitle: "Revision de publicacion",
+    publishReviewStatusLabel: "Release",
+    publishReviewSummary: "Valida checklist operativo antes de publicar el plan.",
+    publishReviewPreviewAction: "Previsualizar plan",
+    publishReviewChecklistAction: "Ejecutar checklist",
+    publishReviewPublishAction: "Publicar plan",
+    publishReviewClearAction: "Limpiar revision",
+    publishReviewCheckPlan: "Plan seleccionado",
+    publishReviewCheckTemplate: "Plantilla aplicada",
+    publishReviewCheckConfiguration: "Configuracion valida",
+    publishReviewCheckAthletes: "Atletas objetivo seleccionados",
+    publishReviewCheckOk: "ok",
+    publishReviewCheckPending: "pendiente",
+    publishReviewPlanLabel: "plan",
+    publishReviewChecklistLabel: "checklist",
+    publishReviewResultLabel: "resultado",
+    publishReviewNoResult: "Todavia no hay publicacion registrada.",
+    publishReviewPublishedPrefix: "Plan publicado:",
     planAssignmentTitle: "Asignacion de plan",
     planAssignmentStatusLabel: "Asignacion",
     planAssignmentSummary:
@@ -1222,6 +1258,24 @@ const translations: Record<AppLanguage, AppTranslations> = {
     planTemplatesStrengthFocus: "base strength",
     planTemplatesHypertrophyFocus: "progressive volume",
     planTemplatesRecompositionFocus: "strength/cardio balance",
+    publishReviewTitle: "Publish review",
+    publishReviewStatusLabel: "Release",
+    publishReviewSummary: "Validate the operational checklist before publishing the plan.",
+    publishReviewPreviewAction: "Preview plan",
+    publishReviewChecklistAction: "Run checklist",
+    publishReviewPublishAction: "Publish plan",
+    publishReviewClearAction: "Clear review",
+    publishReviewCheckPlan: "Plan selected",
+    publishReviewCheckTemplate: "Template applied",
+    publishReviewCheckConfiguration: "Valid configuration",
+    publishReviewCheckAthletes: "Target athletes selected",
+    publishReviewCheckOk: "ok",
+    publishReviewCheckPending: "pending",
+    publishReviewPlanLabel: "plan",
+    publishReviewChecklistLabel: "checklist",
+    publishReviewResultLabel: "result",
+    publishReviewNoResult: "No publish result recorded yet.",
+    publishReviewPublishedPrefix: "Published plan:",
     planAssignmentTitle: "Plan assignment",
     planAssignmentStatusLabel: "Assignment",
     planAssignmentSummary:

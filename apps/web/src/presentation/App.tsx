@@ -100,6 +100,7 @@ import { createNutritionLogDetailScreenModel } from "./nutrition-log-detail-cont
 import { createPlansListScreenModel } from "./plans-list-contract";
 import { createPlanBuilderScreenModel } from "./plan-builder-contract";
 import { createPlanTemplatesScreenModel } from "./plan-templates-contract";
+import { createPublishReviewScreenModel } from "./publish-review-contract";
 import { createSessionDetailScreenModel } from "./session-detail-contract";
 import { createPlanAssignmentScreenModel } from "./plan-assignment-contract";
 import { createExerciseLibraryScreenModel } from "./exercise-library-contract";
@@ -241,6 +242,11 @@ type PlanTemplateOption = {
   weeks: number;
   daysPerWeek: number;
   focus: string;
+};
+type PublishChecklistItem = {
+  id: string;
+  label: string;
+  valid: boolean;
 };
 type ObservabilityStatus =
   | "idle"
@@ -387,6 +393,9 @@ export function App() {
     useState<PlanBuilderTemplate>("recomposition");
   const [planTemplatesStatus, setPlanTemplatesStatus] = useState<ModuleRuntimeStatus>("idle");
   const [selectedPlanTemplate, setSelectedPlanTemplate] = useState<PlanBuilderTemplate | "">("");
+  const [publishReviewStatus, setPublishReviewStatus] = useState<ModuleRuntimeStatus>("idle");
+  const [publishChecklistAcknowledged, setPublishChecklistAcknowledged] = useState(false);
+  const [publishedPlanId, setPublishedPlanId] = useState<string | null>(null);
   const [plans, setPlans] = useState<TrainingPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState(dailyTrainingVideoDefaults.selectedPlanId);
   const [sessions, setSessions] = useState<WorkoutSessionInput[]>(dailyTrainingVideoDefaults.sessions);
@@ -1207,6 +1216,55 @@ export function App() {
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan.id === selectedPlanId) ?? null,
     [plans, selectedPlanId]
+  );
+  const publishChecklistItems = useMemo<PublishChecklistItem[]>(
+    () => [
+      {
+        id: "plan_selected",
+        label: translate("publishReviewCheckPlan"),
+        valid: selectedPlan !== null
+      },
+      {
+        id: "template_selected",
+        label: translate("publishReviewCheckTemplate"),
+        valid: selectedPlanTemplateOption !== null
+      },
+      {
+        id: "configuration_valid",
+        label: translate("publishReviewCheckConfiguration"),
+        valid: hasPlanBuilderValidationError === false
+      },
+      {
+        id: "athlete_target",
+        label: translate("publishReviewCheckAthletes"),
+        valid: selectedAthleteIds.length > 0
+      }
+    ],
+    [
+      hasPlanBuilderValidationError,
+      selectedAthleteIds.length,
+      selectedPlan,
+      selectedPlanTemplateOption,
+      translate
+    ]
+  );
+  const isPublishChecklistReady = publishChecklistItems.every((item) => item.valid);
+  const publishReviewScreenModel = useMemo(
+    () =>
+      createPublishReviewScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        trainingStatus,
+        publishReviewStatus,
+        hasSelectedPlan: selectedPlan !== null,
+        isChecklistReady: isPublishChecklistReady
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      isPublishChecklistReady,
+      publishReviewStatus,
+      selectedPlan,
+      trainingStatus
+    ]
   );
   const sessionSelectionRows = useMemo(
     () =>
@@ -2857,6 +2915,73 @@ export function App() {
   function handleClearPlanTemplateSelection() {
     setSelectedPlanTemplate("");
     setPlanTemplatesStatus("empty");
+  }
+
+  function handlePreviewPublishPlan() {
+    if (selectedPlan === null) {
+      setPublishReviewStatus("empty");
+      return;
+    }
+    setPublishReviewStatus("loaded");
+  }
+
+  function handleRunPublishChecklist() {
+    setPublishReviewStatus("loading");
+    if (isPublishChecklistReady === false) {
+      setPublishChecklistAcknowledged(false);
+      setPublishReviewStatus("validation_error");
+      return;
+    }
+    setPublishChecklistAcknowledged(true);
+    setPublishReviewStatus("loaded");
+    markDomainSuccess("training");
+  }
+
+  async function handlePublishPlanReview() {
+    const authenticatedUserId = resolveAuthenticatedUserId("training");
+    if (authenticatedUserId === null) {
+      setPublishReviewStatus("error");
+      return;
+    }
+    if (selectedPlan === null || publishChecklistAcknowledged === false || !isPublishChecklistReady) {
+      setPublishReviewStatus("validation_error");
+      return;
+    }
+    setPublishReviewStatus("loading");
+    try {
+      const runtimeAttributes = nextEventAttributes(
+        runtimeObservabilitySessionRef.current,
+        "training"
+      );
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: authenticatedUserId,
+        name: "plan_publish_review_completed",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          planId: selectedPlan.id,
+          template: selectedPlanTemplateOption?.template ?? "none",
+          selectedAthletes: String(selectedAthleteRows.length),
+          checklistReady: String(isPublishChecklistReady),
+          ...runtimeAttributes
+        }
+      });
+      setPublishedPlanId(selectedPlan.id);
+      setPublishReviewStatus("saved");
+      markDomainSuccess("training");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setPublishReviewStatus("error");
+      markDomainFailure("training", error);
+    }
+  }
+
+  function handleClearPublishReview() {
+    setPublishChecklistAcknowledged(false);
+    setPublishedPlanId(null);
+    setPublishReviewStatus("empty");
   }
 
   async function handleLoadRecommendations() {
@@ -5032,6 +5157,84 @@ export function App() {
                       value={selectedPlanTemplateOption.focus}
                     />
                   </div>
+                )}
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={publishReviewScreenModel.screenId}
+                data-route-id={publishReviewScreenModel.routeId}
+                data-status-id="web.light.publishReview.status"
+              >
+                <SectionHeader
+                  title={translate("publishReviewTitle")}
+                  status={publishReviewScreenModel.status}
+                  statusLabel={translate("publishReviewStatusLabel")}
+                  language={language}
+                />
+                <p>{translate("publishReviewSummary")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button ghost"
+                    onClick={handlePreviewPublishPlan}
+                    type="button"
+                    data-action-id={publishReviewScreenModel.actions.previewPlan}
+                  >
+                    {translate("publishReviewPreviewAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleRunPublishChecklist}
+                    type="button"
+                    data-action-id={publishReviewScreenModel.actions.runChecklist}
+                  >
+                    {translate("publishReviewChecklistAction")}
+                  </button>
+                  <button
+                    className="button primary"
+                    onClick={handlePublishPlanReview}
+                    type="button"
+                    data-action-id={publishReviewScreenModel.actions.publishPlan}
+                    disabled={publishChecklistAcknowledged === false || selectedPlan === null}
+                  >
+                    {translate("publishReviewPublishAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleClearPublishReview}
+                    type="button"
+                    data-action-id={publishReviewScreenModel.actions.clearReview}
+                  >
+                    {translate("publishReviewClearAction")}
+                  </button>
+                </div>
+                <div className="choice-list">
+                  {publishChecklistItems.map((item) => (
+                    <label key={item.id}>
+                      <span>{item.label}</span>
+                      <span>{item.valid ? translate("publishReviewCheckOk") : translate("publishReviewCheckPending")}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="inline-inputs">
+                  <Metric
+                    title={translate("publishReviewPlanLabel")}
+                    value={selectedPlan?.name ?? "-"}
+                  />
+                  <Metric
+                    title={translate("publishReviewChecklistLabel")}
+                    value={isPublishChecklistReady ? translate("publishReviewCheckOk") : translate("publishReviewCheckPending")}
+                  />
+                  <Metric
+                    title={translate("publishReviewResultLabel")}
+                    value={publishedPlanId ?? "-"}
+                  />
+                </div>
+                {publishedPlanId === null ? (
+                  <p className="empty-state">{translate("publishReviewNoResult")}</p>
+                ) : (
+                  <p className="section-subtitle">
+                    {translate("publishReviewPublishedPrefix")} {publishedPlanId}
+                  </p>
                 )}
               </div>
               <StatLine
