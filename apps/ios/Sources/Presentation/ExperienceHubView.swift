@@ -69,7 +69,7 @@ public struct ExperienceHubView: View {
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase =
       GenerateAIRecommendationsUseCase(),
     loadRoleCapabilitiesHandler: @escaping @Sendable (ExperienceRole) async -> Set<ExperienceDomain>? = { _ in nil },
-    displayMode: ExperienceHubDisplayMode = .catalog,
+    displayMode: ExperienceHubDisplayMode = .product,
     userID: String = "flux-user-local"
   ) {
     _authViewModel = State(initialValue: authViewModel)

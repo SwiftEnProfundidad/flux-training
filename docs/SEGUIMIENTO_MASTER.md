@@ -149,6 +149,7 @@
 - QA E2E ejecutado y en verde: `pnpm -r test` (contracts/backend/web) + `swift test` (iOS) sin fallos.
 - Runtime web+iOS endurecido contra comportamiento demo: se eliminaron fallback locales de autenticacion (`apple-local-dev-token` y tokens sinteticos), se retiraron defaults `demo-user` en runtime productivo y se fijo backend cloud como target por defecto para ejecucion productiva.
 - Web product mode alineado a UX final: normalizacion dura de dominio (`all/operations -> onboarding`) y render de modulos sobre dominio normalizado para evitar exposicion de bloques internos en runtime de usuario final.
+- iOS endurecido contra entrada accidental a catalogo tecnico: `ExperienceHubView` ahora inicializa por defecto en `displayMode: .product` para priorizar flujo de usuario final.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
