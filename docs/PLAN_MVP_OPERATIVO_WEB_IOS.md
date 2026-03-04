@@ -138,8 +138,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 |---|---|---|---|---|---|---|---|---|---|
 | 3.10.1 | IOS-L-200_NUTRITION_HUB | `k5Ms0` | ✅ | `todayTab -> nutrition.route.hubLight -> nutrition.hub.light.screen` | `CreateNutritionLogUseCase` + `ListNutritionLogsUseCase` (repositorio real/configurado) | Guardar/cargar nutricion light (`nutrition.hub.save`, `nutrition.hub.load`) | loading|empty|error|saved|loaded|denied|offline | ✅ `NutritionViewModelTests` + `NutritionRouteContractTests` | ✅ ruta+pantalla instrumentadas (`nutrition.route.hubLight`, `nutrition.hub.light.screen`) |
 | 3.10.2 | IOS-L-210_LOG_MEAL | `mNfTu` | ✅ | `todayTab -> nutrition.route.logMealLight -> nutrition.logMeal.light.screen` | `CreateNutritionLogUseCase` (repositorio real/configurado) | Guardar comida light (`nutrition.logMeal.save`) | loading|error|saved|validation_error|denied|offline | ✅ `NutritionViewModelTests` + `NutritionRouteContractTests` | ✅ ruta+pantalla instrumentadas (`nutrition.route.logMealLight`, `nutrition.logMeal.light.screen`) |
-| 3.10.3 | IOS-L-220_PROGRESS_METRICS | `zMn7o` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 3.10.4 | IOS-L-230_GOAL_ADJUST | `4ShGc` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 3.10.3 | IOS-L-220_PROGRESS_METRICS | `zMn7o` | ✅ | `todayTab -> progress.route.metricsLight -> progress.metrics.light.screen` | `BuildProgressSummaryUseCase` (repositorios reales/configurados) | Cargar metricas light (`progress.metrics.load`) | loading|empty|error|loaded|validation_error|denied|offline | ✅ `ProgressViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.metricsLight`, `progress.metrics.light.screen`) |
+| 3.10.4 | IOS-L-230_GOAL_ADJUST | `4ShGc` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 3.10.5 | IOS-L-240_AI_COACH | `fhGwk` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 3.10.6 | IOS-L-250_WEEKLY_REVIEW | `P4ISc` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **3.10.3 IOS-L-220_PROGRESS_METRICS**
-- Siguiente task: **3.10.4 IOS-L-230_GOAL_ADJUST**
+- Task en construccion: **3.10.4 IOS-L-230_GOAL_ADJUST**
+- Siguiente task: **3.10.5 IOS-L-240_AI_COACH**

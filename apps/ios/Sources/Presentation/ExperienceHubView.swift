@@ -1183,6 +1183,28 @@ public struct ExperienceHubView: View {
       .accessibilityIdentifier(ProgressRouteContract.metricsDarkRouteID)
 
       NavigationLink {
+        ProgressMetricsLightView(
+          viewModel: progressViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.progressTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.statusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(nutritionProgressAIScreenContract.progressStatus.rawValue))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(ProgressRouteContract.metricsLightRouteID)
+
+      NavigationLink {
         GoalAdjustView(
           viewModel: onboardingViewModel,
           copy: copy

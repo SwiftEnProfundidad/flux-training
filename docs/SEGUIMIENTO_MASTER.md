@@ -66,6 +66,7 @@
 - `IOS-250_WEEKLY_REVIEW` ya esta operativo con ruta/pantalla dedicadas (`progress.route.weeklyReview`, `progress.weeklyReview.screen`) y refresco paralelo real de progreso+entreno+nutricion con estados `loading|empty|error|loaded|validation_error|denied|offline`.
 - `IOS-L-200_NUTRITION_HUB` ya esta operativo como variante light con ruta/pantalla propias (`nutrition.route.hubLight`, `nutrition.hub.light.screen`) y acciones reales de guardado/carga nutricional con estados `loading|empty|error|saved|loaded|denied|offline`.
 - `IOS-L-210_LOG_MEAL` ya esta operativo como variante light con ruta/pantalla propias (`nutrition.route.logMealLight`, `nutrition.logMeal.light.screen`) y accion real de guardado nutricional con estados `loading|error|saved|validation_error|denied|offline`.
+- `IOS-L-220_PROGRESS_METRICS` ya esta operativo como variante light con ruta/pantalla propias (`progress.route.metricsLight`, `progress.metrics.light.screen`) y carga real de metricas de progreso con estados `loading|empty|error|loaded|validation_error|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
