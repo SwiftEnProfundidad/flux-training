@@ -8,8 +8,10 @@ public struct AuthWelcomeView: View {
   private let readinessScore: Int
   private let goalLabel: String
   private let screenAccessibilityID: String
-  private let onEmailSignIn: () -> Void
   private let onRecoverAccount: () -> Void
+  private let onOTPRequested: () -> Void
+  @State private var email = ""
+  @State private var password = ""
 
   public init(
     viewModel: AuthViewModel,
@@ -17,16 +19,16 @@ public struct AuthWelcomeView: View {
     readinessScore: Int,
     goalLabel: String,
     screenAccessibilityID: String = AuthRouteContract.welcomeDarkScreenID,
-    onEmailSignIn: @escaping () -> Void = {},
-    onRecoverAccount: @escaping () -> Void = {}
+    onRecoverAccount: @escaping () -> Void = {},
+    onOTPRequested: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.copy = copy
     self.readinessScore = readinessScore
     self.goalLabel = goalLabel
     self.screenAccessibilityID = screenAccessibilityID
-    self.onEmailSignIn = onEmailSignIn
     self.onRecoverAccount = onRecoverAccount
+    self.onOTPRequested = onOTPRequested
   }
 
   public var body: some View {
@@ -77,22 +79,34 @@ public struct AuthWelcomeView: View {
         .buttonStyle(FluxPrimaryButtonStyle())
         .accessibilityIdentifier("auth.welcome.signInApple")
 
+        HStack(spacing: 10) {
+          TextField(copy.text(.emailField), text: $email)
+            .fluxInputFieldStyle()
+            .accessibilityIdentifier("auth.welcome.email")
+          SecureField(copy.text(.passwordField), text: $password)
+            .fluxInputFieldStyle()
+            .accessibilityIdentifier("auth.welcome.password")
+        }
 
         Button(copy.text(.signInWithEmail)) {
-          onEmailSignIn()
+          Task {
+            await viewModel.signInWithEmail(email: email, password: password)
+          }
         }
         .buttonStyle(FluxSecondaryButtonStyle())
         .accessibilityIdentifier("auth.welcome.signInEmail")
 
         HStack(spacing: 12) {
           Button(copy.text(.recoverByEmail)) {
+            viewModel.requestRecovery(email: email, channel: .email)
             onRecoverAccount()
           }
           .buttonStyle(FluxSecondaryButtonStyle())
           .accessibilityIdentifier("auth.welcome.recoverEmail")
 
           Button(copy.text(.recoverBySMS)) {
-            onRecoverAccount()
+            viewModel.requestRecovery(email: email, channel: .sms)
+            onOTPRequested()
           }
           .buttonStyle(FluxSecondaryButtonStyle())
           .accessibilityIdentifier("auth.welcome.recoverSMS")

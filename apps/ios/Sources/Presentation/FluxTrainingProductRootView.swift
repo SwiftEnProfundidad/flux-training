@@ -129,21 +129,8 @@ public struct FluxTrainingProductRootView: View {
             copy: copy,
             readinessScore: 72,
             goalLabel: selectedGoalLabel,
-            onEmailSignIn: { authScreen = .email },
-            onRecoverAccount: { authScreen = .recover }
-          )
-        case .email:
-          AuthEmailLoginView(
-            viewModel: authViewModel,
-            copy: copy,
-            onUseAppleHandoff: { authScreen = .appleHandoff },
-            onRecoverAccount: { authScreen = .recover }
-          )
-        case .appleHandoff:
-          AuthAppleHandoffView(
-            viewModel: authViewModel,
-            copy: copy,
-            onUseEmailInstead: { authScreen = .email }
+            onRecoverAccount: { authScreen = .recover },
+            onOTPRequested: { authScreen = .otp }
           )
         case .otp:
           AuthOTPVerifyView(viewModel: authViewModel, copy: copy)
@@ -656,8 +643,6 @@ private enum ProductTab {
 @available(iOS 17, macOS 14, *)
 private enum AuthScreen {
   case welcome
-  case email
-  case appleHandoff
   case otp
   case recover
   case sessionExpired

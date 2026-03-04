@@ -159,6 +159,7 @@
 - iOS Progreso ya no renderiza bloque continuo de cards: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (metricas, review semanal, ajuste de objetivo, IA coach).
 - iOS Nutricion ya no renderiza bloque continuo de cards: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (hub nutricional o registro de comida).
 - iOS Ajustes ya no renderiza flujo tecnico por enlaces: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (home, perfil, notificaciones, legal, exportacion, borrado).
+- iOS Today/Auth depurado a flujo productivo: la pantalla de bienvenida integra login Apple + email/password + recuperacion directa, y el enrutado tecnico de `email`/`appleHandoff` deja de ser paso manual en runtime productivo.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
