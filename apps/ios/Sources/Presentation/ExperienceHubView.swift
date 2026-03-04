@@ -1139,6 +1139,28 @@ public struct ExperienceHubView: View {
       .accessibilityIdentifier(NutritionRouteContract.nutritionHubDarkRouteID)
 
       NavigationLink {
+        NutritionHubLightView(
+          viewModel: nutritionViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.nutritionTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.nutritionStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(nutritionProgressAIScreenContract.nutritionStatus.rawValue))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(NutritionRouteContract.nutritionHubLightRouteID)
+
+      NavigationLink {
         ProgressMetricsView(
           viewModel: progressViewModel,
           userID: activeUserID,

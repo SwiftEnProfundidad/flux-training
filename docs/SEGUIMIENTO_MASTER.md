@@ -64,6 +64,7 @@
 - `IOS-230_GOAL_ADJUST` ya esta operativo con ruta/pantalla dedicadas (`progress.route.goalAdjust`, `progress.goalAdjust.screen`) y ajuste real de objetivo/compromiso semanal con estados `loading|validation_error|success|denied|offline`.
 - `IOS-240_AI_COACH` ya esta operativo con ruta/pantalla dedicadas (`progress.route.aiCoach`, `progress.aiCoach.screen`) y recomendaciones IA dinamicas por objetivo/adherencia/cola con estados `loading|empty|error|loaded|validation_error|denied|offline`.
 - `IOS-250_WEEKLY_REVIEW` ya esta operativo con ruta/pantalla dedicadas (`progress.route.weeklyReview`, `progress.weeklyReview.screen`) y refresco paralelo real de progreso+entreno+nutricion con estados `loading|empty|error|loaded|validation_error|denied|offline`.
+- `IOS-L-200_NUTRITION_HUB` ya esta operativo como variante light con ruta/pantalla propias (`nutrition.route.hubLight`, `nutrition.hub.light.screen`) y acciones reales de guardado/carga nutricional con estados `loading|empty|error|saved|loaded|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
