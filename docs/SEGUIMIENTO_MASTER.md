@@ -104,6 +104,7 @@
 - `WEB-220_Alerts_Tablet` ya esta operativo con lane secundaria de alertas (`web.route.light.alertsFull -> web.light.alertsFull.screen`) y acciones dedicadas (`web.light.alertsFull.refresh`, `web.light.alertsFull.audit`) sobre observabilidad real.
 - `WEB-500_ANALYTICS_OVERVIEW` ya esta operativo con pantalla dedicada (`web.route.analyticsOverview -> web.analyticsOverview.screen`) y acciones instrumentadas de analitica (`web.analyticsOverview.trackEvent`, `web.analyticsOverview.reportCrash`, `web.analyticsOverview.loadData`) sobre observabilidad real.
 - `WEB-510_PROGRESS_TRENDS` ya esta operativo con pantalla dedicada (`web.route.progressTrends -> web.progressTrends.screen`) y refresco real (`web.progressTrends.refresh`) para seguimiento temporal de sesiones/minutos/series/esfuerzo.
+- `WEB-520_COHORT_ANALYSIS` ya esta operativo con pantalla dedicada (`web.route.cohortAnalysis -> web.cohortAnalysis.screen`) y refresco real (`web.cohortAnalysis.refresh`) para segmentacion de cohorte por riesgo, volumen y cobertura de plan/sesion/nutricion.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

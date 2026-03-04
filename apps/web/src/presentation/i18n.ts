@@ -330,6 +330,15 @@ type AppTranslations = {
   shortcutsRecoverAction: string;
   shortcutsVisibleModulesLabel: string;
   shortcutsNoItems: string;
+  cohortAnalysisTitle: string;
+  cohortAnalysisStatusLabel: string;
+  cohortAnalysisSummary: string;
+  cohortAnalysisRefreshAction: string;
+  cohortAnalysisNoRows: string;
+  cohortAnalysisSizeLabel: string;
+  cohortAnalysisAttentionLabel: string;
+  cohortAnalysisNormalLabel: string;
+  cohortAnalysisAvgSessionsLabel: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -682,6 +691,16 @@ const translations: Record<AppLanguage, AppTranslations> = {
     shortcutsRecoverAction: "Recuperar dominio",
     shortcutsVisibleModulesLabel: "Modulos visibles",
     shortcutsNoItems: "No hay shortcuts disponibles para este dominio.",
+    cohortAnalysisTitle: "Analisis de cohortes",
+    cohortAnalysisStatusLabel: "Cohortes",
+    cohortAnalysisSummary:
+      "Segmentacion operativa de atletas por riesgo y volumen para priorizar intervencion.",
+    cohortAnalysisRefreshAction: "Refrescar cohortes",
+    cohortAnalysisNoRows: "No hay cohortes disponibles con los datos actuales.",
+    cohortAnalysisSizeLabel: "Tamano cohorte",
+    cohortAnalysisAttentionLabel: "Atencion",
+    cohortAnalysisNormalLabel: "Normal",
+    cohortAnalysisAvgSessionsLabel: "Media sesiones",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -1032,6 +1051,16 @@ const translations: Record<AppLanguage, AppTranslations> = {
     shortcutsRecoverAction: "Recover domain",
     shortcutsVisibleModulesLabel: "Visible modules",
     shortcutsNoItems: "No shortcuts are available for this domain.",
+    cohortAnalysisTitle: "Cohort analysis",
+    cohortAnalysisStatusLabel: "Cohorts",
+    cohortAnalysisSummary:
+      "Operational athlete segmentation by risk and volume to prioritize intervention.",
+    cohortAnalysisRefreshAction: "Refresh cohorts",
+    cohortAnalysisNoRows: "No cohorts are available with the current data.",
+    cohortAnalysisSizeLabel: "Cohort size",
+    cohortAnalysisAttentionLabel: "Attention",
+    cohortAnalysisNormalLabel: "Normal",
+    cohortAnalysisAvgSessionsLabel: "Avg sessions",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:

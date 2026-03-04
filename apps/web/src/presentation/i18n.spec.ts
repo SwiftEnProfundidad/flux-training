@@ -73,6 +73,16 @@ describe("i18n", () => {
     expect(translate("shortcutsRecoverAction")).toBe("Recover domain");
     expect(translate("shortcutsVisibleModulesLabel")).toBe("Visible modules");
     expect(translate("shortcutsNoItems")).toBe("No shortcuts are available for this domain.");
+    expect(translate("cohortAnalysisTitle")).toBe("Cohort analysis");
+    expect(translate("cohortAnalysisStatusLabel")).toBe("Cohorts");
+    expect(translate("cohortAnalysisRefreshAction")).toBe("Refresh cohorts");
+    expect(translate("cohortAnalysisNoRows")).toBe(
+      "No cohorts are available with the current data."
+    );
+    expect(translate("cohortAnalysisSizeLabel")).toBe("Cohort size");
+    expect(translate("cohortAnalysisAttentionLabel")).toBe("Attention");
+    expect(translate("cohortAnalysisNormalLabel")).toBe("Normal");
+    expect(translate("cohortAnalysisAvgSessionsLabel")).toBe("Avg sessions");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -190,6 +200,16 @@ describe("i18n", () => {
     expect(translate("shortcutsRecoverAction")).toBe("Recuperar dominio");
     expect(translate("shortcutsVisibleModulesLabel")).toBe("Modulos visibles");
     expect(translate("shortcutsNoItems")).toBe("No hay shortcuts disponibles para este dominio.");
+    expect(translate("cohortAnalysisTitle")).toBe("Analisis de cohortes");
+    expect(translate("cohortAnalysisStatusLabel")).toBe("Cohortes");
+    expect(translate("cohortAnalysisRefreshAction")).toBe("Refrescar cohortes");
+    expect(translate("cohortAnalysisNoRows")).toBe(
+      "No hay cohortes disponibles con los datos actuales."
+    );
+    expect(translate("cohortAnalysisSizeLabel")).toBe("Tamano cohorte");
+    expect(translate("cohortAnalysisAttentionLabel")).toBe("Atencion");
+    expect(translate("cohortAnalysisNormalLabel")).toBe("Normal");
+    expect(translate("cohortAnalysisAvgSessionsLabel")).toBe("Media sesiones");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");

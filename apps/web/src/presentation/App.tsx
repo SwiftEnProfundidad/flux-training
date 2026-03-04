@@ -83,6 +83,7 @@ import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
+import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -687,6 +688,24 @@ export function App() {
     () => buildAthleteOperationsRows(plans, sessions, nutritionLogs, progressSummary),
     [plans, sessions, nutritionLogs, progressSummary]
   );
+  const cohortAttentionCount = useMemo(
+    () => athleteOperationRowsBase.filter((row) => row.riskLevel === "attention").length,
+    [athleteOperationRowsBase]
+  );
+  const cohortNormalCount = useMemo(
+    () => athleteOperationRowsBase.length - cohortAttentionCount,
+    [athleteOperationRowsBase.length, cohortAttentionCount]
+  );
+  const cohortAverageSessions = useMemo(() => {
+    if (athleteOperationRowsBase.length === 0) {
+      return 0;
+    }
+    const totalSessions = athleteOperationRowsBase.reduce(
+      (accumulator, row) => accumulator + row.sessionsCount,
+      0
+    );
+    return Number((totalSessions / athleteOperationRowsBase.length).toFixed(1));
+  }, [athleteOperationRowsBase]);
   const athleteOperationRows = useMemo(
     () =>
       sortAthleteOperationsRows(
@@ -694,6 +713,15 @@ export function App() {
         athleteSortMode
       ),
     [athleteOperationRowsBase, athleteSortMode, deferredAthleteSearch]
+  );
+  const cohortAnalysisScreenModel = useMemo(
+    () =>
+      createCohortAnalysisScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        operationsStatus,
+        cohortSize: athleteOperationRowsBase.length
+      }),
+    [dashboardHomeScreenModel.status, operationsStatus, athleteOperationRowsBase.length]
   );
   const governancePrincipalsBase = useMemo(
     () =>
@@ -2666,6 +2694,15 @@ export function App() {
     await handleLoadProgressSummary();
   }
 
+  async function handleRefreshCohortAnalysis() {
+    await Promise.all([
+      handleLoadPlans(),
+      handleLoadSessions(),
+      handleLoadNutritionLogs(),
+      handleLoadProgressSummary()
+    ]);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -3509,6 +3546,77 @@ export function App() {
                           {moduleId}
                         </span>
                       ))}
+                    </div>
+                  )}
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={cohortAnalysisScreenModel.screenId}
+                data-route-id={cohortAnalysisScreenModel.routeId}
+                data-status-id="web.cohortAnalysis.status"
+              >
+                <SectionHeader
+                  title={translate("cohortAnalysisTitle")}
+                  status={cohortAnalysisScreenModel.status}
+                  statusLabel={translate("cohortAnalysisStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("cohortAnalysisSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("cohortAnalysisSizeLabel")}
+                      value={String(athleteOperationRowsBase.length)}
+                    />
+                    <Metric
+                      title={translate("cohortAnalysisAttentionLabel")}
+                      value={String(cohortAttentionCount)}
+                    />
+                    <Metric
+                      title={translate("cohortAnalysisNormalLabel")}
+                      value={String(cohortNormalCount)}
+                    />
+                    <Metric
+                      title={translate("cohortAnalysisAvgSessionsLabel")}
+                      value={String(cohortAverageSessions)}
+                    />
+                  </div>
+                  <button
+                    className="button ghost"
+                    type="button"
+                    data-action-id={cohortAnalysisScreenModel.actions.refresh}
+                    onClick={() => void handleRefreshCohortAnalysis()}
+                    disabled={cohortAnalysisScreenModel.status === "loading"}
+                  >
+                    {translate("cohortAnalysisRefreshAction")}
+                  </button>
+                  {athleteOperationRowsBase.length === 0 ? (
+                    <p className="empty-state">{translate("cohortAnalysisNoRows")}</p>
+                  ) : (
+                    <div className="dense-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>{translate("athleteColumn")}</th>
+                            <th>{translate("plansColumn")}</th>
+                            <th>{translate("sessionsColumn")}</th>
+                            <th>{translate("nutritionColumn")}</th>
+                            <th>{translate("riskColumn")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {athleteOperationRowsBase.slice(0, 6).map((row) => (
+                            <tr key={`cohort-${row.athleteId}`}>
+                              <td>{row.athleteId}</td>
+                              <td>{row.plansCount}</td>
+                              <td>{row.sessionsCount}</td>
+                              <td>{row.nutritionLogsCount}</td>
+                              <td>{toHumanStatus(row.riskLevel, language)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
