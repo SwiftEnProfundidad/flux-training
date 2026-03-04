@@ -99,6 +99,7 @@ import { createCohortNutritionScreenModel } from "./cohort-nutrition-contract";
 import { createNutritionLogDetailScreenModel } from "./nutrition-log-detail-contract";
 import { createPlansListScreenModel } from "./plans-list-contract";
 import { createPlanBuilderScreenModel } from "./plan-builder-contract";
+import { createPlanTemplatesScreenModel } from "./plan-templates-contract";
 import { createSessionDetailScreenModel } from "./session-detail-contract";
 import { createPlanAssignmentScreenModel } from "./plan-assignment-contract";
 import { createExerciseLibraryScreenModel } from "./exercise-library-contract";
@@ -235,6 +236,12 @@ type CohortNutritionRow = {
   riskLevel: "attention" | "normal";
 };
 type PlanBuilderTemplate = "strength" | "hypertrophy" | "recomposition";
+type PlanTemplateOption = {
+  template: PlanBuilderTemplate;
+  weeks: number;
+  daysPerWeek: number;
+  focus: string;
+};
 type ObservabilityStatus =
   | "idle"
   | "loading"
@@ -378,6 +385,8 @@ export function App() {
   const [planBuilderDaysInput, setPlanBuilderDaysInput] = useState("3");
   const [planBuilderTemplate, setPlanBuilderTemplate] =
     useState<PlanBuilderTemplate>("recomposition");
+  const [planTemplatesStatus, setPlanTemplatesStatus] = useState<ModuleRuntimeStatus>("idle");
+  const [selectedPlanTemplate, setSelectedPlanTemplate] = useState<PlanBuilderTemplate | "">("");
   const [plans, setPlans] = useState<TrainingPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState(dailyTrainingVideoDefaults.selectedPlanId);
   const [sessions, setSessions] = useState<WorkoutSessionInput[]>(dailyTrainingVideoDefaults.sessions);
@@ -1150,6 +1159,50 @@ export function App() {
         hasValidationError: hasPlanBuilderValidationError
       }),
     [dashboardHomeScreenModel.status, hasPlanBuilderValidationError, trainingStatus]
+  );
+  const planTemplateOptions = useMemo<PlanTemplateOption[]>(
+    () => [
+      {
+        template: "strength",
+        weeks: 6,
+        daysPerWeek: 4,
+        focus: translate("planTemplatesStrengthFocus")
+      },
+      {
+        template: "hypertrophy",
+        weeks: 8,
+        daysPerWeek: 5,
+        focus: translate("planTemplatesHypertrophyFocus")
+      },
+      {
+        template: "recomposition",
+        weeks: 8,
+        daysPerWeek: 4,
+        focus: translate("planTemplatesRecompositionFocus")
+      }
+    ],
+    [translate]
+  );
+  const selectedPlanTemplateOption = useMemo(
+    () => planTemplateOptions.find((option) => option.template === selectedPlanTemplate) ?? null,
+    [planTemplateOptions, selectedPlanTemplate]
+  );
+  const planTemplatesScreenModel = useMemo(
+    () =>
+      createPlanTemplatesScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        trainingStatus,
+        planTemplatesStatus,
+        templatesCount: planTemplateOptions.length,
+        hasSelectedTemplate: selectedPlanTemplateOption !== null
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      planTemplateOptions.length,
+      planTemplatesStatus,
+      selectedPlanTemplateOption,
+      trainingStatus
+    ]
   );
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan.id === selectedPlanId) ?? null,
@@ -2774,6 +2827,36 @@ export function App() {
       return;
     }
     window.open(selectedExerciseVideo.videoUrl, "_blank", "noopener,noreferrer");
+  }
+
+  function handleLoadPlanTemplates() {
+    setPlanTemplatesStatus("loading");
+    if (planTemplateOptions.length === 0) {
+      setPlanTemplatesStatus("empty");
+      return;
+    }
+    if (selectedPlanTemplate === "") {
+      setSelectedPlanTemplate(planTemplateOptions[0]?.template ?? "");
+    }
+    setPlanTemplatesStatus("loaded");
+    markDomainSuccess("training");
+  }
+
+  function handleApplyPlanTemplate() {
+    if (selectedPlanTemplateOption === null) {
+      setPlanTemplatesStatus("validation_error");
+      return;
+    }
+    setPlanBuilderTemplate(selectedPlanTemplateOption.template);
+    setPlanBuilderWeeksInput(String(selectedPlanTemplateOption.weeks));
+    setPlanBuilderDaysInput(String(selectedPlanTemplateOption.daysPerWeek));
+    setPlanTemplatesStatus("saved");
+    markDomainSuccess("training");
+  }
+
+  function handleClearPlanTemplateSelection() {
+    setSelectedPlanTemplate("");
+    setPlanTemplatesStatus("empty");
   }
 
   async function handleLoadRecommendations() {
@@ -4857,6 +4940,99 @@ export function App() {
                 {hasPlanBuilderValidationError ? (
                   <p className="validation-copy">{translate("planBuilderInvalidConfiguration")}</p>
                 ) : null}
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={planTemplatesScreenModel.screenId}
+                data-route-id={planTemplatesScreenModel.routeId}
+                data-status-id="web.light.planTemplates.status"
+              >
+                <SectionHeader
+                  title={translate("planTemplatesTitle")}
+                  status={planTemplatesScreenModel.status}
+                  statusLabel={translate("planTemplatesStatusLabel")}
+                  language={language}
+                />
+                <p>{translate("planTemplatesSummary")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button ghost"
+                    onClick={handleLoadPlanTemplates}
+                    type="button"
+                    data-action-id={planTemplatesScreenModel.actions.loadTemplates}
+                  >
+                    {translate("planTemplatesLoadAction")}
+                  </button>
+                  <button
+                    className="button primary"
+                    onClick={handleApplyPlanTemplate}
+                    type="button"
+                    data-action-id={planTemplatesScreenModel.actions.applyTemplate}
+                    disabled={selectedPlanTemplateOption === null}
+                  >
+                    {translate("planTemplatesApplyAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleClearPlanTemplateSelection}
+                    type="button"
+                    data-action-id={planTemplatesScreenModel.actions.clearSelection}
+                    disabled={selectedPlanTemplateOption === null}
+                  >
+                    {translate("planTemplatesClearAction")}
+                  </button>
+                </div>
+                {planTemplateOptions.length === 0 ? (
+                  <p className="empty-state">{translate("planTemplatesNoSelection")}</p>
+                ) : (
+                  <div className="choice-list">
+                    {planTemplateOptions.map((option) => (
+                      <label key={option.template}>
+                        <input
+                          type="radio"
+                          name="selected-plan-template"
+                          value={option.template}
+                          data-action-id={planTemplatesScreenModel.actions.selectTemplate}
+                          checked={selectedPlanTemplate === option.template}
+                          onChange={() => {
+                            setSelectedPlanTemplate(option.template);
+                            setPlanTemplatesStatus("loaded");
+                          }}
+                        />
+                        <span>
+                          {option.template === "strength"
+                            ? translate("planBuilderTemplateStrength")
+                            : option.template === "hypertrophy"
+                              ? translate("planBuilderTemplateHypertrophy")
+                              : translate("planBuilderTemplateRecomposition")}
+                        </span>
+                        <span>
+                          {translate("planTemplatesWeeksLabel")} {option.weeks} ·{" "}
+                          {translate("planTemplatesDaysLabel")} {option.daysPerWeek} ·{" "}
+                          {translate("planTemplatesFocusLabel")} {option.focus}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {selectedPlanTemplateOption === null ? (
+                  <p className="empty-state">{translate("planTemplatesNoSelection")}</p>
+                ) : (
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("planTemplatesWeeksLabel")}
+                      value={String(selectedPlanTemplateOption.weeks)}
+                    />
+                    <Metric
+                      title={translate("planTemplatesDaysLabel")}
+                      value={String(selectedPlanTemplateOption.daysPerWeek)}
+                    />
+                    <Metric
+                      title={translate("planTemplatesFocusLabel")}
+                      value={selectedPlanTemplateOption.focus}
+                    />
+                  </div>
+                )}
               </div>
               <StatLine
                 label={translate("plansLoadedLabel")}

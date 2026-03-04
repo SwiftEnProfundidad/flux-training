@@ -210,6 +210,19 @@ type AppTranslations = {
   planBuilderPreviewDaysLabel: string;
   planBuilderPreviewExercisesLabel: string;
   planBuilderInvalidConfiguration: string;
+  planTemplatesTitle: string;
+  planTemplatesStatusLabel: string;
+  planTemplatesSummary: string;
+  planTemplatesLoadAction: string;
+  planTemplatesApplyAction: string;
+  planTemplatesClearAction: string;
+  planTemplatesNoSelection: string;
+  planTemplatesWeeksLabel: string;
+  planTemplatesDaysLabel: string;
+  planTemplatesFocusLabel: string;
+  planTemplatesStrengthFocus: string;
+  planTemplatesHypertrophyFocus: string;
+  planTemplatesRecompositionFocus: string;
   planAssignmentTitle: string;
   planAssignmentStatusLabel: string;
   planAssignmentSummary: string;
@@ -692,6 +705,19 @@ const translations: Record<AppLanguage, AppTranslations> = {
     planBuilderPreviewDaysLabel: "dias configurados",
     planBuilderPreviewExercisesLabel: "ejercicios por dia",
     planBuilderInvalidConfiguration: "Configuracion invalida: revisa semanas y dias.",
+    planTemplatesTitle: "Plantillas de plan",
+    planTemplatesStatusLabel: "Plantillas",
+    planTemplatesSummary: "Selecciona una plantilla base y aplicala al constructor.",
+    planTemplatesLoadAction: "Cargar plantillas",
+    planTemplatesApplyAction: "Aplicar plantilla",
+    planTemplatesClearAction: "Limpiar plantilla",
+    planTemplatesNoSelection: "No hay plantilla seleccionada.",
+    planTemplatesWeeksLabel: "semanas",
+    planTemplatesDaysLabel: "dias/semana",
+    planTemplatesFocusLabel: "foco",
+    planTemplatesStrengthFocus: "fuerza base",
+    planTemplatesHypertrophyFocus: "volumen progresivo",
+    planTemplatesRecompositionFocus: "equilibrio fuerza/cardio",
     planAssignmentTitle: "Asignacion de plan",
     planAssignmentStatusLabel: "Asignacion",
     planAssignmentSummary:
@@ -1183,6 +1209,19 @@ const translations: Record<AppLanguage, AppTranslations> = {
     planBuilderPreviewDaysLabel: "configured days",
     planBuilderPreviewExercisesLabel: "exercises per day",
     planBuilderInvalidConfiguration: "Invalid configuration: review weeks and days.",
+    planTemplatesTitle: "Plan templates",
+    planTemplatesStatusLabel: "Templates",
+    planTemplatesSummary: "Pick a base template and apply it to the builder.",
+    planTemplatesLoadAction: "Load templates",
+    planTemplatesApplyAction: "Apply template",
+    planTemplatesClearAction: "Clear template",
+    planTemplatesNoSelection: "No template selected.",
+    planTemplatesWeeksLabel: "weeks",
+    planTemplatesDaysLabel: "days/week",
+    planTemplatesFocusLabel: "focus",
+    planTemplatesStrengthFocus: "base strength",
+    planTemplatesHypertrophyFocus: "progressive volume",
+    planTemplatesRecompositionFocus: "strength/cardio balance",
     planAssignmentTitle: "Plan assignment",
     planAssignmentStatusLabel: "Assignment",
     planAssignmentSummary:

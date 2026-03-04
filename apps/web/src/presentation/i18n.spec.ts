@@ -98,6 +98,11 @@ describe("i18n", () => {
     expect(translate("planBuilderInvalidConfiguration")).toBe(
       "Invalid configuration: review weeks and days."
     );
+    expect(translate("planTemplatesTitle")).toBe("Plan templates");
+    expect(translate("planTemplatesStatusLabel")).toBe("Templates");
+    expect(translate("planTemplatesLoadAction")).toBe("Load templates");
+    expect(translate("planTemplatesApplyAction")).toBe("Apply template");
+    expect(translate("planTemplatesClearAction")).toBe("Clear template");
     expect(translate("planAssignmentTitle")).toBe("Plan assignment");
     expect(translate("planAssignmentStatusLabel")).toBe("Assignment");
     expect(translate("planAssignmentPlanLabel")).toBe("Active plan");

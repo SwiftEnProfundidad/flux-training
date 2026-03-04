@@ -138,10 +138,10 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Total pantallas en este bloque: **2**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
-| 4.12.1 | WEB-340_PLAN_TEMPLATES | `5fVNS` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 4.12.2 | WEB-350_PUBLISH_REVIEW | `7mbrT` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.12.1 | WEB-340_PLAN_TEMPLATES | `5fVNS` | ✅ | `web.route.light.planTemplates -> web.light.planTemplates.screen` | `createPlanTemplatesScreenModel` + `planTemplateOptions` + integracion real con `planBuilderTemplate/weeks/days` | Operar plantillas (`web.light.planTemplates.loadTemplates`, `web.light.planTemplates.selectTemplate`, `web.light.planTemplates.applyTemplate`, `web.light.planTemplates.clearSelection`) | loading|empty|error|success|denied|offline | ✅ `presentation/plan-templates-contract.spec.ts` + `pnpm --filter @flux/web check` | ✅ route/screen/status/actions instrumentados (`web.route.light.planTemplates`, `web.light.planTemplates.screen`, `web.light.planTemplates.status`, `web.light.planTemplates.*`) |
+| 4.12.2 | WEB-350_PUBLISH_REVIEW | `7mbrT` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
 
 ## Estado activo Web
-- Task en construccion: **4.12.1 WEB-340_PLAN_TEMPLATES**
-- Siguiente task: **4.12.2 WEB-350_PUBLISH_REVIEW**
+- Task en construccion: **4.12.2 WEB-350_PUBLISH_REVIEW**
+- Siguiente task: **F5 QA funcional E2E iOS/Web/Backend**

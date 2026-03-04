@@ -34,5 +34,5 @@ Orquestar la entrega del MVP operativo real con tracking separado por plataforma
 
 ## Estado activo global
 - iOS: sin task en construccion (66/66 en ✅)
-- Web: `🚧 4.12.1 WEB-340_PLAN_TEMPLATES`
-- Siguiente global: `4.12.2 WEB-350_PUBLISH_REVIEW`
+- Web: `🚧 4.12.2 WEB-350_PUBLISH_REVIEW`
+- Siguiente global: `F5 QA funcional E2E iOS/Web/Backend`

@@ -14,7 +14,7 @@
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
 - Estado actual iOS: **⏳ en pausa temporal** mientras se cierra el bloque web activo.
-- Estado actual web: **🚧 WEB-340_PLAN_TEMPLATES** en implementacion pantalla a pantalla dentro de `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Estado actual web: **🚧 WEB-350_PUBLISH_REVIEW** en implementacion pantalla a pantalla dentro de `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.
@@ -140,6 +140,7 @@
 - `WEB-330_PLAN_ASSIGNMENT` ya esta operativo con ruta/pantalla propias (`web.route.planAssignment -> web.planAssignment.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de asignacion (`web.planAssignment.assignSelected`, `web.planAssignment.assignAtRisk`, `web.planAssignment.clearSelection`) sobre asignacion real de planes por atleta y evento de observabilidad.
 - `WEB-400_EXERCISE_LIBRARY` ya esta operativo con ruta/pantalla propias (`web.route.exerciseLibrary -> web.exerciseLibrary.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de libreria (`web.exerciseLibrary.selectExercise`, `web.exerciseLibrary.selectLocale`, `web.exerciseLibrary.loadVideos`, `web.exerciseLibrary.openVideo`) sobre carga real de videos por ejercicio/idioma.
 - `WEB-410_EXERCISE_DETAIL` ya esta operativo con ruta/pantalla propias (`web.route.exerciseDetail -> web.exerciseDetail.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de detalle (`web.exerciseDetail.loadDetail`, `web.exerciseDetail.selectVideo`, `web.exerciseDetail.clearSelection`, `web.exerciseDetail.openVideo`) sobre seleccion real de video activo.
+- `WEB-340_PLAN_TEMPLATES` ya esta operativo con ruta/pantalla propias (`web.route.light.planTemplates -> web.light.planTemplates.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de plantillas (`web.light.planTemplates.loadTemplates`, `web.light.planTemplates.selectTemplate`, `web.light.planTemplates.applyTemplate`, `web.light.planTemplates.clearSelection`) aplicadas al constructor de plan real.
 - Runtime web+iOS endurecido contra comportamiento demo: se eliminaron fallback locales de autenticacion (`apple-local-dev-token` y tokens sinteticos), se retiraron defaults `demo-user` en runtime productivo y se fijo backend cloud como target por defecto para ejecucion productiva.
 
 ## Decisiones activas
