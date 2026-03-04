@@ -11,6 +11,6 @@ public struct FluxTrainingAppBootstrapView: View {
   }
 
   public var body: some View {
-    ExperienceHubView.makeProduction(configuration: configuration)
+    CompositionRoot.makeProductionProductRoot(configuration: configuration)
   }
 }

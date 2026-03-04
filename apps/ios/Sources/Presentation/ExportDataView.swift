@@ -1,0 +1,72 @@
+import Observation
+import SwiftUI
+
+@available(iOS 17, macOS 14, *)
+public struct ExportDataView: View {
+  @Bindable private var viewModel: ExportDataViewModel
+  private let userID: String
+  private let copy: LocalizedCopy
+  private let screenAccessibilityID: String
+
+  public init(
+    viewModel: ExportDataViewModel,
+    userID: String,
+    copy: LocalizedCopy,
+    screenAccessibilityID: String = SettingsRouteContract.exportDataDarkScreenID
+  ) {
+    self.viewModel = viewModel
+    self.userID = userID
+    self.copy = copy
+    self.screenAccessibilityID = screenAccessibilityID
+  }
+
+  public var body: some View {
+    Form {
+      Section(copy.text(.exportDataTitle)) {
+        LabeledContent(copy.text(.exportGeneratedAtLabel), value: viewModel.generatedAtISO8601)
+          .accessibilityIdentifier("export.generatedAt")
+        LabeledContent(copy.text(.exportPayloadBytesLabel), value: "\(viewModel.payloadBytes)")
+          .accessibilityIdentifier("export.payloadBytes")
+      }
+
+      Section {
+        Button(copy.text(.exportData)) {
+          Task {
+            await viewModel.export(userID: userID)
+          }
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.orange)
+        .accessibilityIdentifier("export.action")
+      }
+
+      Section(copy.text(.exportStatusLabel)) {
+        Text(copy.humanStatus(viewModel.status))
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+          .accessibilityIdentifier("export.status")
+      }
+
+      Section(copy.text(.exportPayloadPreviewLabel)) {
+        if viewModel.payloadPreview.isEmpty {
+          Text(copy.text(.exportNoPayloadPreview))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .accessibilityIdentifier("export.preview.empty")
+        } else {
+          ScrollView(.horizontal) {
+            Text(viewModel.payloadPreview)
+              .font(.system(.footnote, design: .monospaced))
+              .textSelection(.enabled)
+              .accessibilityIdentifier("export.preview.value")
+          }
+        }
+      }
+    }
+    .navigationTitle(copy.text(.exportDataTitle))
+    .accessibilityIdentifier(screenAccessibilityID)
+    .task(id: userID) {
+      await viewModel.refresh(userID: userID)
+    }
+  }
+}

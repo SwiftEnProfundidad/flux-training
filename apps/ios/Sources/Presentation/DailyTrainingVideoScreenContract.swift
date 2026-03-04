@@ -6,6 +6,7 @@ public enum DailyTrainingVideoScreenStatus: String, Sendable, Equatable {
   case saved
   case loaded
   case queued
+  case empty
   case error
   case offline
   case denied

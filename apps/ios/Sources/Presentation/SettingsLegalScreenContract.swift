@@ -3,11 +3,13 @@ import Foundation
 public enum SettingsLegalScreenStatus: String, Sendable, Equatable {
   case idle
   case loading
+  case loaded
+  case empty
   case validationError = "validation_error"
   case consentRequired = "consent_required"
   case saved
   case exported
-  case deletionRequested
+  case deletionRequested = "deletion_requested"
   case error
   case offline
   case denied
@@ -16,6 +18,10 @@ public enum SettingsLegalScreenStatus: String, Sendable, Equatable {
     switch rawStatus.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
     case "loading":
       return .loading
+    case "loaded":
+      return .loaded
+    case "empty":
+      return .empty
     case "validation_error":
       return .validationError
     case "consent_required":

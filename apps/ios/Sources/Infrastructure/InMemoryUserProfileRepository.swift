@@ -1,16 +1,19 @@
 import Foundation
 
 public actor InMemoryUserProfileRepository: UserProfileRepository {
-  private var profiles: [UserProfile] = []
+  private var profilesByUserID: [String: UserProfile] = [:]
 
   public init() {}
 
   public func save(profile: UserProfile) async throws {
-    profiles.append(profile)
+    profilesByUserID[profile.id] = profile
+  }
+
+  public func load(userID: String) async throws -> UserProfile? {
+    profilesByUserID[userID]
   }
 
   public func allProfiles() async -> [UserProfile] {
-    profiles
+    Array(profilesByUserID.values)
   }
 }
-

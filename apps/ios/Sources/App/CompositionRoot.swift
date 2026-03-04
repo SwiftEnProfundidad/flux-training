@@ -2,6 +2,27 @@ import Foundation
 
 public enum CompositionRoot {
   @MainActor
+  public static func makeProductionProductRoot(
+    configuration: FluxTrainingAppConfiguration = .production
+  ) -> FluxTrainingProductRootView {
+    let dependencies = makeProductionDependencies(configuration: configuration)
+    return FluxTrainingProductRootView(
+      authViewModel: dependencies.authViewModel,
+      onboardingViewModel: dependencies.onboardingViewModel,
+      trainingViewModel: dependencies.trainingViewModel,
+      nutritionViewModel: dependencies.nutritionViewModel,
+      progressViewModel: dependencies.progressViewModel,
+      settingsHomeViewModel: dependencies.settingsHomeViewModel,
+      accountProfileViewModel: dependencies.accountProfileViewModel,
+      notificationsViewModel: dependencies.notificationsViewModel,
+      privacyConsentViewModel: dependencies.privacyConsentViewModel,
+      exportDataViewModel: dependencies.exportDataViewModel,
+      deleteAccountViewModel: dependencies.deleteAccountViewModel,
+      userID: configuration.defaultUserID
+    )
+  }
+
+  @MainActor
   public static func makeProductionExperienceHub(
     configuration: FluxTrainingAppConfiguration = .production
   ) -> ExperienceHubView {
@@ -12,6 +33,12 @@ public enum CompositionRoot {
       trainingViewModel: dependencies.trainingViewModel,
       nutritionViewModel: dependencies.nutritionViewModel,
       progressViewModel: dependencies.progressViewModel,
+      settingsHomeViewModel: dependencies.settingsHomeViewModel,
+      accountProfileViewModel: dependencies.accountProfileViewModel,
+      notificationsViewModel: dependencies.notificationsViewModel,
+      privacyConsentViewModel: dependencies.privacyConsentViewModel,
+      exportDataViewModel: dependencies.exportDataViewModel,
+      deleteAccountViewModel: dependencies.deleteAccountViewModel,
       offlineSyncViewModel: dependencies.offlineSyncViewModel,
       observabilityViewModel: dependencies.observabilityViewModel,
       loadRoleCapabilitiesHandler: dependencies.loadRoleCapabilitiesHandler,
@@ -80,6 +107,73 @@ public enum CompositionRoot {
   }
 
   @MainActor
+  public static func makeSettingsHomeViewModel() -> SettingsHomeViewModel {
+    let repository = PersistentUserSettingsRepository()
+    return SettingsHomeViewModel(
+      loadUserSettingsUseCase: LoadUserSettingsUseCase(repository: repository),
+      saveUserSettingsUseCase: SaveUserSettingsUseCase(repository: repository)
+    )
+  }
+
+  @MainActor
+  public static func makeAccountProfileViewModel() -> AccountProfileViewModel {
+    let repository = PersistentUserProfileRepository()
+    return AccountProfileViewModel(
+      loadUserProfileUseCase: LoadUserProfileUseCase(repository: repository),
+      saveUserProfileUseCase: SaveUserProfileUseCase(repository: repository)
+    )
+  }
+
+  @MainActor
+  public static func makeNotificationsViewModel() -> NotificationsViewModel {
+    let repository = PersistentUserSettingsRepository()
+    return NotificationsViewModel(
+      loadUserSettingsUseCase: LoadUserSettingsUseCase(repository: repository),
+      saveUserSettingsUseCase: SaveUserSettingsUseCase(repository: repository)
+    )
+  }
+
+  @MainActor
+  public static func makePrivacyConsentViewModel() -> PrivacyConsentViewModel {
+    let repository = PersistentUserLegalConsentRepository()
+    return PrivacyConsentViewModel(
+      loadUserLegalConsentUseCase: LoadUserLegalConsentUseCase(repository: repository),
+      saveUserLegalConsentUseCase: SaveUserLegalConsentUseCase(repository: repository)
+    )
+  }
+
+  @MainActor
+  public static func makeExportDataViewModel() -> ExportDataViewModel {
+    let profileRepository = PersistentUserProfileRepository()
+    let settingsRepository = PersistentUserSettingsRepository()
+    let legalConsentRepository = PersistentUserLegalConsentRepository()
+    return ExportDataViewModel(
+      exportUserDataUseCase: ExportUserDataUseCase(
+        userProfileRepository: profileRepository,
+        userSettingsRepository: settingsRepository,
+        userLegalConsentRepository: legalConsentRepository
+      )
+    )
+  }
+
+  @MainActor
+  public static func makeDeleteAccountViewModel() -> DeleteAccountViewModel {
+    let requestRepository = PersistentAccountDeletionRequestRepository()
+    let consentRepository = PersistentUserLegalConsentRepository()
+    return DeleteAccountViewModel(
+      loadLatestAccountDeletionRequestUseCase: LoadLatestAccountDeletionRequestUseCase(
+        repository: requestRepository
+      ),
+      requestAccountDeletionUseCase: RequestAccountDeletionUseCase(
+        repository: requestRepository
+      ),
+      loadUserLegalConsentUseCase: LoadUserLegalConsentUseCase(
+        repository: consentRepository
+      )
+    )
+  }
+
+  @MainActor
   public static func makeOfflineSyncViewModel() -> OfflineSyncViewModel {
     let queueRepository = InMemoryOfflineSyncQueueRepository()
     let trainingPlanRepository = InMemoryTrainingPlanRepository()
@@ -124,6 +218,12 @@ public enum CompositionRoot {
     let trainingViewModel: TrainingFlowViewModel
     let nutritionViewModel: NutritionViewModel
     let progressViewModel: ProgressViewModel
+    let settingsHomeViewModel: SettingsHomeViewModel
+    let accountProfileViewModel: AccountProfileViewModel
+    let notificationsViewModel: NotificationsViewModel
+    let privacyConsentViewModel: PrivacyConsentViewModel
+    let exportDataViewModel: ExportDataViewModel
+    let deleteAccountViewModel: DeleteAccountViewModel
     let offlineSyncViewModel: OfflineSyncViewModel
     let observabilityViewModel: ObservabilityViewModel
     let loadRoleCapabilitiesHandler: @Sendable (ExperienceRole) async -> Set<ExperienceDomain>?
@@ -198,6 +298,48 @@ public enum CompositionRoot {
       )
     )
 
+    let userSettingsRepository = PersistentUserSettingsRepository()
+    let settingsHomeViewModel = SettingsHomeViewModel(
+      loadUserSettingsUseCase: LoadUserSettingsUseCase(repository: userSettingsRepository),
+      saveUserSettingsUseCase: SaveUserSettingsUseCase(repository: userSettingsRepository)
+    )
+    let notificationsViewModel = NotificationsViewModel(
+      loadUserSettingsUseCase: LoadUserSettingsUseCase(repository: userSettingsRepository),
+      saveUserSettingsUseCase: SaveUserSettingsUseCase(repository: userSettingsRepository)
+    )
+    let userLegalConsentRepository = PersistentUserLegalConsentRepository()
+    let privacyConsentViewModel = PrivacyConsentViewModel(
+      loadUserLegalConsentUseCase: LoadUserLegalConsentUseCase(
+        repository: userLegalConsentRepository
+      ),
+      saveUserLegalConsentUseCase: SaveUserLegalConsentUseCase(
+        repository: userLegalConsentRepository
+      )
+    )
+    let accountProfileViewModel = AccountProfileViewModel(
+      loadUserProfileUseCase: LoadUserProfileUseCase(repository: userProfileRepository),
+      saveUserProfileUseCase: SaveUserProfileUseCase(repository: userProfileRepository)
+    )
+    let exportDataViewModel = ExportDataViewModel(
+      exportUserDataUseCase: ExportUserDataUseCase(
+        userProfileRepository: userProfileRepository,
+        userSettingsRepository: userSettingsRepository,
+        userLegalConsentRepository: userLegalConsentRepository
+      )
+    )
+    let accountDeletionRepository = PersistentAccountDeletionRequestRepository()
+    let deleteAccountViewModel = DeleteAccountViewModel(
+      loadLatestAccountDeletionRequestUseCase: LoadLatestAccountDeletionRequestUseCase(
+        repository: accountDeletionRepository
+      ),
+      requestAccountDeletionUseCase: RequestAccountDeletionUseCase(
+        repository: accountDeletionRepository
+      ),
+      loadUserLegalConsentUseCase: LoadUserLegalConsentUseCase(
+        repository: userLegalConsentRepository
+      )
+    )
+
     let queueRepository = PersistentOfflineSyncQueueRepository()
     let offlineSyncViewModel = OfflineSyncViewModel(
       queueOfflineActionUseCase: QueueOfflineActionUseCase(
@@ -245,6 +387,12 @@ public enum CompositionRoot {
       trainingViewModel: trainingViewModel,
       nutritionViewModel: nutritionViewModel,
       progressViewModel: progressViewModel,
+      settingsHomeViewModel: settingsHomeViewModel,
+      accountProfileViewModel: accountProfileViewModel,
+      notificationsViewModel: notificationsViewModel,
+      privacyConsentViewModel: privacyConsentViewModel,
+      exportDataViewModel: exportDataViewModel,
+      deleteAccountViewModel: deleteAccountViewModel,
       offlineSyncViewModel: offlineSyncViewModel,
       observabilityViewModel: observabilityViewModel,
       loadRoleCapabilitiesHandler: loadRoleCapabilitiesHandler

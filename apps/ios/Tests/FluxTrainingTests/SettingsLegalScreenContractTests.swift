@@ -17,6 +17,8 @@ final class SettingsLegalScreenContractTests: XCTestCase {
 
   func test_fromRuntimeStatus_mapsLegalStatuses() {
     XCTAssertEqual(SettingsLegalScreenStatus.fromRuntimeStatus("loading"), .loading)
+    XCTAssertEqual(SettingsLegalScreenStatus.fromRuntimeStatus("loaded"), .loaded)
+    XCTAssertEqual(SettingsLegalScreenStatus.fromRuntimeStatus("empty"), .empty)
     XCTAssertEqual(SettingsLegalScreenStatus.fromRuntimeStatus("validation_error"), .validationError)
     XCTAssertEqual(SettingsLegalScreenStatus.fromRuntimeStatus("consent_required"), .consentRequired)
     XCTAssertEqual(SettingsLegalScreenStatus.fromRuntimeStatus("saved"), .saved)

@@ -21,13 +21,18 @@ public struct FluxTrainingAppConfiguration: Sendable, Equatable {
     let clientVersion = environment["FLUX_IOS_CLIENT_VERSION"] ?? "0.1.0"
     let appleProviderToken =
       environment["FLUX_APPLE_PROVIDER_TOKEN"] ?? "ios-apple-provider-token"
+    let firebaseWebAPIKey =
+      environment["FLUX_FIREBASE_WEB_API_KEY"] ??
+      environment["FLUX_FIREBASE_API_KEY"] ??
+      ""
 
     return FluxTrainingAppConfiguration(
       defaultUserID: environment["FLUX_DEFAULT_USER_ID"] ?? "flux-user-local",
       backendConfiguration: FluxBackendConfiguration(
         baseURL: backendURL,
         clientVersion: clientVersion,
-        appleProviderToken: appleProviderToken
+        appleProviderToken: appleProviderToken,
+        firebaseWebAPIKey: firebaseWebAPIKey
       )
     )
   }

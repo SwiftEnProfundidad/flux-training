@@ -4,6 +4,16 @@ private struct CreateAuthSessionRequest: Encodable {
   let providerToken: String
 }
 
+private struct FirebaseEmailSignInRequest: Encodable {
+  let email: String
+  let password: String
+  let returnSecureToken: Bool
+}
+
+private struct FirebaseEmailSignInResponse: Decodable {
+  let idToken: String
+}
+
 private struct CreateAuthSessionResponse: Decodable {
   struct PayloadSessionPolicy: Decodable {
     let maxIdleSeconds: Int
@@ -49,12 +59,29 @@ public struct RemoteAuthGateway: AuthGateway {
   }
 
   public func createSessionWithApple() async throws -> AuthSession {
-    try await createSession(providerToken: configuration.appleProviderToken)
+    let providerToken = configuration.appleProviderToken
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    if providerToken.isEmpty || providerToken == "ios-apple-provider-token" {
+      if shouldUseLocalFallbackAuth {
+        return try await createSession(providerToken: "apple-local-dev-token")
+      }
+      throw FluxBackendClientError.backend(code: "missing_apple_provider_token")
+    }
+    return try await createSession(providerToken: providerToken)
   }
 
   public func createSessionWithEmail(email: String, password: String) async throws -> AuthSession {
-    let tokenPayload = "\(email.trimmingCharacters(in: .whitespacesAndNewlines))"
-    return try await createSession(providerToken: tokenPayload)
+    if shouldUseLocalFallbackAuth {
+      let fallbackToken = email.trimmingCharacters(in: .whitespacesAndNewlines)
+      if fallbackToken.isEmpty == false {
+        return try await createSession(providerToken: fallbackToken)
+      }
+    }
+    let providerToken = try await requestFirebaseEmailProviderToken(
+      email: email,
+      password: password
+    )
+    return try await createSession(providerToken: providerToken)
   }
 
   private func createSession(providerToken: String) async throws -> AuthSession {
@@ -88,5 +115,57 @@ public struct RemoteAuthGateway: AuthGateway {
 
     await sessionStore.save(session: session)
     return session
+  }
+
+  private func requestFirebaseEmailProviderToken(
+    email: String,
+    password: String
+  ) async throws -> String {
+    let normalizedAPIKey = configuration.firebaseWebAPIKey
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    guard normalizedAPIKey.isEmpty == false else {
+      throw FluxBackendClientError.backend(code: "missing_firebase_web_api_key")
+    }
+
+    var components = URLComponents(
+      string: "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
+    )
+    components?.queryItems = [URLQueryItem(name: "key", value: normalizedAPIKey)]
+    guard let url = components?.url else {
+      throw FluxBackendClientError.invalidURL
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.httpBody = try JSONEncoder().encode(
+      FirebaseEmailSignInRequest(
+        email: email.trimmingCharacters(in: .whitespacesAndNewlines),
+        password: password,
+        returnSecureToken: true
+      )
+    )
+
+    let (data, response) = try await URLSession.shared.data(for: request)
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw FluxBackendClientError.invalidResponse
+    }
+
+    guard (200...299).contains(httpResponse.statusCode) else {
+      throw FluxBackendClientError.backend(code: "firebase_email_sign_in_failed")
+    }
+
+    let payload = try JSONDecoder().decode(FirebaseEmailSignInResponse.self, from: data)
+    guard payload.idToken.isEmpty == false else {
+      throw FluxBackendClientError.backend(code: "firebase_email_sign_in_failed")
+    }
+    return payload.idToken
+  }
+
+  private var shouldUseLocalFallbackAuth: Bool {
+    guard let host = configuration.baseURL.host?.lowercased() else {
+      return false
+    }
+    return host == "localhost" || host == "127.0.0.1"
   }
 }

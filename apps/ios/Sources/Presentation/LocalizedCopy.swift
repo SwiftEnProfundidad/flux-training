@@ -67,6 +67,30 @@ public enum CopyKey: Sendable {
   case readinessLabel
   case dailyObjective
   case authenticationTitle
+  case signInEmailSubtitle
+  case authEmailHelpText
+  case applePermissionsTitle
+  case applePermissionsSubtitle
+  case applePermissionNameEmail
+  case applePermissionHealthKitRead
+  case applePermissionCalendarEvents
+  case applePermissionRequiredCount
+  case appleUseEmailInstead
+  case verifyOTPTitle
+  case otpSubtitle
+  case otpCodeField
+  case otpExpirationHint
+  case verifyCodeAction
+  case resendOTPAction
+  case recoverAccountTitle
+  case recoverAccountSubtitle
+  case recoveryMethodLabel
+  case openSupportTicketAction
+  case sessionExpiredTitle
+  case sessionExpiredMessage
+  case sessionExpiredCauses
+  case backToSignInAction
+  case openOfflineModeAction
   case emailField
   case passwordField
   case signInWithApple
@@ -75,14 +99,25 @@ public enum CopyKey: Sendable {
   case recoverBySMS
   case authStatusLabel
   case onboardingTitle
+  case onboardingStepOneSubtitle
   case displayName
   case age
   case days
   case chestPainQuestion
   case dizzinessQuestion
+  case parQBoneJointQuestion
+  case parQWarning
+  case parQMedicalClearanceAction
   case acceptPrivacyPolicy
   case acceptTerms
   case acceptMedicalDisclaimer
+  case policySummaryLine
+  case termsSummaryLine
+  case medicalDisclaimerSummaryLine
+  case yesOption
+  case noOption
+  case acceptAndContinue
+  case continueAction
   case completeOnboarding
   case onboardingStatusLabel
   case nutritionTitle
@@ -135,17 +170,77 @@ public enum CopyKey: Sendable {
   case videoEmptyNotice
   case noVideosLoaded
   case openVideo
+  case inWorkoutSetupTitle
+  case inWorkoutSetupDescription
+  case startInWorkoutSetup
+  case setupStatusLabel
+  case inWorkoutSetupNoPlan
+  case inWorkoutSetupReady
+  case rpeRatingTitle
+  case rpeRatingDescription
+  case selectedRPELabel
+  case submitRPEAction
+  case rpeSavedMessage
+  case substitutionTitle
+  case substitutionDescription
+  case currentExerciseLabel
+  case substituteExerciseLabel
+  case applySubstitutionAction
+  case substitutionStatusLabel
+  case substitutionSavedMessage
+  case substitutionInvalidSelection
+  case exerciseLibraryTitle
+  case exerciseLibraryDescription
+  case loadExerciseLibraryAction
+  case exerciseLibraryStatusLabel
+  case noExerciseLibraryResults
+  case videoPlayerTitle
+  case videoPlayerDescription
+  case videoPlayerSelectionLabel
+  case playSelectedVideoAction
+  case videoPlayerStatusLabel
   case settingsTitle
+  case accountProfileTitle
+  case notificationsTitle
   case settingsStatusLabel
+  case profileStatusLabel
+  case notificationsStatusLabel
   case notificationsPreference
+  case trainingRemindersPreference
+  case recoveryAlertsPreference
+  case weeklyDigestPreference
   case watchPreference
   case calendarPreference
   case saveSettings
+  case saveProfile
+  case saveNotifications
+  case goalLabel
+  case goalSetupSubtitle
+  case weeklySessionsLabel
+  case sessionDurationLabel
+  case saveGoal
+  case parQTitle
+  case heightCmLabel
+  case weightKgLabel
+  case goalFatLoss
+  case goalRecomposition
+  case goalMuscleGain
+  case goalHabit
   case legalSectionTitle
   case legalStatusLabel
   case legalSummaryLabel
   case saveConsent
   case exportData
+  case exportDataTitle
+  case exportStatusLabel
+  case exportGeneratedAtLabel
+  case exportPayloadBytesLabel
+  case exportPayloadPreviewLabel
+  case exportNoPayloadPreview
+  case deleteAccountTitle
+  case deleteAccountStatusLabel
+  case deleteAccountReasonLabel
+  case deleteAccountLatestRequestLabel
   case requestDeletion
 }
 
@@ -217,6 +312,7 @@ public struct LocalizedCopy: Sendable {
     let labels: [SupportedLanguage: [String: String]] = [
       .es: [
         "signed_out": "sin sesion",
+        "session_expired": "sesion expirada",
         "auth_error": "error de auth",
         "validation_error": "error de validacion",
         "consent_required": "consentimiento requerido",
@@ -248,6 +344,7 @@ public struct LocalizedCopy: Sendable {
       ],
       .en: [
         "signed_out": "signed out",
+        "session_expired": "session expired",
         "auth_error": "auth error",
         "validation_error": "validation error",
         "consent_required": "consent required",
@@ -411,6 +508,54 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Objetivo diario: completar entrenamiento y nutricion sin acciones pendientes."
   case .authenticationTitle:
     return "Autenticacion"
+  case .signInEmailSubtitle:
+    return "Accede con email y contrasena o usa proveedores seguros."
+  case .authEmailHelpText:
+    return "Problemas de acceso:\n- Codigo OTP\n- Recuperar cuenta\n- Contactar soporte"
+  case .applePermissionsTitle:
+    return "Permisos Apple"
+  case .applePermissionsSubtitle:
+    return "Revisa permisos requeridos antes de continuar."
+  case .applePermissionNameEmail:
+    return "Nombre y email"
+  case .applePermissionHealthKitRead:
+    return "HealthKit read"
+  case .applePermissionCalendarEvents:
+    return "Calendar events"
+  case .applePermissionRequiredCount:
+    return "3 de 3 permisos requeridos"
+  case .appleUseEmailInstead:
+    return "Usar email en su lugar"
+  case .verifyOTPTitle:
+    return "Verificar OTP"
+  case .otpSubtitle:
+    return "Introduce el codigo de 6 digitos enviado a tu email."
+  case .otpCodeField:
+    return "Codigo de 6 digitos"
+  case .otpExpirationHint:
+    return "Code expires in 00:58"
+  case .verifyCodeAction:
+    return "Verificar codigo"
+  case .resendOTPAction:
+    return "Reenviar OTP"
+  case .recoverAccountTitle:
+    return "Recuperar cuenta"
+  case .recoverAccountSubtitle:
+    return "Elige metodo para recuperar acceso."
+  case .recoveryMethodLabel:
+    return "Metodo de recuperacion"
+  case .openSupportTicketAction:
+    return "Abrir ticket de soporte"
+  case .sessionExpiredTitle:
+    return "Sesion expirada"
+  case .sessionExpiredMessage:
+    return "Por seguridad, vuelve a iniciar sesion o continua en modo offline."
+  case .sessionExpiredCauses:
+    return "Possible causes:\n- Token expired\n- Remote logout\n- Version mismatch"
+  case .backToSignInAction:
+    return "Volver a iniciar sesion"
+  case .openOfflineModeAction:
+    return "Abrir modo offline"
   case .emailField:
     return "Correo"
   case .passwordField:
@@ -427,6 +572,8 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Auth"
   case .onboardingTitle:
     return "Onboarding + PAR-Q+"
+  case .onboardingStepOneSubtitle:
+    return "Completa tu perfil inicial y disponibilidad semanal."
   case .displayName:
     return "Nombre"
   case .age:
@@ -437,12 +584,32 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Dolor de pecho en actividad fisica"
   case .dizzinessQuestion:
     return "Mareos durante el ejercicio"
+  case .parQBoneJointQuestion:
+    return "Problema oseo o articular"
+  case .parQWarning:
+    return "Si alguna respuesta es SI, consulta a tu medico primero."
+  case .parQMedicalClearanceAction:
+    return "Solicitar aptitud medica"
   case .acceptPrivacyPolicy:
     return "Acepto politica de privacidad"
   case .acceptTerms:
     return "Acepto terminos y condiciones"
   case .acceptMedicalDisclaimer:
     return "He leido el disclaimer medico"
+  case .policySummaryLine:
+    return "Resumen de politica"
+  case .termsSummaryLine:
+    return "Resumen de terminos"
+  case .medicalDisclaimerSummaryLine:
+    return "Disclaimer medico"
+  case .yesOption:
+    return "Si"
+  case .noOption:
+    return "No"
+  case .acceptAndContinue:
+    return "Aceptar y continuar"
+  case .continueAction:
+    return "Continuar"
   case .completeOnboarding:
     return "Completar onboarding"
   case .onboardingStatusLabel:
@@ -547,18 +714,118 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Todavia no hay videos cargados"
   case .openVideo:
     return "Abrir video"
+  case .inWorkoutSetupTitle:
+    return "Setup de sesion"
+  case .inWorkoutSetupDescription:
+    return "Prepara plan, ejercicio e idioma antes de iniciar la sesion."
+  case .startInWorkoutSetup:
+    return "Preparar sesion"
+  case .setupStatusLabel:
+    return "Estado setup"
+  case .inWorkoutSetupNoPlan:
+    return "No hay planes para iniciar la sesion."
+  case .inWorkoutSetupReady:
+    return "Sesion lista para empezar."
+  case .rpeRatingTitle:
+    return "RPE de la sesion"
+  case .rpeRatingDescription:
+    return "Registra percepcion de esfuerzo para cerrar la sesion en curso."
+  case .selectedRPELabel:
+    return "RPE objetivo"
+  case .submitRPEAction:
+    return "Guardar RPE"
+  case .rpeSavedMessage:
+    return "RPE guardado en la sesion."
+  case .substitutionTitle:
+    return "Sustitucion de ejercicio"
+  case .substitutionDescription:
+    return "Reemplaza el ejercicio actual por una alternativa disponible."
+  case .currentExerciseLabel:
+    return "Ejercicio actual"
+  case .substituteExerciseLabel:
+    return "Ejercicio sustituto"
+  case .applySubstitutionAction:
+    return "Aplicar sustitucion"
+  case .substitutionStatusLabel:
+    return "Estado sustitucion"
+  case .substitutionSavedMessage:
+    return "Sustitucion aplicada y sesion actualizada."
+  case .substitutionInvalidSelection:
+    return "Selecciona un ejercicio distinto al actual."
+  case .exerciseLibraryTitle:
+    return "Biblioteca de ejercicios"
+  case .exerciseLibraryDescription:
+    return "Consulta videos disponibles por ejercicio e idioma."
+  case .loadExerciseLibraryAction:
+    return "Cargar biblioteca"
+  case .exerciseLibraryStatusLabel:
+    return "Estado biblioteca"
+  case .noExerciseLibraryResults:
+    return "No hay videos disponibles para este filtro."
+  case .videoPlayerTitle:
+    return "Reproductor de video"
+  case .videoPlayerDescription:
+    return "Selecciona un video de la biblioteca y reproducelo en la app."
+  case .videoPlayerSelectionLabel:
+    return "Video seleccionado"
+  case .playSelectedVideoAction:
+    return "Reproducir video"
+  case .videoPlayerStatusLabel:
+    return "Estado reproductor"
   case .settingsTitle:
     return "Ajustes"
+  case .accountProfileTitle:
+    return "Perfil de cuenta"
+  case .notificationsTitle:
+    return "Notificaciones"
   case .settingsStatusLabel:
     return "Ajustes"
+  case .profileStatusLabel:
+    return "Perfil"
+  case .notificationsStatusLabel:
+    return "Notificaciones"
   case .notificationsPreference:
     return "Notificaciones activas"
+  case .trainingRemindersPreference:
+    return "Recordatorios de entrenamiento"
+  case .recoveryAlertsPreference:
+    return "Alertas de recuperacion"
+  case .weeklyDigestPreference:
+    return "Resumen semanal"
   case .watchPreference:
     return "Sincronizar Apple Watch"
   case .calendarPreference:
     return "Sincronizar calendario"
   case .saveSettings:
     return "Guardar ajustes"
+  case .saveProfile:
+    return "Guardar perfil"
+  case .saveNotifications:
+    return "Guardar notificaciones"
+  case .goalLabel:
+    return "Objetivo"
+  case .goalSetupSubtitle:
+    return "Define objetivo principal y compromiso semanal."
+  case .weeklySessionsLabel:
+    return "Sesiones por semana"
+  case .sessionDurationLabel:
+    return "Duracion por sesion"
+  case .saveGoal:
+    return "Guardar objetivo"
+  case .parQTitle:
+    return "PAR-Q+"
+  case .heightCmLabel:
+    return "Altura (cm)"
+  case .weightKgLabel:
+    return "Peso (kg)"
+  case .goalFatLoss:
+    return "Perdida de grasa"
+  case .goalRecomposition:
+    return "Recomposicion"
+  case .goalMuscleGain:
+    return "Ganancia muscular"
+  case .goalHabit:
+    return "Habito"
   case .legalSectionTitle:
     return "Privacidad y consentimiento"
   case .legalStatusLabel:
@@ -569,6 +836,26 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Guardar consentimiento"
   case .exportData:
     return "Exportar datos"
+  case .exportDataTitle:
+    return "Exportacion de datos"
+  case .exportStatusLabel:
+    return "Exportacion"
+  case .exportGeneratedAtLabel:
+    return "Generado"
+  case .exportPayloadBytesLabel:
+    return "Tamano (bytes)"
+  case .exportPayloadPreviewLabel:
+    return "Vista previa"
+  case .exportNoPayloadPreview:
+    return "No hay contenido exportado todavia."
+  case .deleteAccountTitle:
+    return "Borrado de cuenta"
+  case .deleteAccountStatusLabel:
+    return "Borrado"
+  case .deleteAccountReasonLabel:
+    return "Motivo de borrado"
+  case .deleteAccountLatestRequestLabel:
+    return "Ultima solicitud"
   case .requestDeletion:
     return "Solicitar borrado"
   }
@@ -698,6 +985,54 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Daily objective: complete training and nutrition without pending actions."
   case .authenticationTitle:
     return "Authentication"
+  case .signInEmailSubtitle:
+    return "Use email and password or continue with secure providers."
+  case .authEmailHelpText:
+    return "Access issues:\n- OTP code\n- Recover account\n- Contact support"
+  case .applePermissionsTitle:
+    return "Apple permissions"
+  case .applePermissionsSubtitle:
+    return "Review required scopes before continue."
+  case .applePermissionNameEmail:
+    return "Name and email"
+  case .applePermissionHealthKitRead:
+    return "HealthKit read"
+  case .applePermissionCalendarEvents:
+    return "Calendar events"
+  case .applePermissionRequiredCount:
+    return "3 of 3 required permissions"
+  case .appleUseEmailInstead:
+    return "Use email instead"
+  case .verifyOTPTitle:
+    return "Verify OTP"
+  case .otpSubtitle:
+    return "Enter the 6-digit code sent to your email."
+  case .otpCodeField:
+    return "6-digit code"
+  case .otpExpirationHint:
+    return "Code expires in 00:58"
+  case .verifyCodeAction:
+    return "Verify code"
+  case .resendOTPAction:
+    return "Resend OTP"
+  case .recoverAccountTitle:
+    return "Recover account"
+  case .recoverAccountSubtitle:
+    return "Choose method to restore access."
+  case .recoveryMethodLabel:
+    return "Recovery method"
+  case .openSupportTicketAction:
+    return "Open support ticket"
+  case .sessionExpiredTitle:
+    return "Session expired"
+  case .sessionExpiredMessage:
+    return "For security, sign in again or continue in offline mode."
+  case .sessionExpiredCauses:
+    return "Possible causes:\n- Token expired\n- Remote logout\n- Version mismatch"
+  case .backToSignInAction:
+    return "Back to sign in"
+  case .openOfflineModeAction:
+    return "Open offline mode"
   case .emailField:
     return "Email"
   case .passwordField:
@@ -714,6 +1049,8 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Auth"
   case .onboardingTitle:
     return "Onboarding + PAR-Q+"
+  case .onboardingStepOneSubtitle:
+    return "Set your profile and weekly availability."
   case .displayName:
     return "Display name"
   case .age:
@@ -724,12 +1061,32 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Chest pain in physical activity"
   case .dizzinessQuestion:
     return "Dizziness during exercise"
+  case .parQBoneJointQuestion:
+    return "Bone or joint issue"
+  case .parQWarning:
+    return "If any answer is YES, consult doctor first."
+  case .parQMedicalClearanceAction:
+    return "Request medical clearance"
   case .acceptPrivacyPolicy:
     return "I accept the privacy policy"
   case .acceptTerms:
     return "I accept terms and conditions"
   case .acceptMedicalDisclaimer:
     return "I have read the medical disclaimer"
+  case .policySummaryLine:
+    return "Policy summary"
+  case .termsSummaryLine:
+    return "Terms summary"
+  case .medicalDisclaimerSummaryLine:
+    return "Medical disclaimer"
+  case .yesOption:
+    return "Yes"
+  case .noOption:
+    return "No"
+  case .acceptAndContinue:
+    return "Accept and continue"
+  case .continueAction:
+    return "Continue"
   case .completeOnboarding:
     return "Complete onboarding"
   case .onboardingStatusLabel:
@@ -834,18 +1191,118 @@ private func englishCopy(for key: CopyKey) -> String {
     return "No videos loaded yet"
   case .openVideo:
     return "Open video"
+  case .inWorkoutSetupTitle:
+    return "Session setup"
+  case .inWorkoutSetupDescription:
+    return "Prepare plan, exercise and locale before starting the workout."
+  case .startInWorkoutSetup:
+    return "Prepare workout"
+  case .setupStatusLabel:
+    return "Setup status"
+  case .inWorkoutSetupNoPlan:
+    return "No plans available to start the workout."
+  case .inWorkoutSetupReady:
+    return "Workout setup is ready."
+  case .rpeRatingTitle:
+    return "Session RPE"
+  case .rpeRatingDescription:
+    return "Record rate of perceived exertion to close the current session."
+  case .selectedRPELabel:
+    return "Target RPE"
+  case .submitRPEAction:
+    return "Save RPE"
+  case .rpeSavedMessage:
+    return "RPE saved to session."
+  case .substitutionTitle:
+    return "Exercise substitution"
+  case .substitutionDescription:
+    return "Replace current exercise with an available alternative."
+  case .currentExerciseLabel:
+    return "Current exercise"
+  case .substituteExerciseLabel:
+    return "Substitute exercise"
+  case .applySubstitutionAction:
+    return "Apply substitution"
+  case .substitutionStatusLabel:
+    return "Substitution status"
+  case .substitutionSavedMessage:
+    return "Substitution applied and session updated."
+  case .substitutionInvalidSelection:
+    return "Choose a different exercise than the current one."
+  case .exerciseLibraryTitle:
+    return "Exercise library"
+  case .exerciseLibraryDescription:
+    return "Browse available videos by exercise and locale."
+  case .loadExerciseLibraryAction:
+    return "Load library"
+  case .exerciseLibraryStatusLabel:
+    return "Library status"
+  case .noExerciseLibraryResults:
+    return "No videos available for this filter."
+  case .videoPlayerTitle:
+    return "Video player"
+  case .videoPlayerDescription:
+    return "Select a video from the library and play it in the app."
+  case .videoPlayerSelectionLabel:
+    return "Selected video"
+  case .playSelectedVideoAction:
+    return "Play video"
+  case .videoPlayerStatusLabel:
+    return "Player status"
   case .settingsTitle:
     return "Settings"
+  case .accountProfileTitle:
+    return "Account profile"
+  case .notificationsTitle:
+    return "Notifications"
   case .settingsStatusLabel:
     return "Settings"
+  case .profileStatusLabel:
+    return "Profile"
+  case .notificationsStatusLabel:
+    return "Notifications"
   case .notificationsPreference:
     return "Notifications enabled"
+  case .trainingRemindersPreference:
+    return "Training reminders"
+  case .recoveryAlertsPreference:
+    return "Recovery alerts"
+  case .weeklyDigestPreference:
+    return "Weekly digest"
   case .watchPreference:
     return "Sync Apple Watch"
   case .calendarPreference:
     return "Sync calendar"
   case .saveSettings:
     return "Save settings"
+  case .saveProfile:
+    return "Save profile"
+  case .saveNotifications:
+    return "Save notifications"
+  case .goalLabel:
+    return "Goal"
+  case .goalSetupSubtitle:
+    return "Choose objective and weekly commitment."
+  case .weeklySessionsLabel:
+    return "Sessions per week"
+  case .sessionDurationLabel:
+    return "Session duration"
+  case .saveGoal:
+    return "Save goal"
+  case .parQTitle:
+    return "PAR-Q+"
+  case .heightCmLabel:
+    return "Height (cm)"
+  case .weightKgLabel:
+    return "Weight (kg)"
+  case .goalFatLoss:
+    return "Fat loss"
+  case .goalRecomposition:
+    return "Recomposition"
+  case .goalMuscleGain:
+    return "Muscle gain"
+  case .goalHabit:
+    return "Habit"
   case .legalSectionTitle:
     return "Privacy and consent"
   case .legalStatusLabel:
@@ -856,6 +1313,26 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Save consent"
   case .exportData:
     return "Export data"
+  case .exportDataTitle:
+    return "Data export"
+  case .exportStatusLabel:
+    return "Export"
+  case .exportGeneratedAtLabel:
+    return "Generated at"
+  case .exportPayloadBytesLabel:
+    return "Size (bytes)"
+  case .exportPayloadPreviewLabel:
+    return "Preview"
+  case .exportNoPayloadPreview:
+    return "No exported payload yet."
+  case .deleteAccountTitle:
+    return "Account deletion"
+  case .deleteAccountStatusLabel:
+    return "Deletion"
+  case .deleteAccountReasonLabel:
+    return "Deletion reason"
+  case .deleteAccountLatestRequestLabel:
+    return "Latest request"
   case .requestDeletion:
     return "Request deletion"
   }

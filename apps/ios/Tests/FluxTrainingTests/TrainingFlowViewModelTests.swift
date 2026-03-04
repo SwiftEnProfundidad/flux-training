@@ -85,6 +85,382 @@ final class TrainingFlowViewModelTests: XCTestCase {
     XCTAssertEqual(viewModel.status, "validation_error")
   }
 
+  func test_prepareInWorkoutSetup_withAvailablePlan_setsSavedStatus() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    _ = try? await CreateTrainingPlanUseCase(repository: trainingPlanRepository).execute(
+      id: "plan-setup",
+      userID: "user-1",
+      name: "Plan Setup",
+      weeks: 4,
+      days: [
+        TrainingPlanDay(
+          dayIndex: 1,
+          exercises: [TrainingPlanExercise(exerciseID: "goblet-squat", targetSets: 4, targetReps: 8)]
+        )
+      ]
+    )
+
+    await viewModel.prepareInWorkoutSetup(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "saved")
+    XCTAssertFalse(viewModel.selectedPlanID.isEmpty)
+    XCTAssertFalse(viewModel.exerciseVideos.isEmpty)
+  }
+
+  func test_prepareInWorkoutSetup_withoutPlans_setsEmptyStatus() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.prepareInWorkoutSetup(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "empty")
+    XCTAssertEqual(viewModel.videoStatus, "empty")
+  }
+
+  func test_prepareInWorkoutSetup_whenAuthorizationMissing_setsDeniedStatus() async {
+    let trainingPlanRepository = DeniedTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.prepareInWorkoutSetup(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "denied")
+  }
+
+  func test_submitRPERating_withAvailablePlan_setsSavedStatusAndCreatesSession() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+    viewModel.selectedRPE = 9
+    viewModel.selectedExerciseIDForVideos = "bench-press"
+    _ = try? await CreateTrainingPlanUseCase(repository: trainingPlanRepository).execute(
+      id: "plan-rpe",
+      userID: "user-1",
+      name: "RPE Plan",
+      weeks: 4,
+      days: [
+        TrainingPlanDay(
+          dayIndex: 1,
+          exercises: [TrainingPlanExercise(exerciseID: "bench-press", targetSets: 4, targetReps: 8)]
+        )
+      ]
+    )
+
+    await viewModel.submitRPERating(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "saved")
+    XCTAssertEqual(viewModel.sessionStatus, "saved")
+    XCTAssertEqual(viewModel.sessions.last?.exercises.first?.sets.first?.rpe, 9)
+  }
+
+  func test_submitRPERating_withoutPlan_setsEmptyStatus() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.submitRPERating(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "empty")
+    XCTAssertEqual(viewModel.sessionStatus, "empty")
+  }
+
+  func test_submitRPERating_whenAuthorizationMissing_setsDeniedStatus() async {
+    let trainingPlanRepository = DeniedTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.submitRPERating(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "denied")
+    XCTAssertEqual(viewModel.sessionStatus, "denied")
+  }
+
+  func test_applyExerciseSubstitution_withAvailablePlan_setsSavedStatusAndUpdatesExercise() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+    _ = try? await CreateTrainingPlanUseCase(repository: trainingPlanRepository).execute(
+      id: "plan-sub",
+      userID: "user-1",
+      name: "Sub Plan",
+      weeks: 4,
+      days: [
+        TrainingPlanDay(
+          dayIndex: 1,
+          exercises: [TrainingPlanExercise(exerciseID: "goblet-squat", targetSets: 4, targetReps: 8)]
+        )
+      ]
+    )
+    viewModel.selectedExerciseIDForVideos = "goblet-squat"
+    viewModel.selectedSubstituteExerciseID = "bench-press"
+
+    await viewModel.applyExerciseSubstitution(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "saved")
+    XCTAssertEqual(viewModel.substitutionStatus, "saved")
+    XCTAssertEqual(viewModel.selectedExerciseIDForVideos, "bench-press")
+    XCTAssertFalse(viewModel.sessions.isEmpty)
+  }
+
+  func test_applyExerciseSubstitution_withSameExercise_setsValidationError() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+    viewModel.selectedExerciseIDForVideos = "goblet-squat"
+    viewModel.selectedSubstituteExerciseID = "goblet-squat"
+
+    await viewModel.applyExerciseSubstitution(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "validation_error")
+    XCTAssertEqual(viewModel.substitutionStatus, "validation_error")
+  }
+
+  func test_applyExerciseSubstitution_whenAuthorizationMissing_setsDeniedStatus() async {
+    let trainingPlanRepository = DeniedTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.applyExerciseSubstitution(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "denied")
+    XCTAssertEqual(viewModel.substitutionStatus, "denied")
+  }
+
+  func test_loadExerciseLibrary_withAvailablePlan_setsLoadedStatusAndReturnsVideos() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+    _ = try? await CreateTrainingPlanUseCase(repository: trainingPlanRepository).execute(
+      id: "plan-library",
+      userID: "user-1",
+      name: "Library Plan",
+      weeks: 4,
+      days: [
+        TrainingPlanDay(
+          dayIndex: 1,
+          exercises: [TrainingPlanExercise(exerciseID: "goblet-squat", targetSets: 4, targetReps: 8)]
+        )
+      ]
+    )
+
+    await viewModel.loadExerciseLibrary(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "loaded")
+    XCTAssertEqual(viewModel.exerciseLibraryStatus, "loaded")
+    XCTAssertFalse(viewModel.exerciseVideos.isEmpty)
+  }
+
+  func test_loadExerciseLibrary_withoutPlan_setsEmptyStatus() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.loadExerciseLibrary(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "empty")
+    XCTAssertEqual(viewModel.exerciseLibraryStatus, "empty")
+    XCTAssertTrue(viewModel.exerciseVideos.isEmpty)
+  }
+
+  func test_loadExerciseLibrary_whenAuthorizationMissing_setsDeniedStatus() async {
+    let trainingPlanRepository = DeniedTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.loadExerciseLibrary(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "denied")
+    XCTAssertEqual(viewModel.exerciseLibraryStatus, "denied")
+  }
+
+  func test_loadVideoPlayer_withAvailablePlan_setsLoadedStatusAndSelectsVideo() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+    _ = try? await CreateTrainingPlanUseCase(repository: trainingPlanRepository).execute(
+      id: "plan-player",
+      userID: "user-1",
+      name: "Video Player Plan",
+      weeks: 4,
+      days: [
+        TrainingPlanDay(
+          dayIndex: 1,
+          exercises: [TrainingPlanExercise(exerciseID: "goblet-squat", targetSets: 4, targetReps: 8)]
+        )
+      ]
+    )
+
+    await viewModel.loadVideoPlayer(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "loaded")
+    XCTAssertEqual(viewModel.videoPlayerStatus, "loaded")
+    XCTAssertFalse(viewModel.exerciseVideos.isEmpty)
+    XCTAssertFalse(viewModel.selectedVideoID.isEmpty)
+  }
+
+  func test_loadVideoPlayer_withoutPlan_setsEmptyStatus() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.loadVideoPlayer(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "empty")
+    XCTAssertEqual(viewModel.videoPlayerStatus, "empty")
+    XCTAssertEqual(viewModel.selectedVideoID, "")
+  }
+
+  func test_loadVideoPlayer_whenAuthorizationMissing_setsDeniedStatus() async {
+    let trainingPlanRepository = DeniedTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+
+    await viewModel.loadVideoPlayer(userID: "user-1")
+
+    XCTAssertEqual(viewModel.status, "denied")
+    XCTAssertEqual(viewModel.videoPlayerStatus, "denied")
+  }
+
+  func test_playSelectedVideo_withSelectedVideo_setsSuccessStatus() async {
+    let trainingPlanRepository = InMemoryTrainingPlanRepository()
+    let workoutSessionRepository = InMemoryWorkoutSessionRepository()
+    let exerciseVideoRepository = InMemoryExerciseVideoRepository()
+    let viewModel = TrainingFlowViewModel(
+      createTrainingPlanUseCase: CreateTrainingPlanUseCase(repository: trainingPlanRepository),
+      listTrainingPlansUseCase: ListTrainingPlansUseCase(repository: trainingPlanRepository),
+      createWorkoutSessionUseCase: CreateWorkoutSessionUseCase(repository: workoutSessionRepository),
+      listWorkoutSessionsUseCase: ListWorkoutSessionsUseCase(repository: workoutSessionRepository),
+      listExerciseVideosUseCase: ListExerciseVideosUseCase(repository: exerciseVideoRepository)
+    )
+    _ = try? await CreateTrainingPlanUseCase(repository: trainingPlanRepository).execute(
+      id: "plan-player-play",
+      userID: "user-1",
+      name: "Video Player Play Plan",
+      weeks: 4,
+      days: [
+        TrainingPlanDay(
+          dayIndex: 1,
+          exercises: [TrainingPlanExercise(exerciseID: "goblet-squat", targetSets: 4, targetReps: 8)]
+        )
+      ]
+    )
+    await viewModel.loadVideoPlayer(userID: "user-1")
+
+    await viewModel.playSelectedVideo(userID: "user-1")
+
+    XCTAssertEqual(viewModel.videoPlayerStatus, "success")
+    XCTAssertEqual(viewModel.status, "success")
+  }
+
   func test_loadExerciseVideos_usesFallbackLocale_whenRequestedLocaleHasNoVideo() async {
     let trainingPlanRepository = InMemoryTrainingPlanRepository()
     let workoutSessionRepository = InMemoryWorkoutSessionRepository()
@@ -177,5 +553,13 @@ private actor FallbackExerciseVideoRepository: ExerciseVideoRepository {
 private actor OfflineExerciseVideoRepository: ExerciseVideoRepository {
   func listByExerciseID(_ exerciseID: String, locale: String) async throws -> [ExerciseVideo] {
     throw URLError(.notConnectedToInternet)
+  }
+}
+
+private actor DeniedTrainingPlanRepository: TrainingPlanRepository {
+  func save(plan: TrainingPlan) async throws {}
+
+  func listByUserID(_ userID: String) async throws -> [TrainingPlan] {
+    throw FluxBackendClientError.missingAuthorizationBearer
   }
 }

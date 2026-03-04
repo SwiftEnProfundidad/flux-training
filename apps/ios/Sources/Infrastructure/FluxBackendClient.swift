@@ -4,11 +4,22 @@ public enum FluxBackendClientError: Error, Equatable {
   case missingAuthorizationBearer
   case invalidURL
   case invalidResponse
-  case backend(code: String)
+  case backend(
+    code: String,
+    correlationId: String? = nil,
+    retryable: Bool? = nil,
+    statusCode: Int? = nil
+  )
 }
 
 public actor FluxBackendClient {
   private struct EmptyBody: Encodable {}
+  private struct BackendErrorPayload: Decodable {
+    let error: String?
+    let correlationId: String?
+    let retryable: Bool?
+    let statusCode: Int?
+  }
 
   private let configuration: FluxBackendConfiguration
   private let sessionStore: FluxSessionStore
@@ -111,21 +122,38 @@ public actor FluxBackendClient {
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      let backendCode = extractErrorCode(from: data)
-      throw FluxBackendClientError.backend(code: backendCode ?? "request_failed")
+      let backendError = extractBackendError(from: data)
+      let headerCorrelationID = sanitizedCorrelationID(
+        httpResponse.value(forHTTPHeaderField: "x-correlation-id")
+      )
+      throw FluxBackendClientError.backend(
+        code: backendError?.error ?? "request_failed",
+        correlationId: backendError?.correlationId ?? headerCorrelationID,
+        retryable: backendError?.retryable ?? (httpResponse.statusCode >= 500),
+        statusCode: backendError?.statusCode ?? httpResponse.statusCode
+      )
     }
 
     return try decoder.decode(Response.self, from: data)
   }
 
-  private func extractErrorCode(from data: Data) -> String? {
-    guard
-      let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-      let errorCode = object["error"] as? String,
-      errorCode.isEmpty == false
+  private func extractBackendError(from data: Data) -> BackendErrorPayload? {
+    guard let payload = try? decoder.decode(BackendErrorPayload.self, from: data) else {
+      return nil
+    }
+    if let errorCode = payload.error?.trimmingCharacters(in: .whitespacesAndNewlines),
+       errorCode.isEmpty {
+      return nil
+    }
+    return payload
+  }
+
+  private func sanitizedCorrelationID(_ value: String?) -> String? {
+    guard let normalized = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+          normalized.isEmpty == false
     else {
       return nil
     }
-    return errorCode
+    return normalized
   }
 }
