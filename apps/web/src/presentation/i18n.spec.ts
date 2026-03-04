@@ -462,8 +462,8 @@ describe("i18n", () => {
   });
 
   it("humanizes statuses in both languages", () => {
-    expect(humanizeStatus("signed_out", "es")).toBe("sin sesion");
-    expect(humanizeStatus("signed_out", "en")).toBe("signed out");
+    expect(humanizeStatus("signed_out", "es")).toBe("inicia sesion");
+    expect(humanizeStatus("signed_out", "en")).toBe("sign in required");
     expect(humanizeStatus("upgrade_required", "es")).toBe("actualizacion requerida");
     expect(humanizeStatus("upgrade_required", "en")).toBe("upgrade required");
     expect(humanizeStatus("validation_error", "es")).toBe("error de validacion");

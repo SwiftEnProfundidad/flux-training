@@ -311,9 +311,9 @@ public struct LocalizedCopy: Sendable {
 
     let labels: [SupportedLanguage: [String: String]] = [
       .es: [
-        "signed_out": "sin sesion",
+        "signed_out": "inicia sesion",
         "session_expired": "sesion expirada",
-        "auth_error": "error de auth",
+        "auth_error": "no pudimos iniciar sesion",
         "validation_error": "error de validacion",
         "consent_required": "consentimiento requerido",
         "recovery_sent_email": "recuperacion enviada por email",
@@ -343,9 +343,9 @@ public struct LocalizedCopy: Sendable {
         "low": "baja"
       ],
       .en: [
-        "signed_out": "signed out",
+        "signed_out": "sign in required",
         "session_expired": "session expired",
-        "auth_error": "auth error",
+        "auth_error": "sign in failed",
         "validation_error": "validation error",
         "consent_required": "consent required",
         "recovery_sent_email": "recovery sent by email",

@@ -1611,12 +1611,12 @@ export function goalLabel(goal: Goal, language: AppLanguage): string {
 
 const knownStatuses: Record<AppLanguage, Record<string, string>> = {
   es: {
-    signed_out: "sin sesion",
+    signed_out: "inicia sesion",
     validation_error: "error de validacion",
     consent_required: "consentimiento requerido",
     recovery_sent_email: "recuperacion enviada por email",
     recovery_sent_sms: "recuperacion enviada por sms",
-    auth_error: "error de auth",
+    auth_error: "no pudimos iniciar sesion",
     idle: "inactivo",
     saved: "guardado",
     loaded: "cargado",
@@ -1649,12 +1649,12 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     email: "email"
   },
   en: {
-    signed_out: "signed out",
+    signed_out: "sign in required",
     validation_error: "validation error",
     consent_required: "consent required",
     recovery_sent_email: "recovery sent by email",
     recovery_sent_sms: "recovery sent by sms",
-    auth_error: "auth error",
+    auth_error: "sign in failed",
     idle: "idle",
     saved: "saved",
     loaded: "loaded",

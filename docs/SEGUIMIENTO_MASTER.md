@@ -154,6 +154,7 @@
 - Web flujo productivo simplificado: se oculta el selector de dominio en runtime usuario y se usa un set fijo de modulos de producto (sin `operations/admin/audit/billing/observability`) fuera de QA.
 - iOS onboarding productivo endurecido: tras `signed_in:*`, `FluxTrainingProductRootView` rehidrata perfil persistido (`AccountProfileViewModel.refresh`) y salta onboarding automaticamente cuando existe perfil (`status=loaded`), manteniendo onboarding solo para usuarios nuevos.
 - Web runtime endurecido anti-regresion QA: el modo QA ahora exige doble opt-in explicito (`VITE_WEB_RUNTIME_MODE=qa` + `VITE_WEB_QA_UI_ENABLED=1` + `?qa=1`), evitando exponer UI de test en ejecucion productiva por accidente.
+- Microcopy de estados de autenticacion normalizado para usuario final (iOS/Web): `signed_out` pasa a mensaje de accion (`inicia sesion` / `sign in required`) y `auth_error` se expresa como fallo de inicio de sesion no tecnico.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
