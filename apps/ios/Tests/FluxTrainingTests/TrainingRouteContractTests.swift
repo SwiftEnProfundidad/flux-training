@@ -1,0 +1,46 @@
+import XCTest
+@testable import FluxTraining
+
+final class TrainingRouteContractTests: XCTestCase {
+  func test_routeIdentifiers_matchCanonicalValues() {
+    XCTAssertEqual(TrainingRouteContract.todayDarkRouteID, "training.route.today")
+    XCTAssertEqual(TrainingRouteContract.inWorkoutSetupDarkRouteID, "training.route.inWorkoutSetup")
+    XCTAssertEqual(TrainingRouteContract.rpeRatingDarkRouteID, "training.route.rpeRating")
+    XCTAssertEqual(TrainingRouteContract.substitutionDarkRouteID, "training.route.substitution")
+    XCTAssertEqual(TrainingRouteContract.exerciseLibraryDarkRouteID, "training.route.exerciseLibrary")
+    XCTAssertEqual(TrainingRouteContract.videoPlayerDarkRouteID, "training.route.videoPlayer")
+    XCTAssertEqual(TrainingRouteContract.todayLightRouteID, "training.route.todayLight")
+    XCTAssertEqual(TrainingRouteContract.inWorkoutSetupLightRouteID, "training.route.inWorkoutSetupLight")
+    XCTAssertEqual(TrainingRouteContract.rpeRatingLightRouteID, "training.route.rpeRatingLight")
+    XCTAssertEqual(TrainingRouteContract.substitutionLightRouteID, "training.route.substitutionLight")
+    XCTAssertEqual(TrainingRouteContract.exerciseLibraryLightRouteID, "training.route.exerciseLibraryLight")
+    XCTAssertEqual(TrainingRouteContract.videoPlayerLightRouteID, "training.route.videoPlayerLight")
+    XCTAssertEqual(TrainingRouteContract.todayRouteID, "training.route.today")
+    XCTAssertEqual(TrainingRouteContract.inWorkoutSetupRouteID, "training.route.inWorkoutSetup")
+    XCTAssertEqual(TrainingRouteContract.rpeRatingRouteID, "training.route.rpeRating")
+    XCTAssertEqual(TrainingRouteContract.substitutionRouteID, "training.route.substitution")
+    XCTAssertEqual(TrainingRouteContract.exerciseLibraryRouteID, "training.route.exerciseLibrary")
+    XCTAssertEqual(TrainingRouteContract.videoPlayerRouteID, "training.route.videoPlayer")
+  }
+
+  func test_screenIdentifiers_matchCanonicalValues() {
+    XCTAssertEqual(TrainingRouteContract.todayDarkScreenID, "training.today.screen")
+    XCTAssertEqual(TrainingRouteContract.inWorkoutSetupDarkScreenID, "training.inWorkoutSetup.screen")
+    XCTAssertEqual(TrainingRouteContract.rpeRatingDarkScreenID, "training.rpeRating.screen")
+    XCTAssertEqual(TrainingRouteContract.substitutionDarkScreenID, "training.substitution.screen")
+    XCTAssertEqual(TrainingRouteContract.exerciseLibraryDarkScreenID, "training.exerciseLibrary.screen")
+    XCTAssertEqual(TrainingRouteContract.videoPlayerDarkScreenID, "training.videoPlayer.screen")
+    XCTAssertEqual(TrainingRouteContract.todayLightScreenID, "training.today.light.screen")
+    XCTAssertEqual(TrainingRouteContract.inWorkoutSetupLightScreenID, "training.inWorkoutSetup.light.screen")
+    XCTAssertEqual(TrainingRouteContract.rpeRatingLightScreenID, "training.rpeRating.light.screen")
+    XCTAssertEqual(TrainingRouteContract.substitutionLightScreenID, "training.substitution.light.screen")
+    XCTAssertEqual(TrainingRouteContract.exerciseLibraryLightScreenID, "training.exerciseLibrary.light.screen")
+    XCTAssertEqual(TrainingRouteContract.videoPlayerLightScreenID, "training.videoPlayer.light.screen")
+    XCTAssertEqual(TrainingRouteContract.todayScreenID, "training.today.screen")
+    XCTAssertEqual(TrainingRouteContract.inWorkoutSetupScreenID, "training.inWorkoutSetup.screen")
+    XCTAssertEqual(TrainingRouteContract.rpeRatingScreenID, "training.rpeRating.screen")
+    XCTAssertEqual(TrainingRouteContract.substitutionScreenID, "training.substitution.screen")
+    XCTAssertEqual(TrainingRouteContract.exerciseLibraryScreenID, "training.exerciseLibrary.screen")
+    XCTAssertEqual(TrainingRouteContract.videoPlayerScreenID, "training.videoPlayer.screen")
+  }
+}

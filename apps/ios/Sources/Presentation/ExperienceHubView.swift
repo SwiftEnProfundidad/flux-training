@@ -892,6 +892,28 @@ public struct ExperienceHubView: View {
   private var trainingRoutesSection: some View {
     VStack(alignment: .leading, spacing: 12) {
       NavigationLink {
+        TrainingTodayView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.trainingCockpitTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.statusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.status))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.todayDarkRouteID)
+
+      NavigationLink {
         InWorkoutSetupView(
           viewModel: trainingViewModel,
           userID: activeUserID,

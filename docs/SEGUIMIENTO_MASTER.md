@@ -70,6 +70,7 @@
 - `IOS-L-230_GOAL_ADJUST` ya esta operativo como variante light con ruta/pantalla propias (`progress.route.goalAdjustLight`, `progress.goalAdjust.light.screen`) y ajuste real de objetivo/compromiso semanal con estados `loading|validation_error|success|denied|offline`.
 - `IOS-L-240_AI_COACH` ya esta operativo como variante light con ruta/pantalla propias (`progress.route.aiCoachLight`, `progress.aiCoach.light.screen`) y carga real de recomendaciones IA con estados `loading|empty|error|loaded|denied|offline`.
 - `IOS-L-250_WEEKLY_REVIEW` ya esta operativo como variante light con ruta/pantalla propias (`progress.route.weeklyReviewLight`, `progress.weeklyReview.light.screen`) y refresco real del resumen semanal con estados `loading|empty|error|loaded|denied|offline`.
+- `IOS-100_TODAY` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.today`, `training.today.screen`) y refresco real del cockpit diario con estados `loading|empty|error|loaded|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
