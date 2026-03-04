@@ -130,13 +130,13 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 3.9.3 | IOS-220_PROGRESS_METRICS | `cIytS` | ✅ | `todayTab -> progress.route.metrics -> progress.metrics.screen` | `BuildProgressSummaryUseCase` (repositorios reales/configurados) | Cargar metricas (`progress.metrics.load`) | loading|empty|error|loaded|validation_error|denied|offline | ✅ `ProgressViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.metrics`, `progress.metrics.screen`) |
 | 3.9.4 | IOS-230_GOAL_ADJUST | `uzaX9` | ✅ | `todayTab -> progress.route.goalAdjust -> progress.goalAdjust.screen` | `OnboardingViewModel.saveGoalSetup` (estado real y validacion) | Ajustar objetivo (`progress.goalAdjust.save`) | loading|validation_error|success|denied|offline | ✅ `OnboardingViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.goalAdjust`, `progress.goalAdjust.screen`) |
 | 3.9.5 | IOS-240_AI_COACH | `vJNXu` | ✅ | `todayTab -> progress.route.aiCoach -> progress.aiCoach.screen` | `GenerateAIRecommendationsUseCase` (recomendaciones dinamicas por objetivo/adherencia/cola) | Cargar recomendaciones (`aiCoach.load`) | loading|empty|error|loaded|validation_error|denied|offline | ✅ `GenerateAIRecommendationsUseCaseTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.aiCoach`, `progress.aiCoach.screen`) |
-| 3.9.6 | IOS-250_WEEKLY_REVIEW | `mlEPR` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 3.9.6 | IOS-250_WEEKLY_REVIEW | `mlEPR` | ✅ | `todayTab -> progress.route.weeklyReview -> progress.weeklyReview.screen` | `ProgressViewModel` + `TrainingFlowViewModel` + `NutritionViewModel` (refresh paralelo real) | Refrescar review semanal (`progress.weeklyReview.refresh`) | loading|empty|error|loaded|validation_error|denied|offline | ✅ `ProgressViewModelTests` + `TrainingFlowViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.weeklyReview`, `progress.weeklyReview.screen`) |
 
 ### Task 3.10 — iOS — Progreso + Nutrición + IA Coach / IOS_NUTRITION_LIGHT_LANE
 - Total pantallas en este bloque: **6**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
-| 3.10.1 | IOS-L-200_NUTRITION_HUB | `k5Ms0` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 3.10.1 | IOS-L-200_NUTRITION_HUB | `k5Ms0` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 3.10.2 | IOS-L-210_LOG_MEAL | `mNfTu` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 3.10.3 | IOS-L-220_PROGRESS_METRICS | `zMn7o` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 3.10.4 | IOS-L-230_GOAL_ADJUST | `4ShGc` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **3.9.6 IOS-250_WEEKLY_REVIEW**
-- Siguiente task: **3.10.1 IOS-L-200_NUTRITION_HUB**
+- Task en construccion: **3.10.1 IOS-L-200_NUTRITION_HUB**
+- Siguiente task: **3.10.2 IOS-L-210_LOG_MEAL**
