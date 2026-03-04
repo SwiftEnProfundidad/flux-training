@@ -67,6 +67,7 @@ import {
   type DashboardDomain,
   type DashboardRole
 } from "./dashboard-domains";
+import { createDashboardHomeScreenModel } from "./dashboard-home-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -403,6 +404,8 @@ export function App() {
   const [domainRuntimeStates, setDomainRuntimeStates] = useState<DomainRuntimeStates>(() =>
     createInitialDomainRuntimeStates()
   );
+  const [dashboardHomeRuntimeStateOverride, setDashboardHomeRuntimeStateOverride] =
+    useState<EnterpriseRuntimeState | null>(null);
   const [roleCapabilitiesReloadNonce, setRoleCapabilitiesReloadNonce] = useState(0);
   const isInitialDomainRender = useRef(true);
   const isInitialRoleRender = useRef(true);
@@ -453,6 +456,23 @@ export function App() {
   const activeDomainRuntimeState = resolveActiveDomainRuntimeState(
     activeDomain,
     domainRuntimeStates
+  );
+  const effectiveDashboardHomeRuntimeState =
+    dashboardHomeRuntimeStateOverride ?? activeDomainRuntimeState;
+  const dashboardHomeScreenModel = useMemo(
+    () =>
+      createDashboardHomeScreenModel({
+        hasAuthenticatedSession,
+        activeDomain,
+        activeDomainRuntimeState: effectiveDashboardHomeRuntimeState,
+        visibleModulesCount: visibleModulesForDomain.length
+      }),
+    [
+      activeDomain,
+      effectiveDashboardHomeRuntimeState,
+      hasAuthenticatedSession,
+      visibleModulesForDomain.length
+    ]
   );
   const athleteOperationRowsBase = useMemo(
     () => buildAthleteOperationsRows(plans, sessions, nutritionLogs, progressSummary),
@@ -968,6 +988,10 @@ export function App() {
       isCancelled = true;
     };
   }, [activeRole, manageRoleCapabilitiesUseCase, roleCapabilitiesReloadNonce]);
+
+  useEffect(() => {
+    setDashboardHomeRuntimeStateOverride(null);
+  }, [activeDomain, hasAuthenticatedSession]);
 
   useEffect(() => {
     if (activeDomain === "all") {
@@ -2353,6 +2377,36 @@ export function App() {
     }
   }
 
+  async function handleRefreshDashboardHome() {
+    if (hasAuthenticatedSession === false) {
+      setAuthStatus("session_required");
+      setDashboardHomeRuntimeStateOverride("denied");
+      return;
+    }
+
+    setDashboardHomeRuntimeStateOverride("loading");
+    setRoleCapabilitiesStatus("loading");
+
+    try {
+      const [capabilities] = await Promise.all([
+        manageRoleCapabilitiesUseCase.listRoleCapabilities(activeRole as AccessRole),
+        refreshPendingQueue(),
+        loadObservabilityCollections({ force: true })
+      ]);
+      setRoleCapabilities(capabilities);
+      setRoleCapabilitiesStatus("loaded");
+      setDashboardHomeRuntimeStateOverride(
+        visibleModulesForDomain.length === 0 ? "empty" : "success"
+      );
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setRoleCapabilitiesStatus("error");
+      setDashboardHomeRuntimeStateOverride(resolveFailureRuntimeState(error));
+    }
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -2580,7 +2634,14 @@ export function App() {
           </p>
         </section>
 
-        <section id="dashboard-grid" className="dashboard-grid">
+        <section
+          id="dashboard-grid"
+          className="dashboard-grid"
+          data-screen-id={hasAuthenticatedSession ? dashboardHomeScreenModel.screenId : undefined}
+          data-route-id={hasAuthenticatedSession ? dashboardHomeScreenModel.routeId : undefined}
+          data-screen-state={hasAuthenticatedSession ? dashboardHomeScreenModel.status : undefined}
+          aria-busy={dashboardHomeScreenModel.status === "loading"}
+        >
           {hasAuthenticatedSession === false ? (
             <article
               className="module-card access-gate-card"
@@ -2633,6 +2694,44 @@ export function App() {
             </article>
           ) : (
             <>
+              <article
+                className="module-card"
+                data-screen-id={dashboardHomeScreenModel.screenId}
+                data-route-id={dashboardHomeScreenModel.routeId}
+                data-status-id="web.dashboardHome.status"
+              >
+                <SectionHeader
+                  title={translate("dashboardHomeTitle")}
+                  status={dashboardHomeScreenModel.status}
+                  statusLabel={translate("dashboardHomeStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("dashboardHomeSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("dashboardHomeVisibleModulesLabel")}
+                      value={String(dashboardHomeScreenModel.visibleModulesCount)}
+                    />
+                    <Metric
+                      title={translate("dashboardHomeActiveDomainLabel")}
+                      value={
+                        domainTabs.find((tab) => tab.id === dashboardHomeScreenModel.activeDomain)
+                          ?.label ?? dashboardHomeScreenModel.activeDomain
+                      }
+                    />
+                  </div>
+                  <button
+                    className="button ghost"
+                    onClick={() => void handleRefreshDashboardHome()}
+                    type="button"
+                    data-action-id="web.dashboardHome.refresh"
+                    disabled={dashboardHomeScreenModel.status === "loading"}
+                  >
+                    {translate("dashboardHomeRefreshAction")}
+                  </button>
+                </div>
+              </article>
               {visibleModulesForDomain.length === 0 ? (
                 <article className="module-card">
                   <p className="empty-state">{translate("noModulesForSelectedDomain")}</p>

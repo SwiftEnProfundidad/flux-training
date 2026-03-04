@@ -263,6 +263,12 @@ type AppTranslations = {
   roleAdmin: string;
   retryRoleCapabilities: string;
   noModulesForSelectedDomain: string;
+  dashboardHomeTitle: string;
+  dashboardHomeStatusLabel: string;
+  dashboardHomeSummary: string;
+  dashboardHomeVisibleModulesLabel: string;
+  dashboardHomeActiveDomainLabel: string;
+  dashboardHomeRefreshAction: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -543,6 +549,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     roleAdmin: "Admin",
     retryRoleCapabilities: "Reintentar capacidades",
     noModulesForSelectedDomain: "No hay modulos para el dominio seleccionado.",
+    dashboardHomeTitle: "Dashboard home",
+    dashboardHomeStatusLabel: "Dashboard",
+    dashboardHomeSummary:
+      "Centro operativo: valida acceso, rol y modulos visibles antes de ejecutar acciones.",
+    dashboardHomeVisibleModulesLabel: "Modulos visibles",
+    dashboardHomeActiveDomainLabel: "Dominio activo",
+    dashboardHomeRefreshAction: "Refrescar dashboard",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -821,6 +834,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     roleAdmin: "Admin",
     retryRoleCapabilities: "Retry capabilities",
     noModulesForSelectedDomain: "No modules are available for the selected domain.",
+    dashboardHomeTitle: "Dashboard home",
+    dashboardHomeStatusLabel: "Dashboard",
+    dashboardHomeSummary:
+      "Operational hub: validate access, role and visible modules before running actions.",
+    dashboardHomeVisibleModulesLabel: "Visible modules",
+    dashboardHomeActiveDomainLabel: "Active domain",
+    dashboardHomeRefreshAction: "Refresh dashboard",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:

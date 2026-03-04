@@ -84,6 +84,7 @@
 - `IOS-L-150_SESSION_SUMMARY` ya esta operativo como variante light del resumen de sesion con ruta/pantalla propias (`training.route.sessionSummaryLight`, `training.sessionSummary.light.screen`) y resumen real de cierre con estados `loading|empty|error|saved|loaded|denied|offline`.
 - `WEB-000_ACCESS_GATE` ya esta operativo con gate de acceso real: cuando no hay sesion renderiza `web.accessGate.screen`, bloquea el dashboard operativo y ofrece entrada por Apple/email hacia autenticacion real.
 - `WEB-010_SIGN_IN` ya esta operativo con instrumentacion de pantalla/acciones (`web.signIn.screen`, `web.signIn.apple`, `web.signIn.email`) y estados reales de autenticacion/recovery.
+- `WEB-020_DASHBOARD_HOME` ya esta operativo con contrato de pantalla (`web.route.dashboardHome -> web.dashboardHome.screen`), estado trazable (`web.dashboardHome.status`) y accion real de refresco (`web.dashboardHome.refresh`) conectada a capacidades RBAC, observabilidad y cola offline.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

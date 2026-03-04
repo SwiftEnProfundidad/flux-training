@@ -20,6 +20,11 @@ describe("i18n", () => {
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
     expect(translate("retryRoleCapabilities")).toBe("Retry capabilities");
+    expect(translate("dashboardHomeTitle")).toBe("Dashboard home");
+    expect(translate("dashboardHomeStatusLabel")).toBe("Dashboard");
+    expect(translate("dashboardHomeVisibleModulesLabel")).toBe("Visible modules");
+    expect(translate("dashboardHomeActiveDomainLabel")).toBe("Active domain");
+    expect(translate("dashboardHomeRefreshAction")).toBe("Refresh dashboard");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -80,6 +85,11 @@ describe("i18n", () => {
     expect(translate("recoverByEmail")).toBe("Recuperar por email");
     expect(translate("recoverBySMS")).toBe("Recuperar por SMS");
     expect(translate("retryRoleCapabilities")).toBe("Reintentar capacidades");
+    expect(translate("dashboardHomeTitle")).toBe("Dashboard home");
+    expect(translate("dashboardHomeStatusLabel")).toBe("Dashboard");
+    expect(translate("dashboardHomeVisibleModulesLabel")).toBe("Modulos visibles");
+    expect(translate("dashboardHomeActiveDomainLabel")).toBe("Dominio activo");
+    expect(translate("dashboardHomeRefreshAction")).toBe("Refrescar dashboard");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");
