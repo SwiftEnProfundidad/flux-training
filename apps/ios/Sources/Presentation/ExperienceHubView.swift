@@ -1161,6 +1161,27 @@ public struct ExperienceHubView: View {
       .accessibilityIdentifier(ProgressRouteContract.metricsDarkRouteID)
 
       NavigationLink {
+        GoalAdjustView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.goalLabel))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.statusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(ProgressRouteContract.goalAdjustDarkRouteID)
+
+      NavigationLink {
         NutritionLogMealView(
           viewModel: nutritionViewModel,
           userID: activeUserID,

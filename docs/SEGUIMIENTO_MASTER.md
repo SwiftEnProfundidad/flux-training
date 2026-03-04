@@ -61,6 +61,7 @@
 - `IOS-200_NUTRITION_HUB` ya esta operativo con ruta/pantalla dedicadas (`nutrition.route.hub`, `nutrition.hub.screen`) y acciones reales de guardado/carga nutricional conectadas a repositorio con estados `loading|empty|error|saved|loaded|denied|offline`.
 - `IOS-210_LOG_MEAL` ya esta operativo con ruta/pantalla dedicadas (`nutrition.route.logMeal`, `nutrition.logMeal.screen`) y accion real de guardado nutricional con estados `loading|error|saved|validation_error|denied|offline`.
 - `IOS-220_PROGRESS_METRICS` ya esta operativo con ruta/pantalla dedicadas (`progress.route.metrics`, `progress.metrics.screen`) y carga real de metricas de progreso con estados `loading|empty|error|loaded|validation_error|denied|offline`.
+- `IOS-230_GOAL_ADJUST` ya esta operativo con ruta/pantalla dedicadas (`progress.route.goalAdjust`, `progress.goalAdjust.screen`) y ajuste real de objetivo/compromiso semanal con estados `loading|validation_error|success|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
