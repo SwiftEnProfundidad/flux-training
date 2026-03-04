@@ -317,6 +317,14 @@ type AppTranslations = {
   recentActivityOutcomeLabel: string;
   recentActivityDeniedLabel: string;
   recentActivityErrorLabel: string;
+  shortcutsTitle: string;
+  shortcutsStatusLabel: string;
+  shortcutsSummary: string;
+  shortcutsRunAction: string;
+  shortcutsRefreshAction: string;
+  shortcutsRecoverAction: string;
+  shortcutsVisibleModulesLabel: string;
+  shortcutsNoItems: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -654,6 +662,15 @@ const translations: Record<AppLanguage, AppTranslations> = {
     recentActivityOutcomeLabel: "Resultado",
     recentActivityDeniedLabel: "Denegadas",
     recentActivityErrorLabel: "Errores",
+    shortcutsTitle: "Shortcuts",
+    shortcutsStatusLabel: "Shortcuts",
+    shortcutsSummary:
+      "Atajos operativos para ejecutar acciones criticas y recuperar el dominio activo.",
+    shortcutsRunAction: "Ejecutar shortcuts",
+    shortcutsRefreshAction: "Refrescar shortcuts",
+    shortcutsRecoverAction: "Recuperar dominio",
+    shortcutsVisibleModulesLabel: "Modulos visibles",
+    shortcutsNoItems: "No hay shortcuts disponibles para este dominio.",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -989,6 +1006,15 @@ const translations: Record<AppLanguage, AppTranslations> = {
     recentActivityOutcomeLabel: "Outcome",
     recentActivityDeniedLabel: "Denied",
     recentActivityErrorLabel: "Errors",
+    shortcutsTitle: "Shortcuts",
+    shortcutsStatusLabel: "Shortcuts",
+    shortcutsSummary:
+      "Operational shortcuts to run critical actions and recover the active domain.",
+    shortcutsRunAction: "Run shortcuts",
+    shortcutsRefreshAction: "Refresh shortcuts",
+    shortcutsRecoverAction: "Recover domain",
+    shortcutsVisibleModulesLabel: "Visible modules",
+    shortcutsNoItems: "No shortcuts are available for this domain.",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:

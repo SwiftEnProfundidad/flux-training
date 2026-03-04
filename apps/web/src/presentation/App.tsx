@@ -80,6 +80,7 @@ import { createDashboardKpisScreenModel } from "./dashboard-kpis-contract";
 import { createReadinessMonitorScreenModel } from "./readiness-monitor-contract";
 import { createAlertsFullScreenModel } from "./alerts-full-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
+import { createShortcutsScreenModel } from "./shortcuts-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -612,6 +613,15 @@ export function App() {
         activityEntriesCount: recentActivityRows.length
       }),
     [dashboardHomeScreenModel.status, observabilityStatus, recentActivityRows.length]
+  );
+  const shortcutsScreenModel = useMemo(
+    () =>
+      createShortcutsScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        roleCapabilitiesStatus,
+        visibleModulesCount: visibleModulesForDomain.length
+      }),
+    [dashboardHomeScreenModel.status, roleCapabilitiesStatus, visibleModulesForDomain.length]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -2617,6 +2627,10 @@ export function App() {
     await handleLoadAuditTimeline();
   }
 
+  async function handleRunShortcuts() {
+    await Promise.all([handleRunQuickActions(), handleRefreshDashboardHome()]);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -3398,6 +3412,68 @@ export function App() {
                           ))}
                         </tbody>
                       </table>
+                    </div>
+                  )}
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={shortcutsScreenModel.screenId}
+                data-route-id={shortcutsScreenModel.routeId}
+                data-status-id="web.shortcuts.status"
+              >
+                <SectionHeader
+                  title={translate("shortcutsTitle")}
+                  status={shortcutsScreenModel.status}
+                  statusLabel={translate("shortcutsStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("shortcutsSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("shortcutsVisibleModulesLabel")}
+                      value={String(visibleModulesForDomain.length)}
+                    />
+                    <Metric title={translate("roleLabel")} value={activeRole} />
+                    <Metric title={translate("domainFilterLabel")} value={activeDomain} />
+                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
+                  </div>
+                  <div className="inline-inputs">
+                    <button
+                      className="button primary"
+                      type="button"
+                      data-action-id="web.shortcuts.run"
+                      onClick={() => void handleRunShortcuts()}
+                    >
+                      {translate("shortcutsRunAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.shortcuts.refresh"
+                      onClick={() => void handleRefreshDashboardHome()}
+                    >
+                      {translate("shortcutsRefreshAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.shortcuts.recoverDomain"
+                      onClick={() => void recoverActiveDomainState()}
+                    >
+                      {translate("shortcutsRecoverAction")}
+                    </button>
+                  </div>
+                  {visibleModulesForDomain.length === 0 ? (
+                    <p className="empty-state">{translate("shortcutsNoItems")}</p>
+                  ) : (
+                    <div className="inline-inputs">
+                      {visibleModulesForDomain.slice(0, 8).map((moduleId) => (
+                        <span key={`shortcut-${moduleId}`} className="chip role-badge">
+                          {moduleId}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </div>

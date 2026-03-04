@@ -66,6 +66,13 @@ describe("i18n", () => {
     expect(translate("recentActivityOutcomeLabel")).toBe("Outcome");
     expect(translate("recentActivityDeniedLabel")).toBe("Denied");
     expect(translate("recentActivityErrorLabel")).toBe("Errors");
+    expect(translate("shortcutsTitle")).toBe("Shortcuts");
+    expect(translate("shortcutsStatusLabel")).toBe("Shortcuts");
+    expect(translate("shortcutsRunAction")).toBe("Run shortcuts");
+    expect(translate("shortcutsRefreshAction")).toBe("Refresh shortcuts");
+    expect(translate("shortcutsRecoverAction")).toBe("Recover domain");
+    expect(translate("shortcutsVisibleModulesLabel")).toBe("Visible modules");
+    expect(translate("shortcutsNoItems")).toBe("No shortcuts are available for this domain.");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -172,6 +179,13 @@ describe("i18n", () => {
     expect(translate("recentActivityOutcomeLabel")).toBe("Resultado");
     expect(translate("recentActivityDeniedLabel")).toBe("Denegadas");
     expect(translate("recentActivityErrorLabel")).toBe("Errores");
+    expect(translate("shortcutsTitle")).toBe("Shortcuts");
+    expect(translate("shortcutsStatusLabel")).toBe("Shortcuts");
+    expect(translate("shortcutsRunAction")).toBe("Ejecutar shortcuts");
+    expect(translate("shortcutsRefreshAction")).toBe("Refrescar shortcuts");
+    expect(translate("shortcutsRecoverAction")).toBe("Recuperar dominio");
+    expect(translate("shortcutsVisibleModulesLabel")).toBe("Modulos visibles");
+    expect(translate("shortcutsNoItems")).toBe("No hay shortcuts disponibles para este dominio.");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");

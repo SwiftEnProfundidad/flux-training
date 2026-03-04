@@ -197,7 +197,7 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 4.3.2 | WEB-210_READINESS_MONITOR | `BylLP` | ✅ | `web.route.readinessMonitor -> web.readinessMonitor.screen` | `createReadinessMonitorScreenModel` + runtime real (`readinessScore`, `auth.status`, `dashboardHome.status`) | Refrescar readiness (`web.readinessMonitor.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/readiness-monitor-contract.spec.ts` + `presentation/i18n.spec.ts` + `presentation/app.behavior.spec.tsx` | ✅ screen/status/action readiness instrumentados (`web.readinessMonitor.*`) |
 | 4.3.3 | WEB-220_ALERTS_FULL | `NN703` | ✅ | `web.route.alertsFull -> web.alertsFull.screen` | `createAlertsFullScreenModel` + `ManageObservabilityUseCase` (`listOperationalAlerts`, `listOperationalRunbooks`, `listActivityLog`) | Refrescar alertas full (`web.alertsFull.refresh`, `web.alertsFull.audit`) | loading|empty|error|success|denied|offline | ✅ `presentation/alerts-full-contract.spec.ts` + `presentation/i18n.spec.ts` + `presentation/alert-center-contract.spec.ts` | ✅ screen/status/actions/table instrumentados (`web.alertsFull.*`) |
 | 4.3.4 | WEB-230_RECENT_ACTIVITY | `CvIve` | ✅ | `web.route.recentActivity -> web.recentActivity.screen` | `createRecentActivityScreenModel` + `ManageObservabilityUseCase` (`listActivityLog`) + cache observability real | Refrescar actividad (`web.recentActivity.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/recent-activity-contract.spec.ts` + `presentation/i18n.spec.ts` + `presentation/alerts-full-contract.spec.ts` | ✅ screen/status/action/table instrumentados (`web.recentActivity.*`) |
-| 4.3.5 | WEB-240_SHORTCUTS | `BzKbI` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.3.5 | WEB-240_SHORTCUTS | `BzKbI` | ✅ | `web.route.shortcuts -> web.shortcuts.screen` | `createShortcutsScreenModel` + runtime real (`roleCapabilitiesStatus`, `visibleModulesForDomain`, `pendingQueue`) | Ejecutar shortcuts (`web.shortcuts.run`, `web.shortcuts.refresh`, `web.shortcuts.recoverDomain`) | loading|empty|error|success|denied|offline | ✅ `presentation/shortcuts-contract.spec.ts` + `presentation/i18n.spec.ts` + `presentation/recent-activity-contract.spec.ts` | ✅ screen/status/actions instrumentados (`web.shortcuts.*`) |
 
 ### Task 4.4 — Web — Acceso y Dashboard operativo / WEB_DASHBOARD_SECONDARY_LANE
 - Total pantallas en este bloque: **3**
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.3.5 WEB-240_SHORTCUTS**
-- Siguiente task: **4.4.1 WEB-200_Dashboard_Tablet**
+- Task en construccion: **4.4.1 WEB-200_Dashboard_Tablet**
+- Siguiente task: **4.4.2 WEB-210_Readiness_Tablet**
