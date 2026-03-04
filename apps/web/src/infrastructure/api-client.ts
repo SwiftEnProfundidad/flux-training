@@ -1,10 +1,38 @@
-import type { AuthSession } from "@flux/contracts";
+import type { AccessRole, AuthSession } from "@flux/contracts";
 
 type EnvMap = Record<string, string | undefined>;
+type ApiErrorPayload = {
+  error?: unknown;
+  correlationId?: unknown;
+  retryable?: unknown;
+  statusCode?: unknown;
+};
 
 const defaultWebVersion = "0.1.0";
 const clientUpdateRequiredErrorCode = "client_update_required";
 let activeApiSession: Pick<AuthSession, "token" | "userId"> | null = null;
+let activeApiAccessRole: AccessRole | null = null;
+
+export class ApiClientError extends Error {
+  readonly code: string;
+  readonly correlationId: string | null;
+  readonly retryable: boolean | null;
+  readonly statusCode: number;
+
+  constructor(input: {
+    code: string;
+    statusCode: number;
+    correlationId?: string | null;
+    retryable?: boolean | null;
+  }) {
+    super(input.code);
+    this.name = "ApiClientError";
+    this.code = input.code;
+    this.statusCode = input.statusCode;
+    this.correlationId = input.correlationId ?? null;
+    this.retryable = input.retryable ?? null;
+  }
+}
 
 function readDefaultEnv(): EnvMap {
   const importMeta = import.meta as ImportMeta & { env?: EnvMap };
@@ -27,6 +55,9 @@ export function createApiHeaders(env: EnvMap = readDefaultEnv(), useJson = false
   if (activeApiSession !== null) {
     headers.Authorization = `Bearer ${activeApiSession.token}`;
   }
+  if (activeApiAccessRole !== null) {
+    headers["x-flux-access-role"] = activeApiAccessRole;
+  }
   if (useJson) {
     headers["Content-Type"] = "application/json";
   }
@@ -48,22 +79,21 @@ export function getApiAuthUserId(): string | undefined {
   return activeApiSession?.userId;
 }
 
-async function readApiErrorCode(response: Response): Promise<string | null> {
+export function setApiAccessRole(role: AccessRole | null): void {
+  activeApiAccessRole = role;
+}
+
+async function readApiErrorPayload(response: Response): Promise<ApiErrorPayload | null> {
   const contentType = response.headers.get("Content-Type");
   if (contentType === null || contentType.includes("application/json") === false) {
     return null;
   }
 
   try {
-    const payload = (await response.clone().json()) as { error?: unknown };
-    if (typeof payload.error === "string" && payload.error.length > 0) {
-      return payload.error;
-    }
+    return (await response.clone().json()) as ApiErrorPayload;
   } catch {
     return null;
   }
-
-  return null;
 }
 
 export async function assertApiResponse(response: Response, fallbackErrorCode: string): Promise<void> {
@@ -71,10 +101,35 @@ export async function assertApiResponse(response: Response, fallbackErrorCode: s
     return;
   }
 
-  const apiErrorCode = await readApiErrorCode(response);
-  throw new Error(apiErrorCode ?? fallbackErrorCode);
+  const payload = await readApiErrorPayload(response);
+  const errorCode =
+    typeof payload?.error === "string" && payload.error.length > 0
+      ? payload.error
+      : fallbackErrorCode;
+  const correlationId =
+    typeof payload?.correlationId === "string" && payload.correlationId.length > 0
+      ? payload.correlationId
+      : null;
+  const retryable =
+    typeof payload?.retryable === "boolean"
+      ? payload.retryable
+      : response.status >= 500;
+  const statusCode =
+    typeof payload?.statusCode === "number" && Number.isFinite(payload.statusCode)
+      ? payload.statusCode
+      : response.status;
+
+  throw new ApiClientError({
+    code: errorCode,
+    statusCode,
+    correlationId,
+    retryable
+  });
 }
 
 export function isClientUpdateRequiredError(error: unknown): boolean {
-  return error instanceof Error && error.message === clientUpdateRequiredErrorCode;
+  return (
+    (error instanceof ApiClientError && error.code === clientUpdateRequiredErrorCode) ||
+    (error instanceof Error && error.message === clientUpdateRequiredErrorCode)
+  );
 }

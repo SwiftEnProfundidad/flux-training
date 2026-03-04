@@ -12,6 +12,14 @@ import { assertApiResponse, createApiHeaders } from "./api-client";
 
 let cachedAuth: Auth | null = null;
 
+function canUseLocalDevFallback(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  const host = window.location.hostname.trim().toLowerCase();
+  return host === "localhost" || host === "127.0.0.1";
+}
+
 function hasFirebaseWebConfig(): boolean {
   const apiKey = String(import.meta.env.VITE_FIREBASE_API_KEY ?? "");
   const authDomain = String(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "");
@@ -57,6 +65,9 @@ async function createBackendSession(providerToken: string): Promise<AuthSession>
 class FirebaseAuthGateway implements AuthGateway {
   async signInWithApple(): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
+      if (canUseLocalDevFallback()) {
+        return createBackendSession("apple-local-dev-token");
+      }
       throw new Error("missing_firebase_web_config");
     }
 
@@ -69,6 +80,12 @@ class FirebaseAuthGateway implements AuthGateway {
 
   async signInWithEmail(email: string, password: string): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
+      if (canUseLocalDevFallback()) {
+        const fallbackToken = email.trim();
+        if (fallbackToken.length > 0) {
+          return createBackendSession(fallbackToken);
+        }
+      }
       throw new Error("missing_firebase_web_config");
     }
 

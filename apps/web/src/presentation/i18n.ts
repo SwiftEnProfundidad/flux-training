@@ -62,6 +62,36 @@ type AppTranslations = {
   loadMoreRows: string;
   showAllRows: string;
   noAthletesFound: string;
+  athleteDetailTitle: string;
+  athleteDetailEmpty: string;
+  athleteDetailSelectFirst: string;
+  athleteDetailOpenSessionHistory: string;
+  sessionHistoryTitle: string;
+  sessionHistoryEmpty: string;
+  sessionHistoryNoRows: string;
+  sessionHistoryPlanLabel: string;
+  sessionHistoryStartedLabel: string;
+  sessionHistoryEndedLabel: string;
+  sessionHistoryDurationLabel: string;
+  sessionHistoryExercisesLabel: string;
+  compareProgressTitle: string;
+  compareProgressEmpty: string;
+  compareProgressLoad: string;
+  compareProgressSelectedSessions: string;
+  compareProgressCohortSessions: string;
+  compareProgressDeltaSessions: string;
+  compareProgressSelectedNutrition: string;
+  compareProgressCohortNutrition: string;
+  compareProgressDeltaNutrition: string;
+  coachNotesTitle: string;
+  coachNotesLoad: string;
+  coachNotesSaveFollowUp: string;
+  coachNotesEmpty: string;
+  coachNotesNoRows: string;
+  coachNotesOccurredAtLabel: string;
+  coachNotesSourceLabel: string;
+  coachNotesOutcomeLabel: string;
+  coachNotesSummaryLabel: string;
   athleteColumn: string;
   plansColumn: string;
   sessionsColumn: string;
@@ -168,10 +198,48 @@ type AppTranslations = {
   billingIncidentSeverityLow: string;
   createPlan: string;
   loadPlans: string;
+  planBuilderTitle: string;
+  planBuilderStatusLabel: string;
+  planBuilderWeeksLabel: string;
+  planBuilderDaysLabel: string;
+  planBuilderTemplateLabel: string;
+  planBuilderTemplateStrength: string;
+  planBuilderTemplateHypertrophy: string;
+  planBuilderTemplateRecomposition: string;
+  planBuilderPreviewTitle: string;
+  planBuilderPreviewDaysLabel: string;
+  planBuilderPreviewExercisesLabel: string;
+  planBuilderInvalidConfiguration: string;
+  planAssignmentTitle: string;
+  planAssignmentStatusLabel: string;
+  planAssignmentSummary: string;
+  planAssignmentPlanLabel: string;
+  planAssignmentSelectedAthletesLabel: string;
+  planAssignmentAtRiskAthletesLabel: string;
+  planAssignmentAssignSelectedAction: string;
+  planAssignmentAssignAtRiskAction: string;
+  planAssignmentClearAction: string;
+  planAssignmentNoSelection: string;
+  planAssignmentSelectedListTitle: string;
+  planAssignmentAssignedSuffix: string;
+  plansLoadedLabel: string;
+  noPlansLoaded: string;
   logWorkout: string;
   loadSessions: string;
   sessionStatusLabel: string;
   sessionsLoadedLabel: string;
+  sessionDetailTitle: string;
+  sessionDetailStatusLabel: string;
+  sessionDetailSummary: string;
+  sessionDetailSelectLabel: string;
+  sessionDetailClearAction: string;
+  sessionDetailOpenVideoAction: string;
+  sessionDetailPlanLabel: string;
+  sessionDetailStartedLabel: string;
+  sessionDetailEndedLabel: string;
+  sessionDetailDurationLabel: string;
+  sessionDetailExerciseCountLabel: string;
+  sessionDetailNoSelection: string;
   exerciseVideosTitle: string;
   videosStatusLabel: string;
   exercisePickerLabel: string;
@@ -183,6 +251,15 @@ type AppTranslations = {
   recommendationsStatusLabel: string;
   loadRecommendations: string;
   noRecommendationsLoaded: string;
+  aiInsightsTitle: string;
+  aiInsightsStatusLabel: string;
+  aiInsightsSummary: string;
+  aiInsightsLoadAction: string;
+  aiInsightsRefreshAction: string;
+  aiInsightsNoData: string;
+  aiInsightsRecommendationsLabel: string;
+  aiInsightsHighPriorityLabel: string;
+  aiInsightsSignalsLabel: string;
   nutritionTitle: string;
   nutritionStatusLabel: string;
   nutritionFiltersLabel: string;
@@ -199,6 +276,43 @@ type AppTranslations = {
   logsLoadedLabel: string;
   filteredLogsLabel: string;
   noNutritionFilteredLogs: string;
+  deviationAlertsTitle: string;
+  deviationAlertsStatusLabel: string;
+  deviationAlertsSummary: string;
+  deviationAlertsLoadAction: string;
+  deviationAlertsClearAction: string;
+  deviationAlertsHighRiskLabel: string;
+  deviationAlertsModerateRiskLabel: string;
+  deviationAlertsReasonCalories: string;
+  deviationAlertsReasonProtein: string;
+  deviationAlertsNoData: string;
+  nutritionCoachViewTitle: string;
+  nutritionCoachViewStatusLabel: string;
+  nutritionCoachViewSummary: string;
+  nutritionCoachViewLoadAction: string;
+  nutritionCoachViewFocusAction: string;
+  nutritionCoachViewOpenOperationsAction: string;
+  nutritionCoachViewNoRows: string;
+  nutritionCoachViewAtRiskLabel: string;
+  cohortNutritionTitle: string;
+  cohortNutritionStatusLabel: string;
+  cohortNutritionSummary: string;
+  cohortNutritionLoadAction: string;
+  cohortNutritionFocusAction: string;
+  cohortNutritionNoRows: string;
+  cohortNutritionLogsLabel: string;
+  cohortNutritionAvgCaloriesLabel: string;
+  cohortNutritionAvgProteinLabel: string;
+  logDetailTitle: string;
+  logDetailStatusLabel: string;
+  logDetailSummary: string;
+  logDetailLoadAction: string;
+  logDetailClearAction: string;
+  logDetailOpenCoachAction: string;
+  logDetailSelectPlaceholder: string;
+  logDetailSelectedDateLabel: string;
+  logDetailSelectedAthleteLabel: string;
+  logDetailNoSelection: string;
   progressTitle: string;
   progressStatusLabel: string;
   progressFiltersLabel: string;
@@ -418,6 +532,36 @@ const translations: Record<AppLanguage, AppTranslations> = {
     loadMoreRows: "Cargar mas filas",
     showAllRows: "Ver todas",
     noAthletesFound: "No hay atletas para este filtro.",
+    athleteDetailTitle: "Detalle de atleta",
+    athleteDetailEmpty: "Selecciona un atleta para ver su detalle operativo.",
+    athleteDetailSelectFirst: "Seleccionar primer atleta",
+    athleteDetailOpenSessionHistory: "Abrir historial de sesiones",
+    sessionHistoryTitle: "Historial de sesiones",
+    sessionHistoryEmpty: "Selecciona un atleta para cargar su historial.",
+    sessionHistoryNoRows: "No hay sesiones para este atleta.",
+    sessionHistoryPlanLabel: "plan",
+    sessionHistoryStartedLabel: "inicio",
+    sessionHistoryEndedLabel: "fin",
+    sessionHistoryDurationLabel: "duracion",
+    sessionHistoryExercisesLabel: "ejercicios",
+    compareProgressTitle: "Comparar progreso",
+    compareProgressEmpty: "Selecciona un atleta para comparar contra la cohorte.",
+    compareProgressLoad: "Cargar progreso",
+    compareProgressSelectedSessions: "sesiones atleta",
+    compareProgressCohortSessions: "sesiones cohorte",
+    compareProgressDeltaSessions: "delta sesiones",
+    compareProgressSelectedNutrition: "nutricion atleta",
+    compareProgressCohortNutrition: "nutricion cohorte",
+    compareProgressDeltaNutrition: "delta nutricion",
+    coachNotesTitle: "Notas de coach",
+    coachNotesLoad: "Cargar notas",
+    coachNotesSaveFollowUp: "Guardar seguimiento",
+    coachNotesEmpty: "Selecciona un atleta para ver notas de seguimiento.",
+    coachNotesNoRows: "No hay notas disponibles para este atleta.",
+    coachNotesOccurredAtLabel: "fecha",
+    coachNotesSourceLabel: "origen",
+    coachNotesOutcomeLabel: "resultado",
+    coachNotesSummaryLabel: "resumen",
     athleteColumn: "Atleta",
     plansColumn: "Planes",
     sessionsColumn: "Sesiones",
@@ -524,10 +668,49 @@ const translations: Record<AppLanguage, AppTranslations> = {
     billingIncidentSeverityLow: "baja",
     createPlan: "Crear plan",
     loadPlans: "Cargar planes",
+    planBuilderTitle: "Plan builder",
+    planBuilderStatusLabel: "Builder",
+    planBuilderWeeksLabel: "semanas",
+    planBuilderDaysLabel: "dias por semana",
+    planBuilderTemplateLabel: "template",
+    planBuilderTemplateStrength: "fuerza",
+    planBuilderTemplateHypertrophy: "hipertrofia",
+    planBuilderTemplateRecomposition: "recomposicion",
+    planBuilderPreviewTitle: "Previsualizacion del plan",
+    planBuilderPreviewDaysLabel: "dias configurados",
+    planBuilderPreviewExercisesLabel: "ejercicios por dia",
+    planBuilderInvalidConfiguration: "Configuracion invalida: revisa semanas y dias.",
+    planAssignmentTitle: "Asignacion de plan",
+    planAssignmentStatusLabel: "Asignacion",
+    planAssignmentSummary:
+      "Asigna el plan seleccionado a los atletas elegidos desde operaciones o a toda la cohorte en riesgo.",
+    planAssignmentPlanLabel: "Plan activo",
+    planAssignmentSelectedAthletesLabel: "Atletas seleccionados",
+    planAssignmentAtRiskAthletesLabel: "Atletas en riesgo",
+    planAssignmentAssignSelectedAction: "Asignar a seleccion",
+    planAssignmentAssignAtRiskAction: "Asignar a riesgo",
+    planAssignmentClearAction: "Limpiar seleccion",
+    planAssignmentNoSelection: "Selecciona atletas en operaciones para habilitar la asignacion.",
+    planAssignmentSelectedListTitle: "Atletas objetivo",
+    planAssignmentAssignedSuffix: "asignado",
+    plansLoadedLabel: "Planes cargados",
+    noPlansLoaded: "Todavia no hay planes cargados.",
     logWorkout: "Registrar sesion demo",
     loadSessions: "Cargar sesiones",
     sessionStatusLabel: "Estado de sesion",
     sessionsLoadedLabel: "Sesiones cargadas",
+    sessionDetailTitle: "Detalle de sesion",
+    sessionDetailStatusLabel: "Detalle",
+    sessionDetailSummary: "Inspecciona una sesion cargada y enlaza al video del primer ejercicio.",
+    sessionDetailSelectLabel: "seleccionar sesion",
+    sessionDetailClearAction: "Limpiar sesion",
+    sessionDetailOpenVideoAction: "Abrir video ejercicio",
+    sessionDetailPlanLabel: "plan",
+    sessionDetailStartedLabel: "inicio",
+    sessionDetailEndedLabel: "fin",
+    sessionDetailDurationLabel: "duracion",
+    sessionDetailExerciseCountLabel: "ejercicios",
+    sessionDetailNoSelection: "No hay sesion seleccionada para mostrar detalle.",
     exerciseVideosTitle: "Videos de ejercicios",
     videosStatusLabel: "Videos",
     exercisePickerLabel: "ejercicio",
@@ -539,6 +722,16 @@ const translations: Record<AppLanguage, AppTranslations> = {
     recommendationsStatusLabel: "Recomendaciones",
     loadRecommendations: "Cargar recomendaciones IA",
     noRecommendationsLoaded: "Todavia no hay recomendaciones cargadas.",
+    aiInsightsTitle: "Insights IA",
+    aiInsightsStatusLabel: "Insights",
+    aiInsightsSummary:
+      "Panel operativo de recomendaciones con senales reales de analitica y crash para priorizar acciones.",
+    aiInsightsLoadAction: "Cargar insights IA",
+    aiInsightsRefreshAction: "Refrescar senales IA",
+    aiInsightsNoData: "No hay insights IA disponibles con los datos actuales.",
+    aiInsightsRecommendationsLabel: "Recomendaciones",
+    aiInsightsHighPriorityLabel: "Prioridad alta",
+    aiInsightsSignalsLabel: "Senales operativas",
     nutritionTitle: "Nutricion",
     nutritionStatusLabel: "Nutricion",
     nutritionFiltersLabel: "Filtros de nutricion",
@@ -555,6 +748,46 @@ const translations: Record<AppLanguage, AppTranslations> = {
     logsLoadedLabel: "Registros cargados",
     filteredLogsLabel: "Registros filtrados",
     noNutritionFilteredLogs: "No hay registros nutricionales para este filtro.",
+    deviationAlertsTitle: "Alertas de desvio",
+    deviationAlertsStatusLabel: "Desvios",
+    deviationAlertsSummary:
+      "Detecta desvio calorico/proteico para corregir antes de impactar progreso semanal.",
+    deviationAlertsLoadAction: "Evaluar desvios",
+    deviationAlertsClearAction: "Reiniciar filtros",
+    deviationAlertsHighRiskLabel: "Riesgo alto",
+    deviationAlertsModerateRiskLabel: "Riesgo moderado",
+    deviationAlertsReasonCalories: "Calorias fuera de objetivo",
+    deviationAlertsReasonProtein: "Proteina por debajo del objetivo",
+    deviationAlertsNoData: "No hay desvios nutricionales para este filtro.",
+    nutritionCoachViewTitle: "Vista coach nutricion",
+    nutritionCoachViewStatusLabel: "Coach",
+    nutritionCoachViewSummary:
+      "Prioriza atletas en riesgo nutricional y abre operaciones para seguimiento inmediato.",
+    nutritionCoachViewLoadAction: "Cargar cohorte",
+    nutritionCoachViewFocusAction: "Foco en riesgo",
+    nutritionCoachViewOpenOperationsAction: "Abrir operaciones",
+    nutritionCoachViewNoRows: "No hay atletas para la vista coach con los datos actuales.",
+    nutritionCoachViewAtRiskLabel: "Atletas en riesgo",
+    cohortNutritionTitle: "Cohorte nutricion",
+    cohortNutritionStatusLabel: "Cohorte",
+    cohortNutritionSummary:
+      "Vista secundaria por cohorte con promedio nutricional por atleta y foco en riesgo.",
+    cohortNutritionLoadAction: "Cargar cohorte nutricion",
+    cohortNutritionFocusAction: "Foco riesgo maximo",
+    cohortNutritionNoRows: "No hay cohorte nutricional disponible para este filtro.",
+    cohortNutritionLogsLabel: "logs",
+    cohortNutritionAvgCaloriesLabel: "kcal media",
+    cohortNutritionAvgProteinLabel: "proteina media",
+    logDetailTitle: "Detalle de registro nutricional",
+    logDetailStatusLabel: "Detalle",
+    logDetailSummary: "Inspecciona un log concreto y abre seguimiento coach en operaciones.",
+    logDetailLoadAction: "Refrescar detalle",
+    logDetailClearAction: "Limpiar seleccion",
+    logDetailOpenCoachAction: "Abrir vista coach",
+    logDetailSelectPlaceholder: "seleccionar log",
+    logDetailSelectedDateLabel: "fecha seleccionada",
+    logDetailSelectedAthleteLabel: "atleta seleccionado",
+    logDetailNoSelection: "No hay log seleccionado para mostrar detalle.",
     progressTitle: "Progreso",
     progressStatusLabel: "Progreso",
     progressFiltersLabel: "Filtros de progreso",
@@ -611,10 +844,10 @@ const translations: Record<AppLanguage, AppTranslations> = {
     observabilityRunbooksLabel: "Runbooks activos",
     observabilityOnCallOwnerLabel: "Owner on-call",
     readinessLabel: "Readiness",
-    authMetric: "Auth",
-    queueMetric: "Cola",
+    authMetric: "Sesion",
+    queueMetric: "Pendientes",
     goalMetric: "Objetivo",
-    syncMetric: "Sync",
+    syncMetric: "Sincronizacion",
     domainFilterLabel: "Dominio",
     domainAll: "Todo",
     domainOnboarding: "Onboarding",
@@ -778,6 +1011,36 @@ const translations: Record<AppLanguage, AppTranslations> = {
     loadMoreRows: "Load more rows",
     showAllRows: "Show all",
     noAthletesFound: "No athletes match this filter.",
+    athleteDetailTitle: "Athlete detail",
+    athleteDetailEmpty: "Select an athlete to open operational detail.",
+    athleteDetailSelectFirst: "Select first athlete",
+    athleteDetailOpenSessionHistory: "Open session history",
+    sessionHistoryTitle: "Session history",
+    sessionHistoryEmpty: "Select an athlete to load session history.",
+    sessionHistoryNoRows: "No sessions available for this athlete.",
+    sessionHistoryPlanLabel: "plan",
+    sessionHistoryStartedLabel: "started",
+    sessionHistoryEndedLabel: "ended",
+    sessionHistoryDurationLabel: "duration",
+    sessionHistoryExercisesLabel: "exercises",
+    compareProgressTitle: "Compare progress",
+    compareProgressEmpty: "Select an athlete to compare against cohort baseline.",
+    compareProgressLoad: "Load progress",
+    compareProgressSelectedSessions: "athlete sessions",
+    compareProgressCohortSessions: "cohort sessions",
+    compareProgressDeltaSessions: "sessions delta",
+    compareProgressSelectedNutrition: "athlete nutrition",
+    compareProgressCohortNutrition: "cohort nutrition",
+    compareProgressDeltaNutrition: "nutrition delta",
+    coachNotesTitle: "Coach notes",
+    coachNotesLoad: "Load notes",
+    coachNotesSaveFollowUp: "Save follow-up",
+    coachNotesEmpty: "Select an athlete to inspect follow-up notes.",
+    coachNotesNoRows: "No notes available for this athlete.",
+    coachNotesOccurredAtLabel: "date",
+    coachNotesSourceLabel: "source",
+    coachNotesOutcomeLabel: "outcome",
+    coachNotesSummaryLabel: "summary",
     athleteColumn: "Athlete",
     plansColumn: "Plans",
     sessionsColumn: "Sessions",
@@ -884,10 +1147,49 @@ const translations: Record<AppLanguage, AppTranslations> = {
     billingIncidentSeverityLow: "low",
     createPlan: "Create plan",
     loadPlans: "Load plans",
+    planBuilderTitle: "Plan builder",
+    planBuilderStatusLabel: "Builder",
+    planBuilderWeeksLabel: "weeks",
+    planBuilderDaysLabel: "days per week",
+    planBuilderTemplateLabel: "template",
+    planBuilderTemplateStrength: "strength",
+    planBuilderTemplateHypertrophy: "hypertrophy",
+    planBuilderTemplateRecomposition: "recomposition",
+    planBuilderPreviewTitle: "Plan preview",
+    planBuilderPreviewDaysLabel: "configured days",
+    planBuilderPreviewExercisesLabel: "exercises per day",
+    planBuilderInvalidConfiguration: "Invalid configuration: review weeks and days.",
+    planAssignmentTitle: "Plan assignment",
+    planAssignmentStatusLabel: "Assignment",
+    planAssignmentSummary:
+      "Assign the selected plan to athletes chosen in operations or to the current at-risk cohort.",
+    planAssignmentPlanLabel: "Active plan",
+    planAssignmentSelectedAthletesLabel: "Selected athletes",
+    planAssignmentAtRiskAthletesLabel: "At-risk athletes",
+    planAssignmentAssignSelectedAction: "Assign to selected",
+    planAssignmentAssignAtRiskAction: "Assign to at-risk",
+    planAssignmentClearAction: "Clear selection",
+    planAssignmentNoSelection: "Select athletes in operations to enable assignment.",
+    planAssignmentSelectedListTitle: "Target athletes",
+    planAssignmentAssignedSuffix: "assigned",
+    plansLoadedLabel: "Plans loaded",
+    noPlansLoaded: "No plans loaded yet.",
     logWorkout: "Log demo workout",
     loadSessions: "Load sessions",
     sessionStatusLabel: "Session status",
     sessionsLoadedLabel: "Sessions loaded",
+    sessionDetailTitle: "Session detail",
+    sessionDetailStatusLabel: "Detail",
+    sessionDetailSummary: "Inspect a loaded session and jump to the first exercise video.",
+    sessionDetailSelectLabel: "select session",
+    sessionDetailClearAction: "Clear session",
+    sessionDetailOpenVideoAction: "Open exercise video",
+    sessionDetailPlanLabel: "plan",
+    sessionDetailStartedLabel: "start",
+    sessionDetailEndedLabel: "end",
+    sessionDetailDurationLabel: "duration",
+    sessionDetailExerciseCountLabel: "exercises",
+    sessionDetailNoSelection: "No session selected to display details.",
     exerciseVideosTitle: "Exercise videos",
     videosStatusLabel: "Videos",
     exercisePickerLabel: "exercise",
@@ -899,6 +1201,16 @@ const translations: Record<AppLanguage, AppTranslations> = {
     recommendationsStatusLabel: "Recommendations",
     loadRecommendations: "Load AI recommendations",
     noRecommendationsLoaded: "No recommendations loaded yet.",
+    aiInsightsTitle: "AI insights",
+    aiInsightsStatusLabel: "Insights",
+    aiInsightsSummary:
+      "Operational recommendation panel with real analytics and crash signals to prioritize actions.",
+    aiInsightsLoadAction: "Load AI insights",
+    aiInsightsRefreshAction: "Refresh AI signals",
+    aiInsightsNoData: "No AI insights are available with the current data.",
+    aiInsightsRecommendationsLabel: "Recommendations",
+    aiInsightsHighPriorityLabel: "High priority",
+    aiInsightsSignalsLabel: "Operational signals",
     nutritionTitle: "Nutrition",
     nutritionStatusLabel: "Nutrition",
     nutritionFiltersLabel: "Nutrition filters",
@@ -915,6 +1227,46 @@ const translations: Record<AppLanguage, AppTranslations> = {
     logsLoadedLabel: "Logs loaded",
     filteredLogsLabel: "Filtered logs",
     noNutritionFilteredLogs: "No nutrition logs match this filter.",
+    deviationAlertsTitle: "Deviation alerts",
+    deviationAlertsStatusLabel: "Deviations",
+    deviationAlertsSummary:
+      "Detect calorie/protein drift early before weekly progress is affected.",
+    deviationAlertsLoadAction: "Evaluate deviations",
+    deviationAlertsClearAction: "Reset filters",
+    deviationAlertsHighRiskLabel: "High risk",
+    deviationAlertsModerateRiskLabel: "Moderate risk",
+    deviationAlertsReasonCalories: "Calories out of target range",
+    deviationAlertsReasonProtein: "Protein below target",
+    deviationAlertsNoData: "No nutrition deviations detected for this filter.",
+    nutritionCoachViewTitle: "Nutrition coach view",
+    nutritionCoachViewStatusLabel: "Coach",
+    nutritionCoachViewSummary:
+      "Prioritize athletes at nutrition risk and jump to operations for immediate follow-up.",
+    nutritionCoachViewLoadAction: "Load cohort",
+    nutritionCoachViewFocusAction: "Focus at risk",
+    nutritionCoachViewOpenOperationsAction: "Open operations",
+    nutritionCoachViewNoRows: "No athletes available for coach view with current data.",
+    nutritionCoachViewAtRiskLabel: "Athletes at risk",
+    cohortNutritionTitle: "Cohort nutrition",
+    cohortNutritionStatusLabel: "Cohort",
+    cohortNutritionSummary:
+      "Secondary cohort view with nutrition averages per athlete and fast risk focus.",
+    cohortNutritionLoadAction: "Load nutrition cohort",
+    cohortNutritionFocusAction: "Focus highest risk",
+    cohortNutritionNoRows: "No nutrition cohort available for this filter.",
+    cohortNutritionLogsLabel: "logs",
+    cohortNutritionAvgCaloriesLabel: "avg kcal",
+    cohortNutritionAvgProteinLabel: "avg protein",
+    logDetailTitle: "Nutrition log detail",
+    logDetailStatusLabel: "Detail",
+    logDetailSummary: "Inspect one specific log and jump to coach follow-up in operations.",
+    logDetailLoadAction: "Refresh detail",
+    logDetailClearAction: "Clear selection",
+    logDetailOpenCoachAction: "Open coach view",
+    logDetailSelectPlaceholder: "select log",
+    logDetailSelectedDateLabel: "selected date",
+    logDetailSelectedAthleteLabel: "selected athlete",
+    logDetailNoSelection: "No nutrition log selected to display details.",
     progressTitle: "Progress",
     progressStatusLabel: "Progress",
     progressFiltersLabel: "Progress filters",
@@ -971,8 +1323,8 @@ const translations: Record<AppLanguage, AppTranslations> = {
     observabilityRunbooksLabel: "Active runbooks",
     observabilityOnCallOwnerLabel: "On-call owner",
     readinessLabel: "Readiness",
-    authMetric: "Auth",
-    queueMetric: "Queue",
+    authMetric: "Session",
+    queueMetric: "Pending",
     goalMetric: "Goal",
     syncMetric: "Sync",
     domainFilterLabel: "Domain",

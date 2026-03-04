@@ -84,6 +84,29 @@ import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
+import { createAthleteFiltersScreenModel } from "./athlete-filters-contract";
+import { createAthletesListScreenModel } from "./athletes-list-contract";
+import { createAthleteDetailScreenModel } from "./athlete-detail-contract";
+import { createSessionHistoryScreenModel } from "./session-history-contract";
+import { createCompareProgressScreenModel } from "./compare-progress-contract";
+import { createCoachNotesScreenModel } from "./coach-notes-contract";
+import { createAIInsightsScreenModel } from "./ai-insights-contract";
+import { createNutritionOverviewScreenModel } from "./nutrition-overview-contract";
+import { createDailyLogReviewScreenModel } from "./daily-log-review-contract";
+import { createDeviationAlertsScreenModel } from "./deviation-alerts-contract";
+import { createNutritionCoachViewScreenModel } from "./nutrition-coach-view-contract";
+import { createCohortNutritionScreenModel } from "./cohort-nutrition-contract";
+import { createNutritionLogDetailScreenModel } from "./nutrition-log-detail-contract";
+import { createPlansListScreenModel } from "./plans-list-contract";
+import { createPlanBuilderScreenModel } from "./plan-builder-contract";
+import { createSessionDetailScreenModel } from "./session-detail-contract";
+import { createPlanAssignmentScreenModel } from "./plan-assignment-contract";
+import { createExerciseLibraryScreenModel } from "./exercise-library-contract";
+import { createAdminUsersScreenModel } from "./admin-users-contract";
+import { createAuditTrailScreenModel } from "./audit-trail-contract";
+import { createBillingOverviewScreenModel } from "./billing-overview-contract";
+import { createSupportIncidentsScreenModel } from "./support-incidents-contract";
+import { createLegalComplianceScreenModel } from "./legal-compliance-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -193,6 +216,24 @@ type SyncIdempotencyMetadata = {
   replayed: boolean;
   ttlSeconds: number;
 };
+type NutritionDeviationSeverity = "high" | "medium";
+type NutritionDeviationReason = "calories" | "protein";
+type NutritionDeviationAlert = {
+  id: string;
+  date: string;
+  severity: NutritionDeviationSeverity;
+  reason: NutritionDeviationReason;
+  calories: number;
+  proteinGrams: number;
+};
+type CohortNutritionRow = {
+  athleteId: string;
+  logsCount: number;
+  averageCalories: number;
+  averageProteinGrams: number;
+  riskLevel: "attention" | "normal";
+};
+type PlanBuilderTemplate = "strength" | "hypertrophy" | "recomposition";
 type ObservabilityStatus =
   | "idle"
   | "loading"
@@ -228,6 +269,19 @@ const dashboardDomainStorageKey = "flux_training_dashboard_domain";
 const dashboardRoleStorageKey = "flux_training_dashboard_role";
 const denseTableInitialRows = 24;
 const denseTableRowsStep = 24;
+
+function createSessionSelectionKey(session: WorkoutSessionInput, index: number): string {
+  return `${session.userId}|${session.planId}|${session.startedAt}|${session.endedAt}|${index}`;
+}
+
+function createAssignedPlanId(
+  basePlanId: string,
+  athleteId: string,
+  index: number,
+  assignedAtTimestamp: number
+): string {
+  return `${basePlanId}-assigned-${athleteId}-${assignedAtTimestamp}-${index}`;
+}
 
 export function App() {
   const createAuthSessionUseCase = useMemo(
@@ -319,9 +373,14 @@ export function App() {
   );
 
   const [planName, setPlanName] = useState(dailyTrainingVideoDefaults.planName || "Starter Plan");
+  const [planBuilderWeeksInput, setPlanBuilderWeeksInput] = useState("4");
+  const [planBuilderDaysInput, setPlanBuilderDaysInput] = useState("3");
+  const [planBuilderTemplate, setPlanBuilderTemplate] =
+    useState<PlanBuilderTemplate>("recomposition");
   const [plans, setPlans] = useState<TrainingPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState(dailyTrainingVideoDefaults.selectedPlanId);
   const [sessions, setSessions] = useState<WorkoutSessionInput[]>(dailyTrainingVideoDefaults.sessions);
+  const [selectedSessionKey, setSelectedSessionKey] = useState("");
   const [nutritionDate, setNutritionDate] = useState("2026-02-26");
   const [calories, setCalories] = useState("2200");
   const [proteinGrams, setProteinGrams] = useState("150");
@@ -331,6 +390,7 @@ export function App() {
   const [nutritionMinProteinFilter, setNutritionMinProteinFilter] = useState("");
   const [nutritionMaxCaloriesFilter, setNutritionMaxCaloriesFilter] = useState("");
   const [nutritionSortMode, setNutritionSortMode] = useState<NutritionSortMode>("date_desc");
+  const [selectedNutritionLogKey, setSelectedNutritionLogKey] = useState<string | null>(null);
   const [progressMinSessionsFilter, setProgressMinSessionsFilter] = useState("");
   const [progressSortMode, setProgressSortMode] = useState<ProgressSortMode>("date_desc");
   const [nutritionLogs, setNutritionLogs] = useState<NutritionLog[]>(
@@ -415,6 +475,7 @@ export function App() {
   const hasAuthenticatedSession = activeUserId.length > 0;
   const isAuthLoading = authStatus === "loading";
   const [webLane, setWebLane] = useState<WebLane>("main");
+  const isQAMode = useMemo(() => readWebRuntimeMode() === "qa", []);
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -483,8 +544,9 @@ export function App() {
     activeDomain,
     domainRuntimeStates
   );
+  const runtimeStateForUI: EnterpriseRuntimeState = isQAMode ? activeDomainRuntimeState : "success";
   const effectiveDashboardHomeRuntimeState =
-    dashboardHomeRuntimeStateOverride ?? activeDomainRuntimeState;
+    isQAMode ? dashboardHomeRuntimeStateOverride ?? activeDomainRuntimeState : "success";
   const dashboardHomeScreenModel = useMemo(
     () =>
       createDashboardHomeLaneScreenModel({
@@ -563,6 +625,7 @@ export function App() {
       ),
     [activityLogEntries]
   );
+  const latestRecentActivityRow = recentActivityRows.at(0);
   const dashboardKpisScreenModel = useMemo(
     () =>
       createDashboardKpisLaneScreenModel({
@@ -651,9 +714,9 @@ export function App() {
       createProgressTrendsScreenModel({
         dashboardHomeStatus: dashboardHomeScreenModel.status,
         progressStatus,
-        historyCount: filteredProgressHistory.length
+        historyCount: progressSummary?.history.length ?? 0
       }),
-    [dashboardHomeScreenModel.status, filteredProgressHistory.length, progressStatus]
+    [dashboardHomeScreenModel.status, progressStatus, progressSummary?.history.length]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -706,6 +769,16 @@ export function App() {
     );
     return Number((totalSessions / athleteOperationRowsBase.length).toFixed(1));
   }, [athleteOperationRowsBase]);
+  const cohortAverageNutritionLogs = useMemo(() => {
+    if (athleteOperationRowsBase.length === 0) {
+      return 0;
+    }
+    const totalNutritionLogs = athleteOperationRowsBase.reduce(
+      (accumulator, row) => accumulator + row.nutritionLogsCount,
+      0
+    );
+    return Number((totalNutritionLogs / athleteOperationRowsBase.length).toFixed(1));
+  }, [athleteOperationRowsBase]);
   const athleteOperationRows = useMemo(
     () =>
       sortAthleteOperationsRows(
@@ -713,6 +786,128 @@ export function App() {
         athleteSortMode
       ),
     [athleteOperationRowsBase, athleteSortMode, deferredAthleteSearch]
+  );
+  const athletesListScreenModel = useMemo(
+    () =>
+      createAthletesListScreenModel({
+        lane: webLane,
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        operationsStatus,
+        rowsCount: athleteOperationRows.length
+      }),
+    [athleteOperationRows.length, dashboardHomeScreenModel.status, operationsStatus, webLane]
+  );
+  const athleteFiltersScreenModel = useMemo(
+    () =>
+      createAthleteFiltersScreenModel({
+        lane: webLane,
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        operationsStatus,
+        rowsCount: athleteOperationRows.length
+      }),
+    [athleteOperationRows.length, dashboardHomeScreenModel.status, operationsStatus, webLane]
+  );
+  const selectedAthleteDetailRow = useMemo(() => {
+    const selectedAthleteId = selectedAthleteIds[0];
+    if (selectedAthleteId === undefined) {
+      return null;
+    }
+    return athleteOperationRows.find((row) => row.athleteId === selectedAthleteId) ?? null;
+  }, [athleteOperationRows, selectedAthleteIds]);
+  const selectedAthleteSessionHistoryRows = useMemo(() => {
+    const selectedAthleteId = selectedAthleteIds[0];
+    if (selectedAthleteId === undefined) {
+      return [];
+    }
+    return sessions
+      .filter((session) => session.userId === selectedAthleteId)
+      .sort((left, right) => right.endedAt.localeCompare(left.endedAt));
+  }, [selectedAthleteIds, sessions]);
+  const selectedAthleteCoachNotesRows = useMemo(() => {
+    const selectedAthleteId = selectedAthleteIds[0];
+    if (selectedAthleteId === undefined) {
+      return [];
+    }
+    const sessionNotes = selectedAthleteSessionHistoryRows.map((session, index) => ({
+      id: `session-${session.planId}-${session.startedAt}-${index}`,
+      occurredAt: session.endedAt,
+      source: "web",
+      outcome: "success",
+      summary: `plan ${session.planId} · exercises ${session.exercises.length}`
+    }));
+    const activityNotes = activityLogEntries
+      .filter((entry) => entry.userId === selectedAthleteId)
+      .map((entry) => ({
+        id: entry.id,
+        occurredAt: entry.occurredAt,
+        source: entry.source,
+        outcome: entry.outcome,
+        summary: entry.summary
+      }));
+    return [...activityNotes, ...sessionNotes]
+      .sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))
+      .slice(0, 12);
+  }, [activityLogEntries, selectedAthleteIds, selectedAthleteSessionHistoryRows]);
+  const athleteDetailScreenModel = useMemo(
+    () =>
+      createAthleteDetailScreenModel({
+        lane: webLane,
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        operationsStatus,
+        selectedAthleteCount: selectedAthleteIds.length
+      }),
+    [dashboardHomeScreenModel.status, operationsStatus, selectedAthleteIds.length, webLane]
+  );
+  const sessionHistoryScreenModel = useMemo(
+    () =>
+      createSessionHistoryScreenModel({
+        lane: webLane,
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        sessionStatus,
+        selectedAthleteCount: selectedAthleteIds.length,
+        rowsCount: selectedAthleteSessionHistoryRows.length
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      webLane,
+      selectedAthleteIds.length,
+      selectedAthleteSessionHistoryRows.length,
+      sessionStatus
+    ]
+  );
+  const compareProgressScreenModel = useMemo(
+    () =>
+      createCompareProgressScreenModel({
+        lane: webLane,
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        progressStatus,
+        selectedAthleteCount: selectedAthleteIds.length,
+        cohortSize: athleteOperationRowsBase.length
+      }),
+    [
+      athleteOperationRowsBase.length,
+      dashboardHomeScreenModel.status,
+      progressStatus,
+      selectedAthleteIds.length,
+      webLane
+    ]
+  );
+  const coachNotesScreenModel = useMemo(
+    () =>
+      createCoachNotesScreenModel({
+        lane: webLane,
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        operationsStatus,
+        selectedAthleteCount: selectedAthleteIds.length,
+        notesCount: selectedAthleteCoachNotesRows.length
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      operationsStatus,
+      selectedAthleteCoachNotesRows.length,
+      selectedAthleteIds.length,
+      webLane
+    ]
   );
   const cohortAnalysisScreenModel = useMemo(
     () =>
@@ -722,6 +917,15 @@ export function App() {
         cohortSize: athleteOperationRowsBase.length
       }),
     [dashboardHomeScreenModel.status, operationsStatus, athleteOperationRowsBase.length]
+  );
+  const aiInsightsScreenModel = useMemo(
+    () =>
+      createAIInsightsScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        recommendationsStatus,
+        recommendationsCount: recommendations.length
+      }),
+    [dashboardHomeScreenModel.status, recommendations.length, recommendationsStatus]
   );
   const governancePrincipalsBase = useMemo(
     () =>
@@ -748,6 +952,21 @@ export function App() {
     () => buildRoleCapabilityCoverage(capabilitiesByRole),
     [capabilitiesByRole]
   );
+  const adminUsersScreenModel = useMemo(
+    () =>
+      createAdminUsersScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        governanceStatus,
+        isAdminRole: isAdminRole(activeRole),
+        principalsCount: governancePrincipals.length
+      }),
+    [
+      activeRole,
+      dashboardHomeScreenModel.status,
+      governancePrincipals.length,
+      governanceStatus
+    ]
+  );
   const auditTimelineRowsBase = useMemo(
     () => buildAuditTimelineRows(analyticsEvents, crashReports),
     [analyticsEvents, crashReports]
@@ -769,6 +988,15 @@ export function App() {
       deferredAuditDomainFilter,
       deferredAuditQuery
     ]
+  );
+  const auditTrailScreenModel = useMemo(
+    () =>
+      createAuditTrailScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        auditStatus,
+        rowsCount: auditTimelineRows.length
+      }),
+    [auditStatus, auditTimelineRows.length, dashboardHomeScreenModel.status]
   );
   const billingInvoiceRowsBase = useMemo(
     () => buildBillingInvoiceRows(plans, sessions, nutritionLogs),
@@ -805,6 +1033,184 @@ export function App() {
     deferredBillingSupportSearch,
     supportIncidentRowsBase
   ]);
+  const billingOverviewScreenModel = useMemo(
+    () =>
+      createBillingOverviewScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        billingSupportStatus,
+        invoicesCount: billingInvoiceRows.length,
+        incidentsCount: supportIncidentRows.length
+      }),
+    [
+      billingSupportStatus,
+      billingInvoiceRows.length,
+      dashboardHomeScreenModel.status,
+      supportIncidentRows.length
+    ]
+  );
+  const supportIncidentsScreenModel = useMemo(
+    () =>
+      createSupportIncidentsScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        billingSupportStatus,
+        incidentsCount: supportIncidentRows.length
+      }),
+    [billingSupportStatus, dashboardHomeScreenModel.status, supportIncidentRows.length]
+  );
+  const legalComplianceScreenModel = useMemo(
+    () =>
+      createLegalComplianceScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        legalStatus,
+        privacyPolicyAccepted,
+        termsAccepted,
+        medicalDisclaimerAccepted
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      legalStatus,
+      medicalDisclaimerAccepted,
+      privacyPolicyAccepted,
+      termsAccepted
+    ]
+  );
+  const planBuilderWeeksParsed = useMemo(
+    () => parseOptionalNumber(planBuilderWeeksInput),
+    [planBuilderWeeksInput]
+  );
+  const planBuilderDaysParsed = useMemo(
+    () => parseOptionalNumber(planBuilderDaysInput),
+    [planBuilderDaysInput]
+  );
+  const normalizedPlanBuilderWeeks = useMemo(() => {
+    if (
+      planBuilderWeeksParsed.isValid === false ||
+      planBuilderWeeksParsed.value === null ||
+      Number.isInteger(planBuilderWeeksParsed.value) === false
+    ) {
+      return null;
+    }
+    return Math.min(24, Math.max(1, planBuilderWeeksParsed.value));
+  }, [planBuilderWeeksParsed.isValid, planBuilderWeeksParsed.value]);
+  const normalizedPlanBuilderDays = useMemo(() => {
+    if (
+      planBuilderDaysParsed.isValid === false ||
+      planBuilderDaysParsed.value === null ||
+      Number.isInteger(planBuilderDaysParsed.value) === false
+    ) {
+      return null;
+    }
+    return Math.min(7, Math.max(1, planBuilderDaysParsed.value));
+  }, [planBuilderDaysParsed.isValid, planBuilderDaysParsed.value]);
+  const hasPlanBuilderValidationError =
+    normalizedPlanBuilderWeeks === null || normalizedPlanBuilderDays === null;
+  const planBuilderDayExercises = useMemo(() => {
+    if (planBuilderTemplate === "strength") {
+      return [
+        { exerciseId: "bench-press", targetSets: 5, targetReps: 5 },
+        { exerciseId: "goblet-squat", targetSets: 5, targetReps: 6 }
+      ];
+    }
+    if (planBuilderTemplate === "hypertrophy") {
+      return [
+        { exerciseId: "bench-press", targetSets: 4, targetReps: 10 },
+        { exerciseId: "goblet-squat", targetSets: 4, targetReps: 12 }
+      ];
+    }
+    return [
+      { exerciseId: "goblet-squat", targetSets: 4, targetReps: 10 },
+      { exerciseId: "bench-press", targetSets: 4, targetReps: 8 }
+    ];
+  }, [planBuilderTemplate]);
+  const planBuilderPreviewDays = useMemo(() => {
+    if (normalizedPlanBuilderDays === null) {
+      return [];
+    }
+    return Array.from({ length: normalizedPlanBuilderDays }, (_, index) => ({
+      dayIndex: index + 1,
+      exercises: planBuilderDayExercises
+    }));
+  }, [normalizedPlanBuilderDays, planBuilderDayExercises]);
+  const plansListScreenModel = useMemo(
+    () =>
+      createPlansListScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        trainingStatus,
+        plansCount: plans.length
+      }),
+    [dashboardHomeScreenModel.status, plans.length, trainingStatus]
+  );
+  const planBuilderScreenModel = useMemo(
+    () =>
+      createPlanBuilderScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        trainingStatus,
+        hasValidationError: hasPlanBuilderValidationError
+      }),
+    [dashboardHomeScreenModel.status, hasPlanBuilderValidationError, trainingStatus]
+  );
+  const selectedPlan = useMemo(
+    () => plans.find((plan) => plan.id === selectedPlanId) ?? null,
+    [plans, selectedPlanId]
+  );
+  const sessionSelectionRows = useMemo(
+    () =>
+      sessions.map((session, index) => ({
+        key: createSessionSelectionKey(session, index),
+        session
+      })),
+    [sessions]
+  );
+  const selectedSession = useMemo(
+    () =>
+      sessionSelectionRows.find((row) => row.key === selectedSessionKey)?.session ?? null,
+    [selectedSessionKey, sessionSelectionRows]
+  );
+  const hasSelectedSession = selectedSession !== null;
+  const selectedSessionPrimaryExerciseId = selectedSession?.exercises[0]?.exerciseId ?? null;
+  const sessionDetailScreenModel = useMemo(
+    () =>
+      createSessionDetailScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        trainingStatus,
+        sessionStatus,
+        sessionsCount: sessionSelectionRows.length,
+        hasSelectedSession
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      hasSelectedSession,
+      sessionSelectionRows.length,
+      sessionStatus,
+      trainingStatus
+    ]
+  );
+  const planAssignmentScreenModel = useMemo(
+    () =>
+      createPlanAssignmentScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        trainingStatus,
+        operationsStatus,
+        hasSelectedPlan: selectedPlan !== null,
+        selectedAthletesCount: selectedAthleteIds.length
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      operationsStatus,
+      selectedAthleteIds.length,
+      selectedPlan,
+      trainingStatus
+    ]
+  );
+  const exerciseLibraryScreenModel = useMemo(
+    () =>
+      createExerciseLibraryScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        videoStatus,
+        videosCount: exerciseVideos.length
+      }),
+    [dashboardHomeScreenModel.status, exerciseVideos.length, videoStatus]
+  );
   const nutritionMinProteinFilterParsed = useMemo(
     () => parseOptionalNumber(deferredNutritionMinProteinFilter),
     [deferredNutritionMinProteinFilter]
@@ -834,12 +1240,211 @@ export function App() {
     nutritionMaxCaloriesFilterParsed.value,
     nutritionSortMode
   ]);
+  const nutritionLogOptionRows = useMemo(
+    () =>
+      filteredNutritionLogs.map((log, index) => ({
+        key: `${log.userId}-${log.date}-${index}`,
+        log
+      })),
+    [filteredNutritionLogs]
+  );
+  const selectedNutritionLogOption = useMemo(() => {
+    if (nutritionLogOptionRows.length === 0) {
+      return null;
+    }
+    if (selectedNutritionLogKey === null) {
+      return nutritionLogOptionRows[0];
+    }
+    return (
+      nutritionLogOptionRows.find((row) => row.key === selectedNutritionLogKey) ??
+      nutritionLogOptionRows[0]
+    );
+  }, [nutritionLogOptionRows, selectedNutritionLogKey]);
+  const selectedNutritionLog = selectedNutritionLogOption?.log ?? null;
+  const nutritionOverviewScreenModel = useMemo(
+    () =>
+      createNutritionOverviewScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        nutritionStatus,
+        logsCount: nutritionLogs.length,
+        filteredLogsCount: filteredNutritionLogs.length
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      filteredNutritionLogs.length,
+      nutritionLogs.length,
+      nutritionStatus
+    ]
+  );
+  const dailyLogReviewScreenModel = useMemo(
+    () =>
+      createDailyLogReviewScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        nutritionStatus,
+        filteredLogsCount: filteredNutritionLogs.length
+      }),
+    [dashboardHomeScreenModel.status, filteredNutritionLogs.length, nutritionStatus]
+  );
+  const nutritionLogDetailScreenModel = useMemo(
+    () =>
+      createNutritionLogDetailScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        nutritionStatus,
+        logsCount: nutritionLogOptionRows.length,
+        hasSelectedLog: selectedNutritionLog !== null
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      nutritionLogOptionRows.length,
+      nutritionStatus,
+      selectedNutritionLog
+    ]
+  );
+  const nutritionDeviationAlerts = useMemo<NutritionDeviationAlert[]>(
+    () =>
+      filteredNutritionLogs
+        .flatMap((log) => {
+          const alerts: NutritionDeviationAlert[] = [];
+
+          if (log.calories >= 2800 || log.calories <= 1300) {
+            alerts.push({
+              id: `${log.userId}-${log.date}-calories`,
+              date: log.date,
+              severity: log.calories >= 3000 || log.calories <= 1200 ? "high" : "medium",
+              reason: "calories",
+              calories: log.calories,
+              proteinGrams: log.proteinGrams
+            });
+          }
+
+          if (log.proteinGrams <= 80) {
+            alerts.push({
+              id: `${log.userId}-${log.date}-protein`,
+              date: log.date,
+              severity: log.proteinGrams <= 60 ? "high" : "medium",
+              reason: "protein",
+              calories: log.calories,
+              proteinGrams: log.proteinGrams
+            });
+          }
+
+          return alerts;
+        })
+        .slice(0, 10),
+    [filteredNutritionLogs]
+  );
+  const deviationAlertsScreenModel = useMemo(
+    () =>
+      createDeviationAlertsScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        nutritionStatus,
+        alertsCount: nutritionDeviationAlerts.length
+      }),
+    [dashboardHomeScreenModel.status, nutritionDeviationAlerts.length, nutritionStatus]
+  );
+  const nutritionCoachRows = useMemo(
+    () =>
+      [...athleteOperationRows]
+        .sort((left, right) => {
+          if (left.riskLevel !== right.riskLevel) {
+            return left.riskLevel === "attention" ? -1 : 1;
+          }
+          if (right.nutritionLogsCount !== left.nutritionLogsCount) {
+            return right.nutritionLogsCount - left.nutritionLogsCount;
+          }
+          return left.athleteId.localeCompare(right.athleteId);
+        })
+        .slice(0, 6),
+    [athleteOperationRows]
+  );
+  const nutritionCoachAtRiskCount = useMemo(
+    () => athleteOperationRows.filter((row) => row.riskLevel === "attention").length,
+    [athleteOperationRows]
+  );
+  const nutritionCoachViewScreenModel = useMemo(
+    () =>
+      createNutritionCoachViewScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        nutritionStatus,
+        logsCount: nutritionLogs.length,
+        atRiskAthletesCount: nutritionCoachAtRiskCount
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      nutritionCoachAtRiskCount,
+      nutritionLogs.length,
+      nutritionStatus
+    ]
+  );
+  const cohortNutritionRows = useMemo<CohortNutritionRow[]>(() => {
+    const groupedRows = new Map<
+      string,
+      { logsCount: number; caloriesSum: number; proteinSum: number }
+    >();
+
+    for (const log of filteredNutritionLogs) {
+      const current = groupedRows.get(log.userId) ?? {
+        logsCount: 0,
+        caloriesSum: 0,
+        proteinSum: 0
+      };
+      groupedRows.set(log.userId, {
+        logsCount: current.logsCount + 1,
+        caloriesSum: current.caloriesSum + log.calories,
+        proteinSum: current.proteinSum + log.proteinGrams
+      });
+    }
+
+    return Array.from(groupedRows.entries())
+      .map(([athleteId, row]) => {
+        const averageCalories = Number((row.caloriesSum / row.logsCount).toFixed(0));
+        const averageProteinGrams = Number((row.proteinSum / row.logsCount).toFixed(0));
+        const riskLevel =
+          averageCalories >= 2800 || averageCalories <= 1300 || averageProteinGrams <= 90
+            ? "attention"
+            : "normal";
+        return {
+          athleteId,
+          logsCount: row.logsCount,
+          averageCalories,
+          averageProteinGrams,
+          riskLevel
+        } satisfies CohortNutritionRow;
+      })
+      .sort((left, right) => {
+        if (left.riskLevel !== right.riskLevel) {
+          return left.riskLevel === "attention" ? -1 : 1;
+        }
+        if (right.logsCount !== left.logsCount) {
+          return right.logsCount - left.logsCount;
+        }
+        return left.athleteId.localeCompare(right.athleteId);
+      })
+      .slice(0, 6);
+  }, [filteredNutritionLogs]);
+  const cohortNutritionScreenModel = useMemo(
+    () =>
+      createCohortNutritionScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        nutritionStatus,
+        rowsCount: cohortNutritionRows.length
+      }),
+    [cohortNutritionRows.length, dashboardHomeScreenModel.status, nutritionStatus]
+  );
   const filteredProgressHistory = useMemo(() => {
     const rows = buildProgressHistoryRows(progressSummary);
     const filtered = filterProgressHistoryRows(rows, progressMinSessionsFilterParsed.value);
     return sortProgressHistoryRows(filtered, progressSortMode);
   }, [progressSummary, progressMinSessionsFilterParsed.value, progressSortMode]);
   const selectedAthleteIdSet = useMemo(() => new Set(selectedAthleteIds), [selectedAthleteIds]);
+  const selectedAthleteRows = useMemo(
+    () => athleteOperationRows.filter((row) => selectedAthleteIdSet.has(row.athleteId)),
+    [athleteOperationRows, selectedAthleteIdSet]
+  );
+  const atRiskAthleteRows = useMemo(
+    () => athleteOperationRows.filter((row) => row.riskLevel === "attention"),
+    [athleteOperationRows]
+  );
   const selectedGovernancePrincipalIdSet = useMemo(
     () => new Set(governanceSelectedPrincipalIds),
     [governanceSelectedPrincipalIds]
@@ -1008,6 +1613,22 @@ export function App() {
   }, [language]);
 
   useEffect(() => {
+    if (isQAMode) {
+      return;
+    }
+    if (webLane !== "main") {
+      setWebLane("main");
+    }
+    if (dashboardHomeRuntimeStateOverride !== null) {
+      setDashboardHomeRuntimeStateOverride(null);
+    }
+    if (activeDomain === "all") {
+      setActiveDomain("onboarding");
+    }
+    setDomainRuntimeStates(createInitialDomainRuntimeStates());
+  }, [activeDomain, dashboardHomeRuntimeStateOverride, isQAMode, webLane]);
+
+  useEffect(() => {
     persistDomainPreference(activeDomain);
     persistDomainQueryParam(activeDomain);
     if (isInitialDomainRender.current) {
@@ -1032,6 +1653,25 @@ export function App() {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
+
+  useEffect(() => {
+    if (nutritionLogOptionRows.length === 0) {
+      if (selectedNutritionLogKey !== null) {
+        setSelectedNutritionLogKey(null);
+      }
+      return;
+    }
+
+    if (selectedNutritionLogKey === null) {
+      setSelectedNutritionLogKey(nutritionLogOptionRows[0]?.key ?? null);
+      return;
+    }
+
+    const stillExists = nutritionLogOptionRows.some((row) => row.key === selectedNutritionLogKey);
+    if (!stillExists) {
+      setSelectedNutritionLogKey(nutritionLogOptionRows[0]?.key ?? null);
+    }
+  }, [nutritionLogOptionRows, selectedNutritionLogKey]);
 
   useEffect(() => {
     setSelectedAthleteIds((current) =>
@@ -1200,6 +1840,64 @@ export function App() {
     let isCancelled = false;
 
     async function loadRoleCapabilities() {
+      if (isQAMode === false) {
+        const now = new Date().toISOString();
+        const permissions = [
+          {
+            domain: "onboarding" as const,
+            actions: ["view", "create", "update"] as const,
+            conditions: {
+              requiresOwnership: false,
+              requiresMedicalConsent: false
+            }
+          },
+          {
+            domain: "training" as const,
+            actions: ["view", "create", "update"] as const,
+            conditions: {
+              requiresOwnership: false,
+              requiresMedicalConsent: false
+            }
+          },
+          {
+            domain: "nutrition" as const,
+            actions: ["view", "create", "update"] as const,
+            conditions: {
+              requiresOwnership: false,
+              requiresMedicalConsent: false
+            }
+          },
+          {
+            domain: "progress" as const,
+            actions: ["view", "update", "export"] as const,
+            conditions: {
+              requiresOwnership: false,
+              requiresMedicalConsent: false
+            }
+          },
+          {
+            domain: "operations" as const,
+            actions: activeRole === "admin" ? (["view", "create", "update", "approve", "assign", "export"] as const) : (["view"] as const),
+            conditions: {
+              requiresOwnership: false,
+              requiresMedicalConsent: false
+            }
+          }
+        ];
+        setRoleCapabilities({
+          role: activeRole as AccessRole,
+          allowedDomains: ["all", "onboarding", "training", "nutrition", "progress", "operations"],
+          permissions: permissions.map((permission) => ({
+            domain: permission.domain,
+            actions: [...permission.actions],
+            conditions: permission.conditions
+          })),
+          issuedAt: now
+        });
+        setRoleCapabilitiesStatus("loaded");
+        return;
+      }
+
       setRoleCapabilitiesStatus("loading");
       try {
         const capabilities = await manageRoleCapabilitiesUseCase.listRoleCapabilities(
@@ -1224,7 +1922,7 @@ export function App() {
     return () => {
       isCancelled = true;
     };
-  }, [activeRole, manageRoleCapabilitiesUseCase, roleCapabilitiesReloadNonce]);
+  }, [activeRole, isQAMode, manageRoleCapabilitiesUseCase, roleCapabilitiesReloadNonce]);
 
   useEffect(() => {
     setDashboardHomeRuntimeStateOverride(null);
@@ -1486,21 +2184,25 @@ export function App() {
       setTrainingStatus("validation_error");
       return;
     }
+    if (hasPlanBuilderValidationError) {
+      setTrainingStatus("validation_error");
+      return;
+    }
+
+    const weeks = normalizedPlanBuilderWeeks;
+    const days = planBuilderPreviewDays;
+    if (weeks === null || days.length === 0) {
+      setTrainingStatus("validation_error");
+      return;
+    }
+
     setTrainingStatus("loading");
     const queuedPlanInput = {
       id: `plan-${Date.now()}`,
       userId: authenticatedUserId,
-      name: planName,
-      weeks: 4,
-      days: [
-        {
-          dayIndex: 1,
-          exercises: [
-            { exerciseId: "goblet-squat", targetSets: 4, targetReps: 10 },
-            { exerciseId: "bench-press", targetSets: 4, targetReps: 8 }
-          ]
-        }
-      ]
+      name: planName.trim(),
+      weeks,
+      days
     } satisfies Omit<TrainingPlan, "createdAt">;
 
     try {
@@ -1616,7 +2318,17 @@ export function App() {
         authenticatedUserId,
         selectedPlanId || undefined
       );
+      const nextSessionRows = loadedSessions.map((session, index) => ({
+        key: createSessionSelectionKey(session, index),
+        session
+      }));
+      const hasCurrentSelection = nextSessionRows.some((row) => row.key === selectedSessionKey);
       setSessions(loadedSessions);
+      if (hasCurrentSelection) {
+        setSelectedSessionKey(selectedSessionKey);
+      } else {
+        setSelectedSessionKey(nextSessionRows[0]?.key ?? "");
+      }
       setSessionStatus("saved");
       markDomainSuccess("training");
     } catch (error) {
@@ -1626,6 +2338,27 @@ export function App() {
       setSessionStatus("error");
       markDomainFailure("training", error);
     }
+  }
+
+  function handleClearSessionSelection() {
+    setSelectedSessionKey("");
+  }
+
+  function handleOpenSessionExerciseVideo() {
+    if (selectedSessionPrimaryExerciseId === null) {
+      return;
+    }
+    const preferredVideo =
+      exerciseVideos.find(
+        (video) =>
+          video.exerciseId === selectedSessionPrimaryExerciseId && video.locale === videoLocale
+      ) ??
+      exerciseVideos.find((video) => video.exerciseId === selectedSessionPrimaryExerciseId) ??
+      null;
+    if (preferredVideo === null) {
+      return;
+    }
+    window.open(preferredVideo.videoUrl, "_blank", "noopener,noreferrer");
   }
 
   async function handleCreateNutritionLog() {
@@ -2042,14 +2775,164 @@ export function App() {
     setOperationsStatus(athleteOperationRows.length === 0 ? "empty" : "idle");
   }
 
-  function handleBulkAssignStarterPlan() {
-    if (selectedAthleteIds.length === 0) {
+  function handleSelectFirstAthleteDetail() {
+    const firstAthlete = athleteOperationRows[0];
+    if (firstAthlete === undefined) {
+      setOperationsStatus("empty");
+      return;
+    }
+    setSelectedAthleteIds([firstAthlete.athleteId]);
+    setOperationsStatus("loaded");
+  }
+
+  function handleOpenAthleteSessionHistory() {
+    if (selectedAthleteDetailRow === null) {
+      setOperationsStatus("validation_error");
+      return;
+    }
+    setAthleteSearch(selectedAthleteDetailRow.athleteId);
+    setAthleteSortMode("lastSession");
+    setOperationsStatus("loaded");
+  }
+
+  async function handleLoadCoachNotes() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setOperationsStatus("error");
+      return;
+    }
+    setOperationsStatus("loading");
+    try {
+      const [loadedSessions, loadedProgressSummary] = await Promise.all([
+        manageTrainingUseCase.listWorkoutSessions(authenticatedUserId),
+        manageProgressUseCase.getSummary(authenticatedUserId),
+        loadObservabilityCollections({ force: true })
+      ]);
+      setSessions(loadedSessions);
+      setProgressSummary(loadedProgressSummary);
+      setOperationsStatus("loaded");
+      markDomainSuccess("operations");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setOperationsStatus("error");
+      markDomainFailure("operations", error);
+    }
+  }
+
+  async function handleSaveCoachFollowUp() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setOperationsStatus("error");
+      return;
+    }
+    if (selectedAthleteDetailRow === null) {
       setOperationsStatus("validation_error");
       return;
     }
     setOperationsStatus("loading");
-    setPlanName("Starter Plan");
-    setOperationsStatus("saved");
+    try {
+      const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, "operations");
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: authenticatedUserId,
+        name: "coach_note_saved",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          athleteId: selectedAthleteDetailRow.athleteId,
+          sessionsCount: String(selectedAthleteDetailRow.sessionsCount),
+          nutritionLogsCount: String(selectedAthleteDetailRow.nutritionLogsCount),
+          riskLevel: selectedAthleteDetailRow.riskLevel,
+          ...runtimeAttributes
+        }
+      });
+      observabilityCollectionsCacheRef.current = null;
+      setOperationsStatus("saved");
+      markDomainSuccess("operations");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setOperationsStatus("error");
+      markDomainFailure("operations", error);
+    }
+  }
+
+  function handleBulkAssignStarterPlan() {
+    void handleAssignPlansToAthletes(selectedAthleteIds, "selected");
+  }
+
+  async function handleAssignPlansToAthletes(
+    athleteIds: string[],
+    source: "selected" | "at_risk"
+  ) {
+    const authenticatedUserId = resolveAuthenticatedUserId("training");
+    if (authenticatedUserId === null) {
+      setTrainingStatus("error");
+      setOperationsStatus("error");
+      return;
+    }
+    if (selectedPlan === null) {
+      setTrainingStatus("validation_error");
+      setOperationsStatus("validation_error");
+      return;
+    }
+    if (athleteIds.length === 0) {
+      setOperationsStatus("validation_error");
+      return;
+    }
+
+    const uniqueAthleteIds = Array.from(new Set(athleteIds));
+    const assignedAtTimestamp = Date.now();
+    setTrainingStatus("loading");
+    setOperationsStatus("loading");
+
+    try {
+      await Promise.all(
+        uniqueAthleteIds.map((athleteId, index) =>
+          manageTrainingUseCase.createTrainingPlan({
+            id: createAssignedPlanId(selectedPlan.id, athleteId, index, assignedAtTimestamp),
+            userId: athleteId,
+            name: `${selectedPlan.name} · ${translate("planAssignmentAssignedSuffix")}`,
+            weeks: selectedPlan.weeks,
+            days: selectedPlan.days
+          })
+        )
+      );
+      const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, "training");
+      await manageObservabilityUseCase.createAnalyticsEvent({
+        userId: authenticatedUserId,
+        name: "training_plan_assignment_saved",
+        source: "web",
+        occurredAt: new Date().toISOString(),
+        attributes: {
+          source,
+          selectedPlanId: selectedPlan.id,
+          selectedAthletes: String(uniqueAthleteIds.length),
+          ...runtimeAttributes
+        }
+      });
+      await handleLoadPlans();
+      setTrainingStatus("saved");
+      setOperationsStatus("saved");
+      markDomainSuccess("training");
+      markDomainSuccess("operations");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setTrainingStatus("error");
+      setOperationsStatus("error");
+      markDomainFailure("training", error);
+      markDomainFailure("operations", error);
+    }
+  }
+
+  function handleAssignPlanToAtRiskAthletes() {
+    const atRiskAthleteIds = atRiskAthleteRows.map((row) => row.athleteId);
+    setSelectedAthleteIds(atRiskAthleteIds);
+    void handleAssignPlansToAthletes(atRiskAthleteIds, "at_risk");
   }
 
   function handleClearNutritionFilters() {
@@ -2057,6 +2940,56 @@ export function App() {
     setNutritionMinProteinFilter("");
     setNutritionMaxCaloriesFilter("");
     setNutritionSortMode("date_desc");
+  }
+
+  function handleSelectNutritionLogDetail(logKey: string) {
+    setSelectedNutritionLogKey(logKey);
+  }
+
+  function handleClearNutritionLogSelection() {
+    setSelectedNutritionLogKey(null);
+  }
+
+  function handleOpenNutritionLogCoachView() {
+    if (selectedNutritionLog === null) {
+      setNutritionStatus("validation_error");
+      return;
+    }
+    setSelectedAthleteIds([selectedNutritionLog.userId]);
+    setAthleteSearch(selectedNutritionLog.userId);
+    setAthleteSortMode("sessions");
+    setActiveDomain("operations");
+  }
+
+  function handleFocusNutritionCoachAtRisk() {
+    const firstAtRiskAthlete = athleteOperationRows.find((row) => row.riskLevel === "attention");
+    if (firstAtRiskAthlete === undefined) {
+      setNutritionStatus("loaded");
+      return;
+    }
+    setSelectedAthleteIds([firstAtRiskAthlete.athleteId]);
+    setAthleteSearch(firstAtRiskAthlete.athleteId);
+    setAthleteSortMode("sessions");
+    setActiveDomain("operations");
+  }
+
+  function handleOpenNutritionCoachOperations() {
+    setAthleteSortMode("sessions");
+    setActiveDomain("operations");
+  }
+
+  function handleFocusHighestNutritionRisk() {
+    const highestRiskRow =
+      cohortNutritionRows.find((row) => row.riskLevel === "attention") ??
+      cohortNutritionRows[0];
+    if (highestRiskRow === undefined) {
+      setNutritionStatus("loaded");
+      return;
+    }
+    setSelectedAthleteIds([highestRiskRow.athleteId]);
+    setAthleteSearch(highestRiskRow.athleteId);
+    setAthleteSortMode("sessions");
+    setActiveDomain("operations");
   }
 
   function handleClearProgressFilters() {
@@ -2703,6 +3636,14 @@ export function App() {
     ]);
   }
 
+  async function handleRefreshAIInsights() {
+    await Promise.all([
+      handleLoadRecommendations(),
+      handleLoadObservabilityData(),
+      handleLoadProgressSummary()
+    ]);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -2774,7 +3715,13 @@ export function App() {
                 </button>
               </div>
               <p className="hero-copy" data-status-id={signInScreenModel.statusId}>
-                {humanizeStatus(signInScreenModel.status, language)}
+                {hasAuthenticatedSession
+                  ? language === "es"
+                    ? "sesion activa"
+                    : "active session"
+                  : language === "es"
+                    ? "listo para iniciar"
+                    : "ready to sign in"}
               </p>
             </div>
           </div>
@@ -2796,23 +3743,27 @@ export function App() {
                 EN
               </button>
             </div>
-            <span>{translate("laneLabel")}</span>
-            <div className="language-toggle-buttons">
-              <button
-                className={`button ghost language-button ${webLane === "main" ? "active" : ""}`}
-                onClick={() => setWebLane("main")}
-                type="button"
-              >
-                {translate("laneMain")}
-              </button>
-              <button
-                className={`button ghost language-button ${webLane === "secondary" ? "active" : ""}`}
-                onClick={() => setWebLane("secondary")}
-                type="button"
-              >
-                {translate("laneSecondary")}
-              </button>
-            </div>
+            {isQAMode ? (
+              <>
+                <span>{translate("laneLabel")}</span>
+                <div className="language-toggle-buttons">
+                  <button
+                    className={`button ghost language-button ${webLane === "main" ? "active" : ""}`}
+                    onClick={() => setWebLane("main")}
+                    type="button"
+                  >
+                    {translate("laneMain")}
+                  </button>
+                  <button
+                    className={`button ghost language-button ${webLane === "secondary" ? "active" : ""}`}
+                    onClick={() => setWebLane("secondary")}
+                    type="button"
+                  >
+                    {translate("laneSecondary")}
+                  </button>
+                </div>
+              </>
+            ) : null}
           </div>
           <div className="readiness-panel">
             <p className="readiness-label">{translate("readinessLabel")}</p>
@@ -2824,18 +3775,32 @@ export function App() {
             <div className="hero-metrics">
               <Metric
                 title={translate("authMetric")}
-                value={humanizeStatus(authStatus, language)}
+                value={
+                  hasAuthenticatedSession
+                    ? language === "es"
+                      ? "activa"
+                      : "active"
+                    : language === "es"
+                      ? "pendiente"
+                      : "pending"
+                }
               />
-              <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
+              {hasAuthenticatedSession ? (
+                <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
+              ) : null}
               <Metric title={translate("goalMetric")} value={goalLabel(goal, language)} />
-              <Metric
-                title={translate("syncMetric")}
-                value={humanizeStatus(syncStatus, language)}
-              />
-              <Metric
-                title={translate("runtimeStateModeLabel")}
-                value={toHumanStatus(activeDomainRuntimeState, language)}
-              />
+              {hasAuthenticatedSession ? (
+                <Metric
+                  title={translate("syncMetric")}
+                  value={humanizeStatus(syncStatus, language)}
+                />
+              ) : null}
+              {isQAMode ? (
+                <Metric
+                  title={translate("runtimeStateModeLabel")}
+                  value={toHumanStatus(runtimeStateForUI, language)}
+                />
+              ) : null}
             </div>
           </div>
         </section>
@@ -2847,69 +3812,76 @@ export function App() {
           </section>
         ) : null}
 
-        <section className="domain-filter-card">
-          <p className="domain-filter-label">{translate("domainFilterLabel")}</p>
-          <div
-            className="domain-filter-tabs"
-            role="tablist"
-            aria-label={translate("domainFilterLabel")}
-          >
-            {domainTabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`button ghost domain-tab ${activeDomain === tab.id ? "active" : ""}`}
-                onClick={() => handleDomainSelection(tab.id)}
-                type="button"
-                role="tab"
-                aria-selected={activeDomain === tab.id}
-                aria-controls="dashboard-grid"
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <div className="inline-inputs">
-            <label className="runtime-state-control">
-              <span>{translate("roleLabel")}</span>
-              <select
-                aria-label={translate("roleLabel")}
-                value={activeRole}
-                onChange={(event) => setActiveRole(event.target.value as DashboardRole)}
-              >
-                {roleOptions.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Metric
-              title={translate("roleLabel")}
-              value={
-                roleCapabilitiesStatus === "loaded" && roleCapabilities !== null
-                  ? roleCapabilities.allowedDomains
-                      .filter((domain) => domain !== "all")
-                      .map(
-                        (domain) =>
-                          domainTabs.find((tab) => tab.id === domain)?.label ?? domain
-                      )
-                      .join(" · ")
-                  : toHumanStatus(roleCapabilitiesStatus, language)
-              }
-            />
-            {roleCapabilitiesStatus === "error" ? (
-              <button
-                className="button ghost"
-                onClick={() => setRoleCapabilitiesReloadNonce((current) => current + 1)}
-                type="button"
-              >
-                {translate("retryRoleCapabilities")}
-              </button>
+        {hasAuthenticatedSession || isQAMode ? (
+          <section className="domain-filter-card">
+            <p className="domain-filter-label">
+              {isQAMode ? translate("domainFilterLabel") : language === "es" ? "Secciones" : "Sections"}
+            </p>
+            <div
+              className="domain-filter-tabs"
+              role="tablist"
+              aria-label={isQAMode ? translate("domainFilterLabel") : language === "es" ? "Secciones" : "Sections"}
+            >
+              {domainTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`button ghost domain-tab ${activeDomain === tab.id ? "active" : ""}`}
+                  onClick={() => handleDomainSelection(tab.id)}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeDomain === tab.id}
+                  aria-controls="dashboard-grid"
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            {isQAMode ? (
+              <div className="inline-inputs">
+                <label className="runtime-state-control">
+                  <span>{translate("roleLabel")}</span>
+                  <select
+                    aria-label={translate("roleLabel")}
+                    value={activeRole}
+                    onChange={(event) => setActiveRole(event.target.value as DashboardRole)}
+                  >
+                    {roleOptions.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <Metric
+                  title={translate("roleLabel")}
+                  value={
+                    roleCapabilitiesStatus === "loaded" && roleCapabilities !== null
+                      ? roleCapabilities.allowedDomains
+                          .filter((domain) => domain !== "all")
+                          .map(
+                            (domain) =>
+                              domainTabs.find((tab) => tab.id === domain)?.label ?? domain
+                          )
+                          .join(" · ")
+                      : toHumanStatus(roleCapabilitiesStatus, language)
+                  }
+                />
+                {roleCapabilitiesStatus === "error" ? (
+                  <button
+                    className="button ghost"
+                    onClick={() => setRoleCapabilitiesReloadNonce((current) => current + 1)}
+                    type="button"
+                  >
+                    {translate("retryRoleCapabilities")}
+                  </button>
+                ) : null}
+              </div>
             ) : null}
-          </div>
-        </section>
+          </section>
+        ) : null}
 
-        <section className="runtime-state-card">
+        {isQAMode ? (
+          <section className="runtime-state-card">
           <header className="runtime-state-header">
             <p className="domain-filter-label">{translate("runtimeStateSectionTitle")}</p>
             <span className={`status-pill status-${toStatusClass(activeDomainRuntimeState)}`}>
@@ -2949,7 +3921,8 @@ export function App() {
               ? translate("runtimeStateHintAllDomains")
               : runtimeStateDescription(activeDomainRuntimeState, translate)}
           </p>
-        </section>
+          </section>
+        ) : null}
 
         <section
           id="dashboard-grid"
@@ -2960,6 +3933,7 @@ export function App() {
           aria-busy={dashboardHomeScreenModel.status === "loading"}
         >
           {hasAuthenticatedSession === false ? (
+            isQAMode ? (
             <article
               className="module-card access-gate-card"
               data-screen-id={accessGateScreenModel.screenId}
@@ -3000,17 +3974,18 @@ export function App() {
                 </p>
               </div>
             </article>
-          ) : activeDomainRuntimeState !== "success" ? (
-            <article className={`module-card runtime-state-banner state-${activeDomainRuntimeState}`}>
+            ) : null
+          ) : runtimeStateForUI !== "success" ? (
+            <article className={`module-card runtime-state-banner state-${runtimeStateForUI}`}>
               <SectionHeader
                 title={translate("runtimeStateSectionTitle")}
-                status={activeDomainRuntimeState}
+                status={runtimeStateForUI}
                 statusLabel={translate("runtimeStateModeLabel")}
                 language={language}
               />
               <div className="form-grid">
                 <p className="runtime-state-copy">
-                  {runtimeStateDescription(activeDomainRuntimeState, translate)}
+                  {runtimeStateDescription(runtimeStateForUI, translate)}
                 </p>
                 <button
                   className="button primary"
@@ -3023,7 +3998,9 @@ export function App() {
             </article>
           ) : (
             <>
-              <article
+              {isQAMode ? (
+                <>
+                  <article
                 className="module-card"
                 data-screen-id={dashboardHomeScreenModel.screenId}
                 data-route-id={dashboardHomeScreenModel.routeId}
@@ -3179,7 +4156,7 @@ export function App() {
                       <table>
                         <thead>
                           <tr>
-                            <th>{translate("auditDateColumn")}</th>
+                            <th>{translate("auditOccurredAtColumn")}</th>
                             <th>{translate("auditSeverityColumn")}</th>
                             <th>{translate("auditSummaryColumn")}</th>
                           </tr>
@@ -3187,9 +4164,9 @@ export function App() {
                         <tbody>
                           {openOperationalAlerts.slice(0, 3).map((alert) => (
                             <tr key={alert.id}>
-                              <td>{new Date(alert.detectedAt).toLocaleString()}</td>
+                              <td>{new Date(alert.triggeredAt).toLocaleString()}</td>
                               <td>{toHumanStatus(alert.severity, language)}</td>
-                              <td>{alert.title}</td>
+                              <td>{alert.summary}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -3394,7 +4371,7 @@ export function App() {
                       <table>
                         <thead>
                           <tr>
-                            <th>{translate("auditDateColumn")}</th>
+                            <th>{translate("auditOccurredAtColumn")}</th>
                             <th>{translate("auditSeverityColumn")}</th>
                             <th>{translate("alertsFullCodeLabel")}</th>
                             <th>{translate("alertsFullRunbookLabel")}</th>
@@ -3441,14 +4418,14 @@ export function App() {
                       title={translate("recentActivityErrorLabel")}
                       value={String(recentActivityRows.filter((entry) => entry.outcome === "error").length)}
                     />
-                    <Metric
-                      title={translate("auditDateColumn")}
-                      value={
-                        recentActivityRows.length === 0
-                          ? "-"
-                          : new Date(recentActivityRows[0].occurredAt).toLocaleString()
-                      }
-                    />
+                      <Metric
+                        title={translate("auditOccurredAtColumn")}
+                        value={
+                          latestRecentActivityRow
+                            ? new Date(latestRecentActivityRow.occurredAt).toLocaleString()
+                            : "-"
+                        }
+                      />
                   </div>
                   <button
                     className="button ghost"
@@ -3465,7 +4442,7 @@ export function App() {
                       <table>
                         <thead>
                           <tr>
-                            <th>{translate("auditDateColumn")}</th>
+                            <th>{translate("auditOccurredAtColumn")}</th>
                             <th>{translate("auditNameColumn")}</th>
                             <th>{translate("auditDomainColumn")}</th>
                             <th>{translate("recentActivityOutcomeLabel")}</th>
@@ -3626,6 +4603,8 @@ export function App() {
                   <p className="empty-state">{translate("noModulesForSelectedDomain")}</p>
                 </article>
               ) : null}
+                </>
+              ) : null}
           {isModuleVisible("onboarding", activeDomain) ? (
             <article className="module-card">
             <SectionHeader
@@ -3735,46 +4714,210 @@ export function App() {
           ) : null}
 
           {isModuleVisible("training", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={plansListScreenModel.screenId}
+              data-route-id={plansListScreenModel.routeId}
+              data-status-id="web.plansList.status"
+            >
             <SectionHeader
               title={translate("trainingSectionTitle")}
-              status={trainingStatus}
+              status={plansListScreenModel.status}
               statusLabel={translate("planStatusLabel")}
               language={language}
             />
             <div className="form-grid">
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("planNamePlaceholder")}
-                  placeholder={translate("planNamePlaceholder")}
-                  value={planName}
-                  onChange={(event) => setPlanName(event.target.value)}
-                />
-                <button className="button primary" onClick={handleCreatePlan} type="button">
-                  {translate("createPlan")}
-                </button>
-                <button className="button ghost" onClick={handleLoadPlans} type="button">
-                  {translate("loadPlans")}
-                </button>
+              <div
+                className="history-list"
+                data-screen-id={planBuilderScreenModel.screenId}
+                data-route-id={planBuilderScreenModel.routeId}
+                data-status-id="web.planBuilder.status"
+              >
+                <p className="section-subtitle">{translate("planBuilderTitle")}</p>
+                <div className="inline-inputs">
+                  <input
+                    aria-label={translate("planNamePlaceholder")}
+                    placeholder={translate("planNamePlaceholder")}
+                    value={planName}
+                    data-action-id={planBuilderScreenModel.actions.updateName}
+                    onChange={(event) => setPlanName(event.target.value)}
+                  />
+                  <input
+                    aria-label={translate("planBuilderWeeksLabel")}
+                    placeholder={translate("planBuilderWeeksLabel")}
+                    value={planBuilderWeeksInput}
+                    data-action-id={planBuilderScreenModel.actions.updateWeeks}
+                    onChange={(event) => setPlanBuilderWeeksInput(event.target.value)}
+                  />
+                  <input
+                    aria-label={translate("planBuilderDaysLabel")}
+                    placeholder={translate("planBuilderDaysLabel")}
+                    value={planBuilderDaysInput}
+                    data-action-id={planBuilderScreenModel.actions.updateDays}
+                    onChange={(event) => setPlanBuilderDaysInput(event.target.value)}
+                  />
+                  <select
+                    aria-label={translate("planBuilderTemplateLabel")}
+                    value={planBuilderTemplate}
+                    data-action-id={planBuilderScreenModel.actions.updateTemplate}
+                    onChange={(event) =>
+                      setPlanBuilderTemplate(event.target.value as PlanBuilderTemplate)
+                    }
+                  >
+                    <option value="strength">{translate("planBuilderTemplateStrength")}</option>
+                    <option value="hypertrophy">
+                      {translate("planBuilderTemplateHypertrophy")}
+                    </option>
+                    <option value="recomposition">
+                      {translate("planBuilderTemplateRecomposition")}
+                    </option>
+                  </select>
+                </div>
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    onClick={handleCreatePlan}
+                    type="button"
+                    data-action-id={planBuilderScreenModel.actions.createPlan}
+                  >
+                    {translate("createPlan")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleLoadPlans}
+                    type="button"
+                    data-action-id={planBuilderScreenModel.actions.loadPlans}
+                  >
+                    {translate("loadPlans")}
+                  </button>
+                </div>
+                <p className="section-subtitle">{translate("planBuilderPreviewTitle")}</p>
+                <div className="inline-inputs">
+                  <Metric
+                    title={translate("planBuilderPreviewDaysLabel")}
+                    value={
+                      normalizedPlanBuilderDays === null
+                        ? "-"
+                        : String(normalizedPlanBuilderDays)
+                    }
+                  />
+                  <Metric
+                    title={translate("planBuilderPreviewExercisesLabel")}
+                    value={String(planBuilderDayExercises.length)}
+                  />
+                </div>
+                {hasPlanBuilderValidationError ? (
+                  <p className="validation-copy">{translate("planBuilderInvalidConfiguration")}</p>
+                ) : null}
               </div>
-              <div className="choice-list">
-                {plans.map((plan) => (
-                  <label key={plan.id}>
-                    <input
-                      type="radio"
-                      name="selected-plan"
-                      checked={selectedPlanId === plan.id}
-                      onChange={() => setSelectedPlanId(plan.id)}
-                    />
-                    {plan.name} ({plan.weeks} weeks)
-                  </label>
-                ))}
+              <StatLine
+                label={translate("plansLoadedLabel")}
+                value={String(plans.length)}
+                language={language}
+              />
+              {plans.length === 0 ? (
+                <p className="empty-state">{translate("noPlansLoaded")}</p>
+              ) : (
+                <div className="choice-list">
+                  {plans.map((plan) => (
+                    <label key={plan.id}>
+                      <input
+                        type="radio"
+                        name="selected-plan"
+                        data-action-id={plansListScreenModel.actions.selectPlan}
+                        checked={selectedPlanId === plan.id}
+                        onChange={() => setSelectedPlanId(plan.id)}
+                      />
+                      {plan.name} ({plan.weeks} weeks)
+                    </label>
+                  ))}
+                </div>
+              )}
+              <div
+                className="history-list"
+                data-screen-id={planAssignmentScreenModel.screenId}
+                data-route-id={planAssignmentScreenModel.routeId}
+                data-status-id="web.planAssignment.status"
+              >
+                <SectionHeader
+                  title={translate("planAssignmentTitle")}
+                  status={planAssignmentScreenModel.status}
+                  statusLabel={translate("planAssignmentStatusLabel")}
+                  language={language}
+                />
+                <p>{translate("planAssignmentSummary")}</p>
+                <div className="inline-inputs">
+                  <Metric
+                    title={translate("planAssignmentPlanLabel")}
+                    value={selectedPlan?.name ?? "-"}
+                  />
+                  <Metric
+                    title={translate("planAssignmentSelectedAthletesLabel")}
+                    value={String(selectedAthleteRows.length)}
+                  />
+                  <Metric
+                    title={translate("planAssignmentAtRiskAthletesLabel")}
+                    value={String(atRiskAthleteRows.length)}
+                  />
+                </div>
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    onClick={handleBulkAssignStarterPlan}
+                    type="button"
+                    data-action-id={planAssignmentScreenModel.actions.assignSelected}
+                    disabled={selectedPlan === null || selectedAthleteRows.length === 0}
+                  >
+                    {translate("planAssignmentAssignSelectedAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleAssignPlanToAtRiskAthletes}
+                    type="button"
+                    data-action-id={planAssignmentScreenModel.actions.assignAtRisk}
+                    disabled={selectedPlan === null || atRiskAthleteRows.length === 0}
+                  >
+                    {translate("planAssignmentAssignAtRiskAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleClearAthleteSelection}
+                    type="button"
+                    data-action-id={planAssignmentScreenModel.actions.clearSelection}
+                    disabled={selectedAthleteRows.length === 0}
+                  >
+                    {translate("planAssignmentClearAction")}
+                  </button>
+                </div>
+                {selectedAthleteRows.length === 0 ? (
+                  <p className="empty-state">{translate("planAssignmentNoSelection")}</p>
+                ) : (
+                  <>
+                    <p className="section-subtitle">{translate("planAssignmentSelectedListTitle")}</p>
+                    <div className="choice-list">
+                      {selectedAthleteRows.map((row) => (
+                        <label key={row.athleteId}>
+                          <span>{row.athleteId}</span>
+                          <span>
+                            {translate("sessionsColumn")} {row.sessionsCount} · {translate("plansColumn")}{" "}
+                            {row.plansCount}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
               <div className="inline-inputs">
                 <button className="button primary" onClick={handleLogWorkoutSession} type="button">
                   {translate("logWorkout")}
                 </button>
-                <button className="button ghost" onClick={handleLoadSessions} type="button">
+                <button
+                  className="button ghost"
+                  onClick={handleLoadSessions}
+                  type="button"
+                  data-action-id={sessionDetailScreenModel.actions.loadSessions}
+                >
                   {translate("loadSessions")}
                 </button>
               </div>
@@ -3788,69 +4931,179 @@ export function App() {
                 value={String(sessions.length)}
                 language={language}
               />
-              <div className="inline-inputs">
-                <select
-                  aria-label={translate("exercisePickerLabel")}
-                  value={selectedExerciseForVideos}
-                  onChange={(event) => setSelectedExerciseForVideos(event.target.value)}
-                >
-                  <option value="goblet-squat">goblet-squat</option>
-                  <option value="bench-press">bench-press</option>
-                </select>
-                <select
-                  aria-label={translate("videoLocalePickerLabel")}
-                  value={videoLocale}
-                  onChange={(event) => setVideoLocale(event.target.value)}
-                >
-                  <option value="es-ES">es-ES</option>
-                  <option value="en-US">en-US</option>
-                </select>
-                <button className="button ghost" onClick={handleLoadExerciseVideos} type="button">
-                  {translate("loadVideos")}
-                </button>
-              </div>
-              <StatLine
-                label={translate("videosStatusLabel")}
-                value={videoStatus}
-                language={language}
-              />
-              {exerciseVideos.length === 0 ? (
-                <p className="empty-state">{translate("noVideosLoaded")}</p>
-              ) : (
-                <div className="video-grid">
-                  {exerciseVideos.map((video) => (
-                    <article key={video.id} className="video-item">
-                      <img src={video.thumbnailUrl} alt={video.title} loading="lazy" />
-                      <div className="video-body">
-                        <strong>{video.title}</strong>
-                        <p>{video.coach}</p>
-                        <p>
-                          {video.difficulty} · {Math.round(video.durationSeconds / 60)} min
-                        </p>
-                        <a href={video.videoUrl} target="_blank" rel="noreferrer">
-                          {translate("openVideo")}
-                        </a>
-                      </div>
-                    </article>
-                  ))}
+              <div
+                className="history-list"
+                data-screen-id={sessionDetailScreenModel.screenId}
+                data-route-id={sessionDetailScreenModel.routeId}
+                data-status-id="web.sessionDetail.status"
+              >
+                <p className="section-subtitle">{translate("sessionDetailTitle")}</p>
+                <p>{translate("sessionDetailSummary")}</p>
+                <div className="inline-inputs">
+                  <select
+                    aria-label={translate("sessionDetailSelectLabel")}
+                    value={selectedSessionKey}
+                    data-action-id={sessionDetailScreenModel.actions.selectSession}
+                    onChange={(event) => setSelectedSessionKey(event.target.value)}
+                  >
+                    <option value="">{translate("sessionDetailSelectLabel")}</option>
+                    {sessionSelectionRows.map((row) => (
+                      <option key={row.key} value={row.key}>
+                        {row.session.planId} · {row.session.startedAt.slice(0, 10)}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="button ghost"
+                    onClick={handleClearSessionSelection}
+                    type="button"
+                    data-action-id={sessionDetailScreenModel.actions.clearSelection}
+                  >
+                    {translate("sessionDetailClearAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleOpenSessionExerciseVideo}
+                    type="button"
+                    data-action-id={sessionDetailScreenModel.actions.openExerciseVideo}
+                    disabled={selectedSessionPrimaryExerciseId === null}
+                  >
+                    {translate("sessionDetailOpenVideoAction")}
+                  </button>
                 </div>
-              )}
+                {selectedSession === null ? (
+                  <p className="empty-state">{translate("sessionDetailNoSelection")}</p>
+                ) : (
+                  <div className="metric-grid">
+                    <Metric
+                      title={translate("sessionDetailPlanLabel")}
+                      value={selectedSession.planId}
+                    />
+                    <Metric
+                      title={translate("sessionDetailStartedLabel")}
+                      value={selectedSession.startedAt}
+                    />
+                    <Metric
+                      title={translate("sessionDetailEndedLabel")}
+                      value={selectedSession.endedAt}
+                    />
+                    <Metric
+                      title={translate("sessionDetailDurationLabel")}
+                      value={`${Math.max(
+                        0,
+                        Math.round(
+                          (Date.parse(selectedSession.endedAt) -
+                            Date.parse(selectedSession.startedAt)) /
+                            60000
+                        )
+                      )}m`}
+                    />
+                    <Metric
+                      title={translate("sessionDetailExerciseCountLabel")}
+                      value={String(selectedSession.exercises.length)}
+                    />
+                  </div>
+                )}
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={exerciseLibraryScreenModel.screenId}
+                data-route-id={exerciseLibraryScreenModel.routeId}
+                data-status-id="web.exerciseLibrary.status"
+              >
+                <SectionHeader
+                  title={translate("exerciseVideosTitle")}
+                  status={exerciseLibraryScreenModel.status}
+                  statusLabel={translate("videosStatusLabel")}
+                  language={language}
+                />
+                <div className="inline-inputs">
+                  <select
+                    aria-label={translate("exercisePickerLabel")}
+                    value={selectedExerciseForVideos}
+                    data-action-id={exerciseLibraryScreenModel.actions.selectExercise}
+                    onChange={(event) => setSelectedExerciseForVideos(event.target.value)}
+                  >
+                    <option value="goblet-squat">goblet-squat</option>
+                    <option value="bench-press">bench-press</option>
+                  </select>
+                  <select
+                    aria-label={translate("videoLocalePickerLabel")}
+                    value={videoLocale}
+                    data-action-id={exerciseLibraryScreenModel.actions.selectLocale}
+                    onChange={(event) => setVideoLocale(event.target.value)}
+                  >
+                    <option value="es-ES">es-ES</option>
+                    <option value="en-US">en-US</option>
+                  </select>
+                  <button
+                    className="button ghost"
+                    onClick={handleLoadExerciseVideos}
+                    type="button"
+                    data-action-id={exerciseLibraryScreenModel.actions.loadVideos}
+                  >
+                    {translate("loadVideos")}
+                  </button>
+                </div>
+                <StatLine
+                  label={translate("videosStatusLabel")}
+                  value={videoStatus}
+                  language={language}
+                />
+                {exerciseVideos.length === 0 ? (
+                  <p className="empty-state">{translate("noVideosLoaded")}</p>
+                ) : (
+                  <div className="video-grid">
+                    {exerciseVideos.map((video) => (
+                      <article key={video.id} className="video-item">
+                        <img src={video.thumbnailUrl} alt={video.title} loading="lazy" />
+                        <div className="video-body">
+                          <strong>{video.title}</strong>
+                          <p>{video.coach}</p>
+                          <p>
+                            {video.difficulty} · {Math.round(video.durationSeconds / 60)} min
+                          </p>
+                          <a
+                            href={video.videoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            data-action-id={exerciseLibraryScreenModel.actions.openVideo}
+                          >
+                            {translate("openVideo")}
+                          </a>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             </article>
           ) : null}
 
           {isModuleVisible("operationsHub", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={athletesListScreenModel.screenId}
+              data-route-id={athletesListScreenModel.routeId}
+              data-status-id={athletesListScreenModel.screenId.replace(".screen", ".status")}
+            >
             <SectionHeader
               title={translate("operationsHubTitle")}
-              status={operationsStatus}
+              status={athletesListScreenModel.status}
               statusLabel={translate("operationsHubStatusLabel")}
               language={language}
             />
             <div className="form-grid">
-              <div className="inline-inputs">
+              <div
+                className="inline-inputs"
+                data-screen-id={athleteFiltersScreenModel.screenId}
+                data-route-id={athleteFiltersScreenModel.routeId}
+                data-status-id={athleteFiltersScreenModel.screenId.replace(".screen", ".status")}
+              >
                 <input
                   aria-label={translate("athleteSearchPlaceholder")}
+                  data-action-id={athleteFiltersScreenModel.actions.updateSearch}
                   placeholder={translate("athleteSearchPlaceholder")}
                   value={athleteSearch}
                   onChange={(event) => setAthleteSearch(event.target.value)}
@@ -3859,6 +5112,7 @@ export function App() {
                   {translate("athleteSortLabel")}
                   <select
                     aria-label={translate("athleteSortLabel")}
+                    data-action-id={athleteFiltersScreenModel.actions.updateSort}
                     value={athleteSortMode}
                     onChange={(event) => setAthleteSortMode(event.target.value as AthleteSortMode)}
                   >
@@ -3869,10 +5123,20 @@ export function App() {
                 </label>
               </div>
               <div className="inline-inputs">
-                <button className="button primary" onClick={handleBulkAssignStarterPlan} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={athletesListScreenModel.actions.assignStarterPlan}
+                  onClick={handleBulkAssignStarterPlan}
+                  type="button"
+                >
                   {translate("bulkAssignStarterPlan")}
                 </button>
-                <button className="button ghost" onClick={handleClearAthleteSelection} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={athletesListScreenModel.actions.clearSelection}
+                  onClick={handleClearAthleteSelection}
+                  type="button"
+                >
                   {translate("clearAthleteSelection")}
                 </button>
               </div>
@@ -3886,6 +5150,289 @@ export function App() {
                 value={String(selectedAthleteIds.length)}
                 language={language}
               />
+              <div
+                className="history-list"
+                data-screen-id={athleteDetailScreenModel.screenId}
+                data-route-id={athleteDetailScreenModel.routeId}
+                data-status-id={athleteDetailScreenModel.screenId.replace(".screen", ".status")}
+              >
+                <p className="section-subtitle">{translate("athleteDetailTitle")}</p>
+                {selectedAthleteDetailRow === null ? (
+                  <p className="empty-state">{translate("athleteDetailEmpty")}</p>
+                ) : (
+                  <article className="history-item">
+                    <strong>{selectedAthleteDetailRow.athleteId}</strong>
+                    <div className="history-values">
+                      <span>
+                        {translate("plansColumn")} {selectedAthleteDetailRow.plansCount}
+                      </span>
+                      <span>
+                        {translate("sessionsColumn")} {selectedAthleteDetailRow.sessionsCount}
+                      </span>
+                      <span>
+                        {translate("nutritionColumn")}{" "}
+                        {selectedAthleteDetailRow.nutritionLogsCount}
+                      </span>
+                      <span>
+                        {translate("lastSessionColumn")} {selectedAthleteDetailRow.lastSessionDate}
+                      </span>
+                    </div>
+                    <span
+                      className={`status-pill status-${riskToStatusClass(
+                        selectedAthleteDetailRow.riskLevel
+                      )}`}
+                    >
+                      {selectedAthleteDetailRow.riskLevel === "normal"
+                        ? translate("riskNormal")
+                        : translate("riskAttention")}
+                    </span>
+                  </article>
+                )}
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    data-action-id={athleteDetailScreenModel.actions.selectFirstAthlete}
+                    onClick={handleSelectFirstAthleteDetail}
+                    type="button"
+                  >
+                    {translate("athleteDetailSelectFirst")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={athleteDetailScreenModel.actions.openSessionHistory}
+                    onClick={handleOpenAthleteSessionHistory}
+                    type="button"
+                  >
+                    {translate("athleteDetailOpenSessionHistory")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={athleteDetailScreenModel.actions.clearSelection}
+                    onClick={handleClearAthleteSelection}
+                    type="button"
+                  >
+                    {translate("clearAthleteSelection")}
+                  </button>
+                </div>
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={sessionHistoryScreenModel.screenId}
+                data-route-id={sessionHistoryScreenModel.routeId}
+                data-status-id={sessionHistoryScreenModel.screenId.replace(".screen", ".status")}
+              >
+                <p className="section-subtitle">{translate("sessionHistoryTitle")}</p>
+                <StatLine
+                  label={translate("sessionsLoadedLabel")}
+                  value={String(selectedAthleteSessionHistoryRows.length)}
+                  language={language}
+                />
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    data-action-id={sessionHistoryScreenModel.actions.loadSessions}
+                    onClick={() => void handleLoadSessions()}
+                    type="button"
+                  >
+                    {translate("loadSessions")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={sessionHistoryScreenModel.actions.selectFirstAthlete}
+                    onClick={handleSelectFirstAthleteDetail}
+                    type="button"
+                  >
+                    {translate("athleteDetailSelectFirst")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={sessionHistoryScreenModel.actions.clearSelection}
+                    onClick={handleClearAthleteSelection}
+                    type="button"
+                  >
+                    {translate("clearAthleteSelection")}
+                  </button>
+                </div>
+                {selectedAthleteIds.length === 0 ? (
+                  <p className="empty-state">{translate("sessionHistoryEmpty")}</p>
+                ) : selectedAthleteSessionHistoryRows.length === 0 ? (
+                  <p className="empty-state">{translate("sessionHistoryNoRows")}</p>
+                ) : (
+                  selectedAthleteSessionHistoryRows.map((session) => {
+                    const durationMinutes = Math.max(
+                      0,
+                      Math.round(
+                        (new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()) /
+                          (60 * 1000)
+                      )
+                    );
+                    return (
+                      <article
+                        key={`${session.userId}-${session.planId}-${session.startedAt}`}
+                        className="history-item"
+                      >
+                        <strong>
+                          {translate("athleteColumn")} {session.userId}
+                        </strong>
+                        <div className="history-values">
+                          <span>
+                            {translate("sessionHistoryPlanLabel")} {session.planId}
+                          </span>
+                          <span>
+                            {translate("sessionHistoryStartedLabel")}{" "}
+                            {new Date(session.startedAt).toLocaleString()}
+                          </span>
+                          <span>
+                            {translate("sessionHistoryEndedLabel")}{" "}
+                            {new Date(session.endedAt).toLocaleString()}
+                          </span>
+                          <span>
+                            {translate("sessionHistoryDurationLabel")} {durationMinutes}{" "}
+                            {translate("historyMinutesLabel")}
+                          </span>
+                          <span>
+                            {translate("sessionHistoryExercisesLabel")} {session.exercises.length}
+                          </span>
+                        </div>
+                      </article>
+                    );
+                  })
+                )}
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={compareProgressScreenModel.screenId}
+                data-route-id={compareProgressScreenModel.routeId}
+                data-status-id={compareProgressScreenModel.screenId.replace(".screen", ".status")}
+              >
+                <p className="section-subtitle">{translate("compareProgressTitle")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    data-action-id={compareProgressScreenModel.actions.loadProgress}
+                    onClick={() => void handleLoadProgressSummary()}
+                    type="button"
+                  >
+                    {translate("compareProgressLoad")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={compareProgressScreenModel.actions.selectFirstAthlete}
+                    onClick={handleSelectFirstAthleteDetail}
+                    type="button"
+                  >
+                    {translate("athleteDetailSelectFirst")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={compareProgressScreenModel.actions.openSessionHistory}
+                    onClick={handleOpenAthleteSessionHistory}
+                    type="button"
+                  >
+                    {translate("athleteDetailOpenSessionHistory")}
+                  </button>
+                </div>
+                {selectedAthleteDetailRow === null ? (
+                  <p className="empty-state">{translate("compareProgressEmpty")}</p>
+                ) : (
+                  <>
+                    <StatLine
+                      label={translate("compareProgressSelectedSessions")}
+                      value={String(selectedAthleteDetailRow.sessionsCount)}
+                      language={language}
+                    />
+                    <StatLine
+                      label={translate("compareProgressCohortSessions")}
+                      value={String(cohortAverageSessions)}
+                      language={language}
+                    />
+                    <StatLine
+                      label={translate("compareProgressDeltaSessions")}
+                      value={`${selectedAthleteDetailRow.sessionsCount - cohortAverageSessions >= 0 ? "+" : ""}${(
+                        selectedAthleteDetailRow.sessionsCount - cohortAverageSessions
+                      ).toFixed(1)}`}
+                      language={language}
+                    />
+                    <StatLine
+                      label={translate("compareProgressSelectedNutrition")}
+                      value={String(selectedAthleteDetailRow.nutritionLogsCount)}
+                      language={language}
+                    />
+                    <StatLine
+                      label={translate("compareProgressCohortNutrition")}
+                      value={String(cohortAverageNutritionLogs)}
+                      language={language}
+                    />
+                    <StatLine
+                      label={translate("compareProgressDeltaNutrition")}
+                      value={`${selectedAthleteDetailRow.nutritionLogsCount - cohortAverageNutritionLogs >= 0 ? "+" : ""}${(
+                        selectedAthleteDetailRow.nutritionLogsCount - cohortAverageNutritionLogs
+                      ).toFixed(1)}`}
+                      language={language}
+                    />
+                  </>
+                )}
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={coachNotesScreenModel.screenId}
+                data-route-id={coachNotesScreenModel.routeId}
+                data-status-id={coachNotesScreenModel.screenId.replace(".screen", ".status")}
+              >
+                <p className="section-subtitle">{translate("coachNotesTitle")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    data-action-id={coachNotesScreenModel.actions.loadNotes}
+                    onClick={() => void handleLoadCoachNotes()}
+                    type="button"
+                  >
+                    {translate("coachNotesLoad")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={coachNotesScreenModel.actions.saveFollowUp}
+                    onClick={() => void handleSaveCoachFollowUp()}
+                    type="button"
+                  >
+                    {translate("coachNotesSaveFollowUp")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={coachNotesScreenModel.actions.clearSelection}
+                    onClick={handleClearAthleteSelection}
+                    type="button"
+                  >
+                    {translate("clearAthleteSelection")}
+                  </button>
+                </div>
+                {selectedAthleteIds.length === 0 ? (
+                  <p className="empty-state">{translate("coachNotesEmpty")}</p>
+                ) : selectedAthleteCoachNotesRows.length === 0 ? (
+                  <p className="empty-state">{translate("coachNotesNoRows")}</p>
+                ) : (
+                  selectedAthleteCoachNotesRows.map((note) => (
+                    <article key={note.id} className="history-item">
+                      <strong>{new Date(note.occurredAt).toLocaleString()}</strong>
+                      <div className="history-values">
+                        <span>
+                          {translate("coachNotesOccurredAtLabel")}{" "}
+                          {new Date(note.occurredAt).toLocaleString()}
+                        </span>
+                        <span>
+                          {translate("coachNotesSourceLabel")} {note.source}
+                        </span>
+                        <span>
+                          {translate("coachNotesOutcomeLabel")} {note.outcome}
+                        </span>
+                        <span>
+                          {translate("coachNotesSummaryLabel")} {note.summary}
+                        </span>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </div>
               {athleteOperationRows.length === 0 ? (
                 <p className="empty-state">{translate("noAthletesFound")}</p>
               ) : (
@@ -3930,10 +5477,20 @@ export function App() {
                   </div>
                   {hasMoreAthleteRows ? (
                     <div className="dense-table-actions">
-                      <button className="button ghost" onClick={handleShowMoreAthleteRows} type="button">
+                      <button
+                        className="button ghost"
+                        data-action-id={athletesListScreenModel.actions.showMoreRows}
+                        onClick={handleShowMoreAthleteRows}
+                        type="button"
+                      >
                         {translate("loadMoreRows")}
                       </button>
-                      <button className="button ghost" onClick={handleShowAllAthleteRows} type="button">
+                      <button
+                        className="button ghost"
+                        data-action-id={athletesListScreenModel.actions.showAllRows}
+                        onClick={handleShowAllAthleteRows}
+                        type="button"
+                      >
                         {translate("showAllRows")}
                       </button>
                     </div>
@@ -3945,15 +5502,20 @@ export function App() {
           ) : null}
 
           {isModuleVisible("adminGovernance", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={adminUsersScreenModel.screenId}
+              data-route-id={adminUsersScreenModel.routeId}
+              data-status-id="web.adminUsers.status"
+            >
             <SectionHeader
               title={translate("governanceTitle")}
-              status={governanceStatus}
+              status={adminUsersScreenModel.status}
               statusLabel={translate("governanceStatusLabel")}
               language={language}
             />
             <div className="form-grid">
-              {!isAdminRole(activeRole) ? (
+              {adminUsersScreenModel.status === "denied" ? (
                 <p className="empty-state">{translate("runtimeStateDeniedDescription")}</p>
               ) : null}
               <div className="inline-inputs">
@@ -3982,19 +5544,44 @@ export function App() {
                 </label>
               </div>
               <div className="inline-inputs">
-                <button className="button ghost" onClick={handleLoadGovernanceRoleCoverage} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={adminUsersScreenModel.actions.loadCapabilities}
+                  onClick={handleLoadGovernanceRoleCoverage}
+                  type="button"
+                >
                   {translate("governanceLoadCapabilities")}
                 </button>
-                <button className="button primary" onClick={() => void handleAssignGovernanceRole("athlete")} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={adminUsersScreenModel.actions.assignAthlete}
+                  onClick={() => void handleAssignGovernanceRole("athlete")}
+                  type="button"
+                >
                   {translate("governanceAssignAthlete")}
                 </button>
-                <button className="button primary" onClick={() => void handleAssignGovernanceRole("coach")} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={adminUsersScreenModel.actions.assignCoach}
+                  onClick={() => void handleAssignGovernanceRole("coach")}
+                  type="button"
+                >
                   {translate("governanceAssignCoach")}
                 </button>
-                <button className="button primary" onClick={() => void handleAssignGovernanceRole("admin")} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={adminUsersScreenModel.actions.assignAdmin}
+                  onClick={() => void handleAssignGovernanceRole("admin")}
+                  type="button"
+                >
                   {translate("governanceAssignAdmin")}
                 </button>
-                <button className="button ghost" onClick={handleClearGovernanceSelection} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={adminUsersScreenModel.actions.clearSelection}
+                  onClick={handleClearGovernanceSelection}
+                  type="button"
+                >
                   {translate("governanceClearSelection")}
                 </button>
               </div>
@@ -4097,25 +5684,50 @@ export function App() {
           ) : null}
 
           {isModuleVisible("auditCompliance", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={auditTrailScreenModel.screenId}
+              data-route-id={auditTrailScreenModel.routeId}
+              data-status-id="web.auditTrail.status"
+            >
             <SectionHeader
               title={translate("auditTitle")}
-              status={auditStatus}
+              status={auditTrailScreenModel.status}
               statusLabel={translate("auditStatusLabel")}
               language={language}
             />
             <div className="form-grid">
               <div className="inline-inputs">
-                <button className="button ghost" onClick={handleLoadAuditTimeline} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={auditTrailScreenModel.actions.loadTimeline}
+                  onClick={handleLoadAuditTimeline}
+                  type="button"
+                >
                   {translate("auditLoadTimeline")}
                 </button>
-                <button className="button primary" onClick={handleExportAuditCSV} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={auditTrailScreenModel.actions.exportCsv}
+                  onClick={handleExportAuditCSV}
+                  type="button"
+                >
                   {translate("auditExportCSV")}
                 </button>
-                <button className="button ghost" onClick={handleExportForensicAudit} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={auditTrailScreenModel.actions.exportForensic}
+                  onClick={handleExportForensicAudit}
+                  type="button"
+                >
                   {translate("auditExportForensic")}
                 </button>
-                <button className="button ghost" onClick={handleClearAuditFilters} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={auditTrailScreenModel.actions.clearFilters}
+                  onClick={handleClearAuditFilters}
+                  type="button"
+                >
                   {translate("auditClearFilters")}
                 </button>
               </div>
@@ -4262,25 +5874,50 @@ export function App() {
           ) : null}
 
           {isModuleVisible("billingSupport", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={billingOverviewScreenModel.screenId}
+              data-route-id={billingOverviewScreenModel.routeId}
+              data-status-id="web.billingOverview.status"
+            >
             <SectionHeader
               title={translate("billingSupportTitle")}
-              status={billingSupportStatus}
+              status={billingOverviewScreenModel.status}
               statusLabel={translate("billingSupportStatusLabel")}
               language={language}
             />
             <div className="form-grid">
               <div className="inline-inputs">
-                <button className="button ghost" onClick={handleLoadBillingSupportData} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={billingOverviewScreenModel.actions.loadData}
+                  onClick={handleLoadBillingSupportData}
+                  type="button"
+                >
                   {translate("billingSupportLoadData")}
                 </button>
-                <button className="button primary" onClick={handleResolveBillingIncidents} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={billingOverviewScreenModel.actions.resolveSelected}
+                  onClick={handleResolveBillingIncidents}
+                  type="button"
+                >
                   {translate("billingSupportResolveSelected")}
                 </button>
-                <button className="button ghost" onClick={handleClearBillingIncidentSelection} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={billingOverviewScreenModel.actions.clearSelection}
+                  onClick={handleClearBillingIncidentSelection}
+                  type="button"
+                >
                   {translate("billingSupportClearSelection")}
                 </button>
-                <button className="button ghost" onClick={handleClearBillingSupportFilters} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={billingOverviewScreenModel.actions.clearFilters}
+                  onClick={handleClearBillingSupportFilters}
+                  type="button"
+                >
                   {translate("billingSupportClearFilters")}
                 </button>
               </div>
@@ -4409,91 +6046,170 @@ export function App() {
                   ) : null}
                 </>
               )}
-              <p className="section-subtitle">{translate("billingIncidentsSectionTitle")}</p>
-              {supportIncidentRows.length === 0 ? (
-                <p className="empty-state">{translate("billingNoIncidents")}</p>
-              ) : (
-                <>
-                  <DenseRowsInfo
-                    visibleRows={visibleBillingIncidentRows.length}
-                    totalRows={supportIncidentRows.length}
-                    language={language}
-                  />
-                  <div className="operations-table">
-                    <header className="operations-table-row operations-table-header support-table-row">
-                      <span>{translate("billingIncidentIdColumn")}</span>
-                      <span>{translate("billingOpenedAtColumn")}</span>
-                      <span>{translate("billingIncidentDomainColumn")}</span>
-                      <span>{translate("billingIncidentSeverityColumn")}</span>
-                      <span>{translate("billingIncidentStateColumn")}</span>
-                      <span>{translate("billingIncidentCorrelationColumn")}</span>
-                      <span>{translate("billingIncidentSummaryColumn")}</span>
-                    </header>
-                    {visibleBillingIncidentRows.map((incident) => (
-                      <label key={incident.id} className="operations-table-row support-table-row">
-                        <div className="operations-athlete-cell">
-                          <input
-                            type="checkbox"
-                            checked={selectedBillingIncidentIdSet.has(incident.id)}
-                            onChange={() => handleToggleBillingIncidentSelection(incident.id)}
-                          />
-                          <strong>{incident.id}</strong>
-                        </div>
-                        <span>{incident.openedAt}</span>
-                        <span>{incident.domain}</span>
-                        <span
-                          className={`status-pill status-${toStatusClass(
-                            incident.severity
-                          )}`}
-                        >
-                          {incidentSeverityLabel(incident.severity)}
-                        </span>
-                        <span
-                          className={`status-pill status-${toStatusClass(
-                            incident.state === "resolved"
-                              ? "low"
-                              : incident.state === "in_progress"
-                                ? "medium"
-                                : "high"
-                          )}`}
-                        >
-                          {incidentStateLabel(incident.state)}
-                        </span>
-                        <span>{incident.correlationId}</span>
-                        <span>{incident.summary}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {hasMoreBillingIncidentRows ? (
-                    <div className="dense-table-actions">
-                      <button className="button ghost" onClick={handleShowMoreBillingIncidentRows} type="button">
-                        {translate("loadMoreRows")}
-                      </button>
-                      <button className="button ghost" onClick={handleShowAllBillingIncidentRows} type="button">
-                        {translate("showAllRows")}
-                      </button>
+              <section
+                data-screen-id={supportIncidentsScreenModel.screenId}
+                data-route-id={supportIncidentsScreenModel.routeId}
+                data-status-id="web.supportIncidents.status"
+              >
+                <p className="section-subtitle">{translate("billingIncidentsSectionTitle")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button ghost"
+                    data-action-id={supportIncidentsScreenModel.actions.loadData}
+                    onClick={handleLoadBillingSupportData}
+                    type="button"
+                  >
+                    {translate("billingSupportLoadData")}
+                  </button>
+                  <button
+                    className="button primary"
+                    data-action-id={supportIncidentsScreenModel.actions.resolveSelected}
+                    onClick={handleResolveBillingIncidents}
+                    type="button"
+                  >
+                    {translate("billingSupportResolveSelected")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={supportIncidentsScreenModel.actions.clearSelection}
+                    onClick={handleClearBillingIncidentSelection}
+                    type="button"
+                  >
+                    {translate("billingSupportClearSelection")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    data-action-id={supportIncidentsScreenModel.actions.clearFilters}
+                    onClick={handleClearBillingSupportFilters}
+                    type="button"
+                  >
+                    {translate("billingSupportClearFilters")}
+                  </button>
+                </div>
+                {supportIncidentRows.length === 0 ? (
+                  <p className="empty-state">{translate("billingNoIncidents")}</p>
+                ) : (
+                  <>
+                    <DenseRowsInfo
+                      visibleRows={visibleBillingIncidentRows.length}
+                      totalRows={supportIncidentRows.length}
+                      language={language}
+                    />
+                    <div className="operations-table">
+                      <header className="operations-table-row operations-table-header support-table-row">
+                        <span>{translate("billingIncidentIdColumn")}</span>
+                        <span>{translate("billingOpenedAtColumn")}</span>
+                        <span>{translate("billingIncidentDomainColumn")}</span>
+                        <span>{translate("billingIncidentSeverityColumn")}</span>
+                        <span>{translate("billingIncidentStateColumn")}</span>
+                        <span>{translate("billingIncidentCorrelationColumn")}</span>
+                        <span>{translate("billingIncidentSummaryColumn")}</span>
+                      </header>
+                      {visibleBillingIncidentRows.map((incident) => (
+                        <label key={incident.id} className="operations-table-row support-table-row">
+                          <div className="operations-athlete-cell">
+                            <input
+                              type="checkbox"
+                              checked={selectedBillingIncidentIdSet.has(incident.id)}
+                              onChange={() => handleToggleBillingIncidentSelection(incident.id)}
+                            />
+                            <strong>{incident.id}</strong>
+                          </div>
+                          <span>{incident.openedAt}</span>
+                          <span>{incident.domain}</span>
+                          <span
+                            className={`status-pill status-${toStatusClass(
+                              incident.severity
+                            )}`}
+                          >
+                            {incidentSeverityLabel(incident.severity)}
+                          </span>
+                          <span
+                            className={`status-pill status-${toStatusClass(
+                              incident.state === "resolved"
+                                ? "low"
+                                : incident.state === "in_progress"
+                                  ? "medium"
+                                  : "high"
+                            )}`}
+                          >
+                            {incidentStateLabel(incident.state)}
+                          </span>
+                          <span>{incident.correlationId}</span>
+                          <span>{incident.summary}</span>
+                        </label>
+                      ))}
                     </div>
-                  ) : null}
-                </>
-              )}
+                    {hasMoreBillingIncidentRows ? (
+                      <div className="dense-table-actions">
+                        <button className="button ghost" onClick={handleShowMoreBillingIncidentRows} type="button">
+                          {translate("loadMoreRows")}
+                        </button>
+                        <button className="button ghost" onClick={handleShowAllBillingIncidentRows} type="button">
+                          {translate("showAllRows")}
+                        </button>
+                      </div>
+                    ) : null}
+                  </>
+                )}
+              </section>
             </div>
             </article>
           ) : null}
 
           {isModuleVisible("recommendations", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={aiInsightsScreenModel.screenId}
+              data-route-id={aiInsightsScreenModel.routeId}
+              data-status-id="web.aiInsights.status"
+            >
             <SectionHeader
-              title={translate("recommendationsTitle")}
-              status={recommendationsStatus}
-              statusLabel={translate("recommendationsStatusLabel")}
+              title={translate("aiInsightsTitle")}
+              status={aiInsightsScreenModel.status}
+              statusLabel={translate("aiInsightsStatusLabel")}
               language={language}
             />
             <div className="form-grid">
-              <button className="button primary" onClick={handleLoadRecommendations} type="button">
-                {translate("loadRecommendations")}
-              </button>
+              <p className="runtime-state-copy">{translate("aiInsightsSummary")}</p>
+              <div className="inline-inputs">
+                <button
+                  className="button primary"
+                  onClick={() => void handleLoadRecommendations()}
+                  type="button"
+                  data-action-id={aiInsightsScreenModel.actions.loadRecommendations}
+                >
+                  {translate("aiInsightsLoadAction")}
+                </button>
+                <button
+                  className="button ghost"
+                  onClick={() => void handleRefreshAIInsights()}
+                  type="button"
+                  data-action-id={aiInsightsScreenModel.actions.refreshSignals}
+                  disabled={aiInsightsScreenModel.status === "loading"}
+                >
+                  {translate("aiInsightsRefreshAction")}
+                </button>
+              </div>
+              <div className="inline-inputs">
+                <Metric
+                  title={translate("aiInsightsRecommendationsLabel")}
+                  value={String(recommendations.length)}
+                />
+                <Metric
+                  title={translate("aiInsightsHighPriorityLabel")}
+                  value={String(
+                    recommendations.filter((recommendation) => recommendation.priority === "high")
+                      .length
+                  )}
+                />
+                <Metric
+                  title={translate("aiInsightsSignalsLabel")}
+                  value={String(analyticsEvents.length + crashReports.length)}
+                />
+              </div>
               {recommendations.length === 0 ? (
-                <p className="empty-state">{translate("noRecommendationsLoaded")}</p>
+                <p className="empty-state">{translate("aiInsightsNoData")}</p>
               ) : (
                 <div className="recommendation-list">
                   {recommendations.map((recommendation) => (
@@ -4523,10 +6239,15 @@ export function App() {
           ) : null}
 
           {isModuleVisible("nutrition", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={nutritionOverviewScreenModel.screenId}
+              data-route-id={nutritionOverviewScreenModel.routeId}
+              data-status-id="web.nutritionOverview.status"
+            >
             <SectionHeader
               title={translate("nutritionTitle")}
-              status={nutritionStatus}
+              status={nutritionOverviewScreenModel.status}
               statusLabel={translate("nutritionStatusLabel")}
               language={language}
             />
@@ -4566,52 +6287,78 @@ export function App() {
                 />
               </div>
               <div className="inline-inputs">
-                <button className="button primary" onClick={handleCreateNutritionLog} type="button">
+                <button
+                  className="button primary"
+                  onClick={handleCreateNutritionLog}
+                  type="button"
+                  data-action-id={nutritionOverviewScreenModel.actions.saveLog}
+                >
                   {translate("saveNutritionLog")}
                 </button>
-                <button className="button ghost" onClick={handleLoadNutritionLogs} type="button">
+                <button
+                  className="button ghost"
+                  onClick={handleLoadNutritionLogs}
+                  type="button"
+                  data-action-id={nutritionOverviewScreenModel.actions.loadLogs}
+                >
                   {translate("loadLogs")}
                 </button>
               </div>
-              <p className="section-subtitle">{translate("nutritionFiltersLabel")}</p>
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("nutritionDateFilterPlaceholder")}
-                  placeholder={translate("nutritionDateFilterPlaceholder")}
-                  value={nutritionDateFilter}
-                  onChange={(event) => setNutritionDateFilter(event.target.value)}
-                />
-                <input
-                  aria-label={translate("nutritionMinProteinPlaceholder")}
-                  placeholder={translate("nutritionMinProteinPlaceholder")}
-                  value={nutritionMinProteinFilter}
-                  onChange={(event) => setNutritionMinProteinFilter(event.target.value)}
-                />
-                <input
-                  aria-label={translate("nutritionMaxCaloriesPlaceholder")}
-                  placeholder={translate("nutritionMaxCaloriesPlaceholder")}
-                  value={nutritionMaxCaloriesFilter}
-                  onChange={(event) => setNutritionMaxCaloriesFilter(event.target.value)}
-                />
-              </div>
-              <div className="inline-inputs">
-                <label className="compact-label">
-                  {translate("nutritionSortLabel")}
-                  <select
-                    aria-label={translate("nutritionSortLabel")}
-                    value={nutritionSortMode}
-                    onChange={(event) =>
-                      setNutritionSortMode(event.target.value as NutritionSortMode)
-                    }
+              <div
+                className="history-list"
+                data-screen-id={dailyLogReviewScreenModel.screenId}
+                data-route-id={dailyLogReviewScreenModel.routeId}
+                data-status-id="web.dailyLogReview.status"
+              >
+                <p className="section-subtitle">{translate("nutritionFiltersLabel")}</p>
+                <div className="inline-inputs">
+                  <input
+                    aria-label={translate("nutritionDateFilterPlaceholder")}
+                    placeholder={translate("nutritionDateFilterPlaceholder")}
+                    value={nutritionDateFilter}
+                    data-action-id={dailyLogReviewScreenModel.actions.updateFilters}
+                    onChange={(event) => setNutritionDateFilter(event.target.value)}
+                  />
+                  <input
+                    aria-label={translate("nutritionMinProteinPlaceholder")}
+                    placeholder={translate("nutritionMinProteinPlaceholder")}
+                    value={nutritionMinProteinFilter}
+                    data-action-id={dailyLogReviewScreenModel.actions.updateFilters}
+                    onChange={(event) => setNutritionMinProteinFilter(event.target.value)}
+                  />
+                  <input
+                    aria-label={translate("nutritionMaxCaloriesPlaceholder")}
+                    placeholder={translate("nutritionMaxCaloriesPlaceholder")}
+                    value={nutritionMaxCaloriesFilter}
+                    data-action-id={dailyLogReviewScreenModel.actions.updateFilters}
+                    onChange={(event) => setNutritionMaxCaloriesFilter(event.target.value)}
+                  />
+                </div>
+                <div className="inline-inputs">
+                  <label className="compact-label">
+                    {translate("nutritionSortLabel")}
+                    <select
+                      aria-label={translate("nutritionSortLabel")}
+                      value={nutritionSortMode}
+                      data-action-id={dailyLogReviewScreenModel.actions.updateSort}
+                      onChange={(event) =>
+                        setNutritionSortMode(event.target.value as NutritionSortMode)
+                      }
+                    >
+                      <option value="date_desc">{translate("nutritionSortByDate")}</option>
+                      <option value="calories_desc">{translate("nutritionSortByCalories")}</option>
+                      <option value="protein_desc">{translate("nutritionSortByProtein")}</option>
+                    </select>
+                  </label>
+                  <button
+                    className="button ghost"
+                    onClick={handleClearNutritionFilters}
+                    type="button"
+                    data-action-id={dailyLogReviewScreenModel.actions.clearFilters}
                   >
-                    <option value="date_desc">{translate("nutritionSortByDate")}</option>
-                    <option value="calories_desc">{translate("nutritionSortByCalories")}</option>
-                    <option value="protein_desc">{translate("nutritionSortByProtein")}</option>
-                  </select>
-                </label>
-                <button className="button ghost" onClick={handleClearNutritionFilters} type="button">
-                  {translate("clearNutritionFilters")}
-                </button>
+                    {translate("clearNutritionFilters")}
+                  </button>
+                </div>
               </div>
               <StatLine
                 label={translate("logsLoadedLabel")}
@@ -4623,19 +6370,324 @@ export function App() {
                 value={String(filteredNutritionLogs.length)}
                 language={language}
               />
+              <div
+                className="history-list"
+                data-screen-id={deviationAlertsScreenModel.screenId}
+                data-route-id={deviationAlertsScreenModel.routeId}
+                data-status-id="web.deviationAlerts.status"
+              >
+                <p className="section-subtitle">{translate("deviationAlertsTitle")}</p>
+                <p className="runtime-state-copy">{translate("deviationAlertsSummary")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    onClick={handleLoadNutritionLogs}
+                    type="button"
+                    data-action-id={deviationAlertsScreenModel.actions.loadAlerts}
+                    disabled={deviationAlertsScreenModel.status === "loading"}
+                  >
+                    {translate("deviationAlertsLoadAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleClearNutritionFilters}
+                    type="button"
+                    data-action-id={deviationAlertsScreenModel.actions.clearFilters}
+                  >
+                    {translate("deviationAlertsClearAction")}
+                  </button>
+                </div>
+                <StatLine
+                  label={translate("deviationAlertsHighRiskLabel")}
+                  value={String(
+                    nutritionDeviationAlerts.filter((alert) => alert.severity === "high").length
+                  )}
+                  language={language}
+                />
+                <StatLine
+                  label={translate("deviationAlertsModerateRiskLabel")}
+                  value={String(
+                    nutritionDeviationAlerts.filter((alert) => alert.severity === "medium").length
+                  )}
+                  language={language}
+                />
+                {nutritionDeviationAlerts.length === 0 ? (
+                  <p className="empty-state">{translate("deviationAlertsNoData")}</p>
+                ) : (
+                  <div className="history-list">
+                    {nutritionDeviationAlerts.map((alert) => (
+                      <article key={alert.id} className="history-item">
+                        <div className="history-item-head">
+                          <strong>{alert.date}</strong>
+                          <span
+                            className={`status-pill status-${toStatusClass(alert.severity)}`}
+                          >
+                            {alert.severity === "high"
+                              ? translate("deviationAlertsHighRiskLabel")
+                              : translate("deviationAlertsModerateRiskLabel")}
+                          </span>
+                        </div>
+                        <p className="runtime-state-copy">
+                          {alert.reason === "calories"
+                            ? translate("deviationAlertsReasonCalories")
+                            : translate("deviationAlertsReasonProtein")}
+                        </p>
+                        <div className="history-values">
+                          <span>{translate("caloriesPlaceholder")} {alert.calories}</span>
+                          <span>{translate("proteinPlaceholder")} {alert.proteinGrams}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={nutritionCoachViewScreenModel.screenId}
+                data-route-id={nutritionCoachViewScreenModel.routeId}
+                data-status-id="web.nutritionCoachView.status"
+              >
+                <p className="section-subtitle">{translate("nutritionCoachViewTitle")}</p>
+                <p className="runtime-state-copy">{translate("nutritionCoachViewSummary")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button primary"
+                    onClick={handleLoadNutritionLogs}
+                    type="button"
+                    data-action-id={nutritionCoachViewScreenModel.actions.loadCohort}
+                    disabled={nutritionCoachViewScreenModel.status === "loading"}
+                  >
+                    {translate("nutritionCoachViewLoadAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleFocusNutritionCoachAtRisk}
+                    type="button"
+                    data-action-id={nutritionCoachViewScreenModel.actions.focusAtRisk}
+                  >
+                    {translate("nutritionCoachViewFocusAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleOpenNutritionCoachOperations}
+                    type="button"
+                    data-action-id={nutritionCoachViewScreenModel.actions.openOperations}
+                  >
+                    {translate("nutritionCoachViewOpenOperationsAction")}
+                  </button>
+                </div>
+                <StatLine
+                  label={translate("athletesLoadedLabel")}
+                  value={String(nutritionCoachRows.length)}
+                  language={language}
+                />
+                <StatLine
+                  label={translate("nutritionCoachViewAtRiskLabel")}
+                  value={String(nutritionCoachAtRiskCount)}
+                  language={language}
+                />
+                {nutritionCoachRows.length === 0 ? (
+                  <p className="empty-state">{translate("nutritionCoachViewNoRows")}</p>
+                ) : (
+                  <div className="history-list">
+                    {nutritionCoachRows.map((row) => (
+                      <article key={row.athleteId} className="history-item">
+                        <div className="history-item-head">
+                          <strong>{row.athleteId}</strong>
+                          <span
+                            className={
+                              row.riskLevel === "attention"
+                                ? "status-pill status-critical"
+                                : "status-pill status-positive"
+                            }
+                          >
+                            {row.riskLevel === "attention"
+                              ? translate("riskAttention")
+                              : translate("riskNormal")}
+                          </span>
+                        </div>
+                        <div className="history-values">
+                          <span>{translate("plansColumn")} {row.plansCount}</span>
+                          <span>{translate("sessionsColumn")} {row.sessionsCount}</span>
+                          <span>{translate("nutritionColumn")} {row.nutritionLogsCount}</span>
+                          <span>{translate("lastSessionColumn")} {row.lastSessionDate}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {webLane === "secondary" ? (
+                <div
+                  className="history-list"
+                  data-screen-id={cohortNutritionScreenModel.screenId}
+                  data-route-id={cohortNutritionScreenModel.routeId}
+                  data-status-id="web.light.cohortNutrition.status"
+                >
+                  <p className="section-subtitle">{translate("cohortNutritionTitle")}</p>
+                  <p className="runtime-state-copy">{translate("cohortNutritionSummary")}</p>
+                  <div className="inline-inputs">
+                    <button
+                      className="button primary"
+                      onClick={handleLoadNutritionLogs}
+                      type="button"
+                      data-action-id={cohortNutritionScreenModel.actions.loadCohort}
+                      disabled={cohortNutritionScreenModel.status === "loading"}
+                    >
+                      {translate("cohortNutritionLoadAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      onClick={handleFocusHighestNutritionRisk}
+                      type="button"
+                      data-action-id={cohortNutritionScreenModel.actions.focusHighestRisk}
+                    >
+                      {translate("cohortNutritionFocusAction")}
+                    </button>
+                  </div>
+                  <StatLine
+                    label={translate("athletesLoadedLabel")}
+                    value={String(cohortNutritionRows.length)}
+                    language={language}
+                  />
+                  <StatLine
+                    label={translate("nutritionCoachViewAtRiskLabel")}
+                    value={String(
+                      cohortNutritionRows.filter((row) => row.riskLevel === "attention").length
+                    )}
+                    language={language}
+                  />
+                  {cohortNutritionRows.length === 0 ? (
+                    <p className="empty-state">{translate("cohortNutritionNoRows")}</p>
+                  ) : (
+                    <div className="history-list">
+                      {cohortNutritionRows.map((row) => (
+                        <article key={row.athleteId} className="history-item">
+                          <div className="history-item-head">
+                            <strong>{row.athleteId}</strong>
+                            <span
+                              className={
+                                row.riskLevel === "attention"
+                                  ? "status-pill status-critical"
+                                  : "status-pill status-positive"
+                              }
+                            >
+                              {row.riskLevel === "attention"
+                                ? translate("riskAttention")
+                                : translate("riskNormal")}
+                            </span>
+                          </div>
+                          <div className="history-values">
+                            <span>{translate("cohortNutritionLogsLabel")} {row.logsCount}</span>
+                            <span>
+                              {translate("cohortNutritionAvgCaloriesLabel")} {row.averageCalories}
+                            </span>
+                            <span>
+                              {translate("cohortNutritionAvgProteinLabel")} {row.averageProteinGrams}
+                            </span>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null}
+              {webLane === "secondary" ? (
+                <div
+                  className="history-list"
+                  data-screen-id={nutritionLogDetailScreenModel.screenId}
+                  data-route-id={nutritionLogDetailScreenModel.routeId}
+                  data-status-id="web.light.logDetail.status"
+                >
+                  <p className="section-subtitle">{translate("logDetailTitle")}</p>
+                  <p className="runtime-state-copy">{translate("logDetailSummary")}</p>
+                  <div className="inline-inputs">
+                    <button
+                      className="button primary"
+                      onClick={handleLoadNutritionLogs}
+                      type="button"
+                      data-action-id={nutritionLogDetailScreenModel.actions.loadDetail}
+                      disabled={nutritionLogDetailScreenModel.status === "loading"}
+                    >
+                      {translate("logDetailLoadAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      onClick={handleClearNutritionLogSelection}
+                      type="button"
+                      data-action-id={nutritionLogDetailScreenModel.actions.clearSelection}
+                    >
+                      {translate("logDetailClearAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      onClick={handleOpenNutritionLogCoachView}
+                      type="button"
+                      data-action-id={nutritionLogDetailScreenModel.actions.openCoachView}
+                    >
+                      {translate("logDetailOpenCoachAction")}
+                    </button>
+                  </div>
+                  <label className="compact-label">
+                    {translate("logDetailSelectPlaceholder")}
+                    <select
+                      aria-label={translate("logDetailSelectPlaceholder")}
+                      value={selectedNutritionLogOption?.key ?? ""}
+                      onChange={(event) => handleSelectNutritionLogDetail(event.target.value)}
+                      data-action-id={nutritionLogDetailScreenModel.actions.selectLog}
+                    >
+                      {nutritionLogOptionRows.map((row) => (
+                        <option key={row.key} value={row.key}>
+                          {row.log.date} · {row.log.userId}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <StatLine
+                    label={translate("logDetailSelectedDateLabel")}
+                    value={selectedNutritionLog?.date ?? "-"}
+                    language={language}
+                  />
+                  <StatLine
+                    label={translate("logDetailSelectedAthleteLabel")}
+                    value={selectedNutritionLog?.userId ?? "-"}
+                    language={language}
+                  />
+                  {selectedNutritionLog === null ? (
+                    <p className="empty-state">{translate("logDetailNoSelection")}</p>
+                  ) : (
+                    <div className="history-values">
+                      <span>{translate("caloriesPlaceholder")} {selectedNutritionLog.calories}</span>
+                      <span>{translate("proteinPlaceholder")} {selectedNutritionLog.proteinGrams}</span>
+                      <span>{translate("carbsPlaceholder")} {selectedNutritionLog.carbsGrams}</span>
+                      <span>{translate("fatsPlaceholder")} {selectedNutritionLog.fatsGrams}</span>
+                    </div>
+                  )}
+                </div>
+              ) : null}
               {filteredNutritionLogs.length === 0 ? (
                 <p className="empty-state">{translate("noNutritionFilteredLogs")}</p>
               ) : (
                 <div className="history-list">
-                  {filteredNutritionLogs.map((log) => (
-                    <article key={`${log.userId}-${log.date}`} className="history-item">
-                      <strong>{log.date}</strong>
+                  {nutritionLogOptionRows.map((row) => (
+                    <article key={row.key} className="history-item">
+                      <strong>{row.log.date}</strong>
                       <div className="history-values">
-                        <span>{translate("caloriesPlaceholder")} {log.calories}</span>
-                        <span>{translate("proteinPlaceholder")} {log.proteinGrams}</span>
-                        <span>{translate("carbsPlaceholder")} {log.carbsGrams}</span>
-                        <span>{translate("fatsPlaceholder")} {log.fatsGrams}</span>
+                        <span>{translate("caloriesPlaceholder")} {row.log.calories}</span>
+                        <span>{translate("proteinPlaceholder")} {row.log.proteinGrams}</span>
+                        <span>{translate("carbsPlaceholder")} {row.log.carbsGrams}</span>
+                        <span>{translate("fatsPlaceholder")} {row.log.fatsGrams}</span>
                       </div>
+                      {webLane === "secondary" ? (
+                        <button
+                          className="button ghost"
+                          type="button"
+                          onClick={() => handleSelectNutritionLogDetail(row.key)}
+                          data-action-id={nutritionLogDetailScreenModel.actions.selectLog}
+                        >
+                          {translate("logDetailSelectPlaceholder")}
+                        </button>
+                      ) : null}
                     </article>
                   ))}
                 </div>
@@ -4858,10 +6910,15 @@ export function App() {
           ) : null}
 
           {isModuleVisible("legal", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={legalComplianceScreenModel.screenId}
+              data-route-id={legalComplianceScreenModel.routeId}
+              data-status-id="web.legalCompliance.status"
+            >
             <SectionHeader
               title={translate("legalSectionTitle")}
-              status={legalStatus}
+              status={legalComplianceScreenModel.status}
               statusLabel={translate("legalStatusLabel")}
               language={language}
             />
@@ -4872,13 +6929,28 @@ export function App() {
                 language={language}
               />
               <div className="inline-inputs">
-                <button className="button primary" onClick={handleSubmitLegalConsent} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={legalComplianceScreenModel.actions.saveConsent}
+                  onClick={handleSubmitLegalConsent}
+                  type="button"
+                >
                   {translate("saveConsent")}
                 </button>
-                <button className="button ghost" onClick={handleExportData} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={legalComplianceScreenModel.actions.exportData}
+                  onClick={handleExportData}
+                  type="button"
+                >
                   {translate("exportData")}
                 </button>
-                <button className="button ghost" onClick={handleRequestDataDeletion} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={legalComplianceScreenModel.actions.requestDeletion}
+                  onClick={handleRequestDataDeletion}
+                  type="button"
+                >
                   {translate("requestDeletion")}
                 </button>
               </div>
@@ -5176,13 +7248,17 @@ function persistRolePreference(role: DashboardRole): void {
 
 function readDomainPreference(): DashboardDomain {
   if (typeof window === "undefined") {
-    return "all";
+    return "onboarding";
   }
   const domainFromURL = readDashboardDomainFromURL(window.location.href);
   if (domainFromURL !== null) {
     return domainFromURL;
   }
-  return resolveDashboardDomain(window.localStorage.getItem(dashboardDomainStorageKey));
+  const persistedDomain = window.localStorage.getItem(dashboardDomainStorageKey);
+  if (persistedDomain === null) {
+    return readWebRuntimeMode() === "qa" ? "all" : "onboarding";
+  }
+  return resolveDashboardDomain(persistedDomain);
 }
 
 function persistDomainPreference(domain: DashboardDomain): void {
@@ -5200,4 +7276,17 @@ function persistDomainQueryParam(domain: DashboardDomain): void {
   if (nextURL !== window.location.href) {
     window.history.replaceState(null, "", nextURL);
   }
+}
+
+function readWebRuntimeMode(): "qa" | "product" {
+  const importMeta = import.meta as ImportMeta & {
+    env?: Record<string, string | undefined>;
+  };
+  const rawValue = String(importMeta.env?.VITE_WEB_RUNTIME_MODE ?? "product")
+    .trim()
+    .toLowerCase();
+  if (rawValue === "qa") {
+    return "qa";
+  }
+  return "product";
 }

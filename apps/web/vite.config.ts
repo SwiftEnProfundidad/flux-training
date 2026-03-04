@@ -1,6 +1,8 @@
 import { defineConfig } from "vitest/config";
 
-const demoApiTarget = process.env.VITE_DEMO_API_TARGET ?? "http://127.0.0.1:8787";
+const backendApiTarget =
+  process.env.VITE_API_TARGET ?? "http://127.0.0.1:8787";
+const shouldStripApiPrefix = backendApiTarget.includes("/flux-training/us-central1");
 
 export default defineConfig({
   build: {
@@ -17,8 +19,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: demoApiTarget,
-        changeOrigin: true
+        target: backendApiTarget,
+        changeOrigin: true,
+        rewrite: (path) => (shouldStripApiPrefix ? path.replace(/^\/api/, "") : path)
       }
     }
   },

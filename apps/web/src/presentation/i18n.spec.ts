@@ -84,6 +84,48 @@ describe("i18n", () => {
     expect(translate("cohortAnalysisNormalLabel")).toBe("Normal");
     expect(translate("cohortAnalysisAvgSessionsLabel")).toBe("Avg sessions");
     expect(translate("operationsHubTitle")).toBe("Core operations");
+    expect(translate("planBuilderTitle")).toBe("Plan builder");
+    expect(translate("planBuilderStatusLabel")).toBe("Builder");
+    expect(translate("planBuilderWeeksLabel")).toBe("weeks");
+    expect(translate("planBuilderDaysLabel")).toBe("days per week");
+    expect(translate("planBuilderTemplateLabel")).toBe("template");
+    expect(translate("planBuilderTemplateStrength")).toBe("strength");
+    expect(translate("planBuilderTemplateHypertrophy")).toBe("hypertrophy");
+    expect(translate("planBuilderTemplateRecomposition")).toBe("recomposition");
+    expect(translate("planBuilderPreviewTitle")).toBe("Plan preview");
+    expect(translate("planBuilderPreviewDaysLabel")).toBe("configured days");
+    expect(translate("planBuilderPreviewExercisesLabel")).toBe("exercises per day");
+    expect(translate("planBuilderInvalidConfiguration")).toBe(
+      "Invalid configuration: review weeks and days."
+    );
+    expect(translate("planAssignmentTitle")).toBe("Plan assignment");
+    expect(translate("planAssignmentStatusLabel")).toBe("Assignment");
+    expect(translate("planAssignmentPlanLabel")).toBe("Active plan");
+    expect(translate("planAssignmentSelectedAthletesLabel")).toBe("Selected athletes");
+    expect(translate("planAssignmentAtRiskAthletesLabel")).toBe("At-risk athletes");
+    expect(translate("planAssignmentAssignSelectedAction")).toBe("Assign to selected");
+    expect(translate("planAssignmentAssignAtRiskAction")).toBe("Assign to at-risk");
+    expect(translate("planAssignmentClearAction")).toBe("Clear selection");
+    expect(translate("planAssignmentNoSelection")).toBe(
+      "Select athletes in operations to enable assignment."
+    );
+    expect(translate("planAssignmentSelectedListTitle")).toBe("Target athletes");
+    expect(translate("planAssignmentAssignedSuffix")).toBe("assigned");
+    expect(translate("plansLoadedLabel")).toBe("Plans loaded");
+    expect(translate("noPlansLoaded")).toBe("No plans loaded yet.");
+    expect(translate("sessionDetailTitle")).toBe("Session detail");
+    expect(translate("sessionDetailStatusLabel")).toBe("Detail");
+    expect(translate("sessionDetailSelectLabel")).toBe("select session");
+    expect(translate("sessionDetailClearAction")).toBe("Clear session");
+    expect(translate("sessionDetailOpenVideoAction")).toBe("Open exercise video");
+    expect(translate("sessionDetailPlanLabel")).toBe("plan");
+    expect(translate("sessionDetailStartedLabel")).toBe("start");
+    expect(translate("sessionDetailEndedLabel")).toBe("end");
+    expect(translate("sessionDetailDurationLabel")).toBe("duration");
+    expect(translate("sessionDetailExerciseCountLabel")).toBe("exercises");
+    expect(translate("sessionDetailNoSelection")).toBe(
+      "No session selected to display details."
+    );
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
     expect(translate("loadMoreRows")).toBe("Load more rows");
@@ -115,11 +157,55 @@ describe("i18n", () => {
     expect(translate("observabilityRunbooksLabel")).toBe("Active runbooks");
     expect(translate("observabilityOnCallOwnerLabel")).toBe("On-call owner");
     expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
+    expect(translate("deviationAlertsTitle")).toBe("Deviation alerts");
+    expect(translate("deviationAlertsStatusLabel")).toBe("Deviations");
+    expect(translate("deviationAlertsLoadAction")).toBe("Evaluate deviations");
+    expect(translate("deviationAlertsClearAction")).toBe("Reset filters");
+    expect(translate("deviationAlertsHighRiskLabel")).toBe("High risk");
+    expect(translate("deviationAlertsModerateRiskLabel")).toBe("Moderate risk");
+    expect(translate("deviationAlertsReasonCalories")).toBe("Calories out of target range");
+    expect(translate("deviationAlertsReasonProtein")).toBe("Protein below target");
+    expect(translate("deviationAlertsNoData")).toBe(
+      "No nutrition deviations detected for this filter."
+    );
+    expect(translate("nutritionCoachViewTitle")).toBe("Nutrition coach view");
+    expect(translate("nutritionCoachViewStatusLabel")).toBe("Coach");
+    expect(translate("nutritionCoachViewLoadAction")).toBe("Load cohort");
+    expect(translate("nutritionCoachViewFocusAction")).toBe("Focus at risk");
+    expect(translate("nutritionCoachViewOpenOperationsAction")).toBe("Open operations");
+    expect(translate("nutritionCoachViewNoRows")).toBe(
+      "No athletes available for coach view with current data."
+    );
+    expect(translate("nutritionCoachViewAtRiskLabel")).toBe("Athletes at risk");
+    expect(translate("cohortNutritionTitle")).toBe("Cohort nutrition");
+    expect(translate("cohortNutritionStatusLabel")).toBe("Cohort");
+    expect(translate("cohortNutritionLoadAction")).toBe("Load nutrition cohort");
+    expect(translate("cohortNutritionFocusAction")).toBe("Focus highest risk");
+    expect(translate("cohortNutritionNoRows")).toBe(
+      "No nutrition cohort available for this filter."
+    );
+    expect(translate("cohortNutritionLogsLabel")).toBe("logs");
+    expect(translate("cohortNutritionAvgCaloriesLabel")).toBe("avg kcal");
+    expect(translate("cohortNutritionAvgProteinLabel")).toBe("avg protein");
+    expect(translate("logDetailTitle")).toBe("Nutrition log detail");
+    expect(translate("logDetailStatusLabel")).toBe("Detail");
+    expect(translate("logDetailLoadAction")).toBe("Refresh detail");
+    expect(translate("logDetailClearAction")).toBe("Clear selection");
+    expect(translate("logDetailOpenCoachAction")).toBe("Open coach view");
+    expect(translate("logDetailSelectPlaceholder")).toBe("select log");
+    expect(translate("logDetailSelectedDateLabel")).toBe("selected date");
+    expect(translate("logDetailSelectedAthleteLabel")).toBe("selected athlete");
+    expect(translate("logDetailNoSelection")).toBe(
+      "No nutrition log selected to display details."
+    );
     expect(translate("progressFiltersLabel")).toBe("Progress filters");
     expect(translate("progressTrendsTitle")).toBe("Progress trends");
     expect(translate("progressTrendsStatusLabel")).toBe("Trends");
     expect(translate("progressTrendsRefreshAction")).toBe("Refresh trends");
     expect(translate("progressTrendsNoData")).toBe("No progress data available to show trends.");
+    expect(translate("aiInsightsTitle")).toBe("AI insights");
+    expect(translate("aiInsightsStatusLabel")).toBe("Insights");
+    expect(translate("aiInsightsLoadAction")).toBe("Load AI insights");
     expect(translate("effortMetric")).toBe("Effort");
     expect(translate("noNutritionFilteredLogs")).toBe("No nutrition logs match this filter.");
     expect(translate("noProgressFilteredHistory")).toBe("No history matches this filter.");
@@ -211,6 +297,48 @@ describe("i18n", () => {
     expect(translate("cohortAnalysisNormalLabel")).toBe("Normal");
     expect(translate("cohortAnalysisAvgSessionsLabel")).toBe("Media sesiones");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
+    expect(translate("planBuilderTitle")).toBe("Plan builder");
+    expect(translate("planBuilderStatusLabel")).toBe("Builder");
+    expect(translate("planBuilderWeeksLabel")).toBe("semanas");
+    expect(translate("planBuilderDaysLabel")).toBe("dias por semana");
+    expect(translate("planBuilderTemplateLabel")).toBe("template");
+    expect(translate("planBuilderTemplateStrength")).toBe("fuerza");
+    expect(translate("planBuilderTemplateHypertrophy")).toBe("hipertrofia");
+    expect(translate("planBuilderTemplateRecomposition")).toBe("recomposicion");
+    expect(translate("planBuilderPreviewTitle")).toBe("Previsualizacion del plan");
+    expect(translate("planBuilderPreviewDaysLabel")).toBe("dias configurados");
+    expect(translate("planBuilderPreviewExercisesLabel")).toBe("ejercicios por dia");
+    expect(translate("planBuilderInvalidConfiguration")).toBe(
+      "Configuracion invalida: revisa semanas y dias."
+    );
+    expect(translate("planAssignmentTitle")).toBe("Asignacion de plan");
+    expect(translate("planAssignmentStatusLabel")).toBe("Asignacion");
+    expect(translate("planAssignmentPlanLabel")).toBe("Plan activo");
+    expect(translate("planAssignmentSelectedAthletesLabel")).toBe("Atletas seleccionados");
+    expect(translate("planAssignmentAtRiskAthletesLabel")).toBe("Atletas en riesgo");
+    expect(translate("planAssignmentAssignSelectedAction")).toBe("Asignar a seleccion");
+    expect(translate("planAssignmentAssignAtRiskAction")).toBe("Asignar a riesgo");
+    expect(translate("planAssignmentClearAction")).toBe("Limpiar seleccion");
+    expect(translate("planAssignmentNoSelection")).toBe(
+      "Selecciona atletas en operaciones para habilitar la asignacion."
+    );
+    expect(translate("planAssignmentSelectedListTitle")).toBe("Atletas objetivo");
+    expect(translate("planAssignmentAssignedSuffix")).toBe("asignado");
+    expect(translate("plansLoadedLabel")).toBe("Planes cargados");
+    expect(translate("noPlansLoaded")).toBe("Todavia no hay planes cargados.");
+    expect(translate("sessionDetailTitle")).toBe("Detalle de sesion");
+    expect(translate("sessionDetailStatusLabel")).toBe("Detalle");
+    expect(translate("sessionDetailSelectLabel")).toBe("seleccionar sesion");
+    expect(translate("sessionDetailClearAction")).toBe("Limpiar sesion");
+    expect(translate("sessionDetailOpenVideoAction")).toBe("Abrir video ejercicio");
+    expect(translate("sessionDetailPlanLabel")).toBe("plan");
+    expect(translate("sessionDetailStartedLabel")).toBe("inicio");
+    expect(translate("sessionDetailEndedLabel")).toBe("fin");
+    expect(translate("sessionDetailDurationLabel")).toBe("duracion");
+    expect(translate("sessionDetailExerciseCountLabel")).toBe("ejercicios");
+    expect(translate("sessionDetailNoSelection")).toBe(
+      "No hay sesion seleccionada para mostrar detalle."
+    );
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");
     expect(translate("loadMoreRows")).toBe("Cargar mas filas");
@@ -242,6 +370,47 @@ describe("i18n", () => {
     expect(translate("observabilityRunbooksLabel")).toBe("Runbooks activos");
     expect(translate("observabilityOnCallOwnerLabel")).toBe("Owner on-call");
     expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
+    expect(translate("deviationAlertsTitle")).toBe("Alertas de desvio");
+    expect(translate("deviationAlertsStatusLabel")).toBe("Desvios");
+    expect(translate("deviationAlertsLoadAction")).toBe("Evaluar desvios");
+    expect(translate("deviationAlertsClearAction")).toBe("Reiniciar filtros");
+    expect(translate("deviationAlertsHighRiskLabel")).toBe("Riesgo alto");
+    expect(translate("deviationAlertsModerateRiskLabel")).toBe("Riesgo moderado");
+    expect(translate("deviationAlertsReasonCalories")).toBe("Calorias fuera de objetivo");
+    expect(translate("deviationAlertsReasonProtein")).toBe("Proteina por debajo del objetivo");
+    expect(translate("deviationAlertsNoData")).toBe(
+      "No hay desvios nutricionales para este filtro."
+    );
+    expect(translate("nutritionCoachViewTitle")).toBe("Vista coach nutricion");
+    expect(translate("nutritionCoachViewStatusLabel")).toBe("Coach");
+    expect(translate("nutritionCoachViewLoadAction")).toBe("Cargar cohorte");
+    expect(translate("nutritionCoachViewFocusAction")).toBe("Foco en riesgo");
+    expect(translate("nutritionCoachViewOpenOperationsAction")).toBe("Abrir operaciones");
+    expect(translate("nutritionCoachViewNoRows")).toBe(
+      "No hay atletas para la vista coach con los datos actuales."
+    );
+    expect(translate("nutritionCoachViewAtRiskLabel")).toBe("Atletas en riesgo");
+    expect(translate("cohortNutritionTitle")).toBe("Cohorte nutricion");
+    expect(translate("cohortNutritionStatusLabel")).toBe("Cohorte");
+    expect(translate("cohortNutritionLoadAction")).toBe("Cargar cohorte nutricion");
+    expect(translate("cohortNutritionFocusAction")).toBe("Foco riesgo maximo");
+    expect(translate("cohortNutritionNoRows")).toBe(
+      "No hay cohorte nutricional disponible para este filtro."
+    );
+    expect(translate("cohortNutritionLogsLabel")).toBe("logs");
+    expect(translate("cohortNutritionAvgCaloriesLabel")).toBe("kcal media");
+    expect(translate("cohortNutritionAvgProteinLabel")).toBe("proteina media");
+    expect(translate("logDetailTitle")).toBe("Detalle de registro nutricional");
+    expect(translate("logDetailStatusLabel")).toBe("Detalle");
+    expect(translate("logDetailLoadAction")).toBe("Refrescar detalle");
+    expect(translate("logDetailClearAction")).toBe("Limpiar seleccion");
+    expect(translate("logDetailOpenCoachAction")).toBe("Abrir vista coach");
+    expect(translate("logDetailSelectPlaceholder")).toBe("seleccionar log");
+    expect(translate("logDetailSelectedDateLabel")).toBe("fecha seleccionada");
+    expect(translate("logDetailSelectedAthleteLabel")).toBe("atleta seleccionado");
+    expect(translate("logDetailNoSelection")).toBe(
+      "No hay log seleccionado para mostrar detalle."
+    );
     expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
     expect(translate("progressTrendsTitle")).toBe("Tendencias de progreso");
     expect(translate("progressTrendsStatusLabel")).toBe("Tendencias");
@@ -249,6 +418,9 @@ describe("i18n", () => {
     expect(translate("progressTrendsNoData")).toBe(
       "No hay datos de progreso para mostrar tendencias."
     );
+    expect(translate("aiInsightsTitle")).toBe("Insights IA");
+    expect(translate("aiInsightsStatusLabel")).toBe("Insights");
+    expect(translate("aiInsightsLoadAction")).toBe("Cargar insights IA");
     expect(translate("effortMetric")).toBe("Esfuerzo");
     expect(translate("noNutritionFilteredLogs")).toBe(
       "No hay registros nutricionales para este filtro."

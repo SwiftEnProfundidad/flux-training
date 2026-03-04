@@ -2,6 +2,7 @@ export type WebLane = "main" | "secondary";
 
 type AuthStatus =
   | "signed_out"
+  | "signed_in"
   | "loading"
   | "validation_error"
   | "auth_error"
