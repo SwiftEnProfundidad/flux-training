@@ -157,6 +157,7 @@
 - Microcopy de estados de autenticacion normalizado para usuario final (iOS/Web): `signed_out` pasa a mensaje de accion (`inicia sesion` / `sign in required`) y `auth_error` se expresa como fallo de inicio de sesion no tecnico.
 - iOS Today/Entrenamiento ya no renderiza un catalogo continuo: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla de entrenamiento por vez (cockpit, plan, setup, workout, RPE, sustitucion, biblioteca, video, resumen).
 - iOS Progreso ya no renderiza bloque continuo de cards: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (metricas, review semanal, ajuste de objetivo, IA coach).
+- iOS Nutricion ya no renderiza bloque continuo de cards: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (hub nutricional o registro de comida).
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

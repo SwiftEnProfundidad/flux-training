@@ -23,6 +23,7 @@ public struct FluxTrainingProductRootView: View {
   @State private var isOnboardingCompleted = false
   @State private var selectedTrainingStage: TrainingStage = .today
   @State private var selectedProgressStage: ProgressStage = .metrics
+  @State private var selectedNutritionStage: NutritionStage = .hub
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
@@ -321,14 +322,26 @@ public struct FluxTrainingProductRootView: View {
 
   private var nutritionTab: some View {
     NavigationStack {
-      ScrollView {
-        LazyVStack(spacing: 16) {
-          NutritionHubView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          NutritionLogMealView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
+      VStack(spacing: 8) {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 8) {
+            ForEach(NutritionStage.allCases, id: \.self) { stage in
+              Button(stage.title(copy: copy)) {
+                selectedNutritionStage = stage
+              }
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(stage == selectedNutritionStage ? Color.black : Color.white.opacity(0.85))
+              .padding(.horizontal, 12)
+              .padding(.vertical, 8)
+              .background(stage == selectedNutritionStage ? Color.orange : Color.white.opacity(0.10))
+              .clipShape(.rect(cornerRadius: 10))
+              .accessibilityIdentifier("nutrition.stage.\(stage.rawValue)")
+            }
+          }
+          .padding(.horizontal, 16)
+          .padding(.top, 8)
         }
-        .padding(16)
+        selectedNutritionStageView
       }
       .background(backgroundGradient)
       .navigationTitle(copy.text(.nutritionTitle))
@@ -466,6 +479,7 @@ public struct FluxTrainingProductRootView: View {
     authScreen = .welcome
     selectedTrainingStage = .today
     selectedProgressStage = .metrics
+    selectedNutritionStage = .hub
   }
 
   private func syncOnboardingStateWithPersistedProfile() async {
@@ -542,6 +556,20 @@ public struct FluxTrainingProductRootView: View {
       .padding(16)
     }
   }
+
+  @ViewBuilder
+  private var selectedNutritionStageView: some View {
+    switch selectedNutritionStage {
+    case .hub:
+      NutritionHubView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
+        .productCardSurface()
+        .padding(16)
+    case .logMeal:
+      NutritionLogMealView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
+        .productCardSurface()
+        .padding(16)
+    }
+  }
 }
 
 @available(iOS 17, macOS 14, *)
@@ -615,6 +643,21 @@ private enum ProgressStage: String, CaseIterable {
       return copy.text(.goalLabel)
     case .aiCoach:
       return copy.text(.recommendationsTitle)
+    }
+  }
+}
+
+@available(iOS 17, macOS 14, *)
+private enum NutritionStage: String, CaseIterable {
+  case hub
+  case logMeal
+
+  func title(copy: LocalizedCopy) -> String {
+    switch self {
+    case .hub:
+      return copy.text(.nutritionTitle)
+    case .logMeal:
+      return copy.text(.loadLogs)
     }
   }
 }
