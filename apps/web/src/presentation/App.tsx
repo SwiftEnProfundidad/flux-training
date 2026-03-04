@@ -68,7 +68,6 @@ import {
   type DashboardRole
 } from "./dashboard-domains";
 import { createDashboardHomeLaneScreenModel } from "./dashboard-home-lane-contract";
-import { createQuickActionsScreenModel } from "./quick-actions-contract";
 import { createAlertCenterScreenModel } from "./alert-center-contract";
 import { createSystemStatusScreenModel } from "./system-status-contract";
 import {
@@ -76,6 +75,7 @@ import {
   type WebLane
 } from "./access-gate-lane-contract";
 import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
+import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -517,7 +517,8 @@ export function App() {
     webLane === "main" ? "web.accessGate.email" : "web.light.accessGate.email";
   const quickActionsScreenModel = useMemo(
     () =>
-      createQuickActionsScreenModel({
+      createQuickActionsLaneScreenModel({
+        lane: webLane,
         dashboardHomeStatus: dashboardHomeScreenModel.status,
         trainingStatus,
         nutritionStatus,
@@ -531,7 +532,8 @@ export function App() {
       progressStatus,
       recommendationsStatus,
       syncStatus,
-      trainingStatus
+      trainingStatus,
+      webLane
     ]
   );
   const openOperationalAlerts = useMemo(
@@ -2884,7 +2886,7 @@ export function App() {
                 className="module-card"
                 data-screen-id={quickActionsScreenModel.screenId}
                 data-route-id={quickActionsScreenModel.routeId}
-                data-status-id="web.quickActions.status"
+                data-status-id={`${quickActionsScreenModel.screenId}.status`}
               >
                 <SectionHeader
                   title={translate("quickActionsTitle")}
@@ -2898,7 +2900,7 @@ export function App() {
                     <button
                       className="button primary"
                       type="button"
-                      data-action-id="web.quickActions.runAll"
+                      data-action-id={quickActionsScreenModel.actions.runAll}
                       onClick={() => void handleRunQuickActions()}
                       disabled={quickActionsScreenModel.status === "loading"}
                     >
@@ -2907,7 +2909,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.quickActions.refreshDashboard"
+                      data-action-id={quickActionsScreenModel.actions.refreshDashboard}
                       onClick={() => void handleRefreshDashboardHome()}
                       disabled={quickActionsScreenModel.status === "loading"}
                     >
@@ -2918,7 +2920,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.quickActions.loadPlans"
+                      data-action-id={quickActionsScreenModel.actions.loadPlans}
                       onClick={() => void handleLoadPlans()}
                     >
                       {translate("loadPlans")}
@@ -2926,7 +2928,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.quickActions.loadSessions"
+                      data-action-id={quickActionsScreenModel.actions.loadSessions}
                       onClick={() => void handleLoadSessions()}
                     >
                       {translate("loadSessions")}
@@ -2934,7 +2936,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.quickActions.loadRecommendations"
+                      data-action-id={quickActionsScreenModel.actions.loadRecommendations}
                       onClick={() => void handleLoadRecommendations()}
                     >
                       {translate("loadRecommendations")}
