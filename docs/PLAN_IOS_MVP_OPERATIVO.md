@@ -155,5 +155,5 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 ## Estado activo iOS
 - Estado global iOS: **en reconstruccion de fidelidad visual contra `flux.pen`**
 - Runtime de entrada endurecido: `ExperienceHub` en produccion ya no muestra catalogo tecnico (usa `displayMode: .product` y renderiza `FluxTrainingProductRootView`).
-- Task iOS en construccion: **ninguna (en pausa mientras se completa bloque web activo)**
+- Task iOS en construccion: **F5 correctivo de paridad visual/flujo en runtime productivo**
 - Se considera cerrado solo lo que tenga evidencia de runtime y paridad visual, no solo contrato/test.

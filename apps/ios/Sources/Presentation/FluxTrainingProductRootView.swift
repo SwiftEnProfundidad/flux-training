@@ -96,6 +96,9 @@ public struct FluxTrainingProductRootView: View {
       if newValue.hasPrefix("signed_in:") {
         authScreen = .welcome
         onboardingStep = .profile
+        Task {
+          await syncOnboardingStateWithPersistedProfile()
+        }
       } else if newValue == "session_expired" {
         authScreen = .sessionExpired
       } else if newValue == "recovery_sent_sms" {
@@ -104,6 +107,7 @@ public struct FluxTrainingProductRootView: View {
         authScreen = .recover
       } else if newValue == "signed_out" {
         authScreen = .welcome
+        isOnboardingCompleted = false
       }
     }
   }
@@ -465,6 +469,23 @@ public struct FluxTrainingProductRootView: View {
     onboardingStep = .profile
     selectedTab = .today
     authScreen = .welcome
+  }
+
+  private func syncOnboardingStateWithPersistedProfile() async {
+    await accountProfileViewModel.refresh(userID: activeUserID)
+    let onboardingCompleted = OnboardingCompletionStateResolver.isOnboardingCompleted(
+      profileLoadStatus: accountProfileViewModel.status
+    )
+    isOnboardingCompleted = onboardingCompleted
+    guard onboardingCompleted else {
+      onboardingStep = .profile
+      return
+    }
+    onboardingViewModel.displayName = accountProfileViewModel.displayName
+    onboardingViewModel.age = accountProfileViewModel.age
+    onboardingViewModel.heightCm = accountProfileViewModel.heightCm
+    onboardingViewModel.weightKg = accountProfileViewModel.weightKg
+    onboardingViewModel.selectedGoal = accountProfileViewModel.goal
   }
 }
 
