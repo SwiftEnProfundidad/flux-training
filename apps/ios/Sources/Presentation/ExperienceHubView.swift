@@ -1,5 +1,10 @@
 import SwiftUI
 
+public enum ExperienceHubDisplayMode: Sendable, Equatable {
+  case catalog
+  case product
+}
+
 @available(iOS 17, macOS 14, *)
 public struct ExperienceHubView: View {
   private static let defaultOnboardingScreenContract = OnboardingScreenContract()
@@ -45,6 +50,7 @@ public struct ExperienceHubView: View {
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
   private let loadRoleCapabilitiesHandler: @Sendable (ExperienceRole) async -> Set<ExperienceDomain>?
+  private let displayMode: ExperienceHubDisplayMode
 
   public init(
     authViewModel: AuthViewModel,
@@ -63,6 +69,7 @@ public struct ExperienceHubView: View {
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase =
       GenerateAIRecommendationsUseCase(),
     loadRoleCapabilitiesHandler: @escaping @Sendable (ExperienceRole) async -> Set<ExperienceDomain>? = { _ in nil },
+    displayMode: ExperienceHubDisplayMode = .catalog,
     userID: String = "flux-user-local"
   ) {
     _authViewModel = State(initialValue: authViewModel)
@@ -80,6 +87,7 @@ public struct ExperienceHubView: View {
     _observabilityViewModel = State(initialValue: observabilityViewModel)
     self.generateAIRecommendationsUseCase = generateAIRecommendationsUseCase
     self.loadRoleCapabilitiesHandler = loadRoleCapabilitiesHandler
+    self.displayMode = displayMode
     self.userID = userID
   }
 
@@ -99,6 +107,7 @@ public struct ExperienceHubView: View {
       deleteAccountViewModel: CompositionRoot.makeDeleteAccountViewModel(),
       offlineSyncViewModel: CompositionRoot.makeOfflineSyncViewModel(),
       observabilityViewModel: CompositionRoot.makeObservabilityViewModel(),
+      displayMode: .catalog,
       userID: userID
     )
   }
@@ -165,52 +174,72 @@ public struct ExperienceHubView: View {
   }
 
   public var body: some View {
-    TabView {
-      todayTab
-        .tabItem {
-          Label(copy.text(.todayTab), systemImage: "bolt.heart.fill")
-        }
+    Group {
+      if displayMode == .product {
+        FluxTrainingProductRootView(
+          authViewModel: authViewModel,
+          onboardingViewModel: onboardingViewModel,
+          trainingViewModel: trainingViewModel,
+          nutritionViewModel: nutritionViewModel,
+          progressViewModel: progressViewModel,
+          settingsHomeViewModel: settingsHomeViewModel,
+          accountProfileViewModel: accountProfileViewModel,
+          notificationsViewModel: notificationsViewModel,
+          privacyConsentViewModel: privacyConsentViewModel,
+          exportDataViewModel: exportDataViewModel,
+          deleteAccountViewModel: deleteAccountViewModel,
+          generateAIRecommendationsUseCase: generateAIRecommendationsUseCase,
+          userID: userID
+        )
+      } else {
+        TabView {
+          todayTab
+            .tabItem {
+              Label(copy.text(.todayTab), systemImage: "bolt.heart.fill")
+            }
 
-      progressTab
-        .tabItem {
-          Label(copy.text(.progressTab), systemImage: "chart.line.uptrend.xyaxis")
-        }
+          progressTab
+            .tabItem {
+              Label(copy.text(.progressTab), systemImage: "chart.line.uptrend.xyaxis")
+            }
 
-      operationsTab
-        .tabItem {
-          Label(copy.text(.operationsTab), systemImage: "antenna.radiowaves.left.and.right")
+          operationsTab
+            .tabItem {
+              Label(copy.text(.operationsTab), systemImage: "antenna.radiowaves.left.and.right")
+            }
         }
-    }
-    .tint(.orange)
-    .onAppear {
-      hydratePersistedPreferencesIfNeeded()
-    }
-    .onChange(of: sectionShell.activeDomain) { _, newValue in
-      persistedDomainRawValue = newValue.rawValue
-      if !hasTrackedInitialDomainChange {
-        hasTrackedInitialDomainChange = true
-        return
-      }
-      Task {
-        await trackDomainChange(newValue)
-      }
-    }
-    .onChange(of: activeRole) { _, newValue in
-      persistedRoleRawValue = newValue.rawValue
-      activeRoleAllowedDomains = [.all]
-      reconcileRuntimeStateForRole()
-      Task {
-        await loadRoleCapabilities(for: newValue)
-        await trackRoleChange(newValue)
-      }
-    }
-    .onChange(of: authViewModel.authStatus) { _, newValue in
-      guard newValue.hasPrefix("signed_in:") else {
-        return
-      }
-      Task {
-        await loadRoleCapabilities(for: activeRole)
-        await recoverActiveDomainState()
+        .tint(.orange)
+        .onAppear {
+          hydratePersistedPreferencesIfNeeded()
+        }
+        .onChange(of: sectionShell.activeDomain) { _, newValue in
+          persistedDomainRawValue = newValue.rawValue
+          if !hasTrackedInitialDomainChange {
+            hasTrackedInitialDomainChange = true
+            return
+          }
+          Task {
+            await trackDomainChange(newValue)
+          }
+        }
+        .onChange(of: activeRole) { _, newValue in
+          persistedRoleRawValue = newValue.rawValue
+          activeRoleAllowedDomains = [.all]
+          reconcileRuntimeStateForRole()
+          Task {
+            await loadRoleCapabilities(for: newValue)
+            await trackRoleChange(newValue)
+          }
+        }
+        .onChange(of: authViewModel.authStatus) { _, newValue in
+          guard newValue.hasPrefix("signed_in:") else {
+            return
+          }
+          Task {
+            await loadRoleCapabilities(for: activeRole)
+            await recoverActiveDomainState()
+          }
+        }
       }
     }
   }

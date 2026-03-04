@@ -42,6 +42,7 @@ public enum CompositionRoot {
       offlineSyncViewModel: dependencies.offlineSyncViewModel,
       observabilityViewModel: dependencies.observabilityViewModel,
       loadRoleCapabilitiesHandler: dependencies.loadRoleCapabilitiesHandler,
+      displayMode: .product,
       userID: configuration.defaultUserID
     )
   }
