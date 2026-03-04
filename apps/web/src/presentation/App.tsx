@@ -78,6 +78,7 @@ import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
 import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract";
 import { createDashboardKpisScreenModel } from "./dashboard-kpis-contract";
 import { createReadinessMonitorScreenModel } from "./readiness-monitor-contract";
+import { createAlertsFullScreenModel } from "./alerts-full-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -542,6 +543,14 @@ export function App() {
     () => operationalAlerts.filter((alert) => alert.state !== "resolved"),
     [operationalAlerts]
   );
+  const runbookTitleById = useMemo(
+    () =>
+      operationalRunbooks.reduce<Record<string, string>>((acc, runbook) => {
+        acc[runbook.id] = runbook.title;
+        return acc;
+      }, {}),
+    [operationalRunbooks]
+  );
   const dashboardKpisScreenModel = useMemo(
     () =>
       createDashboardKpisScreenModel({
@@ -571,6 +580,21 @@ export function App() {
         authStatus
       }),
     [authStatus, dashboardHomeScreenModel.status, readiness.score]
+  );
+  const alertsFullScreenModel = useMemo(
+    () =>
+      createAlertsFullScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        observabilityStatus,
+        openAlertsCount: openOperationalAlerts.length,
+        runbooksCount: operationalRunbooks.length
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      observabilityStatus,
+      openOperationalAlerts.length,
+      operationalRunbooks.length
+    ]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -2567,6 +2591,10 @@ export function App() {
     await handleRefreshDashboardHome();
   }
 
+  async function handleRefreshAlertsFull() {
+    await Promise.all([handleRefreshAlertCenter(), handleLoadAuditTimeline()]);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -3196,6 +3224,89 @@ export function App() {
                   >
                     {translate("readinessMonitorRefreshAction")}
                   </button>
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={alertsFullScreenModel.screenId}
+                data-route-id={alertsFullScreenModel.routeId}
+                data-status-id="web.alertsFull.status"
+              >
+                <SectionHeader
+                  title={translate("alertsFullTitle")}
+                  status={alertsFullScreenModel.status}
+                  statusLabel={translate("alertsFullStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("alertsFullSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("alertCenterOpenCountLabel")}
+                      value={String(openOperationalAlerts.length)}
+                    />
+                    <Metric
+                      title={translate("alertCenterRunbooksLabel")}
+                      value={String(operationalRunbooks.length)}
+                    />
+                    <Metric
+                      title={translate("auditActivityLogLabel")}
+                      value={String(activityLogEntries.length)}
+                    />
+                    <Metric
+                      title={translate("alertCenterHighSeverityLabel")}
+                      value={String(
+                        openOperationalAlerts.filter((alert) => alert.severity === "critical")
+                          .length
+                      )}
+                    />
+                  </div>
+                  <div className="inline-inputs">
+                    <button
+                      className="button primary"
+                      type="button"
+                      data-action-id="web.alertsFull.refresh"
+                      onClick={() => void handleRefreshAlertsFull()}
+                    >
+                      {translate("alertsFullRefreshAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.alertsFull.audit"
+                      onClick={() => void handleLoadAuditTimeline()}
+                    >
+                      {translate("alertsFullAuditAction")}
+                    </button>
+                  </div>
+                  {openOperationalAlerts.length === 0 ? (
+                    <p className="empty-state">{translate("alertsFullNoAlerts")}</p>
+                  ) : (
+                    <div className="dense-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>{translate("auditDateColumn")}</th>
+                            <th>{translate("auditSeverityColumn")}</th>
+                            <th>{translate("alertsFullCodeLabel")}</th>
+                            <th>{translate("alertsFullRunbookLabel")}</th>
+                            <th>{translate("auditSummaryColumn")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {openOperationalAlerts.slice(0, 6).map((alert) => (
+                            <tr key={alert.id}>
+                              <td>{new Date(alert.triggeredAt).toLocaleString()}</td>
+                              <td>{toHumanStatus(alert.severity, language)}</td>
+                              <td>{alert.code}</td>
+                              <td>{runbookTitleById[alert.runbookId] ?? alert.runbookId}</td>
+                              <td>{alert.summary}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </article>
               {visibleModulesForDomain.length === 0 ? (

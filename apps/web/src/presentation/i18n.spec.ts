@@ -52,6 +52,13 @@ describe("i18n", () => {
     expect(translate("readinessMonitorStatusLabel")).toBe("Readiness");
     expect(translate("readinessMonitorScoreLabel")).toBe("Score");
     expect(translate("readinessMonitorRefreshAction")).toBe("Refresh readiness");
+    expect(translate("alertsFullTitle")).toBe("Alerts full");
+    expect(translate("alertsFullStatusLabel")).toBe("Alerts full");
+    expect(translate("alertsFullRefreshAction")).toBe("Refresh alerts full");
+    expect(translate("alertsFullAuditAction")).toBe("View audit timeline");
+    expect(translate("alertsFullNoAlerts")).toBe("No open alerts for this domain.");
+    expect(translate("alertsFullCodeLabel")).toBe("Code");
+    expect(translate("alertsFullRunbookLabel")).toBe("Runbook");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -144,6 +151,13 @@ describe("i18n", () => {
     expect(translate("readinessMonitorStatusLabel")).toBe("Readiness");
     expect(translate("readinessMonitorScoreLabel")).toBe("Score");
     expect(translate("readinessMonitorRefreshAction")).toBe("Refrescar readiness");
+    expect(translate("alertsFullTitle")).toBe("Alerts full");
+    expect(translate("alertsFullStatusLabel")).toBe("Alerts full");
+    expect(translate("alertsFullRefreshAction")).toBe("Refrescar alerts full");
+    expect(translate("alertsFullAuditAction")).toBe("Ver timeline audit");
+    expect(translate("alertsFullNoAlerts")).toBe("No hay alertas abiertas para este dominio.");
+    expect(translate("alertsFullCodeLabel")).toBe("Codigo");
+    expect(translate("alertsFullRunbookLabel")).toBe("Runbook");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");

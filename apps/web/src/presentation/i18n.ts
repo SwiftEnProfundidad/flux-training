@@ -296,6 +296,19 @@ type AppTranslations = {
   dashboardKpisStatusLabel: string;
   dashboardKpisSummary: string;
   dashboardKpisRefreshAction: string;
+  readinessMonitorTitle: string;
+  readinessMonitorStatusLabel: string;
+  readinessMonitorSummary: string;
+  readinessMonitorScoreLabel: string;
+  readinessMonitorRefreshAction: string;
+  alertsFullTitle: string;
+  alertsFullStatusLabel: string;
+  alertsFullSummary: string;
+  alertsFullRefreshAction: string;
+  alertsFullAuditAction: string;
+  alertsFullNoAlerts: string;
+  alertsFullCodeLabel: string;
+  alertsFullRunbookLabel: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -610,6 +623,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     dashboardKpisStatusLabel: "KPIs",
     dashboardKpisSummary: "Resumen compacto de cobertura operativa para seguimiento diario.",
     dashboardKpisRefreshAction: "Refrescar KPIs",
+    readinessMonitorTitle: "Readiness monitor",
+    readinessMonitorStatusLabel: "Readiness",
+    readinessMonitorSummary: "Monitor de preparacion diaria con score, auth y cola activa.",
+    readinessMonitorScoreLabel: "Score",
+    readinessMonitorRefreshAction: "Refrescar readiness",
+    alertsFullTitle: "Alerts full",
+    alertsFullStatusLabel: "Alerts full",
+    alertsFullSummary:
+      "Vista extendida de alertas operativas con runbook asociado y trazabilidad temporal.",
+    alertsFullRefreshAction: "Refrescar alerts full",
+    alertsFullAuditAction: "Ver timeline audit",
+    alertsFullNoAlerts: "No hay alertas abiertas para este dominio.",
+    alertsFullCodeLabel: "Codigo",
+    alertsFullRunbookLabel: "Runbook",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -922,6 +949,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     dashboardKpisStatusLabel: "KPIs",
     dashboardKpisSummary: "Compact operational coverage summary for day-to-day tracking.",
     dashboardKpisRefreshAction: "Refresh KPIs",
+    readinessMonitorTitle: "Readiness monitor",
+    readinessMonitorStatusLabel: "Readiness",
+    readinessMonitorSummary: "Daily readiness monitor with score, auth and active queue.",
+    readinessMonitorScoreLabel: "Score",
+    readinessMonitorRefreshAction: "Refresh readiness",
+    alertsFullTitle: "Alerts full",
+    alertsFullStatusLabel: "Alerts full",
+    alertsFullSummary:
+      "Extended operational alerts view with linked runbook and timeline traceability.",
+    alertsFullRefreshAction: "Refresh alerts full",
+    alertsFullAuditAction: "View audit timeline",
+    alertsFullNoAlerts: "No open alerts for this domain.",
+    alertsFullCodeLabel: "Code",
+    alertsFullRunbookLabel: "Runbook",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:
