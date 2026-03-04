@@ -140,8 +140,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 3.10.2 | IOS-L-210_LOG_MEAL | `mNfTu` | ✅ | `todayTab -> nutrition.route.logMealLight -> nutrition.logMeal.light.screen` | `CreateNutritionLogUseCase` (repositorio real/configurado) | Guardar comida light (`nutrition.logMeal.save`) | loading|error|saved|validation_error|denied|offline | ✅ `NutritionViewModelTests` + `NutritionRouteContractTests` | ✅ ruta+pantalla instrumentadas (`nutrition.route.logMealLight`, `nutrition.logMeal.light.screen`) |
 | 3.10.3 | IOS-L-220_PROGRESS_METRICS | `zMn7o` | ✅ | `todayTab -> progress.route.metricsLight -> progress.metrics.light.screen` | `BuildProgressSummaryUseCase` (repositorios reales/configurados) | Cargar metricas light (`progress.metrics.load`) | loading|empty|error|loaded|validation_error|denied|offline | ✅ `ProgressViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.metricsLight`, `progress.metrics.light.screen`) |
 | 3.10.4 | IOS-L-230_GOAL_ADJUST | `4ShGc` | ✅ | `todayTab -> progress.route.goalAdjustLight -> progress.goalAdjust.light.screen` | `OnboardingViewModel.saveGoalSetup` (estado real y validacion) | Ajustar objetivo light (`progress.goalAdjust.save`) | loading|validation_error|success|denied|offline | ✅ `OnboardingViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.goalAdjustLight`, `progress.goalAdjust.light.screen`) |
-| 3.10.5 | IOS-L-240_AI_COACH | `fhGwk` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 3.10.6 | IOS-L-250_WEEKLY_REVIEW | `P4ISc` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 3.10.5 | IOS-L-240_AI_COACH | `fhGwk` | ✅ | `todayTab -> progress.route.aiCoachLight -> progress.aiCoach.light.screen` | `GenerateAIRecommendationsUseCase.execute` (datos reales derivados de onboarding/training/sync) | Cargar recomendaciones IA light (`progress.aiCoach.load`) | loading|empty|error|loaded|denied|offline | ✅ `GenerateAIRecommendationsUseCaseTests` + `ProgressRouteContractTests` + `NutritionProgressAIScreenContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.aiCoachLight`, `progress.aiCoach.light.screen`) |
+| 3.10.6 | IOS-L-250_WEEKLY_REVIEW | `P4ISc` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
 ### Task 3.11 — iOS — Today + Entrenamiento + Sesión / IOS_TRAINING_DARK_LANE
 - Total pantallas en este bloque: **6**
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **3.10.5 IOS-L-240_AI_COACH**
-- Siguiente task: **3.10.6 IOS-L-250_WEEKLY_REVIEW**
+- Task en construccion: **3.10.6 IOS-L-250_WEEKLY_REVIEW**
+- Siguiente task: **3.11.1 IOS-D-100_TODAY_COCKPIT**
