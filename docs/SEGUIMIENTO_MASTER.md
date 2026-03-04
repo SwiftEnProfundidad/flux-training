@@ -15,7 +15,7 @@
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
 - Estado actual iOS: **⏳ en pausa temporal** mientras se cierra el bloque web activo.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
-- Estado actual global: **🚧 F5 QA funcional E2E iOS/Web/Backend**.
+- Estado actual global: **🚧 F5 Paridad final Pencil -> Codigo**.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.
@@ -143,6 +143,7 @@
 - `WEB-410_EXERCISE_DETAIL` ya esta operativo con ruta/pantalla propias (`web.route.exerciseDetail -> web.exerciseDetail.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de detalle (`web.exerciseDetail.loadDetail`, `web.exerciseDetail.selectVideo`, `web.exerciseDetail.clearSelection`, `web.exerciseDetail.openVideo`) sobre seleccion real de video activo.
 - `WEB-340_PLAN_TEMPLATES` ya esta operativo con ruta/pantalla propias (`web.route.light.planTemplates -> web.light.planTemplates.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de plantillas (`web.light.planTemplates.loadTemplates`, `web.light.planTemplates.selectTemplate`, `web.light.planTemplates.applyTemplate`, `web.light.planTemplates.clearSelection`) aplicadas al constructor de plan real.
 - `WEB-350_PUBLISH_REVIEW` ya esta operativo con ruta/pantalla propias (`web.route.light.publishReview -> web.light.publishReview.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de publicacion (`web.light.publishReview.previewPlan`, `web.light.publishReview.runChecklist`, `web.light.publishReview.publishPlan`, `web.light.publishReview.clearReview`) con checklist operativo y evento de release.
+- QA E2E ejecutado y en verde: `pnpm -r test` (contracts/backend/web) + `swift test` (iOS) sin fallos.
 - Runtime web+iOS endurecido contra comportamiento demo: se eliminaron fallback locales de autenticacion (`apple-local-dev-token` y tokens sinteticos), se retiraron defaults `demo-user` en runtime productivo y se fijo backend cloud como target por defecto para ejecucion productiva.
 
 ## Decisiones activas
@@ -168,7 +169,8 @@ Planes activos:
 | Fase 2 | Errores observables (codigos + correlationId) | ✅ |
 | Fase 3 | iOS pantalla a pantalla (fidelidad real contra Pencil) | ⏳ |
 | Fase 4 | Web pantalla a pantalla (fidelidad real contra Pencil) | ✅ |
-| Fase 5 | QA funcional E2E iOS/Web/Backend | 🚧 |
+| Fase 5 | QA funcional E2E iOS/Web/Backend | ✅ |
+| Fase 5 | Paridad final Pencil -> Codigo | 🚧 |
 
 ## Regla de operacion
 - Solo una task en `🚧`.

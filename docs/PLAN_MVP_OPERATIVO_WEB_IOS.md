@@ -28,11 +28,11 @@ Orquestar la entrega del MVP operativo real con tracking separado por plataforma
 | F2 | RBAC por endpoint y dominio | ✅ | Permisos consistentes por rol |
 | F2 | Persistencia real (Firestore) sin in-memory | ✅ | Datos durables end-to-end |
 | F2 | Errores observables (codigos + correlationId) | ✅ | Debug y soporte operativos |
-| F5 | QA funcional E2E iOS/Web/Backend | 🚧 | Flujos completos sin roturas |
-| F5 | Paridad final Pencil -> Codigo | ⏳ | 121/121 pantallas funcionales y trazables |
+| F5 | QA funcional E2E iOS/Web/Backend | ✅ | Flujos completos sin roturas |
+| F5 | Paridad final Pencil -> Codigo | 🚧 | 121/121 pantallas funcionales y trazables |
 | F5 | Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo global
 - iOS: sin task en construccion (66/66 en ✅)
 - Web: `✅ 55/55 pantallas en operativo`
-- Siguiente global: `🚧 F5 QA funcional E2E iOS/Web/Backend`
+- Siguiente global: `🚧 F5 Paridad final Pencil -> Codigo`
