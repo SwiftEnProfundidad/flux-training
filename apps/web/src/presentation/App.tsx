@@ -1,4 +1,4 @@
-import { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   AccessRole,
   ActivityLogEntry,
@@ -559,9 +559,43 @@ export function App() {
     { id: "coach", label: translate("roleCoach") },
     { id: "admin", label: translate("roleAdmin") }
   ];
-  const visibleModulesForDomain = useMemo(() => getVisibleModules(activeDomain), [activeDomain]);
+  const normalizeDomainForMode = useCallback(
+    (domain: DashboardDomain): DashboardDomain => {
+      if (isQAMode) {
+        return domain;
+      }
+      if (
+        domain === "onboarding" ||
+        domain === "training" ||
+        domain === "nutrition" ||
+        domain === "progress"
+      ) {
+        return domain;
+      }
+      return "onboarding";
+    },
+    [isQAMode]
+  );
+  const activeDomainForUI = normalizeDomainForMode(activeDomain);
+  const domainTabsForUI = useMemo(
+    () =>
+      isQAMode
+        ? domainTabs
+        : domainTabs.filter(
+            (tab) =>
+              tab.id === "onboarding" ||
+              tab.id === "training" ||
+              tab.id === "nutrition" ||
+              tab.id === "progress"
+          ),
+    [domainTabs, isQAMode]
+  );
+  const visibleModulesForDomain = useMemo(
+    () => getVisibleModules(activeDomainForUI),
+    [activeDomainForUI]
+  );
   const activeDomainRuntimeState = resolveActiveDomainRuntimeState(
-    activeDomain,
+    activeDomainForUI,
     domainRuntimeStates
   );
   const runtimeStateForUI: EnterpriseRuntimeState = isQAMode ? activeDomainRuntimeState : "success";
@@ -572,12 +606,12 @@ export function App() {
       createDashboardHomeLaneScreenModel({
         lane: webLane,
         hasAuthenticatedSession,
-        activeDomain,
+        activeDomain: activeDomainForUI,
         activeDomainRuntimeState: effectiveDashboardHomeRuntimeState,
         visibleModulesCount: visibleModulesForDomain.length
       }),
     [
-      activeDomain,
+      activeDomainForUI,
       effectiveDashboardHomeRuntimeState,
       hasAuthenticatedSession,
       visibleModulesForDomain.length,
@@ -1749,7 +1783,7 @@ export function App() {
     if (dashboardHomeRuntimeStateOverride !== null) {
       setDashboardHomeRuntimeStateOverride(null);
     }
-    if (activeDomain === "all") {
+    if (activeDomain === "all" || activeDomain === "operations") {
       setActiveDomain("onboarding");
     }
     setDomainRuntimeStates(createInitialDomainRuntimeStates());
@@ -1772,14 +1806,14 @@ export function App() {
     function handlePopState(): void {
       const domainFromURL = readDashboardDomainFromURL(window.location.href);
       if (domainFromURL !== null) {
-        setActiveDomain(domainFromURL);
+        setActiveDomain(normalizeDomainForMode(domainFromURL));
       }
     }
     window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, []);
+  }, [normalizeDomainForMode]);
 
   useEffect(() => {
     if (nutritionLogOptionRows.length === 0) {
@@ -3214,7 +3248,7 @@ export function App() {
     setSelectedAthleteIds([selectedNutritionLog.userId]);
     setAthleteSearch(selectedNutritionLog.userId);
     setAthleteSortMode("sessions");
-    setActiveDomain("operations");
+    setActiveDomain(isQAMode ? "operations" : "progress");
   }
 
   function handleFocusNutritionCoachAtRisk() {
@@ -3226,12 +3260,12 @@ export function App() {
     setSelectedAthleteIds([firstAtRiskAthlete.athleteId]);
     setAthleteSearch(firstAtRiskAthlete.athleteId);
     setAthleteSortMode("sessions");
-    setActiveDomain("operations");
+    setActiveDomain(isQAMode ? "operations" : "progress");
   }
 
   function handleOpenNutritionCoachOperations() {
     setAthleteSortMode("sessions");
-    setActiveDomain("operations");
+    setActiveDomain(isQAMode ? "operations" : "progress");
   }
 
   function handleFocusHighestNutritionRisk() {
@@ -3245,7 +3279,7 @@ export function App() {
     setSelectedAthleteIds([highestRiskRow.athleteId]);
     setAthleteSearch(highestRiskRow.athleteId);
     setAthleteSortMode("sessions");
-    setActiveDomain("operations");
+    setActiveDomain(isQAMode ? "operations" : "progress");
   }
 
   function handleClearProgressFilters() {
@@ -3704,12 +3738,13 @@ export function App() {
   }
 
   function handleDomainSelection(domain: DashboardDomain) {
-    setActiveDomain(domain);
-    if (domain === "all") {
+    const nextDomain = normalizeDomainForMode(domain);
+    setActiveDomain(nextDomain);
+    if (nextDomain === "all") {
       return;
     }
     const accessDecision = resolveDomainAccessDecision(
-      domain,
+      nextDomain,
       roleCapabilitiesStatus,
       roleCapabilities
     );
@@ -3718,27 +3753,27 @@ export function App() {
     }
     if (accessDecision === "pending") {
       setDomainRuntimeStates((currentStates) =>
-        setRuntimeStateForActiveDomain(domain, "loading", currentStates)
+        setRuntimeStateForActiveDomain(nextDomain, "loading", currentStates)
       );
       return;
     }
     if (accessDecision === "error") {
       setDomainRuntimeStates((currentStates) =>
-        setRuntimeStateForActiveDomain(domain, "error", currentStates)
+        setRuntimeStateForActiveDomain(nextDomain, "error", currentStates)
       );
       return;
     }
     if (accessDecision === "denied") {
       setDomainRuntimeStates((currentStates) =>
-        setRuntimeStateForActiveDomain(domain, "denied", currentStates)
+        setRuntimeStateForActiveDomain(nextDomain, "denied", currentStates)
       );
       const correlationId = nextCorrelationId(
         runtimeObservabilitySessionRef.current,
-        domain,
+        nextDomain,
         "domain_select"
       );
-      void trackDeniedDomainAccess(domain, "domain_select", correlationId);
-      void trackBlockedAction(domain, "domain_select", "domain_denied", correlationId);
+      void trackDeniedDomainAccess(nextDomain, "domain_select", correlationId);
+      void trackBlockedAction(nextDomain, "domain_select", "domain_denied", correlationId);
     }
   }
 
@@ -4071,21 +4106,21 @@ export function App() {
         {hasAuthenticatedSession || isQAMode ? (
           <section className="domain-filter-card">
             <p className="domain-filter-label">
-              {isQAMode ? translate("domainFilterLabel") : language === "es" ? "Secciones" : "Sections"}
+              {translate("domainFilterLabel")}
             </p>
             <div
               className="domain-filter-tabs"
               role="tablist"
-              aria-label={isQAMode ? translate("domainFilterLabel") : language === "es" ? "Secciones" : "Sections"}
+              aria-label={translate("domainFilterLabel")}
             >
-              {domainTabs.map((tab) => (
+              {domainTabsForUI.map((tab) => (
                 <button
                   key={tab.id}
-                  className={`button ghost domain-tab ${activeDomain === tab.id ? "active" : ""}`}
+                  className={`button ghost domain-tab ${activeDomainForUI === tab.id ? "active" : ""}`}
                   onClick={() => handleDomainSelection(tab.id)}
                   type="button"
                   role="tab"
-                  aria-selected={activeDomain === tab.id}
+                  aria-selected={activeDomainForUI === tab.id}
                   aria-controls="dashboard-grid"
                 >
                   {tab.label}
@@ -4741,7 +4776,7 @@ export function App() {
                       value={String(visibleModulesForDomain.length)}
                     />
                     <Metric title={translate("roleLabel")} value={activeRole} />
-                    <Metric title={translate("domainFilterLabel")} value={activeDomain} />
+                    <Metric title={translate("domainFilterLabel")} value={activeDomainForUI} />
                     <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
                   </div>
                   <div className="inline-inputs">
@@ -4861,7 +4896,7 @@ export function App() {
               ) : null}
                 </>
               ) : null}
-          {isModuleVisible("onboarding", activeDomain) ? (
+          {isModuleVisible("onboarding", activeDomainForUI) ? (
             <article className="module-card">
             <SectionHeader
               title={translate("onboardingSectionTitle")}
@@ -4969,7 +5004,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("training", activeDomain) ? (
+          {isModuleVisible("training", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={plansListScreenModel.screenId}
@@ -5597,7 +5632,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("operationsHub", activeDomain) ? (
+          {isModuleVisible("operationsHub", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={athletesListScreenModel.screenId}
@@ -6017,7 +6052,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("adminGovernance", activeDomain) ? (
+          {isModuleVisible("adminGovernance", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={adminUsersScreenModel.screenId}
@@ -6199,7 +6234,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("auditCompliance", activeDomain) ? (
+          {isModuleVisible("auditCompliance", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={auditTrailScreenModel.screenId}
@@ -6389,7 +6424,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("billingSupport", activeDomain) ? (
+          {isModuleVisible("billingSupport", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={billingOverviewScreenModel.screenId}
@@ -6673,7 +6708,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("recommendations", activeDomain) ? (
+          {isModuleVisible("recommendations", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={aiInsightsScreenModel.screenId}
@@ -6754,7 +6789,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("nutrition", activeDomain) ? (
+          {isModuleVisible("nutrition", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={nutritionOverviewScreenModel.screenId}
@@ -7212,7 +7247,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("progress", activeDomain) ? (
+          {isModuleVisible("progress", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={progressTrendsScreenModel.screenId}
@@ -7329,7 +7364,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("offlineSync", activeDomain) ? (
+          {isModuleVisible("offlineSync", activeDomainForUI) ? (
             <article className="module-card">
             <SectionHeader
               title={translate("offlineSyncTitle")}
@@ -7385,7 +7420,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("settings", activeDomain) ? (
+          {isModuleVisible("settings", activeDomainForUI) ? (
             <article className="module-card">
             <SectionHeader
               title={translate("settingsTitle")}
@@ -7425,7 +7460,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("legal", activeDomain) ? (
+          {isModuleVisible("legal", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={legalComplianceScreenModel.screenId}
@@ -7474,7 +7509,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisible("observability", activeDomain) ? (
+          {isModuleVisible("observability", activeDomainForUI) ? (
             <article
               className="module-card"
               data-screen-id={analyticsOverviewScreenModel.screenId}
