@@ -151,6 +151,7 @@
 - Web product mode alineado a UX final: normalizacion dura de dominio (`all/operations -> onboarding`) y render de modulos sobre dominio normalizado para evitar exposicion de bloques internos en runtime de usuario final.
 - iOS endurecido contra entrada accidental a catalogo tecnico: `ExperienceHubView` ahora inicializa por defecto en `displayMode: .product` para priorizar flujo de usuario final.
 - iOS flujo productivo mejorado: tabs `Today/Progreso/Nutricion` en `FluxTrainingProductRootView` migradas de `List + NavigationLink` a `ScrollView` con pantallas embebidas para reducir apariencia de catalogo tecnico.
+- Web flujo productivo simplificado: se oculta el selector de dominio en runtime usuario y se usa un set fijo de modulos de producto (sin `operations/admin/audit/billing/observability`) fuera de QA.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
