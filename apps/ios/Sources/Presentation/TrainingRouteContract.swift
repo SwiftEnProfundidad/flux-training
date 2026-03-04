@@ -7,6 +7,8 @@ public enum TrainingRouteContract {
   public static let planActiveDarkScreenID = "training.planActive.screen"
   public static let workoutActiveDarkRouteID = "training.route.workoutActive"
   public static let workoutActiveDarkScreenID = "training.workoutActive.screen"
+  public static let sessionSummaryDarkRouteID = "training.route.sessionSummary"
+  public static let sessionSummaryDarkScreenID = "training.sessionSummary.screen"
   public static let inWorkoutSetupDarkRouteID = "training.route.inWorkoutSetup"
   public static let inWorkoutSetupDarkScreenID = "training.inWorkoutSetup.screen"
   public static let rpeRatingDarkRouteID = "training.route.rpeRating"
@@ -24,6 +26,8 @@ public enum TrainingRouteContract {
   public static let planActiveLightScreenID = "training.planActive.light.screen"
   public static let workoutActiveLightRouteID = "training.route.workoutActiveLight"
   public static let workoutActiveLightScreenID = "training.workoutActive.light.screen"
+  public static let sessionSummaryLightRouteID = "training.route.sessionSummaryLight"
+  public static let sessionSummaryLightScreenID = "training.sessionSummary.light.screen"
   public static let inWorkoutSetupLightRouteID = "training.route.inWorkoutSetupLight"
   public static let inWorkoutSetupLightScreenID = "training.inWorkoutSetup.light.screen"
   public static let rpeRatingLightRouteID = "training.route.rpeRatingLight"
@@ -41,6 +45,8 @@ public enum TrainingRouteContract {
   public static let planActiveScreenID = planActiveDarkScreenID
   public static let workoutActiveRouteID = workoutActiveDarkRouteID
   public static let workoutActiveScreenID = workoutActiveDarkScreenID
+  public static let sessionSummaryRouteID = sessionSummaryDarkRouteID
+  public static let sessionSummaryScreenID = sessionSummaryDarkScreenID
   public static let inWorkoutSetupRouteID = inWorkoutSetupDarkRouteID
   public static let inWorkoutSetupScreenID = inWorkoutSetupDarkScreenID
   public static let rpeRatingRouteID = rpeRatingDarkRouteID
