@@ -76,7 +76,7 @@ import {
 } from "./access-gate-lane-contract";
 import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
 import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract";
-import { createDashboardKpisScreenModel } from "./dashboard-kpis-contract";
+import { createDashboardKpisLaneScreenModel } from "./dashboard-kpis-lane-contract";
 import { createReadinessMonitorScreenModel } from "./readiness-monitor-contract";
 import { createAlertsFullScreenModel } from "./alerts-full-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
@@ -562,7 +562,8 @@ export function App() {
   );
   const dashboardKpisScreenModel = useMemo(
     () =>
-      createDashboardKpisScreenModel({
+      createDashboardKpisLaneScreenModel({
+        lane: webLane,
         dashboardHomeStatus: dashboardHomeScreenModel.status,
         plansCount: plans.length,
         sessionsCount: sessions.length,
@@ -578,7 +579,8 @@ export function App() {
       pendingQueueCount,
       plans.length,
       recommendations.length,
-      sessions.length
+      sessions.length,
+      webLane
     ]
   );
   const readinessMonitorScreenModel = useMemo(
@@ -3190,7 +3192,7 @@ export function App() {
                 className="module-card"
                 data-screen-id={dashboardKpisScreenModel.screenId}
                 data-route-id={dashboardKpisScreenModel.routeId}
-                data-status-id="web.dashboardKpis.status"
+                data-status-id={`${dashboardKpisScreenModel.screenId}.status`}
               >
                 <SectionHeader
                   title={translate("dashboardKpisTitle")}
@@ -3217,7 +3219,7 @@ export function App() {
                   <button
                     className="button ghost"
                     type="button"
-                    data-action-id="web.dashboardKpis.refresh"
+                    data-action-id={dashboardKpisScreenModel.actions.refresh}
                     onClick={() => void handleRefreshDashboardKpis()}
                     disabled={dashboardKpisScreenModel.status === "loading"}
                   >
