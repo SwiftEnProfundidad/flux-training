@@ -7,9 +7,14 @@
 - ⛔ Bloqueado
 
 ## Estado global
-- Se mantiene un unico plan activo y detallado para llevar el producto a estado operativo real.
+- Se mantiene un plan maestro de orquestacion y dos planes canonicos por plataforma (iOS/Web) para llevar el producto a estado operativo real.
 - Objetivo actual: MVP web+iOS usable end-to-end, sin fallback demo, con paridad funcional contra `flux.pen`.
 - El plan activo esta en formato pantalla a pantalla (121 subtasks trazables).
+
+## Correccion de estado real (2026-03-04)
+- Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
+- Estado actual iOS: **⏳ en pausa temporal** mientras se cierra el bloque web activo.
+- Estado actual web: **🚧 WEB-410_EXERCISE_DETAIL** en implementacion pantalla a pantalla dentro de `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.
@@ -105,6 +110,35 @@
 - `WEB-500_ANALYTICS_OVERVIEW` ya esta operativo con pantalla dedicada (`web.route.analyticsOverview -> web.analyticsOverview.screen`) y acciones instrumentadas de analitica (`web.analyticsOverview.trackEvent`, `web.analyticsOverview.reportCrash`, `web.analyticsOverview.loadData`) sobre observabilidad real.
 - `WEB-510_PROGRESS_TRENDS` ya esta operativo con pantalla dedicada (`web.route.progressTrends -> web.progressTrends.screen`) y refresco real (`web.progressTrends.refresh`) para seguimiento temporal de sesiones/minutos/series/esfuerzo.
 - `WEB-520_COHORT_ANALYSIS` ya esta operativo con pantalla dedicada (`web.route.cohortAnalysis -> web.cohortAnalysis.screen`) y refresco real (`web.cohortAnalysis.refresh`) para segmentacion de cohorte por riesgo, volumen y cobertura de plan/sesion/nutricion.
+- `WEB-600_AI_INSIGHTS` ya esta operativo con pantalla dedicada (`web.route.aiInsights -> web.aiInsights.screen`), estados canonicos `loading|empty|error|success|denied|offline` y acciones reales (`web.aiInsights.loadRecommendations`, `web.aiInsights.refreshSignals`) conectadas a recomendaciones y señales operativas.
+- `WEB-700_ADMIN_USERS` ya esta operativo con pantalla dedicada (`web.route.adminUsers -> web.adminUsers.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de gobernanza (`web.adminUsers.loadCapabilities`, `web.adminUsers.assignAthlete`, `web.adminUsers.assignCoach`, `web.adminUsers.assignAdmin`, `web.adminUsers.clearSelection`).
+- `WEB-710_AUDIT_TRAIL` ya esta operativo con pantalla dedicada (`web.route.auditTrail -> web.auditTrail.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de auditoria (`web.auditTrail.loadTimeline`, `web.auditTrail.exportCsv`, `web.auditTrail.exportForensic`, `web.auditTrail.clearFilters`).
+- `WEB-730_BILLING_OVERVIEW` ya esta operativo con pantalla dedicada (`web.route.billingOverview -> web.billingOverview.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de billing (`web.billingOverview.loadData`, `web.billingOverview.resolveSelected`, `web.billingOverview.clearSelection`, `web.billingOverview.clearFilters`).
+- `WEB-740_SUPPORT_INCIDENTS` ya esta operativo con pantalla dedicada (`web.route.supportIncidents -> web.supportIncidents.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de incidencias (`web.supportIncidents.loadData`, `web.supportIncidents.resolveSelected`, `web.supportIncidents.clearSelection`, `web.supportIncidents.clearFilters`).
+- `WEB-800_LEGAL_COMPLIANCE` ya esta operativo con pantalla dedicada (`web.route.legalCompliance -> web.legalCompliance.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de cumplimiento (`web.legalCompliance.saveConsent`, `web.legalCompliance.exportData`, `web.legalCompliance.requestDeletion`) sobre `ManageLegalUseCase`.
+- `WEB-100_ATHLETES_LIST` ya esta operativo con pantalla dedicada (`web.route.athletesList -> web.athletesList.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de operacion (`web.athletesList.assignStarterPlan`, `web.athletesList.clearSelection`, `web.athletesList.showMoreRows`, `web.athletesList.showAllRows`) sobre la tabla densa de atletas.
+- `WEB-110_ATHLETE_FILTERS` ya esta operativo con pantalla dedicada (`web.route.athleteFilters -> web.athleteFilters.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de filtro (`web.athleteFilters.updateSearch`, `web.athleteFilters.updateSort`) sobre la lista densa de atletas.
+- `WEB-120_ATHLETE_DETAIL` ya esta operativo con pantalla dedicada (`web.route.athleteDetail -> web.athleteDetail.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de detalle (`web.athleteDetail.selectFirstAthlete`, `web.athleteDetail.openSessionHistory`, `web.athleteDetail.clearSelection`) sobre seleccion real de atleta.
+- `WEB-130_SESSION_HISTORY` ya esta operativo con pantalla dedicada (`web.route.sessionHistory -> web.sessionHistory.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de historial (`web.sessionHistory.loadSessions`, `web.sessionHistory.selectFirstAthlete`, `web.sessionHistory.clearSelection`) sobre sesiones reales filtradas por atleta seleccionado.
+- `WEB-140_COMPARE_PROGRESS` ya esta operativo con pantalla dedicada (`web.route.compareProgress -> web.compareProgress.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de comparativa (`web.compareProgress.loadProgress`, `web.compareProgress.selectFirstAthlete`, `web.compareProgress.openSessionHistory`) con delta real atleta vs cohorte.
+- `WEB-150_COACH_NOTES` ya esta operativo con pantalla dedicada (`web.route.coachNotes -> web.coachNotes.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de seguimiento (`web.coachNotes.loadNotes`, `web.coachNotes.saveFollowUp`, `web.coachNotes.clearSelection`) sobre sesiones + activity log por atleta.
+- `WEB-L-100_ATHLETES_LIST` ya esta operativo como variante light con ruta/pantalla propias (`web.route.light.athletesList -> web.light.athletesList.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de operacion (`web.light.athletesList.assignStarterPlan`, `web.light.athletesList.clearSelection`, `web.light.athletesList.showMoreRows`, `web.light.athletesList.showAllRows`).
+- `WEB-L-110_FILTERS` ya esta operativo como variante light con ruta/pantalla propias (`web.route.light.athleteFilters -> web.light.athleteFilters.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de filtros (`web.light.athleteFilters.updateSearch`, `web.light.athleteFilters.updateSort`).
+- `WEB-L-120_ATHLETE_DETAIL` ya esta operativo como variante light con ruta/pantalla propias (`web.route.light.athleteDetail -> web.light.athleteDetail.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de detalle (`web.light.athleteDetail.selectFirstAthlete`, `web.light.athleteDetail.openSessionHistory`, `web.light.athleteDetail.clearSelection`).
+- `WEB-L-130_SESSION_HISTORY` ya esta operativo como variante light con ruta/pantalla propias (`web.route.light.sessionHistory -> web.light.sessionHistory.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de historial (`web.light.sessionHistory.loadSessions`, `web.light.sessionHistory.selectFirstAthlete`, `web.light.sessionHistory.clearSelection`) sobre sesiones reales filtradas por atleta seleccionado.
+- `WEB-L-140_COMPARE_PROGRESS` ya esta operativo como variante light con ruta/pantalla propias (`web.route.light.compareProgress -> web.light.compareProgress.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de comparativa (`web.light.compareProgress.loadProgress`, `web.light.compareProgress.selectFirstAthlete`, `web.light.compareProgress.openSessionHistory`) con delta real atleta vs cohorte.
+- `WEB-L-150_COACH_NOTES` ya esta operativo como variante light con ruta/pantalla propias (`web.route.light.coachNotes -> web.light.coachNotes.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de seguimiento (`web.light.coachNotes.loadNotes`, `web.light.coachNotes.saveFollowUp`, `web.light.coachNotes.clearSelection`) sobre sesiones + activity log por atleta.
+- `WEB-N100_NUTRITION_OVERVIEW` ya esta operativo con ruta/pantalla propias (`web.route.nutritionOverview -> web.nutritionOverview.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de nutricion (`web.nutritionOverview.saveLog`, `web.nutritionOverview.loadLogs`, `web.nutritionOverview.clearFilters`) con filtros y orden real de registros.
+- `WEB-N110_DAILY_LOG_REVIEW` ya esta operativo con ruta/pantalla propias (`web.route.dailyLogReview -> web.dailyLogReview.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de revision diaria (`web.dailyLogReview.updateFilters`, `web.dailyLogReview.updateSort`, `web.dailyLogReview.clearFilters`) sobre filtros y orden real de logs nutricionales.
+- `WEB-N120_DEVIATION_ALERTS` ya esta operativo con ruta/pantalla propias (`web.route.deviationAlerts -> web.deviationAlerts.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de desvio nutricional (`web.deviationAlerts.loadAlerts`, `web.deviationAlerts.clearFilters`) sobre deteccion real de calorias/proteina fuera de objetivo.
+- `WEB-N130_COACH_VIEW` ya esta operativo con ruta/pantalla propias (`web.route.nutritionCoachView -> web.nutritionCoachView.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de seguimiento coach (`web.nutritionCoachView.loadCohort`, `web.nutritionCoachView.focusAtRisk`, `web.nutritionCoachView.openOperations`) sobre cohorte real y atletas en riesgo.
+- `WEB-N200_COHORT_NUTRITION` ya esta operativo como variante secondary con ruta/pantalla propias (`web.route.light.cohortNutrition -> web.light.cohortNutrition.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de cohorte (`web.light.cohortNutrition.loadCohort`, `web.light.cohortNutrition.focusHighestRisk`) sobre agregacion real por atleta.
+- `WEB-N210_LOG_DETAIL` ya esta operativo como variante secondary con ruta/pantalla propias (`web.route.light.logDetail -> web.light.logDetail.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de detalle (`web.light.logDetail.loadDetail`, `web.light.logDetail.selectLog`, `web.light.logDetail.clearSelection`, `web.light.logDetail.openCoachView`) sobre seleccion real de logs nutricionales.
+- `WEB-300_PLANS_LIST` ya esta operativo con ruta/pantalla propias (`web.route.plansList -> web.plansList.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de planes (`web.plansList.createPlan`, `web.plansList.loadPlans`, `web.plansList.selectPlan`) sobre creacion/listado real de planes.
+- `WEB-310_PLAN_BUILDER` ya esta operativo con ruta/pantalla propias (`web.route.planBuilder -> web.planBuilder.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de builder (`web.planBuilder.updateName`, `web.planBuilder.updateWeeks`, `web.planBuilder.updateDays`, `web.planBuilder.updateTemplate`, `web.planBuilder.createPlan`, `web.planBuilder.loadPlans`) con configuracion real de semanas/dias/template.
+- `WEB-320_SESSION_DETAIL` ya esta operativo con ruta/pantalla propias (`web.route.sessionDetail -> web.sessionDetail.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de detalle (`web.sessionDetail.loadSessions`, `web.sessionDetail.selectSession`, `web.sessionDetail.clearSelection`, `web.sessionDetail.openExerciseVideo`) sobre seleccion real de sesion y apertura del video del primer ejercicio.
+- `WEB-330_PLAN_ASSIGNMENT` ya esta operativo con ruta/pantalla propias (`web.route.planAssignment -> web.planAssignment.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de asignacion (`web.planAssignment.assignSelected`, `web.planAssignment.assignAtRisk`, `web.planAssignment.clearSelection`) sobre asignacion real de planes por atleta y evento de observabilidad.
+- `WEB-400_EXERCISE_LIBRARY` ya esta operativo con ruta/pantalla propias (`web.route.exerciseLibrary -> web.exerciseLibrary.screen`), estado canonical `loading|empty|error|success|denied|offline` y acciones trazables de libreria (`web.exerciseLibrary.selectExercise`, `web.exerciseLibrary.selectLocale`, `web.exerciseLibrary.loadVideos`, `web.exerciseLibrary.openVideo`) sobre carga real de videos por ejercicio/idioma.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
@@ -113,7 +147,10 @@
 - Alcance de salida: 121 pantallas funcionales (66 iOS + 55 Web).
 
 ## Ciclo activo (producto real)
-Plan activo: `docs/PLAN_MVP_OPERATIVO_WEB_IOS.md`
+Planes activos:
+- Orquestacion: `docs/PLAN_MVP_OPERATIVO_WEB_IOS.md`
+- iOS: `docs/PLAN_IOS_MVP_OPERATIVO.md`
+- Web: `docs/PLAN_WEB_MVP_OPERATIVO.md`
 
 | Fase | Task | Estado |
 |---|---|---|
@@ -124,7 +161,8 @@ Plan activo: `docs/PLAN_MVP_OPERATIVO_WEB_IOS.md`
 | Fase 2 | RBAC por endpoint y dominio | ✅ |
 | Fase 2 | Persistencia real (Firestore) sin in-memory | ✅ |
 | Fase 2 | Errores observables (codigos + correlationId) | ✅ |
-| Fase 3 | iOS pantalla a pantalla (Settings + Auth + Training + Nutrition en curso) | 🚧 |
+| Fase 3 | iOS pantalla a pantalla (fidelidad real contra Pencil) | ⏳ |
+| Fase 4 | Web pantalla a pantalla (fidelidad real contra Pencil) | 🚧 |
 
 ## Regla de operacion
 - Solo una task en `🚧`.

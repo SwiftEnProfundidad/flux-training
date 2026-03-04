@@ -1,5 +1,10 @@
 # PLAN PRODUCTO REAL — Flux Training
 
+## Estado del documento
+- HISTORICO INVALIDADO en `F1-T2` del plan activo.
+- Las tareas marcadas como `✅` en Fases 2-5 fueron reabiertas por falta de validacion runtime pantalla a pantalla.
+- Evidencia de reapertura: `docs/validation/MVP_T1_2_REOPENED_CLOSURES_V1.csv`.
+
 ## Leyenda
 - ✅ Hecho
 - 🚧 En construccion (maximo 1)
@@ -19,27 +24,27 @@ Transformar la base demo en producto real iOS/Web: autenticacion real, persisten
 ## Fase 2 — Backend productivo real
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Cerrar separacion demo vs productivo | ✅ | Rutas reales con persistencia de Firestore |
-| Endurecer auth + autorizacion por endpoint | ✅ | Flujo seguro de sesion y permisos |
-| Validar smoke de APIs criticas | ✅ | Auth/onboarding/training/nutrition/progress/legal OK |
+| Cerrar separacion demo vs productivo | ⛔ | Cierre invalido: reabierto por baseline runtime |
+| Endurecer auth + autorizacion por endpoint | ⛔ | Cierre invalido: reabierto por baseline runtime |
+| Validar smoke de APIs criticas | ⛔ | Cierre invalido: reabierto por baseline runtime |
 
 ## Fase 3 — Web productiva real
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Quitar hardcode `demo-user` | ✅ | Operacion con userId de sesion real |
-| Cerrar login y operacion con backend real | ✅ | Flujos funcionales sin fallback estatico |
-| Completar estados de pantalla | ✅ | default/loading/empty/error/offline/denied/success |
+| Quitar hardcode `demo-user` | ⛔ | Cierre invalido: reabierto por evidencia de hardcode |
+| Cerrar login y operacion con backend real | ⛔ | Cierre invalido: reabierto por baseline runtime |
+| Completar estados de pantalla | ⛔ | Cierre invalido: reabierto por baseline runtime |
 
 ## Fase 4 — iOS productiva real
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Crear app real en `apps/ios` | ✅ | Bootstrap de app final sin dependencia host demo |
-| Sustituir gateways in-memory/demo | ✅ | Networking y persistencia reales |
-| Navegacion final por secciones | ✅ | Flujo alineado con Pencil para codificar release |
+| Crear app real en `apps/ios` | ⛔ | Cierre invalido: reabierto por baseline runtime |
+| Sustituir gateways in-memory/demo | ⛔ | Cierre invalido: reabierto por evidencia de factories demo |
+| Navegacion final por secciones | ⛔ | Cierre invalido: reabierto por brecha de flujo/pantallas |
 
 ## Fase 5 — Cierre de producto
 | Task | Estado | Resultado esperado |
 |---|---|---|
-| Matriz de paridad Pencil->Codigo | ✅ | Cobertura de pantallas y estados por plataforma |
-| QA funcional E2E iOS/Web/Backend | ✅ | Evidencia real de flujo completo |
-| Gate final MVP productivo | ✅ | Release candidate sin comportamiento mock |
+| Matriz de paridad Pencil->Codigo | ⛔ | Cierre invalido: reabierto por baseline runtime |
+| QA funcional E2E iOS/Web/Backend | ⛔ | Cierre invalido: reabierto por falta de evidencia por pantalla |
+| Gate final MVP productivo | ⛔ | Cierre invalido: reabierto |
