@@ -8,7 +8,7 @@ public struct TrainingFlowView: View {
 
   public init(
     viewModel: TrainingFlowViewModel,
-    userID: String = "demo-user",
+    userID: String = "flux-user-local",
     copy: LocalizedCopy = LocalizedCopy(language: .es)
   ) {
     _viewModel = State(initialValue: viewModel)

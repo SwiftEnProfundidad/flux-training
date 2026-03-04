@@ -13,7 +13,7 @@ public final class TrainingDashboardViewModel {
 
   public func saveDemoSession(now: Date = Date()) async {
     let input = CreateWorkoutSessionInput(
-      userID: "demo-user",
+      userID: "flux-user-local",
       planID: "starter-plan",
       startedAt: now.addingTimeInterval(-1800),
       endedAt: now,
@@ -33,4 +33,3 @@ public final class TrainingDashboardViewModel {
     }
   }
 }
-

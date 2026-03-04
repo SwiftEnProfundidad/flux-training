@@ -16,8 +16,12 @@ public struct FluxTrainingAppConfiguration: Sendable, Equatable {
 
   private static func makeProduction() -> FluxTrainingAppConfiguration {
     let environment = ProcessInfo.processInfo.environment
-    let rawBaseURL = environment["FLUX_BACKEND_BASE_URL"] ?? "http://127.0.0.1:8787/api"
-    let backendURL = URL(string: rawBaseURL) ?? URL(string: "http://127.0.0.1:8787/api")!
+    let rawBaseURL =
+      environment["FLUX_BACKEND_BASE_URL"] ??
+      "https://us-central1-flux-training.cloudfunctions.net/flux-training"
+    let backendURL =
+      URL(string: rawBaseURL) ??
+      URL(string: "https://us-central1-flux-training.cloudfunctions.net/flux-training")!
     let clientVersion = environment["FLUX_IOS_CLIENT_VERSION"] ?? "0.1.0"
     let appleProviderToken =
       environment["FLUX_APPLE_PROVIDER_TOKEN"] ?? "ios-apple-provider-token"

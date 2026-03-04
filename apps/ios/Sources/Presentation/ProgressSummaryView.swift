@@ -8,7 +8,7 @@ public struct ProgressSummaryView: View {
 
   public init(
     viewModel: ProgressViewModel,
-    userID: String = "demo-user",
+    userID: String = "flux-user-local",
     copy: LocalizedCopy = LocalizedCopy(language: .es)
   ) {
     _viewModel = State(initialValue: viewModel)

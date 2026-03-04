@@ -34,5 +34,5 @@ Orquestar la entrega del MVP operativo real con tracking separado por plataforma
 
 ## Estado activo global
 - iOS: sin task en construccion (66/66 en ✅)
-- Web: `🚧 4.5.5 WEB-700_ADMIN_USERS`
-- Siguiente global: `4.6.1 WEB-710_AUDIT_TRAIL`
+- Web: `🚧 4.11.6 WEB-410_EXERCISE_DETAIL`
+- Siguiente global: `4.12.1 WEB-340_PLAN_TEMPLATES`

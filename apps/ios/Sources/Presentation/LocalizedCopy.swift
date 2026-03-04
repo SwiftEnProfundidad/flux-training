@@ -683,7 +683,7 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .noPlansYet:
     return "Todavia no hay planes"
   case .logDemoSession:
-    return "Registrar sesion demo"
+    return "Registrar sesion"
   case .sessionsLabel:
     return "Sesiones"
   case .todaySessionsLabel:
@@ -1160,7 +1160,7 @@ private func englishCopy(for key: CopyKey) -> String {
   case .noPlansYet:
     return "No plans yet"
   case .logDemoSession:
-    return "Log demo session"
+    return "Log session"
   case .sessionsLabel:
     return "Sessions"
   case .todaySessionsLabel:

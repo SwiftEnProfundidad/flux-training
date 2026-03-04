@@ -38,7 +38,7 @@ public struct FluxTrainingProductRootView: View {
     exportDataViewModel: ExportDataViewModel,
     deleteAccountViewModel: DeleteAccountViewModel,
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase = GenerateAIRecommendationsUseCase(),
-    userID: String = "demo-user"
+    userID: String = "flux-user-local"
   ) {
     _authViewModel = State(initialValue: authViewModel)
     _onboardingViewModel = State(initialValue: onboardingViewModel)
@@ -65,7 +65,7 @@ public struct FluxTrainingProductRootView: View {
       return candidate
     }
     let fallback = userID.trimmingCharacters(in: .whitespacesAndNewlines)
-    return fallback.isEmpty ? "demo-user" : fallback
+    return fallback.isEmpty ? "flux-user-local" : fallback
   }
 
   private var isAuthenticated: Bool {

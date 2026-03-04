@@ -8,7 +8,7 @@ public struct OfflineSyncView: View {
 
   public init(
     viewModel: OfflineSyncViewModel,
-    userID: String = "demo-user",
+    userID: String = "flux-user-local",
     copy: LocalizedCopy = LocalizedCopy(language: .es)
   ) {
     _viewModel = State(initialValue: viewModel)

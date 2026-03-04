@@ -63,7 +63,7 @@ public struct ExperienceHubView: View {
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase =
       GenerateAIRecommendationsUseCase(),
     loadRoleCapabilitiesHandler: @escaping @Sendable (ExperienceRole) async -> Set<ExperienceDomain>? = { _ in nil },
-    userID: String = "demo-user"
+    userID: String = "flux-user-local"
   ) {
     _authViewModel = State(initialValue: authViewModel)
     _onboardingViewModel = State(initialValue: onboardingViewModel)
@@ -84,7 +84,7 @@ public struct ExperienceHubView: View {
   }
 
   @MainActor
-  public static func makeDemo(userID: String = "demo-user") -> ExperienceHubView {
+  public static func makeDemo(userID: String = "flux-user-local") -> ExperienceHubView {
     ExperienceHubView(
       authViewModel: CompositionRoot.makeAuthViewModel(),
       onboardingViewModel: CompositionRoot.makeOnboardingViewModel(),
@@ -133,7 +133,7 @@ public struct ExperienceHubView: View {
       return sessionUserID
     }
     let fallbackUserID = userID.trimmingCharacters(in: .whitespacesAndNewlines)
-    return fallbackUserID.isEmpty ? "demo-user" : fallbackUserID
+    return fallbackUserID.isEmpty ? "flux-user-local" : fallbackUserID
   }
 
   private var activeDomainRuntimeState: EnterpriseRuntimeState {

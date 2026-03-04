@@ -55,7 +55,7 @@ export function buildBillingInvoiceRows(
   sessions.forEach((session) => accountIds.add(session.userId));
   nutritionLogs.forEach((log) => accountIds.add(log.userId));
   if (accountIds.size === 0) {
-    accountIds.add("demo-user");
+    return [];
   }
 
   return [...accountIds]

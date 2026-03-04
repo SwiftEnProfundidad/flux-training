@@ -62,21 +62,12 @@ public struct RemoteAuthGateway: AuthGateway {
     let providerToken = configuration.appleProviderToken
       .trimmingCharacters(in: .whitespacesAndNewlines)
     if providerToken.isEmpty || providerToken == "ios-apple-provider-token" {
-      if shouldUseLocalFallbackAuth {
-        return try await createSession(providerToken: "apple-local-dev-token")
-      }
       throw FluxBackendClientError.backend(code: "missing_apple_provider_token")
     }
     return try await createSession(providerToken: providerToken)
   }
 
   public func createSessionWithEmail(email: String, password: String) async throws -> AuthSession {
-    if shouldUseLocalFallbackAuth {
-      let fallbackToken = email.trimmingCharacters(in: .whitespacesAndNewlines)
-      if fallbackToken.isEmpty == false {
-        return try await createSession(providerToken: fallbackToken)
-      }
-    }
     let providerToken = try await requestFirebaseEmailProviderToken(
       email: email,
       password: password
@@ -160,12 +151,5 @@ public struct RemoteAuthGateway: AuthGateway {
       throw FluxBackendClientError.backend(code: "firebase_email_sign_in_failed")
     }
     return payload.idToken
-  }
-
-  private var shouldUseLocalFallbackAuth: Bool {
-    guard let host = configuration.baseURL.host?.lowercased() else {
-      return false
-    }
-    return host == "localhost" || host == "127.0.0.1"
   }
 }

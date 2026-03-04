@@ -8,7 +8,7 @@ public struct ObservabilityView: View {
 
   public init(
     viewModel: ObservabilityViewModel,
-    userID: String = "demo-user",
+    userID: String = "flux-user-local",
     copy: LocalizedCopy = LocalizedCopy(language: .es)
   ) {
     _viewModel = State(initialValue: viewModel)
