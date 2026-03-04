@@ -59,6 +59,14 @@ public struct FluxTrainingProductRootView: View {
     LocalizedCopy(language: language)
   }
 
+  private var backgroundGradient: LinearGradient {
+    LinearGradient(
+      colors: [Color(red: 0.03, green: 0.04, blue: 0.08), Color(red: 0.02, green: 0.05, blue: 0.12)],
+      startPoint: .topLeading,
+      endPoint: .bottomTrailing
+    )
+  }
+
   private var activeUserID: String {
     let candidate = authViewModel.currentUserID?.trimmingCharacters(in: .whitespacesAndNewlines)
     if let candidate, candidate.isEmpty == false {
@@ -247,37 +255,30 @@ public struct FluxTrainingProductRootView: View {
 
   private var todayTab: some View {
     NavigationStack {
-      List {
-        Section(copy.text(.trainingTitle)) {
-          NavigationLink(copy.text(.trainingCockpitTitle)) {
-            TrainingTodayView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.planName)) {
-            PlanActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.inWorkoutSetupTitle)) {
-            InWorkoutSetupView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.substitutionTitle)) {
-            WorkoutActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.rpeRatingTitle)) {
-            RPERatingView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.substitutionTitle)) {
-            ExerciseSubstitutionView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.exerciseLibraryTitle)) {
-            ExerciseLibraryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.videoPlayerTitle)) {
-            VideoPlayerView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.sessionStatusLabel)) {
-            SessionSummaryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-          }
+      ScrollView {
+        LazyVStack(spacing: 16) {
+          TrainingTodayView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          PlanActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          InWorkoutSetupView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          WorkoutActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          RPERatingView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          ExerciseSubstitutionView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          ExerciseLibraryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          VideoPlayerView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          SessionSummaryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
         }
+        .padding(16)
       }
+      .background(backgroundGradient)
       .navigationTitle(copy.text(.todayTab))
       .toolbar {
         ToolbarItem(placement: .primaryAction) {
@@ -289,50 +290,48 @@ public struct FluxTrainingProductRootView: View {
 
   private var progressTab: some View {
     NavigationStack {
-      List {
-        Section(copy.text(.progressTitle)) {
-          NavigationLink(copy.text(.progressTitle)) {
-            ProgressMetricsView(viewModel: progressViewModel, userID: activeUserID, copy: copy)
+      ScrollView {
+        LazyVStack(spacing: 16) {
+          ProgressMetricsView(viewModel: progressViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          WeeklyReviewView(
+            progressViewModel: progressViewModel,
+            trainingViewModel: trainingViewModel,
+            nutritionViewModel: nutritionViewModel,
+            userID: activeUserID,
+            copy: copy
+          )
+          .productCardSurface()
+          GoalAdjustView(viewModel: onboardingViewModel, copy: copy)
+            .productCardSurface()
+          AICoachView(
+            recommendations: $recommendations,
+            status: $recommendationsStatus,
+            copy: copy
+          ) {
+            await loadRecommendations()
           }
-          NavigationLink(copy.text(.progressNavigationTitle)) {
-            WeeklyReviewView(
-              progressViewModel: progressViewModel,
-              trainingViewModel: trainingViewModel,
-              nutritionViewModel: nutritionViewModel,
-              userID: activeUserID,
-              copy: copy
-            )
-          }
-          NavigationLink(copy.text(.goalLabel)) {
-            GoalAdjustView(viewModel: onboardingViewModel, copy: copy)
-          }
-          NavigationLink(copy.text(.recommendationsTitle)) {
-            AICoachView(
-              recommendations: $recommendations,
-              status: $recommendationsStatus,
-              copy: copy
-            ) {
-              await loadRecommendations()
-            }
-          }
+          .productCardSurface()
         }
+        .padding(16)
       }
+      .background(backgroundGradient)
       .navigationTitle(copy.text(.progressTab))
     }
   }
 
   private var nutritionTab: some View {
     NavigationStack {
-      List {
-        Section(copy.text(.nutritionTitle)) {
-          NavigationLink(copy.text(.nutritionTitle)) {
-            NutritionHubView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
-          }
-          NavigationLink(copy.text(.saveLog)) {
-            NutritionLogMealView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
-          }
+      ScrollView {
+        LazyVStack(spacing: 16) {
+          NutritionHubView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
+          NutritionLogMealView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
+            .productCardSurface()
         }
+        .padding(16)
       }
+      .background(backgroundGradient)
       .navigationTitle(copy.text(.nutritionTitle))
     }
   }
@@ -505,5 +504,18 @@ private enum OnboardingStep: Int, CaseIterable {
     case .consent:
       copy.text(.legalSectionTitle)
     }
+  }
+}
+
+@available(iOS 17, macOS 14, *)
+private extension View {
+  func productCardSurface() -> some View {
+    padding(16)
+      .background(Color(red: 0.10, green: 0.11, blue: 0.14))
+      .clipShape(.rect(cornerRadius: 16))
+      .overlay(
+        RoundedRectangle(cornerRadius: 16)
+          .stroke(Color.white.opacity(0.08), lineWidth: 1)
+      )
   }
 }
