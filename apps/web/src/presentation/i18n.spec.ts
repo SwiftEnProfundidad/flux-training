@@ -48,6 +48,10 @@ describe("i18n", () => {
     expect(translate("dashboardKpisTitle")).toBe("Dashboard KPIs");
     expect(translate("dashboardKpisStatusLabel")).toBe("KPIs");
     expect(translate("dashboardKpisRefreshAction")).toBe("Refresh KPIs");
+    expect(translate("readinessMonitorTitle")).toBe("Readiness monitor");
+    expect(translate("readinessMonitorStatusLabel")).toBe("Readiness");
+    expect(translate("readinessMonitorScoreLabel")).toBe("Score");
+    expect(translate("readinessMonitorRefreshAction")).toBe("Refresh readiness");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -136,6 +140,10 @@ describe("i18n", () => {
     expect(translate("dashboardKpisTitle")).toBe("Dashboard KPIs");
     expect(translate("dashboardKpisStatusLabel")).toBe("KPIs");
     expect(translate("dashboardKpisRefreshAction")).toBe("Refrescar KPIs");
+    expect(translate("readinessMonitorTitle")).toBe("Readiness monitor");
+    expect(translate("readinessMonitorStatusLabel")).toBe("Readiness");
+    expect(translate("readinessMonitorScoreLabel")).toBe("Score");
+    expect(translate("readinessMonitorRefreshAction")).toBe("Refrescar readiness");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");

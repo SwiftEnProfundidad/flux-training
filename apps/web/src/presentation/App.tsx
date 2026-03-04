@@ -77,6 +77,7 @@ import {
 import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
 import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract";
 import { createDashboardKpisScreenModel } from "./dashboard-kpis-contract";
+import { createReadinessMonitorScreenModel } from "./readiness-monitor-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -561,6 +562,15 @@ export function App() {
       recommendations.length,
       sessions.length
     ]
+  );
+  const readinessMonitorScreenModel = useMemo(
+    () =>
+      createReadinessMonitorScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        readinessScore: readiness.score,
+        authStatus
+      }),
+    [authStatus, dashboardHomeScreenModel.status, readiness.score]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -2553,6 +2563,10 @@ export function App() {
     await Promise.all([handleRunQuickActions(), handleRefreshAlertCenter()]);
   }
 
+  async function handleRefreshReadinessMonitor() {
+    await handleRefreshDashboardHome();
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -3144,6 +3158,43 @@ export function App() {
                     disabled={dashboardKpisScreenModel.status === "loading"}
                   >
                     {translate("dashboardKpisRefreshAction")}
+                  </button>
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={readinessMonitorScreenModel.screenId}
+                data-route-id={readinessMonitorScreenModel.routeId}
+                data-status-id="web.readinessMonitor.status"
+              >
+                <SectionHeader
+                  title={translate("readinessMonitorTitle")}
+                  status={readinessMonitorScreenModel.status}
+                  statusLabel={translate("readinessMonitorStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("readinessMonitorSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("readinessMonitorScoreLabel")}
+                      value={`${readiness.score}%`}
+                    />
+                    <Metric
+                      title={translate("readinessLabel")}
+                      value={readinessLabel(readiness.label, language)}
+                    />
+                    <Metric title={translate("authMetric")} value={toHumanStatus(authStatus, language)} />
+                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
+                  </div>
+                  <button
+                    className="button ghost"
+                    type="button"
+                    data-action-id="web.readinessMonitor.refresh"
+                    onClick={() => void handleRefreshReadinessMonitor()}
+                    disabled={readinessMonitorScreenModel.status === "loading"}
+                  >
+                    {translate("readinessMonitorRefreshAction")}
                   </button>
                 </div>
               </article>
