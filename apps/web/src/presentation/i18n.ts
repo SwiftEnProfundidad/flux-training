@@ -247,6 +247,18 @@ type AppTranslations = {
   loadVideos: string;
   noVideosLoaded: string;
   openVideo: string;
+  exerciseDetailTitle: string;
+  exerciseDetailStatusLabel: string;
+  exerciseDetailSummary: string;
+  exerciseDetailLoadAction: string;
+  exerciseDetailSelectLabel: string;
+  exerciseDetailClearAction: string;
+  exerciseDetailOpenAction: string;
+  exerciseDetailNoSelection: string;
+  exerciseDetailCoachLabel: string;
+  exerciseDetailDifficultyLabel: string;
+  exerciseDetailLocaleLabel: string;
+  exerciseDetailDurationLabel: string;
   recommendationsTitle: string;
   recommendationsStatusLabel: string;
   loadRecommendations: string;
@@ -718,6 +730,18 @@ const translations: Record<AppLanguage, AppTranslations> = {
     loadVideos: "Cargar videos",
     noVideosLoaded: "Todavia no hay videos cargados.",
     openVideo: "Abrir video",
+    exerciseDetailTitle: "Detalle de ejercicio",
+    exerciseDetailStatusLabel: "Detalle",
+    exerciseDetailSummary: "Selecciona un video para revisar metadata clave antes de ejecutar.",
+    exerciseDetailLoadAction: "Refrescar detalle",
+    exerciseDetailSelectLabel: "seleccionar video",
+    exerciseDetailClearAction: "Limpiar detalle",
+    exerciseDetailOpenAction: "Abrir video",
+    exerciseDetailNoSelection: "No hay video seleccionado para mostrar detalle.",
+    exerciseDetailCoachLabel: "coach",
+    exerciseDetailDifficultyLabel: "dificultad",
+    exerciseDetailLocaleLabel: "idioma",
+    exerciseDetailDurationLabel: "duracion",
     recommendationsTitle: "Recomendaciones IA",
     recommendationsStatusLabel: "Recomendaciones",
     loadRecommendations: "Cargar recomendaciones IA",
@@ -1197,6 +1221,18 @@ const translations: Record<AppLanguage, AppTranslations> = {
     loadVideos: "Load videos",
     noVideosLoaded: "No videos loaded yet.",
     openVideo: "Open video",
+    exerciseDetailTitle: "Exercise detail",
+    exerciseDetailStatusLabel: "Detail",
+    exerciseDetailSummary: "Select a video to review key metadata before execution.",
+    exerciseDetailLoadAction: "Refresh detail",
+    exerciseDetailSelectLabel: "select video",
+    exerciseDetailClearAction: "Clear detail",
+    exerciseDetailOpenAction: "Open video",
+    exerciseDetailNoSelection: "No video selected to display details.",
+    exerciseDetailCoachLabel: "coach",
+    exerciseDetailDifficultyLabel: "difficulty",
+    exerciseDetailLocaleLabel: "locale",
+    exerciseDetailDurationLabel: "duration",
     recommendationsTitle: "AI recommendations",
     recommendationsStatusLabel: "Recommendations",
     loadRecommendations: "Load AI recommendations",

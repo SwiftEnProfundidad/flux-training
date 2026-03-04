@@ -102,6 +102,7 @@ import { createPlanBuilderScreenModel } from "./plan-builder-contract";
 import { createSessionDetailScreenModel } from "./session-detail-contract";
 import { createPlanAssignmentScreenModel } from "./plan-assignment-contract";
 import { createExerciseLibraryScreenModel } from "./exercise-library-contract";
+import { createExerciseDetailScreenModel } from "./exercise-detail-contract";
 import { createAdminUsersScreenModel } from "./admin-users-contract";
 import { createAuditTrailScreenModel } from "./audit-trail-contract";
 import { createBillingOverviewScreenModel } from "./billing-overview-contract";
@@ -418,6 +419,7 @@ export function App() {
   const [selectedExerciseForVideos, setSelectedExerciseForVideos] = useState(
     dailyTrainingVideoDefaults.selectedExercise
   );
+  const [selectedExerciseVideoId, setSelectedExerciseVideoId] = useState("");
   const [videoLocale, setVideoLocale] = useState(dailyTrainingVideoDefaults.videoLocale);
   const [recommendationsStatus, setRecommendationsStatus] =
     useState<RecommendationsStatus>("idle");
@@ -1211,6 +1213,20 @@ export function App() {
       }),
     [dashboardHomeScreenModel.status, exerciseVideos.length, videoStatus]
   );
+  const selectedExerciseVideo = useMemo(
+    () => exerciseVideos.find((video) => video.id === selectedExerciseVideoId) ?? null,
+    [exerciseVideos, selectedExerciseVideoId]
+  );
+  const exerciseDetailScreenModel = useMemo(
+    () =>
+      createExerciseDetailScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        videoStatus,
+        videosCount: exerciseVideos.length,
+        hasSelectedVideo: selectedExerciseVideo !== null
+      }),
+    [dashboardHomeScreenModel.status, exerciseVideos.length, selectedExerciseVideo, videoStatus]
+  );
   const nutritionMinProteinFilterParsed = useMemo(
     () => parseOptionalNumber(deferredNutritionMinProteinFilter),
     [deferredNutritionMinProteinFilter]
@@ -1672,6 +1688,25 @@ export function App() {
       setSelectedNutritionLogKey(nutritionLogOptionRows[0]?.key ?? null);
     }
   }, [nutritionLogOptionRows, selectedNutritionLogKey]);
+
+  useEffect(() => {
+    if (exerciseVideos.length === 0) {
+      if (selectedExerciseVideoId !== "") {
+        setSelectedExerciseVideoId("");
+      }
+      return;
+    }
+
+    if (selectedExerciseVideoId === "") {
+      setSelectedExerciseVideoId(exerciseVideos[0]?.id ?? "");
+      return;
+    }
+
+    const stillExists = exerciseVideos.some((video) => video.id === selectedExerciseVideoId);
+    if (!stillExists) {
+      setSelectedExerciseVideoId(exerciseVideos[0]?.id ?? "");
+    }
+  }, [exerciseVideos, selectedExerciseVideoId]);
 
   useEffect(() => {
     setSelectedAthleteIds((current) =>
@@ -2358,6 +2393,7 @@ export function App() {
     if (preferredVideo === null) {
       return;
     }
+    setSelectedExerciseVideoId(preferredVideo.id);
     window.open(preferredVideo.videoUrl, "_blank", "noopener,noreferrer");
   }
 
@@ -2717,6 +2753,7 @@ export function App() {
         videoLocale
       );
       setExerciseVideos(videos);
+      setSelectedExerciseVideoId(videos[0]?.id ?? "");
       setVideoStatus("loaded");
       markDomainSuccess("training");
     } catch (error) {
@@ -2726,6 +2763,17 @@ export function App() {
       setVideoStatus("error");
       markDomainFailure("training", error);
     }
+  }
+
+  function handleClearExerciseDetailSelection() {
+    setSelectedExerciseVideoId("");
+  }
+
+  function handleOpenSelectedExerciseVideo() {
+    if (selectedExerciseVideo === null) {
+      return;
+    }
+    window.open(selectedExerciseVideo.videoUrl, "_blank", "noopener,noreferrer");
   }
 
   async function handleLoadRecommendations() {
@@ -5074,6 +5122,95 @@ export function App() {
                         </div>
                       </article>
                     ))}
+                  </div>
+                )}
+              </div>
+              <div
+                className="history-list"
+                data-screen-id={exerciseDetailScreenModel.screenId}
+                data-route-id={exerciseDetailScreenModel.routeId}
+                data-status-id="web.exerciseDetail.status"
+              >
+                <SectionHeader
+                  title={translate("exerciseDetailTitle")}
+                  status={exerciseDetailScreenModel.status}
+                  statusLabel={translate("exerciseDetailStatusLabel")}
+                  language={language}
+                />
+                <p>{translate("exerciseDetailSummary")}</p>
+                <div className="inline-inputs">
+                  <button
+                    className="button ghost"
+                    onClick={handleLoadExerciseVideos}
+                    type="button"
+                    data-action-id={exerciseDetailScreenModel.actions.loadDetail}
+                  >
+                    {translate("exerciseDetailLoadAction")}
+                  </button>
+                  <select
+                    aria-label={translate("exerciseDetailSelectLabel")}
+                    value={selectedExerciseVideoId}
+                    data-action-id={exerciseDetailScreenModel.actions.selectVideo}
+                    onChange={(event) => setSelectedExerciseVideoId(event.target.value)}
+                  >
+                    <option value="">{translate("exerciseDetailSelectLabel")}</option>
+                    {exerciseVideos.map((video) => (
+                      <option key={video.id} value={video.id}>
+                        {video.title}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="button ghost"
+                    onClick={handleClearExerciseDetailSelection}
+                    type="button"
+                    data-action-id={exerciseDetailScreenModel.actions.clearSelection}
+                    disabled={selectedExerciseVideo === null}
+                  >
+                    {translate("exerciseDetailClearAction")}
+                  </button>
+                  <button
+                    className="button ghost"
+                    onClick={handleOpenSelectedExerciseVideo}
+                    type="button"
+                    data-action-id={exerciseDetailScreenModel.actions.openVideo}
+                    disabled={selectedExerciseVideo === null}
+                  >
+                    {translate("exerciseDetailOpenAction")}
+                  </button>
+                </div>
+                {selectedExerciseVideo === null ? (
+                  <p className="empty-state">{translate("exerciseDetailNoSelection")}</p>
+                ) : (
+                  <div className="video-grid">
+                    <article className="video-item">
+                      <img
+                        src={selectedExerciseVideo.thumbnailUrl}
+                        alt={selectedExerciseVideo.title}
+                        loading="lazy"
+                      />
+                      <div className="video-body">
+                        <strong>{selectedExerciseVideo.title}</strong>
+                        <div className="metric-grid">
+                          <Metric
+                            title={translate("exerciseDetailCoachLabel")}
+                            value={selectedExerciseVideo.coach}
+                          />
+                          <Metric
+                            title={translate("exerciseDetailDifficultyLabel")}
+                            value={selectedExerciseVideo.difficulty}
+                          />
+                          <Metric
+                            title={translate("exerciseDetailLocaleLabel")}
+                            value={selectedExerciseVideo.locale}
+                          />
+                          <Metric
+                            title={translate("exerciseDetailDurationLabel")}
+                            value={`${Math.round(selectedExerciseVideo.durationSeconds / 60)} min`}
+                          />
+                        </div>
+                      </div>
+                    </article>
                   </div>
                 )}
               </div>

@@ -215,6 +215,10 @@ describe("i18n", () => {
     expect(translate("goalPickerLabel")).toBe("goal");
     expect(translate("exercisePickerLabel")).toBe("exercise");
     expect(translate("videoLocalePickerLabel")).toBe("video language");
+    expect(translate("exerciseDetailTitle")).toBe("Exercise detail");
+    expect(translate("exerciseDetailStatusLabel")).toBe("Detail");
+    expect(translate("exerciseDetailLoadAction")).toBe("Refresh detail");
+    expect(translate("exerciseDetailOpenAction")).toBe("Open video");
     expect(translate("runtimeStateSectionTitle")).toBe("Enterprise runtime state by domain");
     expect(translate("runtimeStateModeLabel")).toBe("Runtime mode");
     expect(translate("runtimeStateRecoveryAction")).toBe("Recover domain");
