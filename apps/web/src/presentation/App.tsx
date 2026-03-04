@@ -387,6 +387,7 @@ export function App() {
   );
   const activeUserId = activeSession?.userId.trim() ?? "";
   const hasAuthenticatedSession = activeUserId.length > 0;
+  const isAuthLoading = authStatus === "loading";
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -2357,13 +2358,23 @@ export function App() {
       <div className="app-background app-background-left" />
       <div className="app-background app-background-right" />
       <main className="app-main">
-        <section className="hero-card">
+        <section
+          className="hero-card"
+          data-screen-id="web.signIn.screen"
+          aria-busy={isAuthLoading}
+        >
           <div className="hero-content">
             <p className="eyebrow">{translate("appName")}</p>
             <h1>{translate("heroTitle")}</h1>
             <p className="hero-copy">{translate("heroCopy")}</p>
             <div className="hero-actions">
-              <button className="button primary" onClick={handleAppleSignIn} type="button">
+              <button
+                className="button primary"
+                onClick={handleAppleSignIn}
+                type="button"
+                disabled={isAuthLoading}
+                data-action-id="web.signIn.apple"
+              >
                 {translate("signInWithApple")}
               </button>
               <div className="inline-inputs">
@@ -2380,7 +2391,13 @@ export function App() {
                   type="password"
                   onChange={(event) => setPassword(event.target.value)}
                 />
-                <button className="button ghost" onClick={handleEmailSignIn} type="button">
+                <button
+                  className="button ghost"
+                  onClick={handleEmailSignIn}
+                  type="button"
+                  disabled={isAuthLoading}
+                  data-action-id="web.signIn.email"
+                >
                   {translate("signInWithEmail")}
                 </button>
               </div>
@@ -2389,6 +2406,7 @@ export function App() {
                   className="button ghost"
                   onClick={() => handleEmailRecovery("email")}
                   type="button"
+                  disabled={isAuthLoading}
                 >
                   {translate("recoverByEmail")}
                 </button>
@@ -2396,10 +2414,14 @@ export function App() {
                   className="button ghost"
                   onClick={() => handleEmailRecovery("sms")}
                   type="button"
+                  disabled={isAuthLoading}
                 >
                   {translate("recoverBySMS")}
                 </button>
               </div>
+              <p className="hero-copy" data-status-id="web.signIn.status">
+                {humanizeStatus(authStatus, language)}
+              </p>
             </div>
           </div>
           <div className="language-toggle">
