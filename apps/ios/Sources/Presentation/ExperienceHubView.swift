@@ -2,7 +2,6 @@ import SwiftUI
 
 @available(iOS 17, macOS 14, *)
 public struct ExperienceHubView: View {
-  private static let defaultAuthScreenContract = AuthScreenContract()
   private static let defaultOnboardingScreenContract = OnboardingScreenContract()
   private static let defaultNutritionProgressAIScreenContract = NutritionProgressAIScreenContract()
   private static let defaultSettingsLegalScreenContract = SettingsLegalScreenContract()
@@ -12,16 +11,18 @@ public struct ExperienceHubView: View {
   @State private var trainingViewModel: TrainingFlowViewModel
   @State private var nutritionViewModel: NutritionViewModel
   @State private var progressViewModel: ProgressViewModel
+  @State private var settingsHomeViewModel: SettingsHomeViewModel
+  @State private var accountProfileViewModel: AccountProfileViewModel
+  @State private var notificationsViewModel: NotificationsViewModel
+  @State private var privacyConsentViewModel: PrivacyConsentViewModel
+  @State private var exportDataViewModel: ExportDataViewModel
+  @State private var deleteAccountViewModel: DeleteAccountViewModel
   @State private var offlineSyncViewModel: OfflineSyncViewModel
   @State private var observabilityViewModel: ObservabilityViewModel
   @State private var recommendations: [AIRecommendation] = []
   @State private var recommendationsStatus: String =
     defaultNutritionProgressAIScreenContract.recommendationsStatus.rawValue
-  @State private var settingsStatus: String = defaultSettingsLegalScreenContract.settingsStatus.rawValue
   @State private var legalStatus: String = defaultSettingsLegalScreenContract.legalStatus.rawValue
-  @State private var notificationsEnabled: Bool = defaultSettingsLegalScreenContract.notificationsEnabled
-  @State private var watchSyncEnabled: Bool = defaultSettingsLegalScreenContract.watchSyncEnabled
-  @State private var calendarSyncEnabled: Bool = defaultSettingsLegalScreenContract.calendarSyncEnabled
   @State private var privacyPolicyAccepted: Bool = defaultOnboardingScreenContract.privacyPolicyAccepted
   @State private var termsAccepted: Bool = defaultOnboardingScreenContract.termsAccepted
   @State private var medicalDisclaimerAccepted: Bool =
@@ -40,10 +41,6 @@ public struct ExperienceHubView: View {
   @AppStorage("flux_training_dashboard_role")
   private var persistedRoleRawValue: String = ExperienceRole.athlete.rawValue
 
-  @State private var email: String = defaultAuthScreenContract.email
-  @State private var password: String = defaultAuthScreenContract.password
-  @State private var parQQuestionOne: Bool = defaultOnboardingScreenContract.parQQuestionOne
-  @State private var parQQuestionTwo: Bool = defaultOnboardingScreenContract.parQQuestionTwo
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
@@ -55,6 +52,12 @@ public struct ExperienceHubView: View {
     trainingViewModel: TrainingFlowViewModel,
     nutritionViewModel: NutritionViewModel,
     progressViewModel: ProgressViewModel,
+    settingsHomeViewModel: SettingsHomeViewModel,
+    accountProfileViewModel: AccountProfileViewModel,
+    notificationsViewModel: NotificationsViewModel,
+    privacyConsentViewModel: PrivacyConsentViewModel,
+    exportDataViewModel: ExportDataViewModel,
+    deleteAccountViewModel: DeleteAccountViewModel,
     offlineSyncViewModel: OfflineSyncViewModel,
     observabilityViewModel: ObservabilityViewModel,
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase =
@@ -67,6 +70,12 @@ public struct ExperienceHubView: View {
     _trainingViewModel = State(initialValue: trainingViewModel)
     _nutritionViewModel = State(initialValue: nutritionViewModel)
     _progressViewModel = State(initialValue: progressViewModel)
+    _settingsHomeViewModel = State(initialValue: settingsHomeViewModel)
+    _accountProfileViewModel = State(initialValue: accountProfileViewModel)
+    _notificationsViewModel = State(initialValue: notificationsViewModel)
+    _privacyConsentViewModel = State(initialValue: privacyConsentViewModel)
+    _exportDataViewModel = State(initialValue: exportDataViewModel)
+    _deleteAccountViewModel = State(initialValue: deleteAccountViewModel)
     _offlineSyncViewModel = State(initialValue: offlineSyncViewModel)
     _observabilityViewModel = State(initialValue: observabilityViewModel)
     self.generateAIRecommendationsUseCase = generateAIRecommendationsUseCase
@@ -82,6 +91,12 @@ public struct ExperienceHubView: View {
       trainingViewModel: CompositionRoot.makeTrainingFlowViewModel(),
       nutritionViewModel: CompositionRoot.makeNutritionViewModel(),
       progressViewModel: CompositionRoot.makeProgressViewModel(),
+      settingsHomeViewModel: CompositionRoot.makeSettingsHomeViewModel(),
+      accountProfileViewModel: CompositionRoot.makeAccountProfileViewModel(),
+      notificationsViewModel: CompositionRoot.makeNotificationsViewModel(),
+      privacyConsentViewModel: CompositionRoot.makePrivacyConsentViewModel(),
+      exportDataViewModel: CompositionRoot.makeExportDataViewModel(),
+      deleteAccountViewModel: CompositionRoot.makeDeleteAccountViewModel(),
       offlineSyncViewModel: CompositionRoot.makeOfflineSyncViewModel(),
       observabilityViewModel: CompositionRoot.makeObservabilityViewModel(),
       userID: userID
@@ -138,13 +153,13 @@ public struct ExperienceHubView: View {
 
   private var settingsLegalScreenContract: SettingsLegalScreenContract {
     SettingsLegalScreenContract(
-      notificationsEnabled: notificationsEnabled,
-      watchSyncEnabled: watchSyncEnabled,
-      calendarSyncEnabled: calendarSyncEnabled,
+      notificationsEnabled: settingsHomeViewModel.notificationsEnabled,
+      watchSyncEnabled: settingsHomeViewModel.watchSyncEnabled,
+      calendarSyncEnabled: settingsHomeViewModel.calendarSyncEnabled,
       privacyPolicyAccepted: privacyPolicyAccepted,
       termsAccepted: termsAccepted,
       medicalDisclaimerAccepted: medicalDisclaimerAccepted,
-      settingsStatus: SettingsLegalScreenStatus.fromRuntimeStatus(settingsStatus),
+      settingsStatus: settingsHomeViewModel.screenStatus,
       legalStatus: SettingsLegalScreenStatus.fromRuntimeStatus(legalStatus)
     )
   }
@@ -218,6 +233,7 @@ public struct ExperienceHubView: View {
                 onboardingSection
               }
               if moduleVisible(.training) {
+                trainingRoutesSection
                 TrainingFlowView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
                   .cardSurface()
               }
@@ -441,149 +457,730 @@ public struct ExperienceHubView: View {
 
   private var authSection: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text(copy.text(.authenticationTitle))
-        .font(.title3.bold())
-      Button(copy.text(.signInWithApple)) {
-        Task { await authViewModel.signInWithApple() }
-      }
-      .buttonStyle(.borderedProminent)
-      .tint(.orange)
-      .accessibilityIdentifier("auth.signInApple")
-      TextField(copy.text(.emailField), text: $email)
-        .fluxEmailFieldBehavior()
-        .textContentType(.emailAddress)
-        .submitLabel(.next)
-        .textFieldStyle(RoundedBorderTextFieldStyle())
-        .accessibilityIdentifier("auth.email")
-      SecureField(copy.text(.passwordField), text: $password)
-        .textContentType(.password)
-        .submitLabel(.go)
-        .textFieldStyle(RoundedBorderTextFieldStyle())
-        .accessibilityIdentifier("auth.password")
-      Button(copy.text(.signInWithEmail)) {
-        Task { await authViewModel.signInWithEmail(email: email, password: password) }
-      }
-      .buttonStyle(.bordered)
-      .accessibilityIdentifier("auth.signInEmail")
-      HStack {
-        Button(copy.text(.recoverByEmail)) {
-          authViewModel.requestRecovery(email: email, channel: .email)
+      NavigationLink {
+        AuthWelcomeView(
+          viewModel: authViewModel,
+          copy: copy,
+          readinessScore: readinessSnapshot.score,
+          goalLabel: copy.text(goalCopyKey(for: onboardingViewModel.selectedGoal))
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.heroTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
         }
-        .buttonStyle(.bordered)
-        .accessibilityIdentifier("auth.recoverEmail")
-        Button(copy.text(.recoverBySMS)) {
-          authViewModel.requestRecovery(email: email, channel: .sms)
-        }
-        .buttonStyle(.bordered)
-        .accessibilityIdentifier("auth.recoverSMS")
+        .frame(maxWidth: .infinity, alignment: .leading)
       }
-      Text("\(copy.text(.authStatusLabel)): \(copy.humanStatus(authViewModel.authStatus))")
-        .foregroundStyle(.secondary)
-        .font(.footnote)
-        .accessibilityIdentifier("auth.status")
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.welcomeDarkRouteID)
+
+      NavigationLink {
+        AuthWelcomeLightView(
+          viewModel: authViewModel,
+          copy: copy,
+          readinessScore: readinessSnapshot.score,
+          goalLabel: copy.text(goalCopyKey(for: onboardingViewModel.selectedGoal))
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.heroTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.welcomeLightRouteID)
+
+      NavigationLink {
+        AuthEmailLoginView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.signInWithEmail))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.emailLoginDarkRouteID)
+
+      NavigationLink {
+        AuthEmailLoginLightView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.signInWithEmail)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.emailLoginLightRouteID)
+
+      NavigationLink {
+        AuthAppleHandoffView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.signInWithApple)) Handoff")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.appleHandoffDarkRouteID)
+
+      NavigationLink {
+        AuthAppleHandoffLightView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.signInWithApple)) Handoff Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.appleHandoffLightRouteID)
+
+      NavigationLink {
+        AuthOTPVerifyView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.verifyOTPTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.otpVerifyDarkRouteID)
+
+      NavigationLink {
+        AuthOTPVerifyLightView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.verifyOTPTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.otpVerifyLightRouteID)
+
+      NavigationLink {
+        AuthRecoverAccountView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.recoverAccountTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.recoverAccountDarkRouteID)
+
+      NavigationLink {
+        AuthRecoverAccountLightView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.recoverAccountTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.recoverAccountLightRouteID)
+
+      NavigationLink {
+        AuthSessionExpiredView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.sessionExpiredTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.sessionExpiredDarkRouteID)
+
+      NavigationLink {
+        AuthSessionExpiredLightView(
+          viewModel: authViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.sessionExpiredTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.authStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(authViewModel.authStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(AuthRouteContract.sessionExpiredLightRouteID)
     }
     .cardSurface()
   }
 
   private var onboardingSection: some View {
-    @Bindable var bindableViewModel = onboardingViewModel
-
     return VStack(alignment: .leading, spacing: 12) {
-      Text(copy.text(.onboardingTitle))
-        .font(.title3.bold())
-      TextField(copy.text(.displayName), text: $bindableViewModel.displayName)
-        .textContentType(.name)
-        .submitLabel(.next)
-        .textFieldStyle(RoundedBorderTextFieldStyle())
-        .accessibilityIdentifier("onboarding.displayName")
-      HStack {
-        TextField(
-          copy.text(.age),
-          value: $bindableViewModel.age,
-          format: .number
+      NavigationLink {
+        OnboardingStepOneView(
+          viewModel: onboardingViewModel,
+          copy: copy
         )
-        .textFieldStyle(RoundedBorderTextFieldStyle())
-        .accessibilityIdentifier("onboarding.age")
-        TextField(
-          copy.text(.days),
-          value: $bindableViewModel.availableDaysPerWeek,
-          format: .number
-        )
-        .textFieldStyle(RoundedBorderTextFieldStyle())
-        .accessibilityIdentifier("onboarding.days")
-      }
-      Toggle(copy.text(.chestPainQuestion), isOn: $parQQuestionOne)
-        .accessibilityIdentifier("onboarding.parq1")
-      Toggle(copy.text(.dizzinessQuestion), isOn: $parQQuestionTwo)
-        .accessibilityIdentifier("onboarding.parq2")
-      Button(copy.text(.completeOnboarding)) {
-        onboardingViewModel.parQResponses = [
-          ParQResponse(questionID: "parq-1", answer: parQQuestionOne),
-          ParQResponse(questionID: "parq-2", answer: parQQuestionTwo)
-        ]
-        Task {
-          await onboardingViewModel.complete(
-            userID: activeUserID,
-            consent: OnboardingConsentChecklist(
-              privacyPolicyAccepted: privacyPolicyAccepted,
-              termsAccepted: termsAccepted,
-              medicalDisclaimerAccepted: medicalDisclaimerAccepted
-            )
-          )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.onboardingTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
       }
-      .buttonStyle(.borderedProminent)
-      .tint(.orange)
-      .accessibilityIdentifier("onboarding.complete")
-      Text("\(copy.text(.onboardingStatusLabel)): \(copy.humanStatus(onboardingViewModel.onboardingStatus))")
-        .foregroundStyle(.secondary)
-        .font(.footnote)
-        .accessibilityIdentifier("onboarding.status")
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.stepOneDarkRouteID)
+
+      NavigationLink {
+        OnboardingStepOneLightView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.onboardingTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.stepOneLightRouteID)
+
+      NavigationLink {
+        OnboardingGoalSetupView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.goalLabel))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.goalSetupDarkRouteID)
+
+      NavigationLink {
+        OnboardingGoalSetupLightView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.goalLabel)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.goalSetupLightRouteID)
+
+      NavigationLink {
+        OnboardingParQView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.parQTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.parQDarkRouteID)
+
+      NavigationLink {
+        OnboardingParQLightView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.parQTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.parQLightRouteID)
+
+      NavigationLink {
+        OnboardingConsentView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.legalSectionTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.consentDarkRouteID)
+
+      NavigationLink {
+        OnboardingConsentLightView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.legalSectionTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.onboardingStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(OnboardingRouteContract.consentLightRouteID)
+    }
+    .cardSurface()
+  }
+
+  private var trainingRoutesSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      NavigationLink {
+        InWorkoutSetupView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.inWorkoutSetupTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.setupStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.status))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.inWorkoutSetupDarkRouteID)
+
+      NavigationLink {
+        InWorkoutSetupLightView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.inWorkoutSetupTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.setupStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.status))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.inWorkoutSetupLightRouteID)
+
+      NavigationLink {
+        RPERatingView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.rpeRatingTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.setupStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.sessionStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.rpeRatingDarkRouteID)
+
+      NavigationLink {
+        RPERatingLightView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.rpeRatingTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.setupStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.sessionStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.rpeRatingLightRouteID)
+
+      NavigationLink {
+        ExerciseSubstitutionView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.substitutionTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.substitutionStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.substitutionStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.substitutionDarkRouteID)
+
+      NavigationLink {
+        ExerciseSubstitutionLightView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.substitutionTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.substitutionStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.substitutionStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.substitutionLightRouteID)
+
+      NavigationLink {
+        ExerciseLibraryView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.exerciseLibraryTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.exerciseLibraryStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.exerciseLibraryStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.exerciseLibraryDarkRouteID)
+
+      NavigationLink {
+        ExerciseLibraryLightView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.exerciseLibraryTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.exerciseLibraryStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.exerciseLibraryStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.exerciseLibraryLightRouteID)
+
+      NavigationLink {
+        VideoPlayerView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.videoPlayerTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.videoPlayerStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.videoPlayerStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.videoPlayerDarkRouteID)
+
+      NavigationLink {
+        VideoPlayerLightView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.videoPlayerTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.videoPlayerStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.videoPlayerStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.videoPlayerLightRouteID)
     }
     .cardSurface()
   }
 
   private var nutritionSection: some View {
-    @Bindable var bindableViewModel = nutritionViewModel
+    VStack(alignment: .leading, spacing: 12) {
+      NavigationLink {
+        NutritionHubView(
+          viewModel: nutritionViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.nutritionTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.nutritionStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(nutritionProgressAIScreenContract.nutritionStatus.rawValue))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(NutritionRouteContract.nutritionHubDarkRouteID)
 
-    return VStack(alignment: .leading, spacing: 12) {
-      Text(copy.text(.nutritionTitle))
-        .font(.title3.bold())
-      TextField(copy.text(.nutritionDate), text: $bindableViewModel.date)
-        .textFieldStyle(RoundedBorderTextFieldStyle())
-      HStack {
-        TextField(copy.text(.calories), value: $bindableViewModel.calories, format: .number)
-          .textFieldStyle(RoundedBorderTextFieldStyle())
-        TextField(copy.text(.protein), value: $bindableViewModel.proteinGrams, format: .number)
-          .textFieldStyle(RoundedBorderTextFieldStyle())
-      }
-      HStack {
-        TextField(copy.text(.carbs), value: $bindableViewModel.carbsGrams, format: .number)
-          .textFieldStyle(RoundedBorderTextFieldStyle())
-        TextField(copy.text(.fats), value: $bindableViewModel.fatsGrams, format: .number)
-          .textFieldStyle(RoundedBorderTextFieldStyle())
-      }
-      HStack {
-        Button(copy.text(.saveLog)) {
-          Task { await nutritionViewModel.saveLog(userID: activeUserID) }
+      NavigationLink {
+        ProgressMetricsView(
+          viewModel: progressViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.progressTitle))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.statusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(nutritionProgressAIScreenContract.progressStatus.rawValue))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        Button(copy.text(.loadLogs)) {
-          Task { await nutritionViewModel.refreshLogs(userID: activeUserID) }
-        }
-        .buttonStyle(.bordered)
+        .frame(maxWidth: .infinity, alignment: .leading)
       }
-      Text(
-        "\(copy.text(.nutritionStatusLabel)): \(copy.humanStatus(nutritionProgressAIScreenContract.nutritionStatus.rawValue))"
-      )
-      .foregroundStyle(.secondary)
-      .font(.footnote)
-      .accessibilityIdentifier("nutrition.status")
-      Text("\(copy.text(.nutritionLogsLoaded)): \(nutritionProgressAIScreenContract.nutritionLogs.count)")
-        .foregroundStyle(.secondary)
-        .font(.footnote)
-        .accessibilityIdentifier("nutrition.logsCount")
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(ProgressRouteContract.metricsDarkRouteID)
+
+      NavigationLink {
+        NutritionLogMealView(
+          viewModel: nutritionViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text(copy.text(.saveLog))
+            .font(.body.weight(.semibold))
+          Text(copy.text(.nutritionStatusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(nutritionProgressAIScreenContract.nutritionStatus.rawValue))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(NutritionRouteContract.logMealDarkRouteID)
     }
     .cardSurface()
   }
@@ -701,28 +1298,63 @@ public struct ExperienceHubView: View {
   }
 
   private var settingsSection: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      Text(copy.text(.settingsTitle))
-        .font(.title3.bold())
-      Toggle(copy.text(.notificationsPreference), isOn: $notificationsEnabled)
-        .accessibilityIdentifier("settings.notifications")
-      Toggle(copy.text(.watchPreference), isOn: $watchSyncEnabled)
-        .accessibilityIdentifier("settings.watchSync")
-      Toggle(copy.text(.calendarPreference), isOn: $calendarSyncEnabled)
-        .accessibilityIdentifier("settings.calendarSync")
-      Button(copy.text(.saveSettings)) {
-        saveSettings()
+    VStack(alignment: .leading, spacing: 10) {
+      NavigationLink {
+        SettingsHomeView(
+          viewModel: settingsHomeViewModel,
+          accountProfileViewModel: accountProfileViewModel,
+          notificationsViewModel: notificationsViewModel,
+          privacyConsentViewModel: privacyConsentViewModel,
+          exportDataViewModel: exportDataViewModel,
+          deleteAccountViewModel: deleteAccountViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        settingsRouteLabel(
+          title: copy.text(.settingsTitle),
+          subtitle: copy.text(.settingsStatusLabel),
+          status: settingsHomeViewModel.status
+        )
       }
-      .buttonStyle(.borderedProminent)
-      .tint(.orange)
-      .accessibilityIdentifier("settings.save")
-      Text(
-        "\(copy.text(.settingsStatusLabel)): \(copy.humanStatus(settingsLegalScreenContract.settingsStatus.rawValue))"
-      )
-        .foregroundStyle(.secondary)
-        .font(.footnote)
-        .accessibilityIdentifier("settings.status")
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(SettingsRouteContract.darkHomeRouteID)
+
+      NavigationLink {
+        SettingsHomeLightView(
+          viewModel: settingsHomeViewModel,
+          accountProfileViewModel: accountProfileViewModel,
+          notificationsViewModel: notificationsViewModel,
+          privacyConsentViewModel: privacyConsentViewModel,
+          exportDataViewModel: exportDataViewModel,
+          deleteAccountViewModel: deleteAccountViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        settingsRouteLabel(
+          title: "\(copy.text(.settingsTitle)) Light",
+          subtitle: copy.text(.settingsStatusLabel),
+          status: settingsHomeViewModel.status
+        )
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(SettingsRouteContract.lightHomeRouteID)
     }
+  }
+
+  private func settingsRouteLabel(title: String, subtitle: String, status: String) -> some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text(title)
+        .font(.title3.bold())
+      Text(subtitle)
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+      Text(copy.humanStatus(status))
+        .font(.headline)
+        .foregroundStyle(.orange)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
     .cardSurface()
   }
 
@@ -766,11 +1398,6 @@ public struct ExperienceHubView: View {
         .accessibilityIdentifier("legal.status")
     }
     .cardSurface()
-  }
-
-  private func saveSettings() {
-    settingsStatus = SettingsLegalScreenStatus.loading.rawValue
-    settingsStatus = SettingsLegalScreenStatus.saved.rawValue
   }
 
   private func saveConsent() {
@@ -1143,7 +1770,7 @@ public struct ExperienceHubView: View {
       onboardingHeightCm: onboardingViewModel.heightCm,
       onboardingWeightKg: onboardingViewModel.weightKg,
       onboardingAvailableDaysPerWeek: onboardingViewModel.availableDaysPerWeek,
-      onboardingParQResponsesCount: [parQQuestionOne, parQQuestionTwo].count,
+      onboardingParQResponsesCount: onboardingViewModel.parQResponses.count,
       selectedPlanID: trainingViewModel.selectedPlanID,
       selectedExerciseID: trainingViewModel.selectedExerciseIDForVideos,
       nutritionDate: nutritionViewModel.date,
@@ -1152,6 +1779,19 @@ public struct ExperienceHubView: View {
       carbsGrams: nutritionViewModel.carbsGrams,
       fatsGrams: nutritionViewModel.fatsGrams
     )
+  }
+
+  private func goalCopyKey(for goal: TrainingGoal) -> CopyKey {
+    switch goal {
+    case .fatLoss:
+      return .goalFatLoss
+    case .recomposition:
+      return .goalRecomposition
+    case .muscleGain:
+      return .goalMuscleGain
+    case .habit:
+      return .goalHabit
+    }
   }
 }
 
