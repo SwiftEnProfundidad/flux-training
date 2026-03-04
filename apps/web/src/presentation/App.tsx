@@ -77,7 +77,7 @@ import {
 import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
 import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract";
 import { createDashboardKpisLaneScreenModel } from "./dashboard-kpis-lane-contract";
-import { createReadinessMonitorScreenModel } from "./readiness-monitor-contract";
+import { createReadinessMonitorLaneScreenModel } from "./readiness-monitor-lane-contract";
 import { createAlertsFullScreenModel } from "./alerts-full-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
@@ -585,12 +585,13 @@ export function App() {
   );
   const readinessMonitorScreenModel = useMemo(
     () =>
-      createReadinessMonitorScreenModel({
+      createReadinessMonitorLaneScreenModel({
+        lane: webLane,
         dashboardHomeStatus: dashboardHomeScreenModel.status,
         readinessScore: readiness.score,
         authStatus
       }),
-    [authStatus, dashboardHomeScreenModel.status, readiness.score]
+    [authStatus, dashboardHomeScreenModel.status, readiness.score, webLane]
   );
   const alertsFullScreenModel = useMemo(
     () =>
@@ -3231,7 +3232,7 @@ export function App() {
                 className="module-card"
                 data-screen-id={readinessMonitorScreenModel.screenId}
                 data-route-id={readinessMonitorScreenModel.routeId}
-                data-status-id="web.readinessMonitor.status"
+                data-status-id={`${readinessMonitorScreenModel.screenId}.status`}
               >
                 <SectionHeader
                   title={translate("readinessMonitorTitle")}
@@ -3256,7 +3257,7 @@ export function App() {
                   <button
                     className="button ghost"
                     type="button"
-                    data-action-id="web.readinessMonitor.refresh"
+                    data-action-id={readinessMonitorScreenModel.actions.refresh}
                     onClick={() => void handleRefreshReadinessMonitor()}
                     disabled={readinessMonitorScreenModel.status === "loading"}
                   >
