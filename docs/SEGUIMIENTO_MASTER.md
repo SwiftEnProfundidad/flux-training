@@ -94,6 +94,7 @@
 - `WEB-L-030_QUICK_ACTIONS` ya esta operativo con pantalla light dedicada (`web.light.quickActions.screen`) y acciones instrumentadas por lane (`web.light.quickActions.*`) sobre la misma logica real de operaciones.
 - `WEB-L-040_ALERT_CENTER` ya esta operativo con pantalla light dedicada (`web.light.alertCenter.screen`) y acciones de carga/audit por lane (`web.light.alertCenter.load`, `web.light.alertCenter.audit`) sobre observabilidad real.
 - `WEB-L-050_SYSTEM_STATUS` ya esta operativo con pantalla light dedicada (`web.light.systemStatus.screen`) y acciones de resiliencia por lane (`web.light.systemStatus.syncQueue`, `recoverDomain`, `reloadCapabilities`).
+- `WEB-200_DASHBOARD_KPIS` ya esta operativo con pantalla KPI dedicada (`web.dashboardKpis.screen`) y refresco real (`web.dashboardKpis.refresh`) sobre datos vivos de planes/sesiones/nutricion/recomendaciones/alertas/cola.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

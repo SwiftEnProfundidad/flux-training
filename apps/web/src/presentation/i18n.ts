@@ -292,6 +292,10 @@ type AppTranslations = {
   systemStatusReleaseLabel: string;
   systemStatusRoleMatrixLabel: string;
   systemStatusQueueLabel: string;
+  dashboardKpisTitle: string;
+  dashboardKpisStatusLabel: string;
+  dashboardKpisSummary: string;
+  dashboardKpisRefreshAction: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -602,6 +606,10 @@ const translations: Record<AppLanguage, AppTranslations> = {
     systemStatusReleaseLabel: "Release",
     systemStatusRoleMatrixLabel: "Matriz de roles",
     systemStatusQueueLabel: "Cola pendiente",
+    dashboardKpisTitle: "Dashboard KPIs",
+    dashboardKpisStatusLabel: "KPIs",
+    dashboardKpisSummary: "Resumen compacto de cobertura operativa para seguimiento diario.",
+    dashboardKpisRefreshAction: "Refrescar KPIs",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -910,6 +918,10 @@ const translations: Record<AppLanguage, AppTranslations> = {
     systemStatusReleaseLabel: "Release",
     systemStatusRoleMatrixLabel: "Role matrix",
     systemStatusQueueLabel: "Pending queue",
+    dashboardKpisTitle: "Dashboard KPIs",
+    dashboardKpisStatusLabel: "KPIs",
+    dashboardKpisSummary: "Compact operational coverage summary for day-to-day tracking.",
+    dashboardKpisRefreshAction: "Refresh KPIs",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:

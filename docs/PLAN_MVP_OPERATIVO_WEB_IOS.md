@@ -193,8 +193,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 - Total pantallas en este bloque: **5**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
-| 4.3.1 | WEB-200_DASHBOARD_KPIS | `ZvoLJ` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 4.3.2 | WEB-210_READINESS_MONITOR | `BylLP` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.3.1 | WEB-200_DASHBOARD_KPIS | `ZvoLJ` | ✅ | `web.route.dashboardKpis -> web.dashboardKpis.screen` | `createDashboardKpisScreenModel` + datos reales de `plans/sessions/nutrition/recommendations/alerts/queue` | Refrescar KPIs (`web.dashboardKpis.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/dashboard-kpis-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ screen/status/action KPI instrumentados (`web.dashboardKpis.*`) |
+| 4.3.2 | WEB-210_READINESS_MONITOR | `BylLP` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.3.3 | WEB-220_ALERTS_FULL | `NN703` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.3.4 | WEB-230_RECENT_ACTIVITY | `CvIve` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.3.5 | WEB-240_SHORTCUTS | `BzKbI` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.3.1 WEB-200_DASHBOARD_KPIS**
-- Siguiente task: **4.3.2 WEB-210_READINESS_MONITOR**
+- Task en construccion: **4.3.2 WEB-210_READINESS_MONITOR**
+- Siguiente task: **4.3.3 WEB-220_ALERTS_FULL**

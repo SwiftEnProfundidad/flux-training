@@ -76,6 +76,7 @@ import {
 } from "./access-gate-lane-contract";
 import { createSignInLaneScreenModel } from "./sign-in-lane-contract";
 import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract";
+import { createDashboardKpisScreenModel } from "./dashboard-kpis-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -539,6 +540,27 @@ export function App() {
   const openOperationalAlerts = useMemo(
     () => operationalAlerts.filter((alert) => alert.state !== "resolved"),
     [operationalAlerts]
+  );
+  const dashboardKpisScreenModel = useMemo(
+    () =>
+      createDashboardKpisScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        plansCount: plans.length,
+        sessionsCount: sessions.length,
+        nutritionLogsCount: nutritionLogs.length,
+        recommendationsCount: recommendations.length,
+        openAlertsCount: openOperationalAlerts.length,
+        pendingQueueCount
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      nutritionLogs.length,
+      openOperationalAlerts.length,
+      pendingQueueCount,
+      plans.length,
+      recommendations.length,
+      sessions.length
+    ]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -2527,6 +2549,10 @@ export function App() {
     setRoleCapabilitiesReloadNonce((current) => current + 1);
   }
 
+  async function handleRefreshDashboardKpis() {
+    await Promise.all([handleRunQuickActions(), handleRefreshAlertCenter()]);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -3080,6 +3106,45 @@ export function App() {
                       {translate("retryRoleCapabilities")}
                     </button>
                   </div>
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={dashboardKpisScreenModel.screenId}
+                data-route-id={dashboardKpisScreenModel.routeId}
+                data-status-id="web.dashboardKpis.status"
+              >
+                <SectionHeader
+                  title={translate("dashboardKpisTitle")}
+                  status={dashboardKpisScreenModel.status}
+                  statusLabel={translate("dashboardKpisStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("dashboardKpisSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric title={translate("planStatusLabel")} value={String(plans.length)} />
+                    <Metric title={translate("sessionStatusLabel")} value={String(sessions.length)} />
+                    <Metric title={translate("nutritionStatusLabel")} value={String(nutritionLogs.length)} />
+                    <Metric
+                      title={translate("recommendationsStatusLabel")}
+                      value={String(recommendations.length)}
+                    />
+                    <Metric
+                      title={translate("alertCenterOpenCountLabel")}
+                      value={String(openOperationalAlerts.length)}
+                    />
+                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
+                  </div>
+                  <button
+                    className="button ghost"
+                    type="button"
+                    data-action-id="web.dashboardKpis.refresh"
+                    onClick={() => void handleRefreshDashboardKpis()}
+                    disabled={dashboardKpisScreenModel.status === "loading"}
+                  >
+                    {translate("dashboardKpisRefreshAction")}
+                  </button>
                 </div>
               </article>
               {visibleModulesForDomain.length === 0 ? (

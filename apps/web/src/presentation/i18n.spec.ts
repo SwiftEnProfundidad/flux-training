@@ -45,6 +45,9 @@ describe("i18n", () => {
     expect(translate("systemStatusReleaseLabel")).toBe("Release");
     expect(translate("systemStatusRoleMatrixLabel")).toBe("Role matrix");
     expect(translate("systemStatusQueueLabel")).toBe("Pending queue");
+    expect(translate("dashboardKpisTitle")).toBe("Dashboard KPIs");
+    expect(translate("dashboardKpisStatusLabel")).toBe("KPIs");
+    expect(translate("dashboardKpisRefreshAction")).toBe("Refresh KPIs");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -130,6 +133,9 @@ describe("i18n", () => {
     expect(translate("systemStatusReleaseLabel")).toBe("Release");
     expect(translate("systemStatusRoleMatrixLabel")).toBe("Matriz de roles");
     expect(translate("systemStatusQueueLabel")).toBe("Cola pendiente");
+    expect(translate("dashboardKpisTitle")).toBe("Dashboard KPIs");
+    expect(translate("dashboardKpisStatusLabel")).toBe("KPIs");
+    expect(translate("dashboardKpisRefreshAction")).toBe("Refrescar KPIs");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");
