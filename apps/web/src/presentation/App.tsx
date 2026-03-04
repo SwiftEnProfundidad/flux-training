@@ -67,7 +67,7 @@ import {
   type DashboardDomain,
   type DashboardRole
 } from "./dashboard-domains";
-import { createDashboardHomeScreenModel } from "./dashboard-home-contract";
+import { createDashboardHomeLaneScreenModel } from "./dashboard-home-lane-contract";
 import { createQuickActionsScreenModel } from "./quick-actions-contract";
 import { createAlertCenterScreenModel } from "./alert-center-contract";
 import { createSystemStatusScreenModel } from "./system-status-contract";
@@ -479,7 +479,8 @@ export function App() {
     dashboardHomeRuntimeStateOverride ?? activeDomainRuntimeState;
   const dashboardHomeScreenModel = useMemo(
     () =>
-      createDashboardHomeScreenModel({
+      createDashboardHomeLaneScreenModel({
+        lane: webLane,
         hasAuthenticatedSession,
         activeDomain,
         activeDomainRuntimeState: effectiveDashboardHomeRuntimeState,
@@ -489,7 +490,8 @@ export function App() {
       activeDomain,
       effectiveDashboardHomeRuntimeState,
       hasAuthenticatedSession,
-      visibleModulesForDomain.length
+      visibleModulesForDomain.length,
+      webLane
     ]
   );
   const accessGateScreenModel = useMemo(

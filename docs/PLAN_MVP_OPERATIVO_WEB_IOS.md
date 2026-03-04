@@ -184,8 +184,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 |---|---|---|---|---|---|---|---|---|---|
 | 4.2.1 | WEB-L-000_ACCESS_GATE | `0nOxO` | ✅ | `web.route.light.accessGate -> web.light.accessGate.screen` | `CreateAuthSessionUseCase` + `firebaseAuthGateway` + selector de lane (`main|secondary`) | Abrir access gate light (`web.light.accessGate.apple`, `web.light.accessGate.email`) | signed_out|loading|validation_error|auth_error|session_required|signed_in | ✅ `presentation/access-gate-lane-contract.spec.ts` + `presentation/i18n.spec.ts` + `domain/auth.spec.ts` | ✅ lane/route/screen/status/actions instrumentados (`web.route.light.accessGate`, `web.light.accessGate.screen`) |
 | 4.2.2 | WEB-L-010_SIGN_IN | `SEEJU` | ✅ | `web.route.light.signIn -> web.light.signIn.screen` | `CreateAuthSessionUseCase` + `firebaseAuthGateway` + lane contract (`createSignInLaneScreenModel`) | Iniciar sesion light (`web.light.signIn.apple`, `web.light.signIn.email`, `web.light.signIn.recoverEmail`, `web.light.signIn.recoverSMS`) | signed_out|loading|validation_error|auth_error|recovery_sent_email|recovery_sent_sms|signed_in | ✅ `presentation/sign-in-lane-contract.spec.ts` + `presentation/i18n.spec.ts` + `domain/auth.spec.ts` | ✅ route/screen/status/actions instrumentados (`web.route.light.signIn`, `web.light.signIn.*`) |
-| 4.2.3 | WEB-L-020_DASHBOARD_HOME | `WrrZF` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 4.2.4 | WEB-L-030_QUICK_ACTIONS | `nnRoY` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.2.3 | WEB-L-020_DASHBOARD_HOME | `WrrZF` | ✅ | `web.route.light.dashboardHome -> web.light.dashboardHome.screen` | `createDashboardHomeLaneScreenModel` + `resolveDashboardHomeStatus` + runtime real (`DomainRuntimeStates`) | Refrescar dashboard light (`web.dashboardHome.refresh` con lane secondary) | loading|empty|error|success|denied|offline | ✅ `presentation/dashboard-home-lane-contract.spec.ts` + `presentation/dashboard-home-contract.spec.ts` + `presentation/i18n.spec.ts` | ✅ route/screen light instrumentados (`web.route.light.dashboardHome`, `web.light.dashboardHome.screen`) |
+| 4.2.4 | WEB-L-030_QUICK_ACTIONS | `nnRoY` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.2.5 | WEB-L-040_ALERT_CENTER | `94bpd` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.2.6 | WEB-L-050_SYSTEM_STATUS | `FdXQL` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.2.3 WEB-L-020_DASHBOARD_HOME**
-- Siguiente task: **4.2.4 WEB-L-030_QUICK_ACTIONS**
+- Task en construccion: **4.2.4 WEB-L-030_QUICK_ACTIONS**
+- Siguiente task: **4.2.5 WEB-L-040_ALERT_CENTER**
