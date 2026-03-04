@@ -21,6 +21,7 @@ public struct FluxTrainingProductRootView: View {
   @State private var selectedTab: ProductTab = .today
   @State private var authScreen: AuthScreen = .welcome
   @State private var isOnboardingCompleted = false
+  @State private var selectedTrainingStage: TrainingStage = .today
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
@@ -259,31 +260,28 @@ public struct FluxTrainingProductRootView: View {
 
   private var todayTab: some View {
     NavigationStack {
-      ScrollView {
-        LazyVStack(spacing: 16) {
-          TrainingTodayView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          PlanActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          InWorkoutSetupView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          WorkoutActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          RPERatingView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          ExerciseSubstitutionView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          ExerciseLibraryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          VideoPlayerView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          SessionSummaryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
+      VStack(spacing: 8) {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 8) {
+            ForEach(TrainingStage.allCases, id: \.self) { stage in
+              Button(stage.title(copy: copy)) {
+                selectedTrainingStage = stage
+              }
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(stage == selectedTrainingStage ? Color.black : Color.white.opacity(0.85))
+              .padding(.horizontal, 12)
+              .padding(.vertical, 8)
+              .background(stage == selectedTrainingStage ? Color.orange : Color.white.opacity(0.10))
+              .clipShape(.rect(cornerRadius: 10))
+              .accessibilityIdentifier("training.stage.\(stage.rawValue)")
+            }
+          }
+          .padding(.horizontal, 16)
+          .padding(.top, 8)
         }
-        .padding(16)
+        selectedTrainingStageView
       }
       .background(backgroundGradient)
-      .navigationTitle(copy.text(.todayTab))
       .toolbar {
         ToolbarItem(placement: .primaryAction) {
           languageSelector
@@ -469,6 +467,7 @@ public struct FluxTrainingProductRootView: View {
     onboardingStep = .profile
     selectedTab = .today
     authScreen = .welcome
+    selectedTrainingStage = .today
   }
 
   private func syncOnboardingStateWithPersistedProfile() async {
@@ -486,6 +485,30 @@ public struct FluxTrainingProductRootView: View {
     onboardingViewModel.heightCm = accountProfileViewModel.heightCm
     onboardingViewModel.weightKg = accountProfileViewModel.weightKg
     onboardingViewModel.selectedGoal = accountProfileViewModel.goal
+  }
+
+  @ViewBuilder
+  private var selectedTrainingStageView: some View {
+    switch selectedTrainingStage {
+    case .today:
+      TrainingTodayView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .planActive:
+      PlanActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .sessionSetup:
+      InWorkoutSetupView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .workoutActive:
+      WorkoutActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .rpe:
+      RPERatingView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .substitution:
+      ExerciseSubstitutionView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .library:
+      ExerciseLibraryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .video:
+      VideoPlayerView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    case .summary:
+      SessionSummaryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    }
   }
 }
 
@@ -505,6 +528,42 @@ private enum AuthScreen {
   case otp
   case recover
   case sessionExpired
+}
+
+@available(iOS 17, macOS 14, *)
+private enum TrainingStage: String, CaseIterable {
+  case today
+  case planActive
+  case sessionSetup
+  case workoutActive
+  case rpe
+  case substitution
+  case library
+  case video
+  case summary
+
+  func title(copy: LocalizedCopy) -> String {
+    switch self {
+    case .today:
+      return copy.text(.trainingCockpitTitle)
+    case .planActive:
+      return copy.text(.planName)
+    case .sessionSetup:
+      return copy.text(.inWorkoutSetupTitle)
+    case .workoutActive:
+      return copy.text(.substitutionTitle)
+    case .rpe:
+      return copy.text(.rpeRatingTitle)
+    case .substitution:
+      return copy.text(.substitutionTitle)
+    case .library:
+      return copy.text(.exerciseLibraryTitle)
+    case .video:
+      return copy.text(.videoPlayerTitle)
+    case .summary:
+      return copy.text(.sessionStatusLabel)
+    }
+  }
 }
 
 @available(iOS 17, macOS 14, *)
