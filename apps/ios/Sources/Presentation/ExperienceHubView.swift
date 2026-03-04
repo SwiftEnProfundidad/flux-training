@@ -914,6 +914,28 @@ public struct ExperienceHubView: View {
       .accessibilityIdentifier(TrainingRouteContract.todayDarkRouteID)
 
       NavigationLink {
+        TrainingTodayLightView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.trainingCockpitTitle)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.statusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.status))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.todayLightRouteID)
+
+      NavigationLink {
         PlanActiveView(
           viewModel: trainingViewModel,
           userID: activeUserID,

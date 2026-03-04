@@ -76,6 +76,7 @@
 - `IOS-130_WORKOUT_ACTIVE` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.workoutActive`, `training.workoutActive.screen`) y ajuste real de ejercicio activo con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-140_EXERCISE_VIDEO` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.videoPlayer`, `training.videoPlayer.screen`) y reproduccion real de video por ejercicio con estados `loading|empty|error|success|denied|offline`.
 - `IOS-150_SESSION_SUMMARY` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.sessionSummary`, `training.sessionSummary.screen`) y resumen real de sesion con estados `loading|empty|error|saved|loaded|denied|offline`.
+- `IOS-L-100_TODAY` ya esta operativo como variante light del cockpit diario con ruta/pantalla propias (`training.route.todayLight`, `training.today.light.screen`) y refresco real de estado diario con estados `loading|empty|error|loaded|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
