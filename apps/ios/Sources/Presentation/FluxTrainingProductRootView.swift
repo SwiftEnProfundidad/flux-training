@@ -22,6 +22,7 @@ public struct FluxTrainingProductRootView: View {
   @State private var authScreen: AuthScreen = .welcome
   @State private var isOnboardingCompleted = false
   @State private var selectedTrainingStage: TrainingStage = .today
+  @State private var selectedProgressStage: ProgressStage = .metrics
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
@@ -292,30 +293,26 @@ public struct FluxTrainingProductRootView: View {
 
   private var progressTab: some View {
     NavigationStack {
-      ScrollView {
-        LazyVStack(spacing: 16) {
-          ProgressMetricsView(viewModel: progressViewModel, userID: activeUserID, copy: copy)
-            .productCardSurface()
-          WeeklyReviewView(
-            progressViewModel: progressViewModel,
-            trainingViewModel: trainingViewModel,
-            nutritionViewModel: nutritionViewModel,
-            userID: activeUserID,
-            copy: copy
-          )
-          .productCardSurface()
-          GoalAdjustView(viewModel: onboardingViewModel, copy: copy)
-            .productCardSurface()
-          AICoachView(
-            recommendations: $recommendations,
-            status: $recommendationsStatus,
-            copy: copy
-          ) {
-            await loadRecommendations()
+      VStack(spacing: 8) {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 8) {
+            ForEach(ProgressStage.allCases, id: \.self) { stage in
+              Button(stage.title(copy: copy)) {
+                selectedProgressStage = stage
+              }
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(stage == selectedProgressStage ? Color.black : Color.white.opacity(0.85))
+              .padding(.horizontal, 12)
+              .padding(.vertical, 8)
+              .background(stage == selectedProgressStage ? Color.orange : Color.white.opacity(0.10))
+              .clipShape(.rect(cornerRadius: 10))
+              .accessibilityIdentifier("progress.stage.\(stage.rawValue)")
+            }
           }
-          .productCardSurface()
+          .padding(.horizontal, 16)
+          .padding(.top, 8)
         }
-        .padding(16)
+        selectedProgressStageView
       }
       .background(backgroundGradient)
       .navigationTitle(copy.text(.progressTab))
@@ -468,6 +465,7 @@ public struct FluxTrainingProductRootView: View {
     selectedTab = .today
     authScreen = .welcome
     selectedTrainingStage = .today
+    selectedProgressStage = .metrics
   }
 
   private func syncOnboardingStateWithPersistedProfile() async {
@@ -508,6 +506,40 @@ public struct FluxTrainingProductRootView: View {
       VideoPlayerView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
     case .summary:
       SessionSummaryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+    }
+  }
+
+  @ViewBuilder
+  private var selectedProgressStageView: some View {
+    switch selectedProgressStage {
+    case .metrics:
+      ProgressMetricsView(viewModel: progressViewModel, userID: activeUserID, copy: copy)
+        .productCardSurface()
+        .padding(16)
+    case .weeklyReview:
+      WeeklyReviewView(
+        progressViewModel: progressViewModel,
+        trainingViewModel: trainingViewModel,
+        nutritionViewModel: nutritionViewModel,
+        userID: activeUserID,
+        copy: copy
+      )
+      .productCardSurface()
+      .padding(16)
+    case .goalAdjust:
+      GoalAdjustView(viewModel: onboardingViewModel, copy: copy)
+        .productCardSurface()
+        .padding(16)
+    case .aiCoach:
+      AICoachView(
+        recommendations: $recommendations,
+        status: $recommendationsStatus,
+        copy: copy
+      ) {
+        await loadRecommendations()
+      }
+      .productCardSurface()
+      .padding(16)
     }
   }
 }
@@ -562,6 +594,27 @@ private enum TrainingStage: String, CaseIterable {
       return copy.text(.videoPlayerTitle)
     case .summary:
       return copy.text(.sessionStatusLabel)
+    }
+  }
+}
+
+@available(iOS 17, macOS 14, *)
+private enum ProgressStage: String, CaseIterable {
+  case metrics
+  case weeklyReview
+  case goalAdjust
+  case aiCoach
+
+  func title(copy: LocalizedCopy) -> String {
+    switch self {
+    case .metrics:
+      return copy.text(.progressTitle)
+    case .weeklyReview:
+      return copy.text(.progressNavigationTitle)
+    case .goalAdjust:
+      return copy.text(.goalLabel)
+    case .aiCoach:
+      return copy.text(.recommendationsTitle)
     }
   }
 }

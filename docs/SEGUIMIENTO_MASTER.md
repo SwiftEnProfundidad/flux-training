@@ -156,6 +156,7 @@
 - Web runtime endurecido anti-regresion QA: el modo QA ahora exige doble opt-in explicito (`VITE_WEB_RUNTIME_MODE=qa` + `VITE_WEB_QA_UI_ENABLED=1` + `?qa=1`), evitando exponer UI de test en ejecucion productiva por accidente.
 - Microcopy de estados de autenticacion normalizado para usuario final (iOS/Web): `signed_out` pasa a mensaje de accion (`inicia sesion` / `sign in required`) y `auth_error` se expresa como fallo de inicio de sesion no tecnico.
 - iOS Today/Entrenamiento ya no renderiza un catalogo continuo: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla de entrenamiento por vez (cockpit, plan, setup, workout, RPE, sustitucion, biblioteca, video, resumen).
+- iOS Progreso ya no renderiza bloque continuo de cards: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (metricas, review semanal, ajuste de objetivo, IA coach).
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
