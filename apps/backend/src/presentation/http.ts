@@ -1,7 +1,6 @@
 import {
   accessDecisionInputSchema,
   accessDecisionResultSchema,
-  accessRoleSchema,
   activityLogActionSchema,
   activityLogEntrySchema,
   activityLogOutcomeSchema,
@@ -88,10 +87,15 @@ import { StaticExerciseVideoRepository } from "../infrastructure/static-exercise
 import { FirestoreDeniedAccessAuditRepository } from "../infrastructure/firestore-denied-access-audit-repository";
 import { FirestoreLegalConsentAuditRepository } from "../infrastructure/firestore-legal-consent-audit-repository";
 import {
-  parseAccessRoleHeader,
   parseBearerTokenHeader,
   toDeniedAccessReason
 } from "./request-auth-guards";
+import {
+  createAccessRoleAssignments,
+  parseRequestedAccessRole,
+  resolveAssignedAccessRole,
+  resolveEffectiveAccessRole
+} from "./access-role-resolution";
 
 const repository = new FirestoreWorkoutSessionRepository();
 const createWorkoutSessionUseCase = new CreateWorkoutSessionUseCase(repository);
@@ -196,12 +200,17 @@ const ensureSupportedClientVersionUseCase = new EnsureSupportedClientVersionUseC
   webMinimumVersion: String(process.env.MIN_WEB_CLIENT_VERSION ?? "0.1.0"),
   iosMinimumVersion: String(process.env.MIN_IOS_CLIENT_VERSION ?? "0.1.0")
 });
+const accessRoleAssignments = createAccessRoleAssignments(
+  process.env.FLUX_ACCESS_ADMIN_USER_IDS,
+  process.env.FLUX_ACCESS_COACH_USER_IDS
+);
 
 type HeaderRequest = {
   header(name: string): string | string[] | undefined;
 };
 
 type JsonResponse = {
+  set(name: string, value: string): JsonResponse;
   status(code: number): {
     json(payload: Record<string, unknown>): void;
   };
@@ -301,14 +310,16 @@ function resolveCorrelationId(request: HeaderRequest): string {
 }
 
 function createStandardErrorPayload(
-  request: HeaderRequest,
+  correlationId: string,
   error: string,
-  retryable: boolean
+  retryable: boolean,
+  statusCode: number
 ): Record<string, unknown> {
   return {
     error,
-    correlationId: resolveCorrelationId(request),
-    retryable
+    correlationId,
+    retryable,
+    statusCode
   };
 }
 
@@ -318,9 +329,12 @@ function sendStandardError(
   statusCode: number,
   error: string
 ): void {
-  response.status(statusCode).json(
-    createStandardErrorPayload(request, error, statusCode >= 500)
-  );
+  const correlationId = resolveCorrelationId(request);
+  response
+    .set("x-correlation-id", correlationId)
+    .set("x-flux-error-code", error)
+    .status(statusCode)
+    .json(createStandardErrorPayload(correlationId, error, statusCode >= 500, statusCode));
 }
 
 function resolveIdempotencyCacheKey(
@@ -415,11 +429,16 @@ function shouldRejectUnsupportedClient(
     return false;
   } catch (error) {
     if (error instanceof ClientUpdateRequiredError) {
-      response.status(426).json({
-        ...createStandardErrorPayload(request, error.code, false),
-        platform: error.platform,
-        minimumVersion: error.minimumVersion
-      });
+      const correlationId = resolveCorrelationId(request);
+      response
+        .set("x-correlation-id", correlationId)
+        .set("x-flux-error-code", error.code)
+        .status(426)
+        .json({
+          ...createStandardErrorPayload(correlationId, error.code, false, 426),
+          platform: error.platform,
+          minimumVersion: error.minimumVersion
+        });
       return true;
     }
     sendStandardError(request, response, 400, "invalid_client_version");
@@ -437,9 +456,11 @@ async function authenticateRequest(
     return undefined;
   }
 
-  let role: AccessRole;
+  let requestedRole: AccessRole | null;
   try {
-    role = parseAccessRoleHeader(normalizeHeaderValue(request.header("x-flux-access-role")));
+    requestedRole = parseRequestedAccessRole(
+      normalizeHeaderValue(request.header("x-flux-access-role"))
+    );
   } catch {
     sendStandardError(request, response, 400, "invalid_access_role");
     return undefined;
@@ -447,11 +468,20 @@ async function authenticateRequest(
 
   try {
     const identity = await authTokenVerifier.verify(token);
+    const assignedRole = resolveAssignedAccessRole(
+      identity.providerUserId,
+      accessRoleAssignments
+    );
+    const role = resolveEffectiveAccessRole(assignedRole, requestedRole);
     return {
       userId: identity.providerUserId,
       role
     };
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === "role_escalation_denied") {
+      sendStandardError(request, response, 403, "role_escalation_denied");
+      return undefined;
+    }
     sendStandardError(request, response, 401, "invalid_authorization_bearer");
     return undefined;
   }
@@ -965,10 +995,15 @@ export const listRoleCapabilities = onRequest(async (request, response) => {
     if (actor === undefined) {
       return;
     }
-    const role = accessRoleSchema.parse(String(request.query.role ?? "athlete"));
+    const requestedRole = parseRequestedAccessRole(String(request.query.role ?? ""));
+    const role = resolveEffectiveAccessRole(actor.role, requestedRole);
     const capabilities = listRoleCapabilitiesUseCase.execute(role);
     response.status(200).json({ capabilities });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === "role_escalation_denied") {
+      sendStandardError(request, response, 403, "role_escalation_denied");
+      return;
+    }
     sendStandardError(request, response, 400, "invalid_list_role_capabilities_payload");
   }
 });
@@ -986,9 +1021,17 @@ export const evaluateAccessDecision = onRequest(async (request, response) => {
       return;
     }
     const payload = accessDecisionInputSchema.parse(request.body);
-    const decision = evaluateRoleAccessUseCase.execute(payload);
+    const effectiveRole = resolveEffectiveAccessRole(actor.role, payload.role);
+    const decision = evaluateRoleAccessUseCase.execute({
+      ...payload,
+      role: effectiveRole
+    });
     response.status(200).json({ decision: accessDecisionResultSchema.parse(decision) });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === "role_escalation_denied") {
+      sendStandardError(request, response, 403, "role_escalation_denied");
+      return;
+    }
     sendStandardError(request, response, 400, "invalid_evaluate_access_decision_payload");
   }
 });
@@ -1010,9 +1053,17 @@ export const recordDeniedAccessAudit = onRequest(async (request, response) => {
     if (actor === undefined) {
       return;
     }
-    const audit = await recordDeniedAccessAuditUseCase.execute(payload);
+    const effectiveRole = resolveEffectiveAccessRole(actor.role, payload.role);
+    const audit = await recordDeniedAccessAuditUseCase.execute({
+      ...payload,
+      role: effectiveRole
+    });
     response.status(201).json({ audit: deniedAccessAuditSchema.parse(audit) });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === "role_escalation_denied") {
+      sendStandardError(request, response, 403, "role_escalation_denied");
+      return;
+    }
     sendStandardError(request, response, 400, "invalid_denied_access_audit_payload");
   }
 });
