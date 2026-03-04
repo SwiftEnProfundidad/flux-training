@@ -74,6 +74,7 @@
 - `IOS-110_PLAN_ACTIVE` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.planActive`, `training.planActive.screen`) y gestion real de plan activo con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-120_SESSION_SETUP` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.inWorkoutSetup`, `training.inWorkoutSetup.screen`) y preparacion real de sesion con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-130_WORKOUT_ACTIVE` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.workoutActive`, `training.workoutActive.screen`) y ajuste real de ejercicio activo con estados `loading|empty|error|saved|validation_error|denied|offline`.
+- `IOS-140_EXERCISE_VIDEO` ya esta operativo como pantalla dark del carril de entrenamiento con ruta/pantalla propias (`training.route.videoPlayer`, `training.videoPlayer.screen`) y reproduccion real de video por ejercicio con estados `loading|empty|error|success|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
