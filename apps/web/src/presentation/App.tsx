@@ -7865,6 +7865,11 @@ function readWebRuntimeMode(): "qa" | "product" {
     return "product";
   }
 
+  const qaUIEnabled = String(importMeta.env?.VITE_WEB_QA_UI_ENABLED ?? "0").trim() === "1";
+  if (qaUIEnabled === false) {
+    return "product";
+  }
+
   if (typeof window === "undefined") {
     return "product";
   }
