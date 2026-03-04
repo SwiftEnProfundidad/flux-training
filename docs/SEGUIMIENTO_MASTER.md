@@ -92,6 +92,7 @@
 - `WEB-L-010_SIGN_IN` ya esta operativo con lane light dedicado (`web.route.light.signIn -> web.light.signIn.screen`) y acciones de login/recovery instrumentadas por variante (`web.light.signIn.*`).
 - `WEB-L-020_DASHBOARD_HOME` ya esta operativo con lane light dedicado (`web.route.light.dashboardHome -> web.light.dashboardHome.screen`) y contrato de estado compartido para runtime `loading|empty|error|success|denied|offline`.
 - `WEB-L-030_QUICK_ACTIONS` ya esta operativo con pantalla light dedicada (`web.light.quickActions.screen`) y acciones instrumentadas por lane (`web.light.quickActions.*`) sobre la misma logica real de operaciones.
+- `WEB-L-040_ALERT_CENTER` ya esta operativo con pantalla light dedicada (`web.light.alertCenter.screen`) y acciones de carga/audit por lane (`web.light.alertCenter.load`, `web.light.alertCenter.audit`) sobre observabilidad real.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

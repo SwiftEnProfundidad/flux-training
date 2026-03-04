@@ -68,7 +68,7 @@ import {
   type DashboardRole
 } from "./dashboard-domains";
 import { createDashboardHomeLaneScreenModel } from "./dashboard-home-lane-contract";
-import { createAlertCenterScreenModel } from "./alert-center-contract";
+import { createAlertCenterLaneScreenModel } from "./alert-center-lane-contract";
 import { createSystemStatusScreenModel } from "./system-status-contract";
 import {
   createAccessGateLaneScreenModel,
@@ -542,12 +542,13 @@ export function App() {
   );
   const alertCenterScreenModel = useMemo(
     () =>
-      createAlertCenterScreenModel({
+      createAlertCenterLaneScreenModel({
+        lane: webLane,
         dashboardHomeStatus: dashboardHomeScreenModel.status,
         observabilityStatus,
         openAlertsCount: openOperationalAlerts.length
       }),
-    [dashboardHomeScreenModel.status, observabilityStatus, openOperationalAlerts.length]
+    [dashboardHomeScreenModel.status, observabilityStatus, openOperationalAlerts.length, webLane]
   );
   const systemStatusScreenModel = useMemo(
     () =>
@@ -2948,7 +2949,7 @@ export function App() {
                 className="module-card"
                 data-screen-id={alertCenterScreenModel.screenId}
                 data-route-id={alertCenterScreenModel.routeId}
-                data-status-id="web.alertCenter.status"
+                data-status-id={`${alertCenterScreenModel.screenId}.status`}
               >
                 <SectionHeader
                   title={translate("alertCenterTitle")}
@@ -2979,7 +2980,7 @@ export function App() {
                     <button
                       className="button primary"
                       type="button"
-                      data-action-id="web.alertCenter.load"
+                      data-action-id={alertCenterScreenModel.actions.load}
                       onClick={() => void handleRefreshAlertCenter()}
                     >
                       {translate("alertCenterLoadAction")}
@@ -2987,7 +2988,7 @@ export function App() {
                     <button
                       className="button ghost"
                       type="button"
-                      data-action-id="web.alertCenter.audit"
+                      data-action-id={alertCenterScreenModel.actions.audit}
                       onClick={() => void handleLoadAuditTimeline()}
                     >
                       {translate("alertCenterAuditAction")}
