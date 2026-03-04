@@ -112,9 +112,9 @@ public struct AuthWelcomeView: View {
           .accessibilityIdentifier("auth.welcome.recoverSMS")
         }
 
-        if isStatusRelevant {
+        if let feedback = copy.authFeedback(viewModel.authStatus) {
           FluxCard {
-            Text(copy.humanStatus(viewModel.authStatus))
+            Text(feedback)
               .font(.footnote.weight(.semibold))
               .foregroundStyle(.orange)
               .accessibilityIdentifier("auth.welcome.status")
@@ -133,14 +133,5 @@ public struct AuthWelcomeView: View {
     }
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
-  }
-
-  private var isStatusRelevant: Bool {
-    switch viewModel.authStatus {
-    case "signed_out", "idle", "loading":
-      return false
-    default:
-      return true
-    }
   }
 }

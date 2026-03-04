@@ -33,9 +33,9 @@ public struct AuthRecoverAccountView: View {
           Text(copy.text(.emailField))
             .font(.caption.weight(.semibold))
             .foregroundStyle(.white.opacity(0.8))
-        TextField(copy.text(.emailField), text: $email)
+          TextField(copy.text(.emailField), text: $email)
             .fluxInputFieldStyle()
-          .accessibilityIdentifier("auth.recover.email")
+            .accessibilityIdentifier("auth.recover.email")
         }
 
         Button(copy.text(.recoverByEmail)) {
@@ -62,9 +62,9 @@ public struct AuthRecoverAccountView: View {
         .buttonStyle(FluxPrimaryButtonStyle())
         .accessibilityIdentifier("auth.recover.continue")
 
-        if isStatusRelevant {
+        if let feedback = copy.authFeedback(viewModel.authStatus) {
           FluxCard {
-            Text(copy.humanStatus(viewModel.authStatus))
+            Text(feedback)
               .font(.footnote.weight(.semibold))
               .foregroundStyle(.orange)
               .accessibilityIdentifier("auth.recover.status")
@@ -76,14 +76,5 @@ public struct AuthRecoverAccountView: View {
     .navigationTitle(copy.text(.recoverAccountTitle))
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
-  }
-
-  private var isStatusRelevant: Bool {
-    switch viewModel.authStatus {
-    case "signed_out", "idle", "loading":
-      return false
-    default:
-      return true
-    }
   }
 }

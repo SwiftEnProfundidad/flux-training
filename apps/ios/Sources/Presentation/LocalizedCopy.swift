@@ -98,6 +98,8 @@ public enum CopyKey: Sendable {
   case recoverByEmail
   case recoverBySMS
   case authStatusLabel
+  case rememberMe
+  case forgotPassword
   case signOutAction
   case onboardingTitle
   case onboardingStepOneSubtitle
@@ -398,6 +400,54 @@ public struct LocalizedCopy: Sendable {
 
     return normalizedStatus.replacingOccurrences(of: "_", with: " ")
   }
+
+  public func authFeedback(_ rawStatus: String) -> String? {
+    let normalizedStatus = rawStatus.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    if normalizedStatus.isEmpty {
+      return nil
+    }
+    if normalizedStatus == "signed_out" || normalizedStatus == "idle" || normalizedStatus == "loading" {
+      return nil
+    }
+    if normalizedStatus.hasPrefix("signed_in:") {
+      switch language {
+      case .es:
+        return "Sesion iniciada correctamente."
+      case .en:
+        return "Signed in successfully."
+      }
+    }
+
+    let messages: [SupportedLanguage: [String: String]] = [
+      .es: [
+        "validation_error": "Revisa los datos e intentalo de nuevo.",
+        "auth_error": "No pudimos iniciar sesion. Intentalo otra vez.",
+        "recovery_sent_email": "Te enviamos instrucciones al correo.",
+        "recovery_sent_sms": "Te enviamos un codigo por SMS.",
+        "session_expired": "Tu sesion expiro. Vuelve a iniciar sesion.",
+        "offline": "Sin conexion. Intentalo cuando vuelvas a tener red.",
+        "denied": "No tienes permiso para esta accion.",
+        "success": "Accion completada correctamente.",
+        "open": "Soporte informado. Revisaremos tu caso."
+      ],
+      .en: [
+        "validation_error": "Please review your input and try again.",
+        "auth_error": "We couldn't sign you in. Please try again.",
+        "recovery_sent_email": "Recovery instructions were sent to your email.",
+        "recovery_sent_sms": "A verification code was sent by SMS.",
+        "session_expired": "Your session expired. Please sign in again.",
+        "offline": "You're offline. Try again when connection is back.",
+        "denied": "You don't have permission for this action.",
+        "success": "Action completed successfully.",
+        "open": "Support was notified. We'll review your case."
+      ]
+    ]
+
+    if let message = messages[language]?[normalizedStatus] {
+      return message
+    }
+    return humanStatus(normalizedStatus)
+  }
 }
 
 private func spanishCopy(for key: CopyKey) -> String {
@@ -584,6 +634,10 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Recuperar por email"
   case .recoverBySMS:
     return "Recuperar por SMS"
+  case .rememberMe:
+    return "recordarme"
+  case .forgotPassword:
+    return "olvide mi contrasena"
   case .authStatusLabel:
     return "Acceso"
   case .signOutAction:
@@ -1093,6 +1147,10 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Recover by email"
   case .recoverBySMS:
     return "Recover by SMS"
+  case .rememberMe:
+    return "remember me"
+  case .forgotPassword:
+    return "forgot password?"
   case .authStatusLabel:
     return "Access"
   case .signOutAction:

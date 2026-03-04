@@ -47,9 +47,9 @@ public struct AuthSessionExpiredView: View {
         .buttonStyle(FluxSecondaryButtonStyle())
         .accessibilityIdentifier("auth.sessionExpired.openOfflineMode")
 
-        if isStatusRelevant {
+        if let feedback = copy.authFeedback(viewModel.authStatus) {
           FluxCard {
-            Text(copy.humanStatus(viewModel.authStatus))
+            Text(feedback)
               .font(.footnote.weight(.semibold))
               .foregroundStyle(.orange)
               .accessibilityIdentifier("auth.sessionExpired.status")
@@ -63,15 +63,6 @@ public struct AuthSessionExpiredView: View {
     .accessibilityIdentifier(screenAccessibilityID)
     .onAppear {
       viewModel.markSessionExpired()
-    }
-  }
-
-  private var isStatusRelevant: Bool {
-    switch viewModel.authStatus {
-    case "signed_out", "idle", "loading":
-      return false
-    default:
-      return true
     }
   }
 }

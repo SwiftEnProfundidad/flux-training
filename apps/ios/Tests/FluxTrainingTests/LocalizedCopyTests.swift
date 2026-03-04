@@ -15,6 +15,8 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.text(.passwordField), "Contrasena")
     XCTAssertEqual(copy.text(.recoverByEmail), "Recuperar por email")
     XCTAssertEqual(copy.text(.recoverBySMS), "Recuperar por SMS")
+    XCTAssertEqual(copy.text(.rememberMe), "recordarme")
+    XCTAssertEqual(copy.text(.forgotPassword), "olvide mi contrasena")
     XCTAssertEqual(copy.text(.languageOptionSpanish), "ES")
     XCTAssertEqual(copy.text(.languageOptionEnglish), "EN")
     XCTAssertEqual(copy.text(.runtimeStateSectionTitle), "Estado enterprise por dominio")
@@ -56,6 +58,10 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.humanStatus("open"), "en revision")
     XCTAssertEqual(copy.humanStatus("in_progress"), "en progreso")
     XCTAssertEqual(copy.humanStatus("resolved"), "resuelta")
+    XCTAssertNil(copy.authFeedback("signed_out"))
+    XCTAssertEqual(copy.authFeedback("auth_error"), "No pudimos iniciar sesion. Intentalo otra vez.")
+    XCTAssertEqual(copy.authFeedback("open"), "Soporte informado. Revisaremos tu caso.")
+    XCTAssertEqual(copy.authFeedback("signed_in:apple"), "Sesion iniciada correctamente.")
   }
 
   func test_englishTranslationsAreAvailable() {
@@ -71,6 +77,8 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.text(.passwordField), "Password")
     XCTAssertEqual(copy.text(.recoverByEmail), "Recover by email")
     XCTAssertEqual(copy.text(.recoverBySMS), "Recover by SMS")
+    XCTAssertEqual(copy.text(.rememberMe), "remember me")
+    XCTAssertEqual(copy.text(.forgotPassword), "forgot password?")
     XCTAssertEqual(copy.text(.languageOptionSpanish), "ES")
     XCTAssertEqual(copy.text(.languageOptionEnglish), "EN")
     XCTAssertEqual(copy.text(.runtimeStateSectionTitle), "Enterprise runtime state by domain")
@@ -112,5 +120,9 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.humanStatus("open"), "under review")
     XCTAssertEqual(copy.humanStatus("in_progress"), "in progress")
     XCTAssertEqual(copy.humanStatus("resolved"), "resolved")
+    XCTAssertNil(copy.authFeedback("signed_out"))
+    XCTAssertEqual(copy.authFeedback("auth_error"), "We couldn't sign you in. Please try again.")
+    XCTAssertEqual(copy.authFeedback("open"), "Support was notified. We'll review your case.")
+    XCTAssertEqual(copy.authFeedback("signed_in:apple"), "Signed in successfully.")
   }
 }

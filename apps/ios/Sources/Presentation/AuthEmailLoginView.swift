@@ -41,30 +41,33 @@ public struct AuthEmailLoginView: View {
           Text(copy.text(.emailField))
             .font(.caption.weight(.semibold))
             .foregroundStyle(.white.opacity(0.8))
-        TextField(copy.text(.emailField), text: $email)
+          TextField(copy.text(.emailField), text: $email)
             .fluxInputFieldStyle()
-          .accessibilityIdentifier("auth.emailLogin.email")
+            .accessibilityIdentifier("auth.emailLogin.email")
         }
 
         VStack(alignment: .leading, spacing: 6) {
           Text(copy.text(.passwordField))
             .font(.caption.weight(.semibold))
             .foregroundStyle(.white.opacity(0.8))
-        SecureField(copy.text(.passwordField), text: $password)
+          SecureField(copy.text(.passwordField), text: $password)
             .fluxInputFieldStyle()
-          .accessibilityIdentifier("auth.emailLogin.password")
+            .accessibilityIdentifier("auth.emailLogin.password")
         }
 
         HStack(spacing: 10) {
-          Button(rememberMe ? "recordarme ✓" : "recordarme") {
+          Button(copy.text(.rememberMe)) {
             rememberMe.toggle()
           }
           .buttonStyle(FluxSecondaryButtonStyle())
+          .opacity(rememberMe ? 1 : 0.65)
+          .accessibilityIdentifier("auth.emailLogin.rememberMe")
 
-          Button("¿olvidaste?") {
+          Button(copy.text(.forgotPassword)) {
             onRecoverAccount()
           }
           .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("auth.emailLogin.forgotPassword")
         }
 
         Button(copy.text(.signInWithEmail)) {
@@ -94,9 +97,9 @@ public struct AuthEmailLoginView: View {
             .foregroundStyle(.white.opacity(0.75))
         }
 
-        if isStatusRelevant {
+        if let feedback = copy.authFeedback(viewModel.authStatus) {
           FluxCard {
-            Text(copy.humanStatus(viewModel.authStatus))
+            Text(feedback)
               .font(.footnote.weight(.semibold))
               .foregroundStyle(.orange)
               .accessibilityIdentifier("auth.emailLogin.status")
@@ -108,14 +111,5 @@ public struct AuthEmailLoginView: View {
     .navigationTitle(copy.text(.signInWithEmail))
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
-  }
-
-  private var isStatusRelevant: Bool {
-    switch viewModel.authStatus {
-    case "signed_out", "idle", "loading":
-      return false
-    default:
-      return true
-    }
   }
 }
