@@ -81,6 +81,7 @@ import { createReadinessMonitorLaneScreenModel } from "./readiness-monitor-lane-
 import { createAlertsFullLaneScreenModel } from "./alerts-full-lane-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
+import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -627,6 +628,21 @@ export function App() {
         visibleModulesCount: visibleModulesForDomain.length
       }),
     [dashboardHomeScreenModel.status, roleCapabilitiesStatus, visibleModulesForDomain.length]
+  );
+  const analyticsOverviewScreenModel = useMemo(
+    () =>
+      createAnalyticsOverviewScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        observabilityStatus,
+        analyticsEventsCount: analyticsEvents.length,
+        crashReportsCount: crashReports.length
+      }),
+    [
+      analyticsEvents.length,
+      crashReports.length,
+      dashboardHomeScreenModel.status,
+      observabilityStatus
+    ]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -4737,22 +4753,42 @@ export function App() {
           ) : null}
 
           {isModuleVisible("observability", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={analyticsOverviewScreenModel.screenId}
+              data-route-id={analyticsOverviewScreenModel.routeId}
+              data-status-id="web.analyticsOverview.status"
+            >
             <SectionHeader
               title={translate("observabilityTitle")}
-              status={observabilityStatus}
+              status={analyticsOverviewScreenModel.status}
               statusLabel={translate("observabilityStatusLabel")}
               language={language}
             />
             <div className="form-grid">
               <div className="inline-inputs">
-                <button className="button primary" onClick={handleTrackAnalyticsEvent} type="button">
+                <button
+                  className="button primary"
+                  data-action-id={analyticsOverviewScreenModel.actions.trackEvent}
+                  onClick={handleTrackAnalyticsEvent}
+                  type="button"
+                >
                   {translate("trackEvent")}
                 </button>
-                <button className="button ghost" onClick={handleReportDemoCrash} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={analyticsOverviewScreenModel.actions.reportCrash}
+                  onClick={handleReportDemoCrash}
+                  type="button"
+                >
                   {translate("reportCrash")}
                 </button>
-                <button className="button ghost" onClick={handleLoadObservabilityData} type="button">
+                <button
+                  className="button ghost"
+                  data-action-id={analyticsOverviewScreenModel.actions.loadData}
+                  onClick={handleLoadObservabilityData}
+                  type="button"
+                >
                   {translate("loadData")}
                 </button>
               </div>

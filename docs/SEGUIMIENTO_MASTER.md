@@ -102,6 +102,7 @@
 - `WEB-200_Dashboard_Tablet` ya esta operativo con lane secundaria para KPI (`web.route.light.dashboardKpis -> web.light.dashboardKpis.screen`) y accion dedicada de refresco (`web.light.dashboardKpis.refresh`).
 - `WEB-210_Readiness_Tablet` ya esta operativo con lane secundaria de readiness (`web.route.light.readinessMonitor -> web.light.readinessMonitor.screen`) y accion dedicada de refresco (`web.light.readinessMonitor.refresh`).
 - `WEB-220_Alerts_Tablet` ya esta operativo con lane secundaria de alertas (`web.route.light.alertsFull -> web.light.alertsFull.screen`) y acciones dedicadas (`web.light.alertsFull.refresh`, `web.light.alertsFull.audit`) sobre observabilidad real.
+- `WEB-500_ANALYTICS_OVERVIEW` ya esta operativo con pantalla dedicada (`web.route.analyticsOverview -> web.analyticsOverview.screen`) y acciones instrumentadas de analitica (`web.analyticsOverview.trackEvent`, `web.analyticsOverview.reportCrash`, `web.analyticsOverview.loadData`) sobre observabilidad real.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
