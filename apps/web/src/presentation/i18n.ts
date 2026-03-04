@@ -282,6 +282,13 @@ type AppTranslations = {
   alertCenterHighSeverityLabel: string;
   alertCenterRunbooksLabel: string;
   alertCenterNoAlerts: string;
+  systemStatusTitle: string;
+  systemStatusStatusLabel: string;
+  systemStatusSummary: string;
+  systemStatusRuntimeLabel: string;
+  systemStatusReleaseLabel: string;
+  systemStatusRoleMatrixLabel: string;
+  systemStatusQueueLabel: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -582,6 +589,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     alertCenterHighSeverityLabel: "Severidad critica",
     alertCenterRunbooksLabel: "Runbooks activos",
     alertCenterNoAlerts: "No hay alertas operativas abiertas.",
+    systemStatusTitle: "Estado del sistema",
+    systemStatusStatusLabel: "Sistema",
+    systemStatusSummary: "Resumen operativo de runtime, release, cola y matriz de roles.",
+    systemStatusRuntimeLabel: "Runtime",
+    systemStatusReleaseLabel: "Release",
+    systemStatusRoleMatrixLabel: "Matriz de roles",
+    systemStatusQueueLabel: "Cola pendiente",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -880,6 +894,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     alertCenterHighSeverityLabel: "Critical severity",
     alertCenterRunbooksLabel: "Active runbooks",
     alertCenterNoAlerts: "No operational alerts are open.",
+    systemStatusTitle: "System status",
+    systemStatusStatusLabel: "System",
+    systemStatusSummary: "Operational summary of runtime, release, queue and role matrix.",
+    systemStatusRuntimeLabel: "Runtime",
+    systemStatusReleaseLabel: "Release",
+    systemStatusRoleMatrixLabel: "Role matrix",
+    systemStatusQueueLabel: "Pending queue",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:

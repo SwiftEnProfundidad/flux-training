@@ -36,6 +36,12 @@ describe("i18n", () => {
     expect(translate("alertCenterHighSeverityLabel")).toBe("Critical severity");
     expect(translate("alertCenterRunbooksLabel")).toBe("Active runbooks");
     expect(translate("alertCenterNoAlerts")).toBe("No operational alerts are open.");
+    expect(translate("systemStatusTitle")).toBe("System status");
+    expect(translate("systemStatusStatusLabel")).toBe("System");
+    expect(translate("systemStatusRuntimeLabel")).toBe("Runtime");
+    expect(translate("systemStatusReleaseLabel")).toBe("Release");
+    expect(translate("systemStatusRoleMatrixLabel")).toBe("Role matrix");
+    expect(translate("systemStatusQueueLabel")).toBe("Pending queue");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -112,6 +118,12 @@ describe("i18n", () => {
     expect(translate("alertCenterHighSeverityLabel")).toBe("Severidad critica");
     expect(translate("alertCenterRunbooksLabel")).toBe("Runbooks activos");
     expect(translate("alertCenterNoAlerts")).toBe("No hay alertas operativas abiertas.");
+    expect(translate("systemStatusTitle")).toBe("Estado del sistema");
+    expect(translate("systemStatusStatusLabel")).toBe("Sistema");
+    expect(translate("systemStatusRuntimeLabel")).toBe("Runtime");
+    expect(translate("systemStatusReleaseLabel")).toBe("Release");
+    expect(translate("systemStatusRoleMatrixLabel")).toBe("Matriz de roles");
+    expect(translate("systemStatusQueueLabel")).toBe("Cola pendiente");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");

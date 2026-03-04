@@ -70,6 +70,7 @@ import {
 import { createDashboardHomeScreenModel } from "./dashboard-home-contract";
 import { createQuickActionsScreenModel } from "./quick-actions-contract";
 import { createAlertCenterScreenModel } from "./alert-center-contract";
+import { createSystemStatusScreenModel } from "./system-status-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -507,6 +508,23 @@ export function App() {
         openAlertsCount: openOperationalAlerts.length
       }),
     [dashboardHomeScreenModel.status, observabilityStatus, openOperationalAlerts.length]
+  );
+  const systemStatusScreenModel = useMemo(
+    () =>
+      createSystemStatusScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        releaseCompatibilityStatus,
+        roleCapabilitiesStatus,
+        pendingQueueCount,
+        syncStatus
+      }),
+    [
+      dashboardHomeScreenModel.status,
+      pendingQueueCount,
+      releaseCompatibilityStatus,
+      roleCapabilitiesStatus,
+      syncStatus
+    ]
   );
   const athleteOperationRowsBase = useMemo(
     () => buildAthleteOperationsRows(plans, sessions, nutritionLogs, progressSummary),
@@ -2462,6 +2480,10 @@ export function App() {
     await Promise.all([handleLoadObservabilityData(), handleLoadAuditTimeline()]);
   }
 
+  function handleReloadRoleCapabilitiesMatrix() {
+    setRoleCapabilitiesReloadNonce((current) => current + 1);
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -2922,6 +2944,66 @@ export function App() {
                       </table>
                     </div>
                   )}
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={systemStatusScreenModel.screenId}
+                data-route-id={systemStatusScreenModel.routeId}
+                data-status-id="web.systemStatus.status"
+              >
+                <SectionHeader
+                  title={translate("systemStatusTitle")}
+                  status={systemStatusScreenModel.status}
+                  statusLabel={translate("systemStatusStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("systemStatusSummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric
+                      title={translate("systemStatusRuntimeLabel")}
+                      value={toHumanStatus(activeDomainRuntimeState, language)}
+                    />
+                    <Metric
+                      title={translate("systemStatusReleaseLabel")}
+                      value={toHumanStatus(releaseCompatibilityStatus, language)}
+                    />
+                    <Metric
+                      title={translate("systemStatusRoleMatrixLabel")}
+                      value={toHumanStatus(roleCapabilitiesStatus, language)}
+                    />
+                    <Metric
+                      title={translate("systemStatusQueueLabel")}
+                      value={String(pendingQueueCount)}
+                    />
+                  </div>
+                  <div className="inline-inputs">
+                    <button
+                      className="button primary"
+                      type="button"
+                      data-action-id="web.systemStatus.syncQueue"
+                      onClick={() => void handleSyncOfflineQueue()}
+                    >
+                      {translate("syncQueue")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.systemStatus.recoverDomain"
+                      onClick={() => void recoverActiveDomainState()}
+                    >
+                      {translate("runtimeStateRecoveryAction")}
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      data-action-id="web.systemStatus.reloadCapabilities"
+                      onClick={handleReloadRoleCapabilitiesMatrix}
+                    >
+                      {translate("retryRoleCapabilities")}
+                    </button>
+                  </div>
                 </div>
               </article>
               {visibleModulesForDomain.length === 0 ? (

@@ -87,6 +87,7 @@
 - `WEB-020_DASHBOARD_HOME` ya esta operativo con contrato de pantalla (`web.route.dashboardHome -> web.dashboardHome.screen`), estado trazable (`web.dashboardHome.status`) y accion real de refresco (`web.dashboardHome.refresh`) conectada a capacidades RBAC, observabilidad y cola offline.
 - `WEB-030_QUICK_ACTIONS` ya esta operativo con pantalla dedicada (`web.quickActions.screen`) y acciones rapidas reales instrumentadas (`web.quickActions.runAll`, `loadPlans`, `loadSessions`, `loadRecommendations`, `refreshDashboard`) para ejecutar operaciones clave del dashboard.
 - `WEB-040_ALERT_CENTER` ya esta operativo con pantalla dedicada (`web.alertCenter.screen`), estado trazable (`web.alertCenter.status`) y carga real de alertas/runbooks (`web.alertCenter.load`, `web.alertCenter.audit`) sobre observabilidad.
+- `WEB-050_SYSTEM_STATUS` ya esta operativo con pantalla dedicada (`web.systemStatus.screen`), estado trazable (`web.systemStatus.status`) y acciones de resiliencia (`web.systemStatus.syncQueue`, `recoverDomain`, `reloadCapabilities`) conectadas al runtime real.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

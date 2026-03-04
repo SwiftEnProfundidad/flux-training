@@ -176,13 +176,13 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 4.1.3 | WEB-020_DASHBOARD_HOME | `fAOUV` | ✅ | `web.route.dashboardHome -> web.dashboardHome.screen` | `ManageRoleCapabilitiesUseCase.listRoleCapabilities` + `loadObservabilityCollections(force)` + `refreshPendingQueue` | Refrescar dashboard home (`web.dashboardHome.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/dashboard-home-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ route/screen/status/action instrumentados (`web.route.dashboardHome`, `web.dashboardHome.screen`, `web.dashboardHome.status`, `web.dashboardHome.refresh`) |
 | 4.1.4 | WEB-030_QUICK_ACTIONS | `xJyx8` | ✅ | `web.route.dashboardHome -> web.quickActions.screen` | `ManageTrainingUseCase` + `ManageNutritionUseCase` + `ManageProgressUseCase` + `ManageRecommendationsUseCase` + `OfflineSyncQueueUseCase` | Ejecutar quick actions (`web.quickActions.runAll`, `web.quickActions.loadPlans`, `web.quickActions.loadSessions`, `web.quickActions.loadRecommendations`, `web.quickActions.refreshDashboard`) | loading|empty|error|success|denied|offline | ✅ `presentation/quick-actions-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ screen/status/actions instrumentados (`web.quickActions.screen`, `web.quickActions.status`, `web.quickActions.*`) |
 | 4.1.5 | WEB-040_ALERT_CENTER | `WmuDh` | ✅ | `web.route.dashboardHome -> web.alertCenter.screen` | `ManageObservabilityUseCase` (`listOperationalAlerts`, `listOperationalRunbooks`, `listActivityLog`) + `loadObservabilityCollections` | Cargar centro de alertas (`web.alertCenter.load`, `web.alertCenter.audit`) | loading|empty|error|success|denied|offline | ✅ `presentation/alert-center-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ screen/status/actions instrumentados (`web.alertCenter.screen`, `web.alertCenter.status`, `web.alertCenter.*`) |
-| 4.1.6 | WEB-050_SYSTEM_STATUS | `7tRaG` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.1.6 | WEB-050_SYSTEM_STATUS | `7tRaG` | ✅ | `web.route.dashboardHome -> web.systemStatus.screen` | `OfflineSyncQueueUseCase` + `ManageRoleCapabilitiesUseCase` + runtime state (`DomainRuntimeStates`) + release compatibility | Operar estado sistema (`web.systemStatus.syncQueue`, `web.systemStatus.recoverDomain`, `web.systemStatus.reloadCapabilities`) | loading|empty|error|success|denied|offline | ✅ `presentation/system-status-contract.spec.ts` + `presentation/i18n.spec.ts` + `infrastructure/api-client.spec.ts` | ✅ screen/status/actions instrumentados (`web.systemStatus.screen`, `web.systemStatus.status`, `web.systemStatus.*`) |
 
 ### Task 4.2 — Web — Acceso y Dashboard operativo / WEB_ACCESS_SECONDARY_LANE
 - Total pantallas en este bloque: **6**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
-| 4.2.1 | WEB-L-000_ACCESS_GATE | `0nOxO` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.2.1 | WEB-L-000_ACCESS_GATE | `0nOxO` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.2.2 | WEB-L-010_SIGN_IN | `SEEJU` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.2.3 | WEB-L-020_DASHBOARD_HOME | `WrrZF` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.2.4 | WEB-L-030_QUICK_ACTIONS | `nnRoY` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.1.6 WEB-050_SYSTEM_STATUS**
-- Siguiente task: **4.2.1 WEB-L-000_ACCESS_GATE**
+- Task en construccion: **4.2.1 WEB-L-000_ACCESS_GATE**
+- Siguiente task: **4.2.2 WEB-L-010_SIGN_IN**
