@@ -1264,6 +1264,28 @@ public struct ExperienceHubView: View {
       }
       .buttonStyle(.plain)
       .accessibilityIdentifier(TrainingRouteContract.sessionSummaryDarkRouteID)
+
+      NavigationLink {
+        SessionSummaryLightView(
+          viewModel: trainingViewModel,
+          userID: activeUserID,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.sessionStatusLabel)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.statusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(trainingViewModel.sessionStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(TrainingRouteContract.sessionSummaryLightRouteID)
     }
     .cardSurface()
   }

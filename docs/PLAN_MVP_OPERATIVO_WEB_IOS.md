@@ -163,7 +163,7 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 3.12.3 | IOS-L-120_SESSION_SETUP | `VV9H2` | ✅ | `todayTab -> training.route.inWorkoutSetupLight -> training.inWorkoutSetup.light.screen` | `TrainingFlowViewModel.prepareInWorkoutSetup` + `ListTrainingPlansUseCase` + `ListWorkoutSessionsUseCase` + `ListExerciseVideosUseCase` (repositorios reales/configurados) | Preparar sesion light (`training.inWorkoutSetup.prepare`) | loading|empty|error|saved|validation_error|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.inWorkoutSetupLight`, `training.inWorkoutSetup.light.screen`) |
 | 3.12.4 | IOS-L-130_WORKOUT_ACTIVE | `1sJe4` | ✅ | `todayTab -> training.route.workoutActiveLight -> training.workoutActive.light.screen` | `TrainingFlowViewModel.applyExerciseSubstitution` + `ListTrainingPlansUseCase` + `ListExerciseVideosUseCase` (repositorios reales/configurados) | Ajustar ejercicio activo light (`training.substitution.apply`) | loading|empty|error|saved|validation_error|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.workoutActiveLight`, `training.workoutActive.light.screen`) |
 | 3.12.5 | IOS-L-140_EXERCISE_VIDEO | `yXWvE` | ✅ | `todayTab -> training.route.videoPlayerLight -> training.videoPlayer.light.screen` | `TrainingFlowViewModel.loadVideoPlayer` + `ListExerciseVideosUseCase` (repositorios reales/configurados) | Cargar/reproducir video light (`training.videoPlayer.load`, `training.videoPlayer.play`) | loading|empty|error|success|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.videoPlayerLight`, `training.videoPlayer.light.screen`) |
-| 3.12.6 | IOS-L-150_SESSION_SUMMARY | `RDysi` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 3.12.6 | IOS-L-150_SESSION_SUMMARY | `RDysi` | ✅ | `todayTab -> training.route.sessionSummaryLight -> training.sessionSummary.light.screen` | `TrainingFlowViewModel.refreshDashboard` + `TrainingFlowViewModel.logDemoSession` + `ListWorkoutSessionsUseCase` (repositorios reales/configurados) | Refrescar/resumir sesion light (`training.sessionSummary.refresh`, `training.sessionSummary.logSession`) | loading|empty|error|saved|loaded|denied|offline | ✅ `TrainingFlowViewModelTests` + `TrainingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`training.route.sessionSummaryLight`, `training.sessionSummary.light.screen`) |
 
 ## Fase 4 — Web (pantalla a pantalla)
 
@@ -171,7 +171,7 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 - Total pantallas en este bloque: **6**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
-| 4.1.1 | WEB-000_ACCESS_GATE | `f3ZUN` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.1.1 | WEB-000_ACCESS_GATE | `f3ZUN` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.1.2 | WEB-010_SIGN_IN | `u0Exo` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.1.3 | WEB-020_DASHBOARD_HOME | `fAOUV` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.1.4 | WEB-030_QUICK_ACTIONS | `xJyx8` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **3.12.6 IOS-L-150_SESSION_SUMMARY**
-- Siguiente task: **4.1.1 WEB-000_ACCESS_GATE**
+- Task en construccion: **4.1.1 WEB-000_ACCESS_GATE**
+- Siguiente task: **4.1.2 WEB-010_SIGN_IN**
