@@ -98,6 +98,7 @@ public enum CopyKey: Sendable {
   case recoverByEmail
   case recoverBySMS
   case authStatusLabel
+  case signOutAction
   case onboardingTitle
   case onboardingStepOneSubtitle
   case displayName
@@ -128,6 +129,8 @@ public enum CopyKey: Sendable {
   case fats
   case saveLog
   case loadLogs
+  case nutritionStageOverview
+  case nutritionStageLog
   case nutritionStatusLabel
   case nutritionLogsLoaded
   case noProgressLoaded
@@ -143,6 +146,10 @@ public enum CopyKey: Sendable {
   case progressEntryMinutesLabel
   case progressEntrySetsLabel
   case progressEntryCaloriesLabel
+  case progressStageOverview
+  case progressStageWeeklyReview
+  case progressStageGoal
+  case progressStageCoach
   case recommendationsTitle
   case loadRecommendations
   case recommendationsStatusLabel
@@ -160,6 +167,15 @@ public enum CopyKey: Sendable {
   case statusLabel
   case sessionStatusLabel
   case lastSessionLabel
+  case trainingStageToday
+  case trainingStagePlan
+  case trainingStageSetup
+  case trainingStageWorkout
+  case trainingStageRPE
+  case trainingStageSubstitution
+  case trainingStageLibrary
+  case trainingStageVideo
+  case trainingStageSummary
   case exerciseVideosTitle
   case exercisePicker
   case localePicker
@@ -296,7 +312,7 @@ public struct LocalizedCopy: Sendable {
     let normalizedStatus = rawStatus.trimmingCharacters(in: .whitespacesAndNewlines)
       .lowercased()
     if normalizedStatus.isEmpty {
-      return language == .es ? "inactivo" : "idle"
+      return language == .es ? "listo" : "ready"
     }
 
     if normalizedStatus.hasPrefix("signed_in:") {
@@ -320,9 +336,9 @@ public struct LocalizedCopy: Sendable {
         "recovery_sent_sms": "recuperacion enviada por sms",
         "session_active": "sesion activa",
         "fallback_loaded": "fallback cargado",
-        "idle": "inactivo",
-        "saved": "guardado",
-        "loaded": "cargado",
+        "idle": "listo",
+        "saved": "actualizado",
+        "loaded": "actualizado",
         "queued": "en cola",
         "synced": "sincronizado",
         "event_saved": "evento guardado",
@@ -330,12 +346,12 @@ public struct LocalizedCopy: Sendable {
         "error": "error",
         "deletion_requested": "borrado solicitado",
         "exported": "exportado",
-        "success": "operativo",
+        "success": "completado",
         "loading": "cargando",
         "empty": "sin datos",
         "offline": "sin conexion",
         "denied": "sin permiso",
-        "open": "abierta",
+        "open": "en revision",
         "in_progress": "en progreso",
         "resolved": "resuelta",
         "high": "alta",
@@ -343,7 +359,7 @@ public struct LocalizedCopy: Sendable {
         "low": "baja"
       ],
       .en: [
-        "signed_out": "sign in required",
+        "signed_out": "sign in to continue",
         "session_expired": "session expired",
         "auth_error": "sign in failed",
         "validation_error": "validation error",
@@ -352,9 +368,9 @@ public struct LocalizedCopy: Sendable {
         "recovery_sent_sms": "recovery sent by sms",
         "session_active": "session active",
         "fallback_loaded": "fallback loaded",
-        "idle": "idle",
-        "saved": "saved",
-        "loaded": "loaded",
+        "idle": "ready",
+        "saved": "updated",
+        "loaded": "updated",
         "queued": "queued",
         "synced": "synced",
         "event_saved": "event saved",
@@ -362,12 +378,12 @@ public struct LocalizedCopy: Sendable {
         "error": "error",
         "deletion_requested": "deletion requested",
         "exported": "exported",
-        "success": "operational",
+        "success": "completed",
         "loading": "loading",
         "empty": "empty",
         "offline": "offline",
         "denied": "denied",
-        "open": "open",
+        "open": "under review",
         "in_progress": "in progress",
         "resolved": "resolved",
         "high": "high",
@@ -397,7 +413,7 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .progressTitle:
     return "Resumen de progreso"
   case .operationsTab:
-    return "Ops"
+    return "Ajustes"
   case .progressNavigationTitle:
     return "Progreso"
   case .operationsNavigationTitle:
@@ -533,7 +549,7 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .otpCodeField:
     return "Codigo de 6 digitos"
   case .otpExpirationHint:
-    return "Code expires in 00:58"
+    return "El codigo expira en 00:58"
   case .verifyCodeAction:
     return "Verificar codigo"
   case .resendOTPAction:
@@ -551,7 +567,7 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .sessionExpiredMessage:
     return "Por seguridad, vuelve a iniciar sesion o continua en modo offline."
   case .sessionExpiredCauses:
-    return "Possible causes:\n- Token expired\n- Remote logout\n- Version mismatch"
+    return "Posibles causas:\n- Token expirado\n- Sesion cerrada en otro dispositivo\n- Version no compatible"
   case .backToSignInAction:
     return "Volver a iniciar sesion"
   case .openOfflineModeAction:
@@ -569,7 +585,9 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .recoverBySMS:
     return "Recuperar por SMS"
   case .authStatusLabel:
-    return "Auth"
+    return "Acceso"
+  case .signOutAction:
+    return "Cerrar sesion"
   case .onboardingTitle:
     return "Onboarding + PAR-Q+"
   case .onboardingStepOneSubtitle:
@@ -630,6 +648,10 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Guardar registro"
   case .loadLogs:
     return "Cargar registros"
+  case .nutritionStageOverview:
+    return "Resumen"
+  case .nutritionStageLog:
+    return "Registro"
   case .nutritionStatusLabel:
     return "Nutricion"
   case .nutritionLogsLoaded:
@@ -660,6 +682,14 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "series"
   case .progressEntryCaloriesLabel:
     return "calorias"
+  case .progressStageOverview:
+    return "Metricas"
+  case .progressStageWeeklyReview:
+    return "Semanal"
+  case .progressStageGoal:
+    return "Objetivo"
+  case .progressStageCoach:
+    return "Coach IA"
   case .recommendationsTitle:
     return "Recomendaciones IA"
   case .loadRecommendations:
@@ -694,6 +724,24 @@ private func spanishCopy(for key: CopyKey) -> String {
     return "Estado de sesion"
   case .lastSessionLabel:
     return "Ultima sesion"
+  case .trainingStageToday:
+    return "Hoy"
+  case .trainingStagePlan:
+    return "Plan"
+  case .trainingStageSetup:
+    return "Preparacion"
+  case .trainingStageWorkout:
+    return "En sesion"
+  case .trainingStageRPE:
+    return "RPE"
+  case .trainingStageSubstitution:
+    return "Sustitucion"
+  case .trainingStageLibrary:
+    return "Biblioteca"
+  case .trainingStageVideo:
+    return "Video"
+  case .trainingStageSummary:
+    return "Resumen"
   case .exerciseVideosTitle:
     return "Videos de ejercicios"
   case .exercisePicker:
@@ -874,7 +922,7 @@ private func englishCopy(for key: CopyKey) -> String {
   case .progressTitle:
     return "Progress summary"
   case .operationsTab:
-    return "Ops"
+    return "Settings"
   case .progressNavigationTitle:
     return "Progress"
   case .operationsNavigationTitle:
@@ -1046,7 +1094,9 @@ private func englishCopy(for key: CopyKey) -> String {
   case .recoverBySMS:
     return "Recover by SMS"
   case .authStatusLabel:
-    return "Auth"
+    return "Access"
+  case .signOutAction:
+    return "Sign out"
   case .onboardingTitle:
     return "Onboarding + PAR-Q+"
   case .onboardingStepOneSubtitle:
@@ -1107,6 +1157,10 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Save log"
   case .loadLogs:
     return "Load logs"
+  case .nutritionStageOverview:
+    return "Overview"
+  case .nutritionStageLog:
+    return "Meal log"
   case .nutritionStatusLabel:
     return "Nutrition"
   case .nutritionLogsLoaded:
@@ -1137,6 +1191,14 @@ private func englishCopy(for key: CopyKey) -> String {
     return "sets"
   case .progressEntryCaloriesLabel:
     return "calories"
+  case .progressStageOverview:
+    return "Metrics"
+  case .progressStageWeeklyReview:
+    return "Weekly"
+  case .progressStageGoal:
+    return "Goal"
+  case .progressStageCoach:
+    return "AI coach"
   case .recommendationsTitle:
     return "AI recommendations"
   case .loadRecommendations:
@@ -1171,6 +1233,24 @@ private func englishCopy(for key: CopyKey) -> String {
     return "Session status"
   case .lastSessionLabel:
     return "Last session"
+  case .trainingStageToday:
+    return "Today"
+  case .trainingStagePlan:
+    return "Plan"
+  case .trainingStageSetup:
+    return "Setup"
+  case .trainingStageWorkout:
+    return "Workout"
+  case .trainingStageRPE:
+    return "RPE"
+  case .trainingStageSubstitution:
+    return "Swap"
+  case .trainingStageLibrary:
+    return "Library"
+  case .trainingStageVideo:
+    return "Video"
+  case .trainingStageSummary:
+    return "Summary"
   case .exerciseVideosTitle:
     return "Exercise videos"
   case .exercisePicker:

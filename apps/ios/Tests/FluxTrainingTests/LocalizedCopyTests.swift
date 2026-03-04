@@ -53,7 +53,7 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.humanStatus("empty"), "sin datos")
     XCTAssertEqual(copy.humanStatus("offline"), "sin conexion")
     XCTAssertEqual(copy.humanStatus("denied"), "sin permiso")
-    XCTAssertEqual(copy.humanStatus("open"), "abierta")
+    XCTAssertEqual(copy.humanStatus("open"), "en revision")
     XCTAssertEqual(copy.humanStatus("in_progress"), "en progreso")
     XCTAssertEqual(copy.humanStatus("resolved"), "resuelta")
   }
@@ -97,7 +97,7 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.text(.loadProgress), "Load progress")
     XCTAssertEqual(copy.text(.noProgressLoaded), "No progress loaded yet")
     XCTAssertEqual(copy.text(.videoFallbackNotice), "Showing EN fallback because requested locale has no video.")
-    XCTAssertEqual(copy.humanStatus("signed_out"), "sign in required")
+    XCTAssertEqual(copy.humanStatus("signed_out"), "sign in to continue")
     XCTAssertEqual(copy.humanStatus("validation_error"), "validation error")
     XCTAssertEqual(copy.humanStatus("consent_required"), "consent required")
     XCTAssertEqual(copy.humanStatus("recovery_sent_email"), "recovery sent by email")
@@ -109,7 +109,7 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.humanStatus("empty"), "empty")
     XCTAssertEqual(copy.humanStatus("offline"), "offline")
     XCTAssertEqual(copy.humanStatus("denied"), "denied")
-    XCTAssertEqual(copy.humanStatus("open"), "open")
+    XCTAssertEqual(copy.humanStatus("open"), "under review")
     XCTAssertEqual(copy.humanStatus("in_progress"), "in progress")
     XCTAssertEqual(copy.humanStatus("resolved"), "resolved")
   }

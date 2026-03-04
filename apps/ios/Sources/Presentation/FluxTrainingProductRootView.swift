@@ -363,7 +363,7 @@ public struct FluxTrainingProductRootView: View {
       .navigationTitle(copy.text(.settingsTitle))
       .toolbar {
         ToolbarItem(placement: .primaryAction) {
-          Button(copy.text(.backToSignInAction)) {
+          Button(copy.text(.signOutAction)) {
             signOut()
           }
         }
@@ -663,23 +663,23 @@ private enum TrainingStage: String, CaseIterable {
   func title(copy: LocalizedCopy) -> String {
     switch self {
     case .today:
-      return copy.text(.trainingCockpitTitle)
+      return copy.text(.trainingStageToday)
     case .planActive:
-      return copy.text(.planName)
+      return copy.text(.trainingStagePlan)
     case .sessionSetup:
-      return copy.text(.inWorkoutSetupTitle)
+      return copy.text(.trainingStageSetup)
     case .workoutActive:
-      return copy.text(.substitutionTitle)
+      return copy.text(.trainingStageWorkout)
     case .rpe:
-      return copy.text(.rpeRatingTitle)
+      return copy.text(.trainingStageRPE)
     case .substitution:
-      return copy.text(.substitutionTitle)
+      return copy.text(.trainingStageSubstitution)
     case .library:
-      return copy.text(.exerciseLibraryTitle)
+      return copy.text(.trainingStageLibrary)
     case .video:
-      return copy.text(.videoPlayerTitle)
+      return copy.text(.trainingStageVideo)
     case .summary:
-      return copy.text(.sessionStatusLabel)
+      return copy.text(.trainingStageSummary)
     }
   }
 }
@@ -694,13 +694,13 @@ private enum ProgressStage: String, CaseIterable {
   func title(copy: LocalizedCopy) -> String {
     switch self {
     case .metrics:
-      return copy.text(.progressTitle)
+      return copy.text(.progressStageOverview)
     case .weeklyReview:
-      return copy.text(.progressNavigationTitle)
+      return copy.text(.progressStageWeeklyReview)
     case .goalAdjust:
-      return copy.text(.goalLabel)
+      return copy.text(.progressStageGoal)
     case .aiCoach:
-      return copy.text(.recommendationsTitle)
+      return copy.text(.progressStageCoach)
     }
   }
 }
@@ -713,9 +713,9 @@ private enum NutritionStage: String, CaseIterable {
   func title(copy: LocalizedCopy) -> String {
     switch self {
     case .hub:
-      return copy.text(.nutritionTitle)
+      return copy.text(.nutritionStageOverview)
     case .logMeal:
-      return copy.text(.loadLogs)
+      return copy.text(.nutritionStageLog)
     }
   }
 }
