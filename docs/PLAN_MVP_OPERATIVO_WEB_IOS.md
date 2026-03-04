@@ -212,8 +212,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
 | 4.5.1 | WEB-500_ANALYTICS_OVERVIEW | `RMiIJ` | ✅ | `web.route.analyticsOverview -> web.analyticsOverview.screen` | `createAnalyticsOverviewScreenModel` + `ManageObservabilityUseCase` (`listAnalyticsEvents`, `listCrashReports`, `listObservabilitySummary`) | Operar analitica (`web.analyticsOverview.trackEvent`, `web.analyticsOverview.reportCrash`, `web.analyticsOverview.loadData`) | loading|empty|error|success|denied|offline | ✅ `presentation/analytics-overview-contract.spec.ts` + `presentation/runtime-observability.spec.ts` + `presentation/i18n.spec.ts` | ✅ screen/status/actions analytics instrumentados (`web.analyticsOverview.*`) |
-| 4.5.2 | WEB-510_PROGRESS_TRENDS | `C6igH` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 4.5.3 | WEB-520_COHORT_ANALYSIS | `TAZH6` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.5.2 | WEB-510_PROGRESS_TRENDS | `C6igH` | ✅ | `web.route.progressTrends -> web.progressTrends.screen` | `createProgressTrendsScreenModel` + `ManageProgressUseCase.loadSummary` + filtros/orden reales | Refrescar tendencias (`web.progressTrends.refresh`) | loading|empty|error|success|denied|offline | ✅ `presentation/progress-trends-contract.spec.ts` + `presentation/nutrition-progress-operations.spec.ts` + `presentation/i18n.spec.ts` | ✅ screen/status/action tendencias instrumentados (`web.progressTrends.*`) |
+| 4.5.3 | WEB-520_COHORT_ANALYSIS | `TAZH6` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.5.4 | WEB-600_AI_INSIGHTS | `vfw2W` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.5.5 | WEB-700_ADMIN_USERS | `9wlQu` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.5.2 WEB-510_PROGRESS_TRENDS**
-- Siguiente task: **4.5.3 WEB-520_COHORT_ANALYSIS**
+- Task en construccion: **4.5.3 WEB-520_COHORT_ANALYSIS**
+- Siguiente task: **4.5.4 WEB-600_AI_INSIGHTS**

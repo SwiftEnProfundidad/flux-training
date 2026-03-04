@@ -106,6 +106,10 @@ describe("i18n", () => {
     expect(translate("observabilityOnCallOwnerLabel")).toBe("On-call owner");
     expect(translate("nutritionFiltersLabel")).toBe("Nutrition filters");
     expect(translate("progressFiltersLabel")).toBe("Progress filters");
+    expect(translate("progressTrendsTitle")).toBe("Progress trends");
+    expect(translate("progressTrendsStatusLabel")).toBe("Trends");
+    expect(translate("progressTrendsRefreshAction")).toBe("Refresh trends");
+    expect(translate("progressTrendsNoData")).toBe("No progress data available to show trends.");
     expect(translate("effortMetric")).toBe("Effort");
     expect(translate("noNutritionFilteredLogs")).toBe("No nutrition logs match this filter.");
     expect(translate("noProgressFilteredHistory")).toBe("No history matches this filter.");
@@ -219,6 +223,12 @@ describe("i18n", () => {
     expect(translate("observabilityOnCallOwnerLabel")).toBe("Owner on-call");
     expect(translate("nutritionFiltersLabel")).toBe("Filtros de nutricion");
     expect(translate("progressFiltersLabel")).toBe("Filtros de progreso");
+    expect(translate("progressTrendsTitle")).toBe("Tendencias de progreso");
+    expect(translate("progressTrendsStatusLabel")).toBe("Tendencias");
+    expect(translate("progressTrendsRefreshAction")).toBe("Refrescar tendencias");
+    expect(translate("progressTrendsNoData")).toBe(
+      "No hay datos de progreso para mostrar tendencias."
+    );
     expect(translate("effortMetric")).toBe("Esfuerzo");
     expect(translate("noNutritionFilteredLogs")).toBe(
       "No hay registros nutricionales para este filtro."

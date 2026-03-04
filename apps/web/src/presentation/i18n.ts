@@ -210,6 +210,11 @@ type AppTranslations = {
   clearProgressFilters: string;
   loadProgressSummary: string;
   noSummaryLoaded: string;
+  progressTrendsTitle: string;
+  progressTrendsStatusLabel: string;
+  progressTrendsSummary: string;
+  progressTrendsRefreshAction: string;
+  progressTrendsNoData: string;
   filteredHistoryLabel: string;
   noProgressFilteredHistory: string;
   workoutsMetric: string;
@@ -552,6 +557,12 @@ const translations: Record<AppLanguage, AppTranslations> = {
     clearProgressFilters: "Limpiar filtros progreso",
     loadProgressSummary: "Cargar resumen de progreso",
     noSummaryLoaded: "Todavia no hay resumen cargado.",
+    progressTrendsTitle: "Tendencias de progreso",
+    progressTrendsStatusLabel: "Tendencias",
+    progressTrendsSummary:
+      "Seguimiento temporal de sesiones, minutos, series y esfuerzo para detectar desvio temprano.",
+    progressTrendsRefreshAction: "Refrescar tendencias",
+    progressTrendsNoData: "No hay datos de progreso para mostrar tendencias.",
     filteredHistoryLabel: "Dias filtrados",
     noProgressFilteredHistory: "No hay historial para este filtro.",
     workoutsMetric: "Entrenos",
@@ -896,6 +907,12 @@ const translations: Record<AppLanguage, AppTranslations> = {
     clearProgressFilters: "Clear progress filters",
     loadProgressSummary: "Load progress summary",
     noSummaryLoaded: "No summary loaded yet.",
+    progressTrendsTitle: "Progress trends",
+    progressTrendsStatusLabel: "Trends",
+    progressTrendsSummary:
+      "Time-based tracking of sessions, minutes, sets and effort to detect early drift.",
+    progressTrendsRefreshAction: "Refresh trends",
+    progressTrendsNoData: "No progress data available to show trends.",
     filteredHistoryLabel: "Filtered days",
     noProgressFilteredHistory: "No history matches this filter.",
     workoutsMetric: "Workouts",

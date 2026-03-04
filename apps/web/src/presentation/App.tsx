@@ -82,6 +82,7 @@ import { createAlertsFullLaneScreenModel } from "./alerts-full-lane-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
+import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -643,6 +644,15 @@ export function App() {
       dashboardHomeScreenModel.status,
       observabilityStatus
     ]
+  );
+  const progressTrendsScreenModel = useMemo(
+    () =>
+      createProgressTrendsScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        progressStatus,
+        historyCount: filteredProgressHistory.length
+      }),
+    [dashboardHomeScreenModel.status, filteredProgressHistory.length, progressStatus]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -2652,6 +2662,10 @@ export function App() {
     await Promise.all([handleRunQuickActions(), handleRefreshDashboardHome()]);
   }
 
+  async function handleRefreshProgressTrends() {
+    await handleLoadProgressSummary();
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -4523,19 +4537,31 @@ export function App() {
           ) : null}
 
           {isModuleVisible("progress", activeDomain) ? (
-            <article className="module-card">
+            <article
+              className="module-card"
+              data-screen-id={progressTrendsScreenModel.screenId}
+              data-route-id={progressTrendsScreenModel.routeId}
+              data-status-id="web.progressTrends.status"
+            >
             <SectionHeader
-              title={translate("progressTitle")}
-              status={progressStatus}
-              statusLabel={translate("progressStatusLabel")}
+              title={translate("progressTrendsTitle")}
+              status={progressTrendsScreenModel.status}
+              statusLabel={translate("progressTrendsStatusLabel")}
               language={language}
             />
             <div className="form-grid">
-              <button className="button primary" onClick={handleLoadProgressSummary} type="button">
-                {translate("loadProgressSummary")}
+              <p className="runtime-state-copy">{translate("progressTrendsSummary")}</p>
+              <button
+                className="button primary"
+                onClick={() => void handleRefreshProgressTrends()}
+                type="button"
+                data-action-id={progressTrendsScreenModel.actions.refresh}
+                disabled={progressTrendsScreenModel.status === "loading"}
+              >
+                {translate("progressTrendsRefreshAction")}
               </button>
               {progressSummary === null ? (
-                <p className="empty-state">{translate("noSummaryLoaded")}</p>
+                <p className="empty-state">{translate("progressTrendsNoData")}</p>
               ) : (
                 <>
                   <div className="metric-grid">
