@@ -309,6 +309,14 @@ type AppTranslations = {
   alertsFullNoAlerts: string;
   alertsFullCodeLabel: string;
   alertsFullRunbookLabel: string;
+  recentActivityTitle: string;
+  recentActivityStatusLabel: string;
+  recentActivitySummary: string;
+  recentActivityRefreshAction: string;
+  recentActivityNoEntries: string;
+  recentActivityOutcomeLabel: string;
+  recentActivityDeniedLabel: string;
+  recentActivityErrorLabel: string;
   runtimeStateSectionTitle: string;
   runtimeStateModeLabel: string;
   runtimeStateHintAllDomains: string;
@@ -637,6 +645,15 @@ const translations: Record<AppLanguage, AppTranslations> = {
     alertsFullNoAlerts: "No hay alertas abiertas para este dominio.",
     alertsFullCodeLabel: "Codigo",
     alertsFullRunbookLabel: "Runbook",
+    recentActivityTitle: "Actividad reciente",
+    recentActivityStatusLabel: "Actividad",
+    recentActivitySummary:
+      "Ultimos eventos operativos con accion, dominio, resultado y resumen trazable.",
+    recentActivityRefreshAction: "Refrescar actividad",
+    recentActivityNoEntries: "No hay actividad reciente para este dominio.",
+    recentActivityOutcomeLabel: "Resultado",
+    recentActivityDeniedLabel: "Denegadas",
+    recentActivityErrorLabel: "Errores",
     runtimeStateSectionTitle: "Estado enterprise por dominio",
     runtimeStateModeLabel: "Modo runtime",
     runtimeStateHintAllDomains: "Selecciona un dominio concreto para simular estados de riesgo.",
@@ -963,6 +980,15 @@ const translations: Record<AppLanguage, AppTranslations> = {
     alertsFullNoAlerts: "No open alerts for this domain.",
     alertsFullCodeLabel: "Code",
     alertsFullRunbookLabel: "Runbook",
+    recentActivityTitle: "Recent activity",
+    recentActivityStatusLabel: "Activity",
+    recentActivitySummary:
+      "Latest operational events with action, domain, outcome and traceable summary.",
+    recentActivityRefreshAction: "Refresh activity",
+    recentActivityNoEntries: "No recent activity for this domain.",
+    recentActivityOutcomeLabel: "Outcome",
+    recentActivityDeniedLabel: "Denied",
+    recentActivityErrorLabel: "Errors",
     runtimeStateSectionTitle: "Enterprise runtime state by domain",
     runtimeStateModeLabel: "Runtime mode",
     runtimeStateHintAllDomains:

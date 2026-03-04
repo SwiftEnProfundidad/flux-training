@@ -97,6 +97,7 @@
 - `WEB-200_DASHBOARD_KPIS` ya esta operativo con pantalla KPI dedicada (`web.dashboardKpis.screen`) y refresco real (`web.dashboardKpis.refresh`) sobre datos vivos de planes/sesiones/nutricion/recomendaciones/alertas/cola.
 - `WEB-210_READINESS_MONITOR` ya esta operativo con pantalla dedicada (`web.route.readinessMonitor -> web.readinessMonitor.screen`), contrato de estados `loading|empty|error|success|denied|offline` y refresco real (`web.readinessMonitor.refresh`) conectado al score de readiness y estado de sesion.
 - `WEB-220_ALERTS_FULL` ya esta operativo con pantalla dedicada (`web.route.alertsFull -> web.alertsFull.screen`), tabla extendida de alertas (fecha/severidad/codigo/runbook/resumen) y acciones reales `web.alertsFull.refresh` + `web.alertsFull.audit` sobre observabilidad.
+- `WEB-230_RECENT_ACTIVITY` ya esta operativo con pantalla dedicada (`web.route.recentActivity -> web.recentActivity.screen`), timeline de actividad reciente (accion/dominio/outcome/resumen) y refresco real (`web.recentActivity.refresh`) sobre activity log operativo.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

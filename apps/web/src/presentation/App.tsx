@@ -79,6 +79,7 @@ import { createQuickActionsLaneScreenModel } from "./quick-actions-lane-contract
 import { createDashboardKpisScreenModel } from "./dashboard-kpis-contract";
 import { createReadinessMonitorScreenModel } from "./readiness-monitor-contract";
 import { createAlertsFullScreenModel } from "./alerts-full-contract";
+import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import {
   createInitialDomainRuntimeStates,
   resetRuntimeStateForActiveDomain,
@@ -551,6 +552,13 @@ export function App() {
       }, {}),
     [operationalRunbooks]
   );
+  const recentActivityRows = useMemo(
+    () =>
+      [...activityLogEntries].sort(
+        (left, right) => Date.parse(right.occurredAt) - Date.parse(left.occurredAt)
+      ),
+    [activityLogEntries]
+  );
   const dashboardKpisScreenModel = useMemo(
     () =>
       createDashboardKpisScreenModel({
@@ -595,6 +603,15 @@ export function App() {
       openOperationalAlerts.length,
       operationalRunbooks.length
     ]
+  );
+  const recentActivityScreenModel = useMemo(
+    () =>
+      createRecentActivityScreenModel({
+        dashboardHomeStatus: dashboardHomeScreenModel.status,
+        observabilityStatus,
+        activityEntriesCount: recentActivityRows.length
+      }),
+    [dashboardHomeScreenModel.status, observabilityStatus, recentActivityRows.length]
   );
   const alertCenterScreenModel = useMemo(
     () =>
@@ -2595,6 +2612,11 @@ export function App() {
     await Promise.all([handleRefreshAlertCenter(), handleLoadAuditTimeline()]);
   }
 
+  async function handleRefreshRecentActivity() {
+    await loadObservabilityCollections({ force: true });
+    await handleLoadAuditTimeline();
+  }
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -3301,6 +3323,77 @@ export function App() {
                               <td>{alert.code}</td>
                               <td>{runbookTitleById[alert.runbookId] ?? alert.runbookId}</td>
                               <td>{alert.summary}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </article>
+              <article
+                className="module-card"
+                data-screen-id={recentActivityScreenModel.screenId}
+                data-route-id={recentActivityScreenModel.routeId}
+                data-status-id="web.recentActivity.status"
+              >
+                <SectionHeader
+                  title={translate("recentActivityTitle")}
+                  status={recentActivityScreenModel.status}
+                  statusLabel={translate("recentActivityStatusLabel")}
+                  language={language}
+                />
+                <div className="form-grid">
+                  <p className="runtime-state-copy">{translate("recentActivitySummary")}</p>
+                  <div className="inline-inputs">
+                    <Metric title={translate("auditActivityLogLabel")} value={String(recentActivityRows.length)} />
+                    <Metric
+                      title={translate("recentActivityDeniedLabel")}
+                      value={String(recentActivityRows.filter((entry) => entry.outcome === "denied").length)}
+                    />
+                    <Metric
+                      title={translate("recentActivityErrorLabel")}
+                      value={String(recentActivityRows.filter((entry) => entry.outcome === "error").length)}
+                    />
+                    <Metric
+                      title={translate("auditDateColumn")}
+                      value={
+                        recentActivityRows.length === 0
+                          ? "-"
+                          : new Date(recentActivityRows[0].occurredAt).toLocaleString()
+                      }
+                    />
+                  </div>
+                  <button
+                    className="button ghost"
+                    type="button"
+                    data-action-id="web.recentActivity.refresh"
+                    onClick={() => void handleRefreshRecentActivity()}
+                  >
+                    {translate("recentActivityRefreshAction")}
+                  </button>
+                  {recentActivityRows.length === 0 ? (
+                    <p className="empty-state">{translate("recentActivityNoEntries")}</p>
+                  ) : (
+                    <div className="dense-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>{translate("auditDateColumn")}</th>
+                            <th>{translate("auditNameColumn")}</th>
+                            <th>{translate("auditDomainColumn")}</th>
+                            <th>{translate("recentActivityOutcomeLabel")}</th>
+                            <th>{translate("auditSummaryColumn")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {recentActivityRows.slice(0, 8).map((entry) => (
+                            <tr key={entry.id}>
+                              <td>{new Date(entry.occurredAt).toLocaleString()}</td>
+                              <td>{entry.action}</td>
+                              <td>{entry.domain}</td>
+                              <td>{toHumanStatus(entry.outcome, language)}</td>
+                              <td>{entry.summary}</td>
                             </tr>
                           ))}
                         </tbody>

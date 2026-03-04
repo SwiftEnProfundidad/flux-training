@@ -59,6 +59,13 @@ describe("i18n", () => {
     expect(translate("alertsFullNoAlerts")).toBe("No open alerts for this domain.");
     expect(translate("alertsFullCodeLabel")).toBe("Code");
     expect(translate("alertsFullRunbookLabel")).toBe("Runbook");
+    expect(translate("recentActivityTitle")).toBe("Recent activity");
+    expect(translate("recentActivityStatusLabel")).toBe("Activity");
+    expect(translate("recentActivityRefreshAction")).toBe("Refresh activity");
+    expect(translate("recentActivityNoEntries")).toBe("No recent activity for this domain.");
+    expect(translate("recentActivityOutcomeLabel")).toBe("Outcome");
+    expect(translate("recentActivityDeniedLabel")).toBe("Denied");
+    expect(translate("recentActivityErrorLabel")).toBe("Errors");
     expect(translate("operationsHubTitle")).toBe("Core operations");
     expect(translate("bulkAssignStarterPlan")).toBe("Assign starter plan");
     expect(translate("rowsShownLabel")).toBe("Visible rows");
@@ -158,6 +165,13 @@ describe("i18n", () => {
     expect(translate("alertsFullNoAlerts")).toBe("No hay alertas abiertas para este dominio.");
     expect(translate("alertsFullCodeLabel")).toBe("Codigo");
     expect(translate("alertsFullRunbookLabel")).toBe("Runbook");
+    expect(translate("recentActivityTitle")).toBe("Actividad reciente");
+    expect(translate("recentActivityStatusLabel")).toBe("Actividad");
+    expect(translate("recentActivityRefreshAction")).toBe("Refrescar actividad");
+    expect(translate("recentActivityNoEntries")).toBe("No hay actividad reciente para este dominio.");
+    expect(translate("recentActivityOutcomeLabel")).toBe("Resultado");
+    expect(translate("recentActivityDeniedLabel")).toBe("Denegadas");
+    expect(translate("recentActivityErrorLabel")).toBe("Errores");
     expect(translate("operationsHubTitle")).toBe("Operaciones core");
     expect(translate("bulkAssignStarterPlan")).toBe("Asignar starter plan");
     expect(translate("rowsShownLabel")).toBe("Filas visibles");
