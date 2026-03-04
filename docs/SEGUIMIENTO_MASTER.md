@@ -82,6 +82,7 @@
 - `IOS-L-130_WORKOUT_ACTIVE` ya esta operativo como variante light del workout activo con ruta/pantalla propias (`training.route.workoutActiveLight`, `training.workoutActive.light.screen`) y ajuste real de ejercicio con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-L-140_EXERCISE_VIDEO` ya esta operativo como variante light de video por ejercicio con ruta/pantalla propias (`training.route.videoPlayerLight`, `training.videoPlayer.light.screen`) y reproduccion real con estados `loading|empty|error|success|denied|offline`.
 - `IOS-L-150_SESSION_SUMMARY` ya esta operativo como variante light del resumen de sesion con ruta/pantalla propias (`training.route.sessionSummaryLight`, `training.sessionSummary.light.screen`) y resumen real de cierre con estados `loading|empty|error|saved|loaded|denied|offline`.
+- `WEB-000_ACCESS_GATE` ya esta operativo con gate de acceso real: cuando no hay sesion renderiza `web.accessGate.screen`, bloquea el dashboard operativo y ofrece entrada por Apple/email hacia autenticacion real.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

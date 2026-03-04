@@ -171,8 +171,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 - Total pantallas en este bloque: **6**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
-| 4.1.1 | WEB-000_ACCESS_GATE | `f3ZUN` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 4.1.2 | WEB-010_SIGN_IN | `u0Exo` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 4.1.1 | WEB-000_ACCESS_GATE | `f3ZUN` | ✅ | `web.accessGate.screen` | `CreateAuthSessionUseCase` + `firebaseAuthGateway` + `setApiAuthSession` (sesion real) | Abrir puerta de acceso (`auth.executeWithApple`, `auth.executeWithEmail`) | signed_out|loading|validation_error|auth_error|session_required|signed_in | ✅ `domain/auth.spec.ts` + `presentation/i18n.spec.ts` | ✅ screen gate instrumentada (`data-screen-id=web.accessGate.screen`) |
+| 4.1.2 | WEB-010_SIGN_IN | `u0Exo` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.1.3 | WEB-020_DASHBOARD_HOME | `fAOUV` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.1.4 | WEB-030_QUICK_ACTIONS | `xJyx8` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 | 4.1.5 | WEB-040_ALERT_CENTER | `WmuDh` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **4.1.1 WEB-000_ACCESS_GATE**
-- Siguiente task: **4.1.2 WEB-010_SIGN_IN**
+- Task en construccion: **4.1.2 WEB-010_SIGN_IN**
+- Siguiente task: **4.1.3 WEB-020_DASHBOARD_HOME**

@@ -41,7 +41,11 @@ import { apiTrainingGateway } from "../infrastructure/training-client";
 import { apiRecommendationsGateway } from "../infrastructure/recommendations-client";
 import { apiRoleCapabilitiesGateway } from "../infrastructure/role-capabilities-client";
 import { apiAccessControlGateway } from "../infrastructure/access-control-client";
-import { isClientUpdateRequiredError, setApiAuthSession } from "../infrastructure/api-client";
+import {
+  isClientUpdateRequiredError,
+  setApiAccessRole,
+  setApiAuthSession
+} from "../infrastructure/api-client";
 import { apiLegalGateway } from "../infrastructure/legal-client";
 import { buildUXReadinessSnapshot, type UXReadinessSnapshot } from "./ux-readiness";
 import {
@@ -193,7 +197,6 @@ type ObservabilityCollectionsPayload = {
   activityLog: ActivityLogEntry[];
 };
 
-const defaultUserId = "demo-user";
 const languageStorageKey = "flux_training_language";
 const dashboardDomainStorageKey = "flux_training_dashboard_domain";
 const dashboardRoleStorageKey = "flux_training_dashboard_role";
@@ -382,7 +385,8 @@ export function App() {
   const [billingIncidentRowsVisibleCount, setBillingIncidentRowsVisibleCount] = useState(
     denseTableInitialRows
   );
-  const activeUserId = activeSession?.userId ?? defaultUserId;
+  const activeUserId = activeSession?.userId.trim() ?? "";
+  const hasAuthenticatedSession = activeUserId.length > 0;
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -471,7 +475,7 @@ export function App() {
         nutritionLogs,
         assignedRolesByPrincipal
       }),
-    [activeRole, assignedRolesByPrincipal, nutritionLogs, plans, sessions]
+    [activeRole, activeUserId, assignedRolesByPrincipal, nutritionLogs, plans, sessions]
   );
   const governancePrincipals = useMemo(
     () =>
@@ -615,8 +619,26 @@ export function App() {
     visibleBillingIncidentRows.length < supportIncidentRows.length;
 
   async function refreshPendingQueue(): Promise<void> {
+    if (hasAuthenticatedSession === false) {
+      setPendingQueueCount(0);
+      return;
+    }
     const pending = await offlineSyncQueueUseCase.listPending(activeUserId);
     setPendingQueueCount(pending.length);
+  }
+
+  function resolveAuthenticatedUserId(
+    domain: DashboardDomain
+  ): string | null {
+    if (hasAuthenticatedSession) {
+      return activeUserId;
+    }
+
+    setAuthStatus("session_required");
+    setDomainRuntimeStates((currentStates) =>
+      setRuntimeStateForActiveDomain(domain, "denied", currentStates)
+    );
+    return null;
   }
 
   function shouldStopForUpgrade(error: unknown): boolean {
@@ -986,6 +1008,7 @@ export function App() {
   }, [activeDomain, roleCapabilities, roleCapabilitiesStatus]);
 
   useEffect(() => {
+    setApiAccessRole(activeRole as AccessRole);
     persistRolePreference(activeRole);
     if (isInitialRoleRender.current) {
       isInitialRoleRender.current = false;
@@ -1046,6 +1069,11 @@ export function App() {
 
   async function handleCompleteOnboarding() {
     setOnboardingStatus("loading");
+    const authenticatedUserId = resolveAuthenticatedUserId("onboarding");
+    if (authenticatedUserId === null) {
+      setOnboardingStatus("error");
+      return;
+    }
     if (!privacyPolicyAccepted || !termsAccepted || !medicalDisclaimerAccepted) {
       setOnboardingStatus("consent_required");
       return;
@@ -1062,7 +1090,7 @@ export function App() {
     }
     try {
       await completeOnboardingUseCase.execute({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         goal,
         onboardingProfile: {
           displayName,
@@ -1091,13 +1119,18 @@ export function App() {
 
   async function handleSubmitLegalConsent() {
     setLegalStatus("loading");
+    const authenticatedUserId = resolveAuthenticatedUserId("onboarding");
+    if (authenticatedUserId === null) {
+      setLegalStatus("error");
+      return;
+    }
     if (!privacyPolicyAccepted || !termsAccepted || !medicalDisclaimerAccepted) {
       setLegalStatus("consent_required");
       return;
     }
     try {
       await manageLegalUseCase.submitConsent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         acceptedAt: new Date().toISOString(),
         privacyPolicyAccepted,
         termsAccepted,
@@ -1119,13 +1152,18 @@ export function App() {
 
   async function handleRequestDataDeletion() {
     setLegalStatus("loading");
+    const authenticatedUserId = resolveAuthenticatedUserId("onboarding");
+    if (authenticatedUserId === null) {
+      setLegalStatus("error");
+      return;
+    }
     if (!privacyPolicyAccepted || !termsAccepted || !medicalDisclaimerAccepted) {
       setLegalStatus("consent_required");
       return;
     }
     try {
       await manageLegalUseCase.requestDataDeletion({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         requestedAt: new Date().toISOString(),
         reason: "user_request",
         status: "pending",
@@ -1150,13 +1188,18 @@ export function App() {
 
   async function handleExportData() {
     setLegalStatus("loading");
+    const authenticatedUserId = resolveAuthenticatedUserId("onboarding");
+    if (authenticatedUserId === null) {
+      setLegalStatus("error");
+      return;
+    }
     if (!privacyPolicyAccepted || !termsAccepted) {
       setLegalStatus("consent_required");
       return;
     }
     try {
       await manageLegalUseCase.requestDataExport({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         requestedAt: new Date().toISOString(),
         format: "json"
       });
@@ -1172,6 +1215,11 @@ export function App() {
   }
 
   async function handleCreatePlan() {
+    const authenticatedUserId = resolveAuthenticatedUserId("training");
+    if (authenticatedUserId === null) {
+      setTrainingStatus("error");
+      return;
+    }
     if (planName.trim().length === 0) {
       setTrainingStatus("validation_error");
       return;
@@ -1179,7 +1227,7 @@ export function App() {
     setTrainingStatus("loading");
     const queuedPlanInput = {
       id: `plan-${Date.now()}`,
-      userId: activeUserId,
+      userId: authenticatedUserId,
       name: planName,
       weeks: 4,
       days: [
@@ -1197,7 +1245,7 @@ export function App() {
       const createdPlan = await manageTrainingUseCase.createTrainingPlan(queuedPlanInput);
       setSelectedPlanId(createdPlan.id);
       setTrainingStatus("saved");
-      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(activeUserId);
+      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(authenticatedUserId);
       setPlans(loadedPlans);
       markDomainSuccess("training");
     } catch (error) {
@@ -1205,7 +1253,7 @@ export function App() {
         return;
       }
       try {
-        await offlineSyncQueueUseCase.queueTrainingPlan(activeUserId, queuedPlanInput);
+        await offlineSyncQueueUseCase.queueTrainingPlan(authenticatedUserId, queuedPlanInput);
         await refreshPendingQueue();
         setTrainingStatus("queued");
         markDomainSuccess("training");
@@ -1220,9 +1268,14 @@ export function App() {
   }
 
   async function handleLoadPlans() {
+    const authenticatedUserId = resolveAuthenticatedUserId("training");
+    if (authenticatedUserId === null) {
+      setTrainingStatus("error");
+      return;
+    }
     setTrainingStatus("loading");
     try {
-      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(activeUserId);
+      const loadedPlans = await manageTrainingUseCase.listTrainingPlans(authenticatedUserId);
       setPlans(loadedPlans);
       const firstPlan = loadedPlans[0];
       if (firstPlan !== undefined && selectedPlanId.length === 0) {
@@ -1240,6 +1293,11 @@ export function App() {
   }
 
   async function handleLogWorkoutSession() {
+    const authenticatedUserId = resolveAuthenticatedUserId("training");
+    if (authenticatedUserId === null) {
+      setSessionStatus("error");
+      return;
+    }
     setSessionStatus("loading");
     const planId = selectedPlanId || plans[0]?.id;
     if (planId === undefined || planId.length === 0) {
@@ -1248,7 +1306,7 @@ export function App() {
     }
     const endedAt = new Date();
     const queuedSession = {
-      userId: activeUserId,
+      userId: authenticatedUserId,
       planId,
       startedAt: new Date(endedAt.getTime() - 35 * 60 * 1000).toISOString(),
       endedAt: endedAt.toISOString(),
@@ -1269,7 +1327,7 @@ export function App() {
         return;
       }
       try {
-        await offlineSyncQueueUseCase.queueWorkoutSession(activeUserId, queuedSession);
+        await offlineSyncQueueUseCase.queueWorkoutSession(authenticatedUserId, queuedSession);
         await refreshPendingQueue();
         setSessionStatus("saved");
         setTrainingStatus("queued");
@@ -1285,10 +1343,15 @@ export function App() {
   }
 
   async function handleLoadSessions() {
+    const authenticatedUserId = resolveAuthenticatedUserId("training");
+    if (authenticatedUserId === null) {
+      setSessionStatus("error");
+      return;
+    }
     setSessionStatus("loading");
     try {
       const loadedSessions = await manageTrainingUseCase.listWorkoutSessions(
-        activeUserId,
+        authenticatedUserId,
         selectedPlanId || undefined
       );
       setSessions(loadedSessions);
@@ -1304,9 +1367,14 @@ export function App() {
   }
 
   async function handleCreateNutritionLog() {
+    const authenticatedUserId = resolveAuthenticatedUserId("nutrition");
+    if (authenticatedUserId === null) {
+      setNutritionStatus("error");
+      return;
+    }
     setNutritionStatus("loading");
     const queuedLog = {
-      userId: activeUserId,
+      userId: authenticatedUserId,
       date: nutritionDate,
       calories: Number(calories),
       proteinGrams: Number(proteinGrams),
@@ -1323,7 +1391,7 @@ export function App() {
         return;
       }
       try {
-        await offlineSyncQueueUseCase.queueNutritionLog(activeUserId, queuedLog);
+        await offlineSyncQueueUseCase.queueNutritionLog(authenticatedUserId, queuedLog);
         await refreshPendingQueue();
         setNutritionStatus("queued");
         markDomainSuccess("nutrition");
@@ -1338,9 +1406,14 @@ export function App() {
   }
 
   async function handleLoadNutritionLogs() {
+    const authenticatedUserId = resolveAuthenticatedUserId("nutrition");
+    if (authenticatedUserId === null) {
+      setNutritionStatus("error");
+      return;
+    }
     setNutritionStatus("loading");
     try {
-      const logs = await manageNutritionUseCase.listNutritionLogs(activeUserId);
+      const logs = await manageNutritionUseCase.listNutritionLogs(authenticatedUserId);
       setNutritionLogs(logs);
       setNutritionStatus(logs.length === 0 ? "empty" : "loaded");
       markDomainSuccess("nutrition");
@@ -1354,9 +1427,14 @@ export function App() {
   }
 
   async function handleLoadProgressSummary() {
+    const authenticatedUserId = resolveAuthenticatedUserId("progress");
+    if (authenticatedUserId === null) {
+      setProgressStatus("error");
+      return;
+    }
     setProgressStatus("loading");
     try {
-      const summary = await manageProgressUseCase.getSummary(activeUserId);
+      const summary = await manageProgressUseCase.getSummary(authenticatedUserId);
       setProgressSummary(summary);
       setProgressStatus(
         summary.workoutSessionsCount === 0 && summary.nutritionLogsCount === 0
@@ -1374,9 +1452,14 @@ export function App() {
   }
 
   async function handleSyncOfflineQueue() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setSyncStatus("error");
+      return;
+    }
     setSyncStatus("loading");
     try {
-      const result = await offlineSyncQueueUseCase.syncPending(activeUserId);
+      const result = await offlineSyncQueueUseCase.syncPending(authenticatedUserId);
       await refreshPendingQueue();
       setLastSyncRejectedCount(result.rejected.length);
       setLastSyncIdempotency(result.idempotency);
@@ -1403,6 +1486,10 @@ export function App() {
   }
 
   async function loadObservabilityCollections(options?: { force?: boolean }): Promise<void> {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      throw new Error("missing_authorization_bearer");
+    }
     const forceReload = options?.force ?? false;
     const cacheTtlMs = 30_000;
     const now = Date.now();
@@ -1426,13 +1513,13 @@ export function App() {
       loadedStructuredLogs,
       loadedActivityLog
     ] = await Promise.all([
-      manageObservabilityUseCase.listAnalyticsEvents(activeUserId),
-      manageObservabilityUseCase.listCrashReports(activeUserId),
-      manageObservabilityUseCase.listObservabilitySummary(activeUserId),
-      manageObservabilityUseCase.listOperationalAlerts(activeUserId),
+      manageObservabilityUseCase.listAnalyticsEvents(authenticatedUserId),
+      manageObservabilityUseCase.listCrashReports(authenticatedUserId),
+      manageObservabilityUseCase.listObservabilitySummary(authenticatedUserId),
+      manageObservabilityUseCase.listOperationalAlerts(authenticatedUserId),
       manageObservabilityUseCase.listOperationalRunbooks(),
-      manageObservabilityUseCase.listStructuredLogs(activeUserId),
-      manageObservabilityUseCase.listActivityLog(activeUserId)
+      manageObservabilityUseCase.listStructuredLogs(authenticatedUserId),
+      manageObservabilityUseCase.listActivityLog(authenticatedUserId)
     ]);
     const payload: ObservabilityCollectionsPayload = {
       events: loadedEvents,
@@ -1448,10 +1535,15 @@ export function App() {
   }
 
   async function handleTrackAnalyticsEvent() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setObservabilityStatus("error");
+      return;
+    }
     setObservabilityStatus("loading");
     try {
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "dashboard_interaction",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1473,6 +1565,11 @@ export function App() {
   }
 
   async function handleReportDemoCrash() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setObservabilityStatus("error");
+      return;
+    }
     setObservabilityStatus("loading");
     try {
       try {
@@ -1481,7 +1578,7 @@ export function App() {
         const message = error instanceof Error ? error.message : "unknown_error";
         const stackTrace = error instanceof Error ? error.stack : undefined;
         await manageObservabilityUseCase.createCrashReport({
-          userId: activeUserId,
+          userId: authenticatedUserId,
           source: "web",
           message,
           stackTrace,
@@ -1548,6 +1645,11 @@ export function App() {
   }
 
   async function handleExportAuditCSV() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setAuditStatus("error");
+      return;
+    }
     if (auditTimelineRows.length === 0) {
       setAuditStatus("empty");
       return;
@@ -1565,7 +1667,7 @@ export function App() {
     try {
       const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, "operations");
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "audit_timeline_exported",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1585,10 +1687,15 @@ export function App() {
   }
 
   async function handleExportForensicAudit() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setAuditStatus("error");
+      return;
+    }
     setAuditStatus("loading");
     try {
       const exportResult = await manageObservabilityUseCase.exportForensicAudit({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         format: "csv",
         fromDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         toDate: new Date().toISOString(),
@@ -1627,6 +1734,11 @@ export function App() {
   }
 
   async function handleLoadRecommendations() {
+    const authenticatedUserId = resolveAuthenticatedUserId("nutrition");
+    if (authenticatedUserId === null) {
+      setRecommendationsStatus("error");
+      return;
+    }
     setRecommendationsStatus("loading");
     const estimatedDaysSinceWorkout = sessions.length === 0 ? 3 : 0;
     const estimatedCompletionRate =
@@ -1634,7 +1746,7 @@ export function App() {
 
     try {
       const loadedRecommendations = await manageRecommendationsUseCase.listRecommendations(
-        activeUserId,
+        authenticatedUserId,
         language === "es" ? "es-ES" : "en-US",
         {
           goal,
@@ -1775,6 +1887,11 @@ export function App() {
   }
 
   async function handleResolveBillingIncidents() {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setBillingSupportStatus("error");
+      return;
+    }
     if (billingSelectedIncidentIds.length === 0) {
       setBillingHasValidationError(true);
       setBillingSupportStatus("validation_error");
@@ -1795,7 +1912,7 @@ export function App() {
         "operations"
       );
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "billing_support_incidents_resolved",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1849,6 +1966,11 @@ export function App() {
   }
 
   async function handleAssignGovernanceRole(targetRole: DashboardRole) {
+    const authenticatedUserId = resolveAuthenticatedUserId("operations");
+    if (authenticatedUserId === null) {
+      setGovernanceStatus("error");
+      return;
+    }
     if (!isAdminRole(activeRole)) {
       const correlationId = nextCorrelationId(
         runtimeObservabilitySessionRef.current,
@@ -1879,7 +2001,7 @@ export function App() {
         "operations"
       );
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "governance_bulk_role_assignment_saved",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1897,6 +2019,10 @@ export function App() {
   }
 
   async function trackDomainChange(domain: DashboardDomain) {
+    const authenticatedUserId = resolveAuthenticatedUserId(domain);
+    if (authenticatedUserId === null) {
+      return;
+    }
     try {
       const allowedDomainCount =
         roleCapabilitiesStatus === "loaded" && roleCapabilities !== null
@@ -1905,7 +2031,7 @@ export function App() {
       const payloadValidation = resolveDomainPayloadValidation(buildDomainPayloadValidationInput(domain));
       const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, domain);
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "dashboard_domain_changed",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1927,10 +2053,14 @@ export function App() {
   }
 
   async function trackRoleChange(role: DashboardRole) {
+    const authenticatedUserId = resolveAuthenticatedUserId(activeDomain);
+    if (authenticatedUserId === null) {
+      return;
+    }
     try {
       const runtimeAttributes = nextEventAttributes(runtimeObservabilitySessionRef.current, activeDomain);
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "dashboard_role_changed",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1950,6 +2080,10 @@ export function App() {
     trigger: "domain_select" | "runtime_state_change" | "recover" | "role_capabilities_sync",
     correlationId?: string
   ) {
+    const authenticatedUserId = resolveAuthenticatedUserId(domain);
+    if (authenticatedUserId === null) {
+      return;
+    }
     try {
       const payloadValidation = resolveDomainPayloadValidation(buildDomainPayloadValidationInput(domain));
       const runtimeAttributes = nextDeniedEventAttributes(
@@ -1958,7 +2092,7 @@ export function App() {
         correlationId
       );
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "dashboard_domain_access_denied",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -1993,6 +2127,10 @@ export function App() {
       | "medical_consent_required",
     correlationId?: string
   ) {
+    const authenticatedUserId = resolveAuthenticatedUserId(domain);
+    if (authenticatedUserId === null) {
+      return;
+    }
     let resolvedReason = reason;
     try {
       const decision = await manageAccessControlUseCase.evaluateAccessDecision({
@@ -2013,7 +2151,7 @@ export function App() {
 
     try {
       await manageAccessControlUseCase.recordDeniedAccessAudit({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         role: activeRole,
         domain,
         action: "view",
@@ -2034,7 +2172,7 @@ export function App() {
     );
     try {
       await manageObservabilityUseCase.createAnalyticsEvent({
-        userId: activeUserId,
+        userId: authenticatedUserId,
         name: "dashboard_action_blocked",
         source: "web",
         occurredAt: new Date().toISOString(),
@@ -2421,7 +2559,36 @@ export function App() {
         </section>
 
         <section id="dashboard-grid" className="dashboard-grid">
-          {activeDomainRuntimeState !== "success" ? (
+          {hasAuthenticatedSession === false ? (
+            <article
+              className="module-card access-gate-card"
+              data-screen-id="web.accessGate.screen"
+              aria-live="polite"
+            >
+              <SectionHeader
+                title={translate("heroTitle")}
+                status={authStatus}
+                statusLabel={translate("authMetric")}
+                language={language}
+              />
+              <div className="form-grid">
+                <p className="runtime-state-copy">{translate("heroCopy")}</p>
+                <div className="inline-inputs">
+                  <button className="button primary" onClick={handleAppleSignIn} type="button">
+                    {translate("signInWithApple")}
+                  </button>
+                  <button className="button ghost" onClick={handleEmailSignIn} type="button">
+                    {translate("signInWithEmail")}
+                  </button>
+                </div>
+                <p className="empty-state">
+                  {language === "es"
+                    ? "Acceso requerido para cargar el dashboard operativo."
+                    : "Access required to load the operational dashboard."}
+                </p>
+              </div>
+            </article>
+          ) : activeDomainRuntimeState !== "success" ? (
             <article className={`module-card runtime-state-banner state-${activeDomainRuntimeState}`}>
               <SectionHeader
                 title={translate("runtimeStateSectionTitle")}
