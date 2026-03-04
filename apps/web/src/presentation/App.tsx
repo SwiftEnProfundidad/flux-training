@@ -7875,5 +7875,17 @@ function readWebRuntimeMode(): "qa" | "product" {
   }
 
   const params = new URLSearchParams(window.location.search);
+  const qaUnlockStorageKey = "flux.web.qa.unlock";
+  const unlockParam = params.get("unlockQa");
+  if (unlockParam === "1") {
+    window.localStorage.setItem(qaUnlockStorageKey, "1");
+  } else if (unlockParam === "0") {
+    window.localStorage.removeItem(qaUnlockStorageKey);
+  }
+
+  const isQaUnlocked = window.localStorage.getItem(qaUnlockStorageKey) === "1";
+  if (isQaUnlocked === false) {
+    return "product";
+  }
   return params.get("qa") === "1" ? "qa" : "product";
 }

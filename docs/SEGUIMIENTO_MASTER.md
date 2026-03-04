@@ -161,6 +161,7 @@
 - iOS Ajustes ya no renderiza flujo tecnico por enlaces: `FluxTrainingProductRootView` usa selector de etapas y muestra una sola pantalla por vez (home, perfil, notificaciones, legal, exportacion, borrado).
 - iOS Today/Auth depurado a flujo productivo: la pantalla de bienvenida integra login Apple + email/password + recuperacion directa, y el enrutado tecnico de `email`/`appleHandoff` deja de ser paso manual en runtime productivo.
 - iOS microcopy productiva reforzada: estados tecnicos (`idle/saved/loaded/open`) pasan a copy de usuario final (`listo/actualizado/completado/en revision`), `Auth` pasa a `Acceso`, el CTA de salida pasa a `Cerrar sesion` y los selectores de etapas usan etiquetas cortas de producto (Hoy, Plan, Preparacion, Resumen, etc.) en ES/EN.
+- Web QA mode endurecido para evitar exposicion accidental de UI interna: ahora `?qa=1` no basta; requiere desbloqueo explicito (`?unlockQa=1`) persistido localmente y se puede revertir con `?unlockQa=0`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
