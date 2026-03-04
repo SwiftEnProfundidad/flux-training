@@ -80,6 +80,7 @@
 - `IOS-L-110_PLAN_ACTIVE` ya esta operativo como variante light de plan activo con ruta/pantalla propias (`training.route.planActiveLight`, `training.planActive.light.screen`) y gestion real del plan con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-L-120_SESSION_SETUP` ya esta operativo como variante light de preparacion de sesion con ruta/pantalla propias (`training.route.inWorkoutSetupLight`, `training.inWorkoutSetup.light.screen`) y estado real de setup con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-L-130_WORKOUT_ACTIVE` ya esta operativo como variante light del workout activo con ruta/pantalla propias (`training.route.workoutActiveLight`, `training.workoutActive.light.screen`) y ajuste real de ejercicio con estados `loading|empty|error|saved|validation_error|denied|offline`.
+- `IOS-L-140_EXERCISE_VIDEO` ya esta operativo como variante light de video por ejercicio con ruta/pantalla propias (`training.route.videoPlayerLight`, `training.videoPlayer.light.screen`) y reproduccion real con estados `loading|empty|error|success|denied|offline`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
