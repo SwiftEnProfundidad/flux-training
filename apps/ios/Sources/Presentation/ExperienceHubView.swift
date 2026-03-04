@@ -1226,6 +1226,27 @@ public struct ExperienceHubView: View {
       .accessibilityIdentifier(ProgressRouteContract.goalAdjustDarkRouteID)
 
       NavigationLink {
+        GoalAdjustLightView(
+          viewModel: onboardingViewModel,
+          copy: copy
+        )
+      } label: {
+        VStack(alignment: .leading, spacing: 4) {
+          Text("\(copy.text(.goalLabel)) Light")
+            .font(.body.weight(.semibold))
+          Text(copy.text(.statusLabel))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Text(copy.humanStatus(onboardingViewModel.onboardingStatus))
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .accessibilityIdentifier(ProgressRouteContract.goalAdjustLightRouteID)
+
+      NavigationLink {
         AICoachView(
           recommendations: $recommendations,
           status: $recommendationsStatus,
