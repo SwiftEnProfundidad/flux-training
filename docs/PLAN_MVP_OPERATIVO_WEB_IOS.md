@@ -129,8 +129,8 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | 3.9.2 | IOS-210_LOG_MEAL | `ljPEw` | ✅ | `todayTab -> nutrition.route.logMeal -> nutrition.logMeal.screen` | `CreateNutritionLogUseCase` (repositorio real/configurado) | Guardar comida (`nutrition.logMeal.save`) | loading|error|saved|validation_error|denied|offline | ✅ `NutritionViewModelTests` + `NutritionRouteContractTests` | ✅ ruta+pantalla instrumentadas (`nutrition.route.logMeal`, `nutrition.logMeal.screen`) |
 | 3.9.3 | IOS-220_PROGRESS_METRICS | `cIytS` | ✅ | `todayTab -> progress.route.metrics -> progress.metrics.screen` | `BuildProgressSummaryUseCase` (repositorios reales/configurados) | Cargar metricas (`progress.metrics.load`) | loading|empty|error|loaded|validation_error|denied|offline | ✅ `ProgressViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.metrics`, `progress.metrics.screen`) |
 | 3.9.4 | IOS-230_GOAL_ADJUST | `uzaX9` | ✅ | `todayTab -> progress.route.goalAdjust -> progress.goalAdjust.screen` | `OnboardingViewModel.saveGoalSetup` (estado real y validacion) | Ajustar objetivo (`progress.goalAdjust.save`) | loading|validation_error|success|denied|offline | ✅ `OnboardingViewModelTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.goalAdjust`, `progress.goalAdjust.screen`) |
-| 3.9.5 | IOS-240_AI_COACH | `vJNXu` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
-| 3.9.6 | IOS-250_WEEKLY_REVIEW | `mlEPR` | ⏳ | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
+| 3.9.5 | IOS-240_AI_COACH | `vJNXu` | ✅ | `todayTab -> progress.route.aiCoach -> progress.aiCoach.screen` | `GenerateAIRecommendationsUseCase` (recomendaciones dinamicas por objetivo/adherencia/cola) | Cargar recomendaciones (`aiCoach.load`) | loading|empty|error|loaded|validation_error|denied|offline | ✅ `GenerateAIRecommendationsUseCaseTests` + `ProgressRouteContractTests` | ✅ ruta+pantalla instrumentadas (`progress.route.aiCoach`, `progress.aiCoach.screen`) |
+| 3.9.6 | IOS-250_WEEKLY_REVIEW | `mlEPR` | 🚧 | por_definir | por_definir | por_definir | loading|empty|error|success|denied|offline | ⏳ | ⏳ |
 
 ### Task 3.10 — iOS — Progreso + Nutrición + IA Coach / IOS_NUTRITION_LIGHT_LANE
 - Total pantallas en este bloque: **6**
@@ -290,5 +290,5 @@ Convertir el producto en MVP real 100% operativo end-to-end (Web+iOS), sin compo
 | F5-T3 Gate MVP y checklist release | ⏳ | Producto usable por usuarios reales |
 
 ## Estado activo ahora
-- Task en construccion: **3.9.5 IOS-240_AI_COACH**
-- Siguiente task: **3.9.6 IOS-250_WEEKLY_REVIEW**
+- Task en construccion: **3.9.6 IOS-250_WEEKLY_REVIEW**
+- Siguiente task: **3.10.1 IOS-L-200_NUTRITION_HUB**
