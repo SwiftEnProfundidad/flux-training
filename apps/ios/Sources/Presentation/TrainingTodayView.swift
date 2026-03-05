@@ -7,17 +7,26 @@ public struct TrainingTodayView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenPlanActive: () -> Void
+  private let onOpenSessionSetup: () -> Void
+  private let onOpenSessionSummary: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = TrainingRouteContract.todayDarkScreenID
+    screenAccessibilityID: String = TrainingRouteContract.todayDarkScreenID,
+    onOpenPlanActive: @escaping () -> Void = {},
+    onOpenSessionSetup: @escaping () -> Void = {},
+    onOpenSessionSummary: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenPlanActive = onOpenPlanActive
+    self.onOpenSessionSetup = onOpenSessionSetup
+    self.onOpenSessionSummary = onOpenSessionSummary
   }
 
   public var body: some View {
@@ -65,6 +74,25 @@ public struct TrainingTodayView: View {
         }
         .buttonStyle(FluxPrimaryButtonStyle())
         .accessibilityIdentifier("training.today.refresh")
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text(copy.text(.trainingStageToday))
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            HStack(spacing: 10) {
+              Button(copy.text(.trainingStagePlan), action: onOpenPlanActive)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("training.today.openPlan")
+              Button(copy.text(.trainingStageSetup), action: onOpenSessionSetup)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("training.today.openSetup")
+            }
+            Button(copy.text(.trainingStageSummary), action: onOpenSessionSummary)
+              .buttonStyle(FluxSecondaryButtonStyle())
+              .accessibilityIdentifier("training.today.openSummary")
+          }
+        }
       }
     }
     .padding(16)

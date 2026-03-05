@@ -7,17 +7,20 @@ public struct NutritionHubView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenLogMeal: () -> Void
 
   public init(
     viewModel: NutritionViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = NutritionRouteContract.nutritionHubDarkScreenID
+    screenAccessibilityID: String = NutritionRouteContract.nutritionHubDarkScreenID,
+    onOpenLogMeal: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenLogMeal = onOpenLogMeal
   }
 
   public var body: some View {
@@ -92,6 +95,10 @@ public struct NutritionHubView: View {
               .accessibilityIdentifier("nutrition.hub.logsCount")
           }
         }
+
+        Button(copy.text(.nutritionStageLog), action: onOpenLogMeal)
+          .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("nutrition.hub.openLogMeal")
       }
     }
     .padding(16)

@@ -272,7 +272,18 @@ public struct FluxTrainingProductRootView: View {
             selectedTrainingStageView
           }
         } else {
-          selectedTrainingStageView
+          VStack(spacing: 8) {
+            if selectedTrainingStage != .today {
+              Button(copy.text(.todayTab)) {
+                selectedTrainingStage = .today
+              }
+              .buttonStyle(FluxSecondaryButtonStyle())
+              .padding(.horizontal, 16)
+              .padding(.top, 8)
+              .accessibilityIdentifier("training.stage.backToToday")
+            }
+            selectedTrainingStageView
+          }
         }
       }
       .background(backgroundGradient)
@@ -293,7 +304,18 @@ public struct FluxTrainingProductRootView: View {
             selectedProgressStageView
           }
         } else {
-          selectedProgressStageView
+          VStack(spacing: 8) {
+            if selectedProgressStage != .metrics {
+              Button(copy.text(.progressStageOverview)) {
+                selectedProgressStage = .metrics
+              }
+              .buttonStyle(FluxSecondaryButtonStyle())
+              .padding(.horizontal, 16)
+              .padding(.top, 8)
+              .accessibilityIdentifier("progress.stage.backToOverview")
+            }
+            selectedProgressStageView
+          }
         }
       }
       .background(backgroundGradient)
@@ -310,7 +332,18 @@ public struct FluxTrainingProductRootView: View {
             selectedNutritionStageView
           }
         } else {
-          selectedNutritionStageView
+          VStack(spacing: 8) {
+            if selectedNutritionStage != .hub {
+              Button(copy.text(.nutritionStageOverview)) {
+                selectedNutritionStage = .hub
+              }
+              .buttonStyle(FluxSecondaryButtonStyle())
+              .padding(.horizontal, 16)
+              .padding(.top, 8)
+              .accessibilityIdentifier("nutrition.stage.backToHub")
+            }
+            selectedNutritionStageView
+          }
         }
       }
       .background(backgroundGradient)
@@ -559,7 +592,14 @@ public struct FluxTrainingProductRootView: View {
   private var selectedTrainingStageView: some View {
     switch selectedTrainingStage {
     case .today:
-      TrainingTodayView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      TrainingTodayView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenPlanActive: { selectedTrainingStage = .planActive },
+        onOpenSessionSetup: { selectedTrainingStage = .sessionSetup },
+        onOpenSessionSummary: { selectedTrainingStage = .summary }
+      )
     case .planActive:
       PlanActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
     case .sessionSetup:
@@ -583,7 +623,14 @@ public struct FluxTrainingProductRootView: View {
   private var selectedProgressStageView: some View {
     switch selectedProgressStage {
     case .metrics:
-      ProgressMetricsView(viewModel: progressViewModel, userID: activeUserID, copy: copy)
+      ProgressMetricsView(
+        viewModel: progressViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenWeeklyReview: { selectedProgressStage = .weeklyReview },
+        onOpenGoalAdjust: { selectedProgressStage = .goalAdjust },
+        onOpenAICoach: { selectedProgressStage = .aiCoach }
+      )
         .productCardSurface()
         .padding(16)
     case .weeklyReview:
@@ -617,7 +664,12 @@ public struct FluxTrainingProductRootView: View {
   private var selectedNutritionStageView: some View {
     switch selectedNutritionStage {
     case .hub:
-      NutritionHubView(viewModel: nutritionViewModel, userID: activeUserID, copy: copy)
+      NutritionHubView(
+        viewModel: nutritionViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenLogMeal: { selectedNutritionStage = .logMeal }
+      )
         .productCardSurface()
         .padding(16)
     case .logMeal:

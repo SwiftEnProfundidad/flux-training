@@ -7,17 +7,26 @@ public struct ProgressMetricsView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenWeeklyReview: () -> Void
+  private let onOpenGoalAdjust: () -> Void
+  private let onOpenAICoach: () -> Void
 
   public init(
     viewModel: ProgressViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = ProgressRouteContract.metricsDarkScreenID
+    screenAccessibilityID: String = ProgressRouteContract.metricsDarkScreenID,
+    onOpenWeeklyReview: @escaping () -> Void = {},
+    onOpenGoalAdjust: @escaping () -> Void = {},
+    onOpenAICoach: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenWeeklyReview = onOpenWeeklyReview
+    self.onOpenGoalAdjust = onOpenGoalAdjust
+    self.onOpenAICoach = onOpenAICoach
   }
 
   public var body: some View {
@@ -71,6 +80,25 @@ public struct ProgressMetricsView: View {
           Text(copy.text(.noProgressLoaded))
               .foregroundStyle(.white.opacity(0.74))
             .accessibilityIdentifier("progress.metrics.empty")
+          }
+        }
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text(copy.text(.progressStageOverview))
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            HStack(spacing: 10) {
+              Button(copy.text(.progressStageWeeklyReview), action: onOpenWeeklyReview)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("progress.metrics.openWeeklyReview")
+              Button(copy.text(.progressStageGoal), action: onOpenGoalAdjust)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("progress.metrics.openGoalAdjust")
+            }
+            Button(copy.text(.progressStageCoach), action: onOpenAICoach)
+              .buttonStyle(FluxSecondaryButtonStyle())
+              .accessibilityIdentifier("progress.metrics.openAICoach")
           }
         }
       }
