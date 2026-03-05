@@ -173,6 +173,7 @@
 - iOS Ajustes export/delete depurado: `ExportDataView` y `DeleteAccountView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA`) manteniendo preview de payload y solicitud de borrado con estado real.
 - iOS Entrenamiento setup depurado: `PlanActiveView`, `InWorkoutSetupView`, `RPERatingView` y `ExerciseSubstitutionView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA`) con selectores operativos y estados reales de sesion/video.
 - iOS Entrenamiento/progreso media depurado: `ExerciseLibraryView`, `VideoPlayerView`, `SessionSummaryView`, `GoalAdjustView`, `AICoachView` y `WeeklyReviewView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA`), eliminando el remanente de layout tecnico legacy en runtime iOS.
+- Web runtime blindado contra QA accidental en `localhost:5173`: la UI de QA solo puede abrirse en ruta dedicada `'/__qa'` con opt-in explicito, y `dev:web`/`dev:web:product` fuerzan modo producto por defecto.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

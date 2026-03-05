@@ -7882,6 +7882,12 @@ function readWebRuntimeMode(): "qa" | "product" {
     return "product";
   }
 
+  // QA UI is isolated to a dedicated route to avoid accidental exposure in product runtime.
+  const isQaRoute = window.location.pathname.startsWith("/__qa");
+  if (isQaRoute === false) {
+    return "product";
+  }
+
   const params = new URLSearchParams(window.location.search);
   const qaUnlockStorageKey = "flux.web.qa.unlock";
   const unlockParam = params.get("unlockQa");
