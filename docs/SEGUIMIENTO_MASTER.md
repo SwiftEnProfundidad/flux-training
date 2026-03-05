@@ -186,6 +186,7 @@
 - Web acceso con estado legible para usuario: la hero de login ya no queda fija en "listo para iniciar" tras errores; ahora muestra feedback contextual (`iniciando sesion`, `revisa correo y contrasena`, `no pudimos iniciar sesion...`) para cerrar el bucle UX cuando falla autenticacion.
 - Auth email de primer acceso endurecido en producto: Web+iOS ya intentan alta automatica al detectar usuario inexistente en Firebase, permitiendo que el primer login por email cree cuenta y abra sesion sin romper flujo.
 - Auth fallback local endurecido para desarrollo E2E: Web+iOS ya soportan inicio de sesion contra `backend:start:demo` sin credenciales Firebase/Apple cuando el backend apunta a `localhost/127.0.0.1`, manteniendo bloqueo estricto en entornos cloud.
+- Runtime local-first endurecido (web): cuando falta `VITE_API_TARGET`, `vite` ya enruta por defecto a `127.0.0.1:8787`, y el fallback auth local se activa por host (`localhost/127.0.0.1`) para evitar login roto en `pnpm dev:web`.
 - Evidencia runtime web local (2026-03-05): en `localhost:5173` se valido login por email y operacion viva (crear plan, registrar sesion, cargar sesiones y detalle de sesion) contra `127.0.0.1:8787`.
 - Evidencia gate final (2026-03-05): `pnpm release:check` completado en verde (check + test workspace + critical suites + `swift test` completo).
 

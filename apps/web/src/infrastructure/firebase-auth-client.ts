@@ -13,6 +13,10 @@ import { assertApiResponse, createApiHeaders } from "./api-client";
 
 let cachedAuth: Auth | null = null;
 
+function isLocalHostname(candidate: string): boolean {
+  return candidate === "127.0.0.1" || candidate === "localhost";
+}
+
 function hasFirebaseWebConfig(): boolean {
   const apiKey = String(import.meta.env.VITE_FIREBASE_API_KEY ?? "");
   const authDomain = String(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "");
@@ -27,15 +31,34 @@ export function isLocalDemoApiTarget(rawTarget: string): boolean {
   }
   try {
     const url = new URL(candidate);
-    return url.hostname === "127.0.0.1" || url.hostname === "localhost";
+    return isLocalHostname(url.hostname);
   } catch {
     return false;
   }
 }
 
+export function shouldUseLocalDemoAuthFallbackFromContext(
+  rawTarget: string,
+  locationHostname: string
+): boolean {
+  const normalizedTarget = rawTarget.trim();
+  if (normalizedTarget.length > 0) {
+    return isLocalDemoApiTarget(normalizedTarget);
+  }
+  return isLocalHostname(locationHostname.trim().toLowerCase());
+}
+
+function resolveLocationHostname(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+  const candidate = window.location?.hostname;
+  return typeof candidate === "string" ? candidate : "";
+}
+
 function shouldUseLocalDemoAuthFallback(): boolean {
   const rawTarget = String(import.meta.env.VITE_API_TARGET ?? "");
-  return isLocalDemoApiTarget(rawTarget);
+  return shouldUseLocalDemoAuthFallbackFromContext(rawTarget, resolveLocationHostname());
 }
 
 function getClientAuth(): Auth {
