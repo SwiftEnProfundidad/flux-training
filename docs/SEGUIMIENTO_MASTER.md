@@ -189,6 +189,7 @@
 - Runtime local-first endurecido (web): cuando falta `VITE_API_TARGET`, `vite` ya enruta por defecto a `127.0.0.1:8787`, y el fallback auth local se activa por host (`localhost/127.0.0.1`) para evitar login roto en `pnpm dev:web`.
 - Microcopy de acceso endurecido (web): el estado textual de autenticacion queda en copy de usuario final (`inicia sesion para continuar`, `te enviamos instrucciones por correo`, `te enviamos un codigo por sms`) y el selector de objetivo deja de mostrar IDs tecnicos.
 - Jerarquia visual del hero web refinada: CTA principal, campos de login y recuperacion quedan en estructura estable y legible, con estado de acceso en estilo secundario para evitar percepcion de panel tecnico.
+- Microcopy de preparacion en web alineado a producto: en ES se elimina el literal tecnico `Readiness` y se normaliza a `Preparacion`, incluyendo bloque de monitor (`Monitor de preparacion`, `Actualizar preparacion`).
 - Evidencia runtime web local (2026-03-05): en `localhost:5173` se valido login por email y operacion viva (crear plan, registrar sesion, cargar sesiones y detalle de sesion) contra `127.0.0.1:8787`.
 - Evidencia gate final (2026-03-05): `pnpm release:check` completado en verde (check + test workspace + critical suites + `swift test` completo).
 

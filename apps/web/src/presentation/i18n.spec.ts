@@ -48,6 +48,7 @@ describe("i18n", () => {
     expect(translate("dashboardKpisTitle")).toBe("Dashboard KPIs");
     expect(translate("dashboardKpisStatusLabel")).toBe("KPIs");
     expect(translate("dashboardKpisRefreshAction")).toBe("Refresh KPIs");
+    expect(translate("readinessLabel")).toBe("Readiness");
     expect(translate("readinessMonitorTitle")).toBe("Readiness monitor");
     expect(translate("readinessMonitorStatusLabel")).toBe("Readiness");
     expect(translate("readinessMonitorScoreLabel")).toBe("Score");
@@ -274,10 +275,11 @@ describe("i18n", () => {
     expect(translate("dashboardKpisTitle")).toBe("Dashboard KPIs");
     expect(translate("dashboardKpisStatusLabel")).toBe("KPIs");
     expect(translate("dashboardKpisRefreshAction")).toBe("Refrescar KPIs");
-    expect(translate("readinessMonitorTitle")).toBe("Readiness monitor");
-    expect(translate("readinessMonitorStatusLabel")).toBe("Readiness");
+    expect(translate("readinessLabel")).toBe("Preparacion");
+    expect(translate("readinessMonitorTitle")).toBe("Monitor de preparacion");
+    expect(translate("readinessMonitorStatusLabel")).toBe("Preparacion");
     expect(translate("readinessMonitorScoreLabel")).toBe("Score");
-    expect(translate("readinessMonitorRefreshAction")).toBe("Refrescar readiness");
+    expect(translate("readinessMonitorRefreshAction")).toBe("Actualizar preparacion");
     expect(translate("alertsFullTitle")).toBe("Alerts full");
     expect(translate("alertsFullStatusLabel")).toBe("Alerts full");
     expect(translate("alertsFullRefreshAction")).toBe("Refrescar alerts full");
