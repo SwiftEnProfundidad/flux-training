@@ -169,6 +169,7 @@
 - iOS Today/Progress depurado: `TrainingTodayView` y `ProgressMetricsView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA principal`) con copy/jerarquia visual de usuario final.
 - iOS Nutricion depurado: `NutritionHubView` y `NutritionLogMealView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + campos/CTA`) con estado y carga de registros visibles para usuario final.
 - iOS Ajustes depurado: `SettingsHomeView` deja de renderizar `Form` de testing y pasa a composicion de producto (`ScrollView + cards de modulos + ajustes + CTA`) manteniendo rutas de perfil/notificaciones/legal/export/borrado.
+- iOS Ajustes detalle depurado: `AccountProfileView`, `NotificationsView` y `PrivacyConsentView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA`) con persistencia, estado legal y acciones reales.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

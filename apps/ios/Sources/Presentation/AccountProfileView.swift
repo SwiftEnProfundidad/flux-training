@@ -21,47 +21,111 @@ public struct AccountProfileView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.accountProfileTitle)) {
-        TextField(copy.text(.displayName), text: $viewModel.displayName)
-          .accessibilityIdentifier("account.profile.displayName")
-        TextField(copy.text(.age), value: $viewModel.age, format: .number)
-          .accessibilityIdentifier("account.profile.age")
-        TextField(copy.text(.heightCmLabel), value: $viewModel.heightCm, format: .number)
-          .accessibilityIdentifier("account.profile.heightCm")
-        TextField(copy.text(.weightKgLabel), value: $viewModel.weightKg, format: .number)
-          .accessibilityIdentifier("account.profile.weightKg")
-        Picker(copy.text(.goalLabel), selection: $viewModel.goal) {
-          Text(copy.text(.goalFatLoss)).tag(TrainingGoal.fatLoss)
-          Text(copy.text(.goalRecomposition)).tag(TrainingGoal.recomposition)
-          Text(copy.text(.goalMuscleGain)).tag(TrainingGoal.muscleGain)
-          Text(copy.text(.goalHabit)).tag(TrainingGoal.habit)
-        }
-        .accessibilityIdentifier("account.profile.goal")
-      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.accountProfileTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
 
-      Section {
-        Button(copy.text(.saveProfile)) {
-          Task {
-            await viewModel.save(userID: userID)
+        Text(copy.text(.profileStatusLabel))
+          .font(.subheadline.weight(.medium))
+          .foregroundStyle(.white.opacity(0.74))
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 12) {
+            fieldLabel(copy.text(.displayName))
+            TextField(copy.text(.displayName), text: $viewModel.displayName)
+              .fluxInputFieldStyle()
+              .accessibilityIdentifier("account.profile.displayName")
+
+            HStack(spacing: 10) {
+              metricInput(
+                label: copy.text(.age),
+                intValue: $viewModel.age,
+                identifier: "account.profile.age"
+              )
+              metricInput(
+                label: copy.text(.heightCmLabel),
+                doubleValue: $viewModel.heightCm,
+                identifier: "account.profile.heightCm"
+              )
+            }
+
+            metricInput(
+              label: copy.text(.weightKgLabel),
+              doubleValue: $viewModel.weightKg,
+              identifier: "account.profile.weightKg"
+            )
+
+            fieldLabel(copy.text(.goalLabel))
+            Picker(copy.text(.goalLabel), selection: $viewModel.goal) {
+              Text(copy.text(.goalFatLoss)).tag(TrainingGoal.fatLoss)
+              Text(copy.text(.goalRecomposition)).tag(TrainingGoal.recomposition)
+              Text(copy.text(.goalMuscleGain)).tag(TrainingGoal.muscleGain)
+              Text(copy.text(.goalHabit)).tag(TrainingGoal.habit)
+            }
+            .tint(.orange)
+            .accessibilityIdentifier("account.profile.goal")
           }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("account.profile.save")
-      }
 
-      Section(copy.text(.profileStatusLabel)) {
-        Text(copy.humanStatus(viewModel.status))
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("account.profile.status")
+        Button(copy.text(.saveProfile)) {
+          Task { await viewModel.save(userID: userID) }
+        }
+        .buttonStyle(FluxPrimaryButtonStyle())
+        .accessibilityIdentifier("account.profile.save")
+
+        FluxCard {
+          Text("\(copy.text(.profileStatusLabel)): \(copy.humanStatus(viewModel.status))")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.82))
+            .accessibilityIdentifier("account.profile.status")
+        }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.accountProfileTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .task(id: userID) {
       await viewModel.refresh(userID: userID)
     }
+  }
+
+  @ViewBuilder
+  private func fieldLabel(_ title: String) -> some View {
+    Text(title)
+      .font(.caption.weight(.semibold))
+      .foregroundStyle(.white.opacity(0.8))
+  }
+
+  @ViewBuilder
+  private func metricInput(
+    label: String,
+    intValue: Binding<Int>,
+    identifier: String
+  ) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      fieldLabel(label)
+      TextField(label, value: intValue, format: .number)
+        .fluxInputFieldStyle()
+        .accessibilityIdentifier(identifier)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  @ViewBuilder
+  private func metricInput(
+    label: String,
+    doubleValue: Binding<Double>,
+    identifier: String
+  ) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      fieldLabel(label)
+      TextField(label, value: doubleValue, format: .number)
+        .fluxInputFieldStyle()
+        .accessibilityIdentifier(identifier)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }

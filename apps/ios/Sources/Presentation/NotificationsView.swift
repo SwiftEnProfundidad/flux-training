@@ -21,38 +21,67 @@ public struct NotificationsView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.notificationsTitle)) {
-        Toggle(copy.text(.trainingRemindersPreference), isOn: $viewModel.trainingRemindersEnabled)
-          .accessibilityIdentifier("notifications.trainingReminders")
-        Toggle(copy.text(.recoveryAlertsPreference), isOn: $viewModel.recoveryAlertsEnabled)
-          .accessibilityIdentifier("notifications.recoveryAlerts")
-        Toggle(copy.text(.weeklyDigestPreference), isOn: $viewModel.weeklyDigestEnabled)
-          .accessibilityIdentifier("notifications.weeklyDigest")
-      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.notificationsTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
 
-      Section {
-        Button(copy.text(.saveNotifications)) {
-          Task {
-            await viewModel.save(userID: userID)
+        Text(copy.text(.notificationsStatusLabel))
+          .font(.subheadline.weight(.medium))
+          .foregroundStyle(.white.opacity(0.74))
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            toggleRow(
+              title: copy.text(.trainingRemindersPreference),
+              isOn: $viewModel.trainingRemindersEnabled,
+              identifier: "notifications.trainingReminders"
+            )
+            toggleRow(
+              title: copy.text(.recoveryAlertsPreference),
+              isOn: $viewModel.recoveryAlertsEnabled,
+              identifier: "notifications.recoveryAlerts"
+            )
+            toggleRow(
+              title: copy.text(.weeklyDigestPreference),
+              isOn: $viewModel.weeklyDigestEnabled,
+              identifier: "notifications.weeklyDigest"
+            )
           }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("notifications.save")
-      }
 
-      Section(copy.text(.notificationsStatusLabel)) {
-        Text(copy.humanStatus(viewModel.status))
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("notifications.status")
+        Button(copy.text(.saveNotifications)) {
+          Task { await viewModel.save(userID: userID) }
+        }
+        .buttonStyle(FluxPrimaryButtonStyle())
+        .accessibilityIdentifier("notifications.save")
+
+        FluxCard {
+          Text("\(copy.text(.notificationsStatusLabel)): \(copy.humanStatus(viewModel.status))")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.82))
+            .accessibilityIdentifier("notifications.status")
+        }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.notificationsTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .task(id: userID) {
       await viewModel.refresh(userID: userID)
     }
+  }
+
+  @ViewBuilder
+  private func toggleRow(title: String, isOn: Binding<Bool>, identifier: String) -> some View {
+    Toggle(isOn: isOn) {
+      Text(title)
+        .font(.body.weight(.medium))
+        .foregroundStyle(.white.opacity(0.86))
+    }
+    .tint(.orange)
+    .accessibilityIdentifier(identifier)
   }
 }

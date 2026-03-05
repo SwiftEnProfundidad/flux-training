@@ -21,54 +21,81 @@ public struct PrivacyConsentView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.legalSectionTitle)) {
-        Toggle(copy.text(.acceptPrivacyPolicy), isOn: $viewModel.privacyPolicyAccepted)
-          .accessibilityIdentifier("privacy.acceptPolicy")
-        Toggle(copy.text(.acceptTerms), isOn: $viewModel.termsAccepted)
-          .accessibilityIdentifier("privacy.acceptTerms")
-        Toggle(copy.text(.acceptMedicalDisclaimer), isOn: $viewModel.medicalDisclaimerAccepted)
-          .accessibilityIdentifier("privacy.acceptMedical")
-      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.legalSectionTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
 
-      Section {
-        Button(copy.text(.saveConsent)) {
-          Task {
-            await viewModel.saveConsent(userID: userID)
+        Text(copy.text(.legalStatusLabel))
+          .font(.subheadline.weight(.medium))
+          .foregroundStyle(.white.opacity(0.74))
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            toggleRow(
+              title: copy.text(.acceptPrivacyPolicy),
+              isOn: $viewModel.privacyPolicyAccepted,
+              identifier: "privacy.acceptPolicy"
+            )
+            toggleRow(
+              title: copy.text(.acceptTerms),
+              isOn: $viewModel.termsAccepted,
+              identifier: "privacy.acceptTerms"
+            )
+            toggleRow(
+              title: copy.text(.acceptMedicalDisclaimer),
+              isOn: $viewModel.medicalDisclaimerAccepted,
+              identifier: "privacy.acceptMedical"
+            )
           }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
+
+        Button(copy.text(.saveConsent)) {
+          Task { await viewModel.saveConsent(userID: userID) }
+        }
+        .buttonStyle(FluxPrimaryButtonStyle())
         .accessibilityIdentifier("privacy.save")
 
-        Button(copy.text(.exportData)) {
-          Task {
-            await viewModel.exportData(userID: userID)
+        HStack(spacing: 10) {
+          Button(copy.text(.exportData)) {
+            Task { await viewModel.exportData(userID: userID) }
           }
-        }
-        .buttonStyle(.bordered)
-        .accessibilityIdentifier("privacy.export")
+          .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("privacy.export")
 
-        Button(copy.text(.requestDeletion)) {
-          Task {
-            await viewModel.requestDeletion(userID: userID)
+          Button(copy.text(.requestDeletion)) {
+            Task { await viewModel.requestDeletion(userID: userID) }
           }
+          .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("privacy.requestDeletion")
         }
-        .buttonStyle(.bordered)
-        .accessibilityIdentifier("privacy.requestDeletion")
-      }
 
-      Section(copy.text(.legalStatusLabel)) {
-        Text(copy.humanStatus(viewModel.status))
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("privacy.status")
+        FluxCard {
+          Text("\(copy.text(.legalStatusLabel)): \(copy.humanStatus(viewModel.status))")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.82))
+            .accessibilityIdentifier("privacy.status")
+        }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.legalSectionTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .task(id: userID) {
       await viewModel.refresh(userID: userID)
     }
+  }
+
+  @ViewBuilder
+  private func toggleRow(title: String, isOn: Binding<Bool>, identifier: String) -> some View {
+    Toggle(isOn: isOn) {
+      Text(title)
+        .font(.body.weight(.medium))
+        .foregroundStyle(.white.opacity(0.86))
+    }
+    .tint(.orange)
+    .accessibilityIdentifier(identifier)
   }
 }
