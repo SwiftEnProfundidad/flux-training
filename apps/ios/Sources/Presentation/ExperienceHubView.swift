@@ -137,7 +137,9 @@ public struct ExperienceHubView: View {
   }
 
   private var allowsCatalogMode: Bool {
-    ProcessInfo.processInfo.environment["FLUX_IOS_ALLOW_CATALOG"] == "1"
+    let environment = ProcessInfo.processInfo.environment
+    return environment["FLUX_IOS_ALLOW_CATALOG"] == "1"
+      && environment["FLUX_IOS_QA_UI_ENABLED"] == "1"
   }
 
   private var activeUserID: String {
