@@ -211,6 +211,8 @@
 - Evidencia runtime local de fase 6 (2026-03-05): carga validada en `http://127.0.0.1:5173` con `web.signIn/accessGate/readiness` visibles en snapshot y consola limpia (`error=0`, `warning=0`).
 - Web modularizacion progresiva (fase 7): extraccion de `dashboard-home` a `DashboardHomeCard` para desacoplar cabecera/metricas/refresh del bloque QA sin alterar contrato de pantalla (`web.dashboardHome.*`).
 - Evidencia runtime local de fase 7 (2026-03-05): carga validada en `http://127.0.0.1:5173` con hero productiva renderizada y consola limpia (`error=0`, `warning=0`) tras build/test/check en verde.
+- Web modularizacion progresiva (fase 8): extraccion de `quick-actions` a `QuickActionsCard` para aislar acciones operativas del dashboard y reducir complejidad incremental en `App.tsx`.
+- Evidencia runtime local de fase 8 (2026-03-05): carga validada en `http://127.0.0.1:5173` con hero/estado productivo visibles y consola limpia (`error=0`, `warning=0`) tras `test + build + check` en verde.
 - Limpieza de microcopy en artefacto Pencil (`flux.pen`): se sustituyo placeholder tecnico no util (`... [:::]`) en barras de estado iOS por copy neutral de producto (`wifi 100%`) para evitar ruido visual y confusiones.
 - Limpieza adicional de copy tecnico en `flux.pen`: se reemplazo `Reintentar sync / Retry sync` por `Reintentar sincronización / Retry sync` y se ajusto `Auth` a `Acceso` en secciones/flows para mantener lenguaje orientado a usuario.
 - Microcopy producto alineado iOS+Web: etiquetas tecnicas `Offline + Sync` y `ultimo sync` en español pasan a `Sin conexión + Sincronización` y `Rechazadas en última sincronización`, con tests de regresion.

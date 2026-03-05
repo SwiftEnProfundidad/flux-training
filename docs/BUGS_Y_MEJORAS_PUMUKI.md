@@ -44,7 +44,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 | PUM-009 | 2026-03-05 | Bug | SDD/Evidence | En consumer se reportó artefacto incompleto de `sdd evidence` (`version: \"1.0\"` o sin `slices[]`). | Alta (bloquea commits por `TDD_BDD_EVIDENCE_INVALID`). | Validación 2026-03-05 con `npx --yes --package pumuki@latest pumuki sdd evidence --scenario-id=docs/validation/features/p3_t1_web_shell_dashboard --test-command=\"pnpm test\" --test-status=passed --json` devuelve `artifact.version=\"1\"` y `artifact.slices[]`. | Mantener smoke de regresión en consumer al actualizar Pumuki y usar `pumuki@latest` para validar contrato. | ✅ Cerrado |
 | PUM-010 | 2026-03-05 | Mejora | Skills/Gate DX | El stack de skills coverage no queda estable entre iteraciones; sin `adapter/bootstrap/policy reconcile` vuelve a bloquear commits frontend aunque el código sea válido. | Alta (fricción recurrente y tiempo extra en cada commit atómico). | Repro 2 iteraciones seguidas: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` => `SKILLS_PLATFORM_COVERAGE_INCOMPLETE_HIGH` + `SKILLS_SCOPE_COMPLIANCE_INCOMPLETE_HIGH`; se desbloquea tras `adapter install + bootstrap + policy reconcile`. | Seguimiento upstream en `ast-intelligence-hooks#719`; fix técnico aplicado en core para auto-reconcile + retry determinista de hooks en códigos de skills coverage. | ✅ Cerrado |
 | PUM-011 | 2026-03-05 | Bug | Watch/Consumer parity | Se reportó que `watch --once --json` no incluía `lastTick.changedFiles[]` ni `lastTick.evaluatedFiles[]`. | Media (limita trazabilidad por commit). | Validación 2026-03-05 con `npx --yes --package pumuki@latest pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` devuelve ambos campos en `lastTick` (arrays presentes). | Mantener check de contrato JSON tras cada update de Pumuki en consumer. | ✅ Cerrado |
-| PUM-012 | 2026-03-05 | Bug | Watch/DX parity | Divergencia entre `pnpm exec pumuki` (versión instalada en repo) y `pumuki@latest`: en local no aparecen `lastTick.changedFiles[]`/`evaluatedFiles[]`, en latest sí. | Media (genera diagnósticos inconsistentes y cierres falsos de incidencias). | En esta iteración: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` devuelve `ALLOW` pero sin `changedFiles/evaluatedFiles`; contraste con `npx --yes --package pumuki@latest ...` en historial reciente. | Exponer versión efectiva en salida JSON y añadir alerta de drift cuando el binario local no incluye fixes de contrato ya disponibles en latest. | 🚧 En construccion |
+| PUM-012 | 2026-03-05 | Bug | Watch/DX parity | Divergencia entre `pnpm exec pumuki` (versión instalada en repo) y `pumuki@latest`: en local no aparecen `lastTick.changedFiles[]`/`evaluatedFiles[]`, en latest sí. | Media (genera diagnósticos inconsistentes y cierres falsos de incidencias). | En esta iteración: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` devuelve `ALLOW` pero sin `changedFiles/evaluatedFiles`; contraste con `npx --yes --package pumuki@latest ...` en historial reciente. | Exponer versión efectiva en salida JSON y añadir alerta de drift cuando el binario local no incluye fixes de contrato ya disponibles en latest. | ✅ Cerrado |
 
 ## Criterio de cierre por entrada
 - Reproducida y documentada.
@@ -89,12 +89,16 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Revalidación en iteración actual (modularización fase 7):
   - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` mantiene `ALLOW` y `totalFindings=0`.
   - se mantiene `PUM-012` como foco por discrepancia de payload (`lastTick.changedFiles/evaluatedFiles`) entre binario local y latest.
-- `PUM-012` en construcción (avance 2026-03-05):
+- `PUM-012` cerrado (2026-03-05):
   - fix técnico implementado en core para `watch --json`: bloque `version` + alerta de drift (`driftFromRuntime`, `driftWarning`) cuando `effective != runtime`.
-  - validación en Flux con binario local de core:
-    - `node /Users/juancarlosmerlosalbarracin/Developer/Projects/ast-intelligence-hooks/bin/pumuki.js watch --once --stage=PRE_COMMIT --scope=staged --json`
-    - resultado: `version.effective="6.3.41"`, `version.runtime="6.3.45"`, `version.driftFromRuntime=true`, `version.driftWarning` presente.
-  - pendiente para cierre definitivo:
-    - publicar nueva versión de Pumuki con este fix,
-    - ejecutar `pnpm exec pumuki watch --once --json` tras update en Flux y marcar `✅`.
-- foco activo actual: `PUM-012` (`🚧 En construccion`).
+  - release publicado: `pumuki@6.3.46`.
+  - rollout consumer:
+    - `pnpm add -Dw pumuki@latest`
+    - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`
+  - resultado final:
+    - `version.effective="6.3.46"`, `version.runtime="6.3.46"`, `version.driftFromRuntime=false`,
+    - `lastTick.changedFiles[]` y `lastTick.evaluatedFiles[]` presentes en contrato JSON (arrays).
+- Revalidación iteración fase 8 (2026-03-05):
+  - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` mantiene `ALLOW` y `totalFindings=0`.
+  - sin nuevos bugs detectados de Pumuki en esta iteración.
+- foco activo actual: backlog Flux en `✅ 100% cerrado`.
