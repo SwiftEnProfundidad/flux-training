@@ -184,6 +184,7 @@
 - iOS runtime blindado contra catalogo tecnico: `ExperienceHubView` queda forzado a modo producto por defecto y solo habilita modo catalogo con opt-in explicito (`FLUX_IOS_ALLOW_CATALOG=1`), evitando exponer tabs internas (`Hoy/Progreso/Ops`) en ejecucion de usuario final.
 - Web runtime de usuario final depurado: en modo productivo quedan solo modulos de experiencia (`onboarding/training/recommendations/nutrition/progress/settings`), retirando bloques `offlineSync` y `legal` como secciones separadas para evitar UI de consola operativa.
 - Web acceso con estado legible para usuario: la hero de login ya no queda fija en "listo para iniciar" tras errores; ahora muestra feedback contextual (`iniciando sesion`, `revisa correo y contrasena`, `no pudimos iniciar sesion...`) para cerrar el bucle UX cuando falla autenticacion.
+- Auth email de primer acceso endurecido en producto: Web+iOS ya intentan alta automatica al detectar usuario inexistente en Firebase, permitiendo que el primer login por email cree cuenta y abra sesion sin romper flujo.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import {
   type Auth,
   OAuthProvider,
+  createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
   signInWithPopup
@@ -73,10 +74,35 @@ class FirebaseAuthGateway implements AuthGateway {
     }
 
     const auth = getClientAuth();
-    const credential = await signInWithEmailAndPassword(auth, email, password);
+    const credential = await signInOrCreateWithEmail(auth, email, password);
     const providerToken = await credential.user.getIdToken();
     return createBackendSession(providerToken);
   }
+}
+
+async function signInOrCreateWithEmail(
+  auth: Auth,
+  email: string,
+  password: string
+) {
+  try {
+    return await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    if (shouldAutoCreateAccount(error) === false) {
+      throw error;
+    }
+
+    try {
+      return await createUserWithEmailAndPassword(auth, email, password);
+    } catch {
+      throw error;
+    }
+  }
+}
+
+function shouldAutoCreateAccount(error: unknown): boolean {
+  const code = (error as { code?: string } | null)?.code;
+  return code === "auth/user-not-found" || code === "auth/invalid-credential";
 }
 
 export const firebaseAuthGateway: AuthGateway = new FirebaseAuthGateway();

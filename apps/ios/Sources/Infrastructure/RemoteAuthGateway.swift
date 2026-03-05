@@ -14,6 +14,14 @@ private struct FirebaseEmailSignInResponse: Decodable {
   let idToken: String
 }
 
+private struct FirebaseErrorEnvelope: Decodable {
+  struct FirebaseErrorPayload: Decodable {
+    let message: String
+  }
+
+  let error: FirebaseErrorPayload
+}
+
 private struct CreateAuthSessionResponse: Decodable {
   struct PayloadSessionPolicy: Decodable {
     let maxIdleSeconds: Int
@@ -112,6 +120,33 @@ public struct RemoteAuthGateway: AuthGateway {
     email: String,
     password: String
   ) async throws -> String {
+    do {
+      return try await requestFirebaseEmailProviderToken(
+        endpointPath: "accounts:signInWithPassword",
+        failureCode: "firebase_email_sign_in_failed",
+        email: email,
+        password: password
+      )
+    } catch let error as FluxBackendClientError {
+      if case let .backend(code: code, correlationId: _, retryable: _, statusCode: _) = error,
+         code == "firebase_email_not_found" {
+        return try await requestFirebaseEmailProviderToken(
+          endpointPath: "accounts:signUp",
+          failureCode: "firebase_email_sign_up_failed",
+          email: email,
+          password: password
+        )
+      }
+      throw error
+    }
+  }
+
+  private func requestFirebaseEmailProviderToken(
+    endpointPath: String,
+    failureCode: String,
+    email: String,
+    password: String
+  ) async throws -> String {
     let normalizedAPIKey = configuration.firebaseWebAPIKey
       .trimmingCharacters(in: .whitespacesAndNewlines)
     guard normalizedAPIKey.isEmpty == false else {
@@ -119,7 +154,7 @@ public struct RemoteAuthGateway: AuthGateway {
     }
 
     var components = URLComponents(
-      string: "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
+      string: "https://identitytoolkit.googleapis.com/v1/\(endpointPath)"
     )
     components?.queryItems = [URLQueryItem(name: "key", value: normalizedAPIKey)]
     guard let url = components?.url else {
@@ -143,12 +178,16 @@ public struct RemoteAuthGateway: AuthGateway {
     }
 
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw FluxBackendClientError.backend(code: "firebase_email_sign_in_failed")
+      if let envelope = try? JSONDecoder().decode(FirebaseErrorEnvelope.self, from: data),
+         envelope.error.message == "EMAIL_NOT_FOUND" {
+        throw FluxBackendClientError.backend(code: "firebase_email_not_found")
+      }
+      throw FluxBackendClientError.backend(code: failureCode)
     }
 
     let payload = try JSONDecoder().decode(FirebaseEmailSignInResponse.self, from: data)
     guard payload.idToken.isEmpty == false else {
-      throw FluxBackendClientError.backend(code: "firebase_email_sign_in_failed")
+      throw FluxBackendClientError.backend(code: failureCode)
     }
     return payload.idToken
   }
