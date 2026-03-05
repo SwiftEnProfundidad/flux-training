@@ -108,6 +108,7 @@ import { SessionActionsPanel } from "./SessionActionsPanel";
 import { SessionDetailPanel } from "./SessionDetailPanel";
 import { ExerciseLibraryPanel } from "./ExerciseLibraryPanel";
 import { ExerciseDetailPanel } from "./ExerciseDetailPanel";
+import { AthleteOperationsToolbar } from "./AthleteOperationsToolbar";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4881,60 +4882,31 @@ export function App() {
               language={language}
             />
             <div className="form-grid">
-              <div
-                className="inline-inputs"
-                data-screen-id={athleteFiltersScreenModel.screenId}
-                data-route-id={athleteFiltersScreenModel.routeId}
-                data-status-id={athleteFiltersScreenModel.screenId.replace(".screen", ".status")}
-              >
-                <input
-                  aria-label={translate("athleteSearchPlaceholder")}
-                  data-action-id={athleteFiltersScreenModel.actions.updateSearch}
-                  placeholder={translate("athleteSearchPlaceholder")}
-                  value={athleteSearch}
-                  onChange={(event) => setAthleteSearch(event.target.value)}
-                />
-                <label className="compact-label">
-                  {translate("athleteSortLabel")}
-                  <select
-                    aria-label={translate("athleteSortLabel")}
-                    data-action-id={athleteFiltersScreenModel.actions.updateSort}
-                    value={athleteSortMode}
-                    onChange={(event) => setAthleteSortMode(event.target.value as AthleteSortMode)}
-                  >
-                    <option value="sessions">{translate("athleteSortBySessions")}</option>
-                    <option value="athlete">{translate("athleteSortByName")}</option>
-                    <option value="lastSession">{translate("athleteSortByLastSession")}</option>
-                  </select>
-                </label>
-              </div>
-              <div className="inline-inputs">
-                <button
-                  className="button primary"
-                  data-action-id={athletesListScreenModel.actions.assignStarterPlan}
-                  onClick={handleBulkAssignStarterPlan}
-                  type="button"
-                >
-                  {translate("bulkAssignStarterPlan")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={athletesListScreenModel.actions.clearSelection}
-                  onClick={handleClearAthleteSelection}
-                  type="button"
-                >
-                  {translate("clearAthleteSelection")}
-                </button>
-              </div>
-              <StatLine
-                label={translate("athletesLoadedLabel")}
-                value={String(athleteOperationRows.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("athletesSelectedLabel")}
-                value={String(selectedAthleteIds.length)}
-                language={language}
+              <AthleteOperationsToolbar
+                screenId={athleteFiltersScreenModel.screenId}
+                routeId={athleteFiltersScreenModel.routeId}
+                statusId={athleteFiltersScreenModel.screenId.replace(".screen", ".status")}
+                searchLabel={translate("athleteSearchPlaceholder")}
+                searchValue={athleteSearch}
+                searchActionId={athleteFiltersScreenModel.actions.updateSearch}
+                onSearchValueChange={setAthleteSearch}
+                sortLabel={translate("athleteSortLabel")}
+                sortValue={athleteSortMode}
+                sortActionId={athleteFiltersScreenModel.actions.updateSort}
+                onSortValueChange={setAthleteSortMode}
+                sortBySessionsLabel={translate("athleteSortBySessions")}
+                sortByAthleteLabel={translate("athleteSortByName")}
+                sortByLastSessionLabel={translate("athleteSortByLastSession")}
+                assignStarterPlanLabel={translate("bulkAssignStarterPlan")}
+                assignStarterPlanActionId={athletesListScreenModel.actions.assignStarterPlan}
+                onAssignStarterPlan={handleBulkAssignStarterPlan}
+                clearSelectionLabel={translate("clearAthleteSelection")}
+                clearSelectionActionId={athletesListScreenModel.actions.clearSelection}
+                onClearSelection={handleClearAthleteSelection}
+                athletesLoadedLabel={translate("athletesLoadedLabel")}
+                athletesLoadedValue={String(athleteOperationRows.length)}
+                athletesSelectedLabel={translate("athletesSelectedLabel")}
+                athletesSelectedValue={String(selectedAthleteIds.length)}
               />
               <div
                 className="history-list"
