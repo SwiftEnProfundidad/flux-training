@@ -98,6 +98,7 @@ import { AlertsFullCard } from "./AlertsFullCard";
 import { RecentActivityCard } from "./RecentActivityCard";
 import { ShortcutsCard } from "./ShortcutsCard";
 import { CohortAnalysisCard } from "./CohortAnalysisCard";
+import { OnboardingCard } from "./OnboardingCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4501,111 +4502,57 @@ export function App() {
                 </>
               ) : null}
           {canRenderOperationalModules && isModuleVisibleForUI("onboarding") ? (
-            <article className="module-card">
-            <SectionHeader
+            <OnboardingCard
               title={translate("onboardingSectionTitle")}
-              status={onboardingStatus}
               statusLabel={translate("onboardingStatusLabel")}
-              language={language}
+              statusValue={toHumanStatus(onboardingStatus, language)}
+              statusClass={toStatusClass(onboardingStatus)}
+              displayNameLabel={translate("displayNamePlaceholder")}
+              displayName={displayName}
+              onDisplayNameChange={setDisplayName}
+              ageLabel={translate("agePlaceholder")}
+              age={age}
+              onAgeChange={setAge}
+              heightLabel={translate("heightPlaceholder")}
+              height={heightCm}
+              onHeightChange={setHeightCm}
+              weightLabel={translate("weightPlaceholder")}
+              weight={weightKg}
+              onWeightChange={setWeightKg}
+              daysPerWeekLabel={translate("daysPerWeekPlaceholder")}
+              daysPerWeek={availableDaysPerWeek}
+              onDaysPerWeekChange={setAvailableDaysPerWeek}
+              goalLabel={translate("goalPickerLabel")}
+              goal={goal}
+              goalOptions={{
+                fatLoss: goalLabel("fat_loss", language),
+                recomposition: goalLabel("recomposition", language),
+                muscleGain: goalLabel("muscle_gain", language),
+                habit: goalLabel("habit", language)
+              }}
+              onGoalChange={setGoal}
+              parQ1Label={translate("parQQuestionOne")}
+              parQ1={parQ1}
+              onParQ1Change={setParQ1}
+              parQ2Label={translate("parQQuestionTwo")}
+              parQ2={parQ2}
+              onParQ2Change={setParQ2}
+              privacyPolicyLabel={translate("acceptPrivacyPolicy")}
+              privacyPolicyAccepted={privacyPolicyAccepted}
+              onPrivacyPolicyChange={setPrivacyPolicyAccepted}
+              termsLabel={translate("acceptTerms")}
+              termsAccepted={termsAccepted}
+              onTermsChange={setTermsAccepted}
+              medicalDisclaimerLabel={translate("acceptMedicalDisclaimer")}
+              medicalDisclaimerAccepted={medicalDisclaimerAccepted}
+              onMedicalDisclaimerChange={setMedicalDisclaimerAccepted}
+              completeLabel={translate("completeOnboarding")}
+              onComplete={handleCompleteOnboarding}
+              saveConsentLabel={translate("saveConsent")}
+              onSaveConsent={handleSubmitLegalConsent}
+              exportDataLabel={translate("exportData")}
+              onExportData={handleExportData}
             />
-            <div className="form-grid">
-              <input
-                aria-label={translate("displayNamePlaceholder")}
-                placeholder={translate("displayNamePlaceholder")}
-                value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
-              />
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("agePlaceholder")}
-                  placeholder={translate("agePlaceholder")}
-                  value={age}
-                  onChange={(event) => setAge(event.target.value)}
-                />
-                <input
-                  aria-label={translate("heightPlaceholder")}
-                  placeholder={translate("heightPlaceholder")}
-                  value={heightCm}
-                  onChange={(event) => setHeightCm(event.target.value)}
-                />
-              </div>
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("weightPlaceholder")}
-                  placeholder={translate("weightPlaceholder")}
-                  value={weightKg}
-                  onChange={(event) => setWeightKg(event.target.value)}
-                />
-                <input
-                  aria-label={translate("daysPerWeekPlaceholder")}
-                  placeholder={translate("daysPerWeekPlaceholder")}
-                  value={availableDaysPerWeek}
-                  onChange={(event) => setAvailableDaysPerWeek(event.target.value)}
-                />
-              </div>
-              <select
-                aria-label={translate("goalPickerLabel")}
-                value={goal}
-                onChange={(event) => setGoal(event.target.value as Goal)}
-              >
-                <option value="fat_loss">{goalLabel("fat_loss", language)}</option>
-                <option value="recomposition">{goalLabel("recomposition", language)}</option>
-                <option value="muscle_gain">{goalLabel("muscle_gain", language)}</option>
-                <option value="habit">{goalLabel("habit", language)}</option>
-              </select>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={parQ1}
-                  onChange={(event) => setParQ1(event.target.checked)}
-                />
-                {translate("parQQuestionOne")}
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={parQ2}
-                  onChange={(event) => setParQ2(event.target.checked)}
-                />
-                {translate("parQQuestionTwo")}
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={privacyPolicyAccepted}
-                  onChange={(event) => setPrivacyPolicyAccepted(event.target.checked)}
-                />
-                {translate("acceptPrivacyPolicy")}
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={termsAccepted}
-                  onChange={(event) => setTermsAccepted(event.target.checked)}
-                />
-                {translate("acceptTerms")}
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={medicalDisclaimerAccepted}
-                  onChange={(event) => setMedicalDisclaimerAccepted(event.target.checked)}
-                />
-                {translate("acceptMedicalDisclaimer")}
-              </label>
-              <button className="button primary" onClick={handleCompleteOnboarding} type="button">
-                {translate("completeOnboarding")}
-              </button>
-              <div className="inline-inputs">
-                <button className="button primary" onClick={handleSubmitLegalConsent} type="button">
-                  {translate("saveConsent")}
-                </button>
-                <button className="button ghost" onClick={handleExportData} type="button">
-                  {translate("exportData")}
-                </button>
-              </div>
-            </div>
-            </article>
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("training") ? (
