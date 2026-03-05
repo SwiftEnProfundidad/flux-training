@@ -96,6 +96,7 @@ import { DashboardKpisCard } from "./DashboardKpisCard";
 import { ReadinessMonitorCard } from "./ReadinessMonitorCard";
 import { AlertsFullCard } from "./AlertsFullCard";
 import { RecentActivityCard } from "./RecentActivityCard";
+import { ShortcutsCard } from "./ShortcutsCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4419,72 +4420,41 @@ export function App() {
                   summary: entry.summary
                 }))}
               />
-              <article
-                className="module-card"
-                data-screen-id={shortcutsScreenModel.screenId}
-                data-route-id={shortcutsScreenModel.routeId}
-                data-status-id="web.shortcuts.status"
-              >
-                <SectionHeader
-                  title={translate("shortcutsTitle")}
-                  status={shortcutsScreenModel.status}
-                  statusLabel={translate("shortcutsStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("shortcutsSummary")}</p>
-                  {isQAMode ? (
-                    <div className="inline-inputs">
-                      <Metric
-                        title={translate("shortcutsVisibleModulesLabel")}
-                        value={String(visibleModulesForDomain.length)}
-                      />
-                      <Metric title={translate("roleLabel")} value={activeRole} />
-                      <Metric title={translate("domainFilterLabel")} value={activeDomainForUI} />
-                      <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
-                    </div>
-                  ) : null}
-                  <div className="inline-inputs">
-                    <button
-                      className="button primary"
-                      type="button"
-                      data-action-id="web.shortcuts.run"
-                      onClick={() => void handleRunShortcuts()}
-                    >
-                      {translate("shortcutsRunAction")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id="web.shortcuts.refresh"
-                      onClick={() => void handleRefreshDashboardHome()}
-                    >
-                      {translate("shortcutsRefreshAction")}
-                    </button>
-                    {isQAMode ? (
-                      <button
-                        className="button ghost"
-                        type="button"
-                        data-action-id="web.shortcuts.recoverDomain"
-                        onClick={() => void recoverActiveDomainState()}
-                      >
-                        {translate("shortcutsRecoverAction")}
-                      </button>
-                    ) : null}
-                  </div>
-                  {isQAMode && visibleModulesForDomain.length === 0 ? (
-                    <p className="empty-state">{translate("shortcutsNoItems")}</p>
-                  ) : isQAMode ? (
-                    <div className="inline-inputs">
-                      {visibleModulesForDomain.slice(0, 8).map((moduleId) => (
-                        <span key={`shortcut-${moduleId}`} className="chip role-badge">
-                          {moduleId}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </article>
+              <ShortcutsCard
+                screenId={shortcutsScreenModel.screenId}
+                routeId={shortcutsScreenModel.routeId}
+                title={translate("shortcutsTitle")}
+                statusLabel={translate("shortcutsStatusLabel")}
+                statusValue={toHumanStatus(shortcutsScreenModel.status, language)}
+                statusClass={toStatusClass(shortcutsScreenModel.status)}
+                summary={translate("shortcutsSummary")}
+                showQATools={isQAMode}
+                visibleModulesLabel={translate("shortcutsVisibleModulesLabel")}
+                visibleModulesValue={String(visibleModulesForDomain.length)}
+                roleLabel={translate("roleLabel")}
+                roleValue={activeRole}
+                domainLabel={translate("domainFilterLabel")}
+                domainValue={activeDomainForUI}
+                queueLabel={translate("queueMetric")}
+                queueValue={String(pendingQueueCount)}
+                runActionId="web.shortcuts.run"
+                runLabel={translate("shortcutsRunAction")}
+                onRun={() => {
+                  void handleRunShortcuts();
+                }}
+                refreshActionId="web.shortcuts.refresh"
+                refreshLabel={translate("shortcutsRefreshAction")}
+                onRefresh={() => {
+                  void handleRefreshDashboardHome();
+                }}
+                recoverActionId="web.shortcuts.recoverDomain"
+                recoverLabel={translate("shortcutsRecoverAction")}
+                onRecover={() => {
+                  void recoverActiveDomainState();
+                }}
+                emptyLabel={translate("shortcutsNoItems")}
+                modules={visibleModulesForDomain}
+              />
               <article
                 className="module-card"
                 data-screen-id={cohortAnalysisScreenModel.screenId}
