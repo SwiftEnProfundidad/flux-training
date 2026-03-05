@@ -87,6 +87,7 @@ import { HeroStatusPanel } from "./HeroStatusPanel";
 import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
+import { RuntimeStateBannerCard } from "./RuntimeStateBannerCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4133,26 +4134,17 @@ export function App() {
               />
             ) : null
           ) : runtimeStateForUI !== "success" ? (
-            <article className={`module-card runtime-state-banner state-${runtimeStateForUI}`}>
-              <SectionHeader
-                title={translate("runtimeStateSectionTitle")}
-                status={runtimeStateForUI}
-                statusLabel={translate("runtimeStateModeLabel")}
-                language={language}
-              />
-              <div className="form-grid">
-                <p className="runtime-state-copy">
-                  {runtimeStateDescription(runtimeStateForUI, translate)}
-                </p>
-                <button
-                  className="button primary"
-                  onClick={() => void recoverActiveDomainState()}
-                  type="button"
-                >
-                  {translate("runtimeStateRecoveryAction")}
-                </button>
-              </div>
-            </article>
+            <RuntimeStateBannerCard
+              title={translate("runtimeStateSectionTitle")}
+              statusLabel={translate("runtimeStateModeLabel")}
+              statusValue={toHumanStatus(runtimeStateForUI, language)}
+              statusClass={toStatusClass(runtimeStateForUI)}
+              copy={runtimeStateDescription(runtimeStateForUI, translate)}
+              actionLabel={translate("runtimeStateRecoveryAction")}
+              onRecover={() => {
+                void recoverActiveDomainState();
+              }}
+            />
           ) : (
             <>
               {isQAMode ? (
