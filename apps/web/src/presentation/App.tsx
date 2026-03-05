@@ -101,6 +101,7 @@ import { CohortAnalysisCard } from "./CohortAnalysisCard";
 import { OnboardingCard } from "./OnboardingCard";
 import { PlanBuilderPanel } from "./PlanBuilderPanel";
 import { PlanTemplatesPanel } from "./PlanTemplatesPanel";
+import { PlansSelectionPanel } from "./PlansSelectionPanel";
 import { PublishReviewPanel } from "./PublishReviewPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
@@ -4692,29 +4693,16 @@ export function App() {
                 publishedPrefix={translate("publishReviewPublishedPrefix")}
                 publishedId={publishedPlanId}
               />
-              <StatLine
-                label={translate("plansLoadedLabel")}
-                value={String(plans.length)}
-                language={language}
+              <PlansSelectionPanel
+                plansCountLabel={translate("plansLoadedLabel")}
+                plansCountValue={String(plans.length)}
+                noPlansLabel={translate("noPlansLoaded")}
+                plans={plans}
+                selectedPlanId={selectedPlanId}
+                selectActionId={plansListScreenModel.actions.selectPlan}
+                onSelectPlan={setSelectedPlanId}
+                weeksSuffix={translate("planTemplatesWeeksLabel")}
               />
-              {plans.length === 0 ? (
-                <p className="empty-state">{translate("noPlansLoaded")}</p>
-              ) : (
-                <div className="choice-list">
-                  {plans.map((plan) => (
-                    <label key={plan.id}>
-                      <input
-                        type="radio"
-                        name="selected-plan"
-                        data-action-id={plansListScreenModel.actions.selectPlan}
-                        checked={selectedPlanId === plan.id}
-                        onChange={() => setSelectedPlanId(plan.id)}
-                      />
-                      {plan.name} ({plan.weeks} weeks)
-                    </label>
-                  ))}
-                </div>
-              )}
               <div
                 className="history-list"
                 data-screen-id={planAssignmentScreenModel.screenId}
