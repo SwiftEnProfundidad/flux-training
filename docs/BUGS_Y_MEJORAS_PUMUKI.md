@@ -101,4 +101,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Revalidación iteración fase 8 (2026-03-05):
   - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` mantiene `ALLOW` y `totalFindings=0`.
   - sin nuevos bugs detectados de Pumuki en esta iteración.
+- Revalidación iteración fase 9 (2026-03-05):
+  - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` mantiene `ALLOW` y `totalFindings=0`.
+  - sin nuevos bugs detectados de Pumuki en esta iteración.
 - foco activo actual: backlog Flux en `✅ 100% cerrado`.
