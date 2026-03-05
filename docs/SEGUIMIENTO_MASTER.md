@@ -215,6 +215,8 @@
 - Evidencia runtime local de fase 8 (2026-03-05): carga validada en `http://127.0.0.1:5173` con hero/estado productivo visibles y consola limpia (`error=0`, `warning=0`) tras `test + build + check` en verde.
 - Web modularizacion progresiva (fase 9): extraccion de `alert-center` a `AlertCenterCard` para desacoplar métricas, acciones y tabla de alertas del contenedor principal.
 - Evidencia runtime local de fase 9 (2026-03-05): carga validada en `http://127.0.0.1:5173` con snapshot estable y consola limpia (`error=0`, `warning=0`) tras `test + build + check`.
+- Web modularizacion progresiva (fase 10): extraccion de `system-status` a `SystemStatusCard` para desacoplar métricas operativas y acciones de resiliencia del contenedor `App.tsx`.
+- Evidencia runtime local de fase 10 (2026-03-05): carga validada en `http://127.0.0.1:5173` con snapshot estable y consola limpia (`error=0`, `warning=0`) tras `test + build + check`.
 - Limpieza de microcopy en artefacto Pencil (`flux.pen`): se sustituyo placeholder tecnico no util (`... [:::]`) en barras de estado iOS por copy neutral de producto (`wifi 100%`) para evitar ruido visual y confusiones.
 - Limpieza adicional de copy tecnico en `flux.pen`: se reemplazo `Reintentar sync / Retry sync` por `Reintentar sincronización / Retry sync` y se ajusto `Auth` a `Acceso` en secciones/flows para mantener lenguaje orientado a usuario.
 - Microcopy producto alineado iOS+Web: etiquetas tecnicas `Offline + Sync` y `ultimo sync` en español pasan a `Sin conexión + Sincronización` y `Rechazadas en última sincronización`, con tests de regresion.
