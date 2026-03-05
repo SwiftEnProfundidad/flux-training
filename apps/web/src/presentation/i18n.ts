@@ -518,7 +518,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
   es: {
     appName: "Flux Training",
     heroTitle: "Entrena con foco y seguimiento real",
-    heroCopy: "Panel personal para autenticacion, onboarding, rutina, nutricion y operacion.",
+    heroCopy: "Panel personal para autenticacion, onboarding, entrenamiento, nutricion y progreso.",
     signInWithApple: "Iniciar con Apple",
     signInWithEmail: "Iniciar con email",
     recoverByEmail: "Recuperar por email",
@@ -534,7 +534,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heightPlaceholder: "altura cm",
     weightPlaceholder: "peso kg",
     daysPerWeekPlaceholder: "dias por semana",
-    goalPickerLabel: "objetivo",
+    goalPickerLabel: "objetivo principal",
     planNamePlaceholder: "nombre del plan",
     datePlaceholder: "fecha (AAAA-MM-DD)",
     caloriesPlaceholder: "calorias",
@@ -930,7 +930,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     observabilityRunbooksLabel: "Runbooks activos",
     observabilityOnCallOwnerLabel: "Owner on-call",
     readinessLabel: "Readiness",
-    authMetric: "Sesion",
+    authMetric: "Acceso",
     queueMetric: "Pendientes",
     goalMetric: "Objetivo",
     syncMetric: "Sincronizacion",
@@ -1040,7 +1040,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
   en: {
     appName: "Flux Training",
     heroTitle: "Train with focus and real tracking",
-    heroCopy: "Personal dashboard for auth, onboarding, training, nutrition and operations.",
+    heroCopy: "Personal dashboard for auth, onboarding, training, nutrition and progress.",
     signInWithApple: "Sign in with Apple",
     signInWithEmail: "Email sign in",
     recoverByEmail: "Recover by email",
@@ -1056,7 +1056,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heightPlaceholder: "height cm",
     weightPlaceholder: "weight kg",
     daysPerWeekPlaceholder: "days per week",
-    goalPickerLabel: "goal",
+    goalPickerLabel: "primary goal",
     planNamePlaceholder: "plan name",
     datePlaceholder: "date (YYYY-MM-DD)",
     caloriesPlaceholder: "calories",
@@ -1452,7 +1452,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     observabilityRunbooksLabel: "Active runbooks",
     observabilityOnCallOwnerLabel: "On-call owner",
     readinessLabel: "Readiness",
-    authMetric: "Session",
+    authMetric: "Access",
     queueMetric: "Pending",
     goalMetric: "Goal",
     syncMetric: "Sync",
@@ -1611,7 +1611,8 @@ export function goalLabel(goal: Goal, language: AppLanguage): string {
 
 const knownStatuses: Record<AppLanguage, Record<string, string>> = {
   es: {
-    signed_out: "inicia sesion",
+    signed_out: "acceso requerido",
+    session_required: "acceso requerido",
     validation_error: "error de validacion",
     consent_required: "consentimiento requerido",
     recovery_sent_email: "recuperacion enviada por email",
@@ -1649,7 +1650,8 @@ const knownStatuses: Record<AppLanguage, Record<string, string>> = {
     email: "email"
   },
   en: {
-    signed_out: "sign in required",
+    signed_out: "sign in to continue",
+    session_required: "sign in to continue",
     validation_error: "validation error",
     consent_required: "consent required",
     recovery_sent_email: "recovery sent by email",

@@ -9,7 +9,7 @@ describe("resolveAuthHeroStatus", () => {
         hasAuthenticatedSession: true,
         language: "es"
       })
-    ).toBe("sesion activa");
+    ).toBe("acceso activo");
   });
 
   it("returns ready copy when session is required", () => {
@@ -19,7 +19,7 @@ describe("resolveAuthHeroStatus", () => {
         hasAuthenticatedSession: false,
         language: "en"
       })
-    ).toBe("ready to sign in");
+    ).toBe("sign in to continue");
   });
 
   it("returns loading copy while sign-in is running", () => {
@@ -39,6 +39,6 @@ describe("resolveAuthHeroStatus", () => {
         hasAuthenticatedSession: false,
         language: "es"
       })
-    ).toBe("no pudimos iniciar sesion. revisa credenciales o configuracion.");
+    ).toBe("no pudimos iniciar sesion. prueba de nuevo.");
   });
 });

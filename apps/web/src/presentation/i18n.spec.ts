@@ -221,7 +221,7 @@ describe("i18n", () => {
     expect(translate("domainOperations")).toBe("Operations");
     expect(translate("settingsTitle")).toBe("Settings");
     expect(translate("legalSectionTitle")).toBe("Privacy and consent");
-    expect(translate("goalPickerLabel")).toBe("goal");
+    expect(translate("goalPickerLabel")).toBe("primary goal");
     expect(translate("exercisePickerLabel")).toBe("exercise");
     expect(translate("videoLocalePickerLabel")).toBe("video language");
     expect(translate("exerciseDetailTitle")).toBe("Exercise detail");
@@ -444,7 +444,7 @@ describe("i18n", () => {
     expect(translate("domainOperations")).toBe("Operaciones");
     expect(translate("settingsTitle")).toBe("Ajustes");
     expect(translate("legalSectionTitle")).toBe("Privacidad y consentimiento");
-    expect(translate("goalPickerLabel")).toBe("objetivo");
+    expect(translate("goalPickerLabel")).toBe("objetivo principal");
     expect(translate("exercisePickerLabel")).toBe("ejercicio");
     expect(translate("videoLocalePickerLabel")).toBe("idioma del video");
     expect(translate("runtimeStateSectionTitle")).toBe("Estado enterprise por dominio");
@@ -462,8 +462,10 @@ describe("i18n", () => {
   });
 
   it("humanizes statuses in both languages", () => {
-    expect(humanizeStatus("signed_out", "es")).toBe("inicia sesion");
-    expect(humanizeStatus("signed_out", "en")).toBe("sign in required");
+    expect(humanizeStatus("signed_out", "es")).toBe("acceso requerido");
+    expect(humanizeStatus("signed_out", "en")).toBe("sign in to continue");
+    expect(humanizeStatus("session_required", "es")).toBe("acceso requerido");
+    expect(humanizeStatus("session_required", "en")).toBe("sign in to continue");
     expect(humanizeStatus("upgrade_required", "es")).toBe("actualizacion requerida");
     expect(humanizeStatus("upgrade_required", "en")).toBe("upgrade required");
     expect(humanizeStatus("validation_error", "es")).toBe("error de validacion");

@@ -4976,10 +4976,10 @@ export function App() {
                 value={goal}
                 onChange={(event) => setGoal(event.target.value as Goal)}
               >
-                <option value="fat_loss">fat_loss</option>
-                <option value="recomposition">recomposition</option>
-                <option value="muscle_gain">muscle_gain</option>
-                <option value="habit">habit</option>
+                <option value="fat_loss">{goalLabel("fat_loss", language)}</option>
+                <option value="recomposition">{goalLabel("recomposition", language)}</option>
+                <option value="muscle_gain">{goalLabel("muscle_gain", language)}</option>
+                <option value="habit">{goalLabel("habit", language)}</option>
               </select>
               <label>
                 <input
