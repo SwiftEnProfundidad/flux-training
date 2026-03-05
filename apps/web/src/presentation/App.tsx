@@ -104,6 +104,7 @@ import { PlanTemplatesPanel } from "./PlanTemplatesPanel";
 import { PlansSelectionPanel } from "./PlansSelectionPanel";
 import { PublishReviewPanel } from "./PublishReviewPanel";
 import { PlanAssignmentPanel } from "./PlanAssignmentPanel";
+import { SessionActionsPanel } from "./SessionActionsPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4738,28 +4739,16 @@ export function App() {
                 sessionsLabel={translate("sessionsColumn")}
                 plansLabel={translate("plansColumn")}
               />
-              <div className="inline-inputs">
-                <button className="button primary" onClick={handleLogWorkoutSession} type="button">
-                  {translate("logWorkout")}
-                </button>
-                <button
-                  className="button ghost"
-                  onClick={handleLoadSessions}
-                  type="button"
-                  data-action-id={sessionDetailScreenModel.actions.loadSessions}
-                >
-                  {translate("loadSessions")}
-                </button>
-              </div>
-              <StatLine
-                label={translate("sessionStatusLabel")}
-                value={sessionStatus}
-                language={language}
-              />
-              <StatLine
-                label={translate("sessionsLoadedLabel")}
-                value={String(sessions.length)}
-                language={language}
+              <SessionActionsPanel
+                logWorkoutLabel={translate("logWorkout")}
+                onLogWorkout={handleLogWorkoutSession}
+                loadSessionsLabel={translate("loadSessions")}
+                loadSessionsActionId={sessionDetailScreenModel.actions.loadSessions}
+                onLoadSessions={handleLoadSessions}
+                sessionStatusLabel={translate("sessionStatusLabel")}
+                sessionStatusValue={toHumanStatus(sessionStatus, language)}
+                sessionsLoadedLabel={translate("sessionsLoadedLabel")}
+                sessionsLoadedValue={String(sessions.length)}
               />
               <div
                 className="history-list"
