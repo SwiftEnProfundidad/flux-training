@@ -31,6 +31,7 @@ Monorepo for iOS, web, backend, and shared contracts.
   - Master orchestration: `docs/PLAN_MVP_OPERATIVO_WEB_IOS.md`
   - iOS screen-by-screen: `docs/PLAN_IOS_MVP_OPERATIVO.md`
   - Web screen-by-screen: `docs/PLAN_WEB_MVP_OPERATIVO.md`
+  - Pumuki bugs and improvements log: `docs/BUGS_Y_MEJORAS_PUMUKI.md`
 - Bilingual UI support:
   - Web: Spanish (`es`) default + English (`en`) switch in hero.
   - iOS: Spanish (`es`) default + English (`en`) switch in readiness hero.

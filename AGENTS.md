@@ -53,6 +53,7 @@
 - Decidir skills aplicables y ejecutar sus instrucciones si corresponde.
 - Los checks legacy de gate/evidencia estan deprecados y no bloquean trabajo.
 - Actualizar el tracking real de refactor/estabilidad al cerrar cada tarea.
+- Registrar en `docs/BUGS_Y_MEJORAS_PUMUKI.md` cada bug/fallo/mejora detectado de Pumuki en la iteracion (con evidencia, impacto y propuesta).
 
 ### Contrato hard de skills
 - Las skills activas son contrato hard no negociable.
