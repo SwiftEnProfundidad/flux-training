@@ -78,18 +78,26 @@ public struct AuthEmailLoginView: View {
         .buttonStyle(FluxPrimaryButtonStyle())
         .accessibilityIdentifier("auth.emailLogin.signIn")
 
-        HStack {
-          Button("Apple") {
-            onUseAppleHandoff()
-          }
-          .buttonStyle(FluxSecondaryButtonStyle())
-
-          Button("Google") {
+        HStack(spacing: 10) {
+          Button(copy.text(.recoverByEmail)) {
+            viewModel.requestRecovery(email: email, channel: .email)
             onRecoverAccount()
           }
           .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("auth.emailLogin.recoverEmail")
+
+          Button(copy.text(.recoverBySMS)) {
+            viewModel.requestRecovery(email: email, channel: .sms)
+          }
+          .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("auth.emailLogin.recoverSMS")
         }
-        .accessibilityIdentifier("auth.emailLogin.providers")
+
+        Button(copy.text(.signInWithApple)) {
+          onUseAppleHandoff()
+        }
+        .buttonStyle(FluxSecondaryButtonStyle())
+        .accessibilityIdentifier("auth.emailLogin.appleHandoff")
 
         FluxCard {
           Text(copy.text(.authEmailHelpText))
