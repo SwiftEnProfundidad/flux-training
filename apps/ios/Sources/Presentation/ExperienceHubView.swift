@@ -136,6 +136,10 @@ public struct ExperienceHubView: View {
     LocalizedCopy(language: language)
   }
 
+  private var allowsCatalogMode: Bool {
+    ProcessInfo.processInfo.environment["FLUX_IOS_ALLOW_CATALOG"] == "1"
+  }
+
   private var activeUserID: String {
     let sessionUserID = authViewModel.currentUserID?.trimmingCharacters(in: .whitespacesAndNewlines)
     if let sessionUserID, sessionUserID.isEmpty == false {
@@ -175,7 +179,7 @@ public struct ExperienceHubView: View {
 
   public var body: some View {
     Group {
-      if displayMode == .product {
+      if displayMode == .product || allowsCatalogMode == false {
         FluxTrainingProductRootView(
           authViewModel: authViewModel,
           onboardingViewModel: onboardingViewModel,
