@@ -106,6 +106,7 @@ import { PublishReviewPanel } from "./PublishReviewPanel";
 import { PlanAssignmentPanel } from "./PlanAssignmentPanel";
 import { SessionActionsPanel } from "./SessionActionsPanel";
 import { SessionDetailPanel } from "./SessionDetailPanel";
+import { ExerciseLibraryPanel } from "./ExerciseLibraryPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4801,78 +4802,33 @@ export function App() {
                 durationLabel={translate("sessionDetailDurationLabel")}
                 exerciseCountLabel={translate("sessionDetailExerciseCountLabel")}
               />
-              <div
-                className="history-list"
-                data-screen-id={exerciseLibraryScreenModel.screenId}
-                data-route-id={exerciseLibraryScreenModel.routeId}
-                data-status-id="web.exerciseLibrary.status"
-              >
-                <SectionHeader
-                  title={translate("exerciseVideosTitle")}
-                  status={exerciseLibraryScreenModel.status}
-                  statusLabel={translate("videosStatusLabel")}
-                  language={language}
-                />
-                <div className="inline-inputs">
-                  <select
-                    aria-label={translate("exercisePickerLabel")}
-                    value={selectedExerciseForVideos}
-                    data-action-id={exerciseLibraryScreenModel.actions.selectExercise}
-                    onChange={(event) => setSelectedExerciseForVideos(event.target.value)}
-                  >
-                    <option value="goblet-squat">goblet-squat</option>
-                    <option value="bench-press">bench-press</option>
-                  </select>
-                  <select
-                    aria-label={translate("videoLocalePickerLabel")}
-                    value={videoLocale}
-                    data-action-id={exerciseLibraryScreenModel.actions.selectLocale}
-                    onChange={(event) => setVideoLocale(event.target.value)}
-                  >
-                    <option value="es-ES">es-ES</option>
-                    <option value="en-US">en-US</option>
-                  </select>
-                  <button
-                    className="button ghost"
-                    onClick={handleLoadExerciseVideos}
-                    type="button"
-                    data-action-id={exerciseLibraryScreenModel.actions.loadVideos}
-                  >
-                    {translate("loadVideos")}
-                  </button>
-                </div>
-                <StatLine
-                  label={translate("videosStatusLabel")}
-                  value={videoStatus}
-                  language={language}
-                />
-                {exerciseVideos.length === 0 ? (
-                  <p className="empty-state">{translate("noVideosLoaded")}</p>
-                ) : (
-                  <div className="video-grid">
-                    {exerciseVideos.map((video) => (
-                      <article key={video.id} className="video-item">
-                        <img src={video.thumbnailUrl} alt={video.title} loading="lazy" />
-                        <div className="video-body">
-                          <strong>{video.title}</strong>
-                          <p>{video.coach}</p>
-                          <p>
-                            {video.difficulty} · {Math.round(video.durationSeconds / 60)} min
-                          </p>
-                          <a
-                            href={video.videoUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            data-action-id={exerciseLibraryScreenModel.actions.openVideo}
-                          >
-                            {translate("openVideo")}
-                          </a>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <ExerciseLibraryPanel
+                screenId={exerciseLibraryScreenModel.screenId}
+                routeId={exerciseLibraryScreenModel.routeId}
+                statusId="web.exerciseLibrary.status"
+                title={translate("exerciseVideosTitle")}
+                statusLabel={translate("videosStatusLabel")}
+                statusClass={toStatusClass(exerciseLibraryScreenModel.status)}
+                statusValue={toHumanStatus(exerciseLibraryScreenModel.status, language)}
+                showStatus={readWebRuntimeMode() === "qa"}
+                exercisePickerLabel={translate("exercisePickerLabel")}
+                selectedExercise={selectedExerciseForVideos}
+                selectExerciseActionId={exerciseLibraryScreenModel.actions.selectExercise}
+                onSelectExercise={setSelectedExerciseForVideos}
+                videoLocalePickerLabel={translate("videoLocalePickerLabel")}
+                videoLocale={videoLocale}
+                selectLocaleActionId={exerciseLibraryScreenModel.actions.selectLocale}
+                onSelectLocale={setVideoLocale}
+                loadVideosLabel={translate("loadVideos")}
+                loadVideosActionId={exerciseLibraryScreenModel.actions.loadVideos}
+                onLoadVideos={handleLoadExerciseVideos}
+                videosStatusLabel={translate("videosStatusLabel")}
+                videosStatusValue={toHumanStatus(videoStatus, language)}
+                noVideosLabel={translate("noVideosLoaded")}
+                openVideoLabel={translate("openVideo")}
+                openVideoActionId={exerciseLibraryScreenModel.actions.openVideo}
+                videos={exerciseVideos}
+              />
               <div
                 className="history-list"
                 data-screen-id={exerciseDetailScreenModel.screenId}
