@@ -198,6 +198,8 @@
 - Normalizacion de estados de acceso iOS: `LocalizedCopy.humanStatus` ya traduce variantes tecnicas con espacios/guiones (`Session Required`, `signed-in:apple`) para evitar literales internos en tarjetas/cabeceras de producto.
 - Guard rail web sin sesion (v2): el selector de `lane` (`main/secondary`) tambien queda oculto hasta autenticar sesion para no exponer controles internos de QA en la cabecera.
 - Web runtime hardening de entrada: se añade favicon dedicada (`/favicon.svg`) para eliminar ruido de consola por `404` en `localhost` y mejorar higiene de runtime durante QA manual.
+- Web hardening de arquitectura en `App.tsx`: se sustituyen `switch` discriminatorios de estados/dominios por mapas y handlers para reducir acoplamiento y desbloquear gate SOLID en cambios incrementales.
+- Web acceso con semantica real: bloque email/password migrado a `<form>` con submit nativo (Enter), `type=\"email\"` y `autocomplete` (`email`, `current-password`) para comportamiento de producto y accesibilidad básica.
 - Limpieza de microcopy en artefacto Pencil (`flux.pen`): se sustituyo placeholder tecnico no util (`... [:::]`) en barras de estado iOS por copy neutral de producto (`wifi 100%`) para evitar ruido visual y confusiones.
 - Limpieza adicional de copy tecnico en `flux.pen`: se reemplazo `Reintentar sync / Retry sync` por `Reintentar sincronización / Retry sync` y se ajusto `Auth` a `Acceso` en secciones/flows para mantener lenguaje orientado a usuario.
 - Microcopy producto alineado iOS+Web: etiquetas tecnicas `Offline + Sync` y `ultimo sync` en español pasan a `Sin conexión + Sincronización` y `Rechazadas en última sincronización`, con tests de regresion.
