@@ -93,6 +93,7 @@ import { QuickActionsCard } from "./QuickActionsCard";
 import { AlertCenterCard } from "./AlertCenterCard";
 import { SystemStatusCard } from "./SystemStatusCard";
 import { DashboardKpisCard } from "./DashboardKpisCard";
+import { ReadinessMonitorCard } from "./ReadinessMonitorCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4306,43 +4307,29 @@ export function App() {
                   void handleRefreshDashboardKpis();
                 }}
               />
-              <article
-                className="module-card"
-                data-screen-id={readinessMonitorScreenModel.screenId}
-                data-route-id={readinessMonitorScreenModel.routeId}
-                data-status-id={`${readinessMonitorScreenModel.screenId}.status`}
-              >
-                <SectionHeader
-                  title={translate("readinessMonitorTitle")}
-                  status={readinessMonitorScreenModel.status}
-                  statusLabel={translate("readinessMonitorStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("readinessMonitorSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("readinessMonitorScoreLabel")}
-                      value={`${readiness.score}%`}
-                    />
-                    <Metric
-                      title={translate("readinessLabel")}
-                      value={readinessLabel(readiness.label, language)}
-                    />
-                    <Metric title={translate("authMetric")} value={toHumanStatus(authStatus, language)} />
-                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
-                  </div>
-                  <button
-                    className="button ghost"
-                    type="button"
-                    data-action-id={readinessMonitorScreenModel.actions.refresh}
-                    onClick={() => void handleRefreshReadinessMonitor()}
-                    disabled={readinessMonitorScreenModel.status === "loading"}
-                  >
-                    {translate("readinessMonitorRefreshAction")}
-                  </button>
-                </div>
-              </article>
+              <ReadinessMonitorCard
+                screenId={readinessMonitorScreenModel.screenId}
+                routeId={readinessMonitorScreenModel.routeId}
+                title={translate("readinessMonitorTitle")}
+                statusLabel={translate("readinessMonitorStatusLabel")}
+                statusValue={toHumanStatus(readinessMonitorScreenModel.status, language)}
+                statusClass={toStatusClass(readinessMonitorScreenModel.status)}
+                summary={translate("readinessMonitorSummary")}
+                scoreLabel={translate("readinessMonitorScoreLabel")}
+                scoreValue={`${readiness.score}%`}
+                readinessLabel={translate("readinessLabel")}
+                readinessValue={readinessLabel(readiness.label, language)}
+                authLabel={translate("authMetric")}
+                authValue={toHumanStatus(authStatus, language)}
+                queueLabel={translate("queueMetric")}
+                queueValue={String(pendingQueueCount)}
+                refreshActionId={readinessMonitorScreenModel.actions.refresh}
+                refreshLabel={translate("readinessMonitorRefreshAction")}
+                refreshDisabled={readinessMonitorScreenModel.status === "loading"}
+                onRefresh={() => {
+                  void handleRefreshReadinessMonitor();
+                }}
+              />
               <article
                 className="module-card"
                 data-screen-id={alertsFullScreenModel.screenId}
