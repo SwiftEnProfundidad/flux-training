@@ -107,6 +107,7 @@ import { PlanAssignmentPanel } from "./PlanAssignmentPanel";
 import { SessionActionsPanel } from "./SessionActionsPanel";
 import { SessionDetailPanel } from "./SessionDetailPanel";
 import { ExerciseLibraryPanel } from "./ExerciseLibraryPanel";
+import { ExerciseDetailPanel } from "./ExerciseDetailPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4829,95 +4830,39 @@ export function App() {
                 openVideoActionId={exerciseLibraryScreenModel.actions.openVideo}
                 videos={exerciseVideos}
               />
-              <div
-                className="history-list"
-                data-screen-id={exerciseDetailScreenModel.screenId}
-                data-route-id={exerciseDetailScreenModel.routeId}
-                data-status-id="web.exerciseDetail.status"
-              >
-                <SectionHeader
-                  title={translate("exerciseDetailTitle")}
-                  status={exerciseDetailScreenModel.status}
-                  statusLabel={translate("exerciseDetailStatusLabel")}
-                  language={language}
-                />
-                <p>{translate("exerciseDetailSummary")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button ghost"
-                    onClick={handleLoadExerciseVideos}
-                    type="button"
-                    data-action-id={exerciseDetailScreenModel.actions.loadDetail}
-                  >
-                    {translate("exerciseDetailLoadAction")}
-                  </button>
-                  <select
-                    aria-label={translate("exerciseDetailSelectLabel")}
-                    value={selectedExerciseVideoId}
-                    data-action-id={exerciseDetailScreenModel.actions.selectVideo}
-                    onChange={(event) => setSelectedExerciseVideoId(event.target.value)}
-                  >
-                    <option value="">{translate("exerciseDetailSelectLabel")}</option>
-                    {exerciseVideos.map((video) => (
-                      <option key={video.id} value={video.id}>
-                        {video.title}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="button ghost"
-                    onClick={handleClearExerciseDetailSelection}
-                    type="button"
-                    data-action-id={exerciseDetailScreenModel.actions.clearSelection}
-                    disabled={selectedExerciseVideo === null}
-                  >
-                    {translate("exerciseDetailClearAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleOpenSelectedExerciseVideo}
-                    type="button"
-                    data-action-id={exerciseDetailScreenModel.actions.openVideo}
-                    disabled={selectedExerciseVideo === null}
-                  >
-                    {translate("exerciseDetailOpenAction")}
-                  </button>
-                </div>
-                {selectedExerciseVideo === null ? (
-                  <p className="empty-state">{translate("exerciseDetailNoSelection")}</p>
-                ) : (
-                  <div className="video-grid">
-                    <article className="video-item">
-                      <img
-                        src={selectedExerciseVideo.thumbnailUrl}
-                        alt={selectedExerciseVideo.title}
-                        loading="lazy"
-                      />
-                      <div className="video-body">
-                        <strong>{selectedExerciseVideo.title}</strong>
-                        <div className="metric-grid">
-                          <Metric
-                            title={translate("exerciseDetailCoachLabel")}
-                            value={selectedExerciseVideo.coach}
-                          />
-                          <Metric
-                            title={translate("exerciseDetailDifficultyLabel")}
-                            value={selectedExerciseVideo.difficulty}
-                          />
-                          <Metric
-                            title={translate("exerciseDetailLocaleLabel")}
-                            value={selectedExerciseVideo.locale}
-                          />
-                          <Metric
-                            title={translate("exerciseDetailDurationLabel")}
-                            value={`${Math.round(selectedExerciseVideo.durationSeconds / 60)} min`}
-                          />
-                        </div>
-                      </div>
-                    </article>
-                  </div>
-                )}
-              </div>
+              <ExerciseDetailPanel
+                screenId={exerciseDetailScreenModel.screenId}
+                routeId={exerciseDetailScreenModel.routeId}
+                statusId="web.exerciseDetail.status"
+                title={translate("exerciseDetailTitle")}
+                statusLabel={translate("exerciseDetailStatusLabel")}
+                statusClass={toStatusClass(exerciseDetailScreenModel.status)}
+                statusValue={toHumanStatus(exerciseDetailScreenModel.status, language)}
+                showStatus={readWebRuntimeMode() === "qa"}
+                summary={translate("exerciseDetailSummary")}
+                loadActionLabel={translate("exerciseDetailLoadAction")}
+                loadActionId={exerciseDetailScreenModel.actions.loadDetail}
+                onLoadDetail={handleLoadExerciseVideos}
+                selectLabel={translate("exerciseDetailSelectLabel")}
+                selectedVideoId={selectedExerciseVideoId}
+                selectActionId={exerciseDetailScreenModel.actions.selectVideo}
+                onSelectVideoId={setSelectedExerciseVideoId}
+                clearActionLabel={translate("exerciseDetailClearAction")}
+                clearActionId={exerciseDetailScreenModel.actions.clearSelection}
+                onClearSelection={handleClearExerciseDetailSelection}
+                clearDisabled={selectedExerciseVideo === null}
+                openActionLabel={translate("exerciseDetailOpenAction")}
+                openActionId={exerciseDetailScreenModel.actions.openVideo}
+                onOpenVideo={handleOpenSelectedExerciseVideo}
+                openDisabled={selectedExerciseVideo === null}
+                noSelectionLabel={translate("exerciseDetailNoSelection")}
+                selectedVideo={selectedExerciseVideo}
+                coachLabel={translate("exerciseDetailCoachLabel")}
+                difficultyLabel={translate("exerciseDetailDifficultyLabel")}
+                localeLabel={translate("exerciseDetailLocaleLabel")}
+                durationLabel={translate("exerciseDetailDurationLabel")}
+                videos={exerciseVideos}
+              />
             </div>
             </article>
           ) : null}
