@@ -158,4 +158,5 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 - Task iOS en construccion: **F5 correctivo de paridad visual/flujo en runtime productivo**
 - Avance actual: tabs `Entrenamiento`, `Progreso`, `Nutricion` y `Ajustes` migradas a flujo por etapas (una pantalla visible por vez) para eliminar apariencia de listado tecnico; ademas, `Today/Auth` consolidado a login productivo unico (Apple + email/password + recovery directo) y microcopy de etapas/estados normalizada para usuario final en ES/EN.
 - Avance actual (auth UX): pantallas `welcome`, `email login`, `apple handoff`, `otp`, `recover` y `session expired` ya muestran feedback de estado no tecnico via `LocalizedCopy.authFeedback(...)` y botones bilingues sin hardcode.
+- Avance actual (auth flow): `welcome` queda como puerta de entrada y delega en pantallas dedicadas (`email login`, `apple handoff`) para completar autenticacion por pasos, manteniendo `recover`, `otp` y `session expired` como rutas separadas de producto.
 - Se considera cerrado solo lo que tenga evidencia de runtime y paridad visual, no solo contrato/test.

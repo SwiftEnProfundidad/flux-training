@@ -163,6 +163,7 @@
 - iOS microcopy productiva reforzada: estados tecnicos (`idle/saved/loaded/open`) pasan a copy de usuario final (`listo/actualizado/completado/en revision`), `Auth` pasa a `Acceso`, el CTA de salida pasa a `Cerrar sesion` y los selectores de etapas usan etiquetas cortas de producto (Hoy, Plan, Preparacion, Resumen, etc.) en ES/EN.
 - Web QA mode endurecido para evitar exposicion accidental de UI interna: ahora `?qa=1` no basta; requiere desbloqueo explicito (`?unlockQa=1`) persistido localmente y se puede revertir con `?unlockQa=0`.
 - iOS Auth UX endurecido: `welcome`, `email login`, `apple handoff`, `otp`, `recover` y `session expired` ya no muestran `humanStatus` tecnico; ahora usan `authFeedback` (copy accionable ES/EN) y botones de login (`remember me` / `forgot password`) salen desde `LocalizedCopy`.
+- iOS Auth flow por pantallas: `welcome` deja de mezclar login completo y pasa a orquestar navegacion por pasos (`email login`, `apple handoff`, `recover`, `otp`, `session expired`) con retorno controlado a entrada principal.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
