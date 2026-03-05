@@ -160,3 +160,5 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Ajuste UX anti-consola v2 (producto): el selector tecnico de `lane` (main/secondary) en cabecera tambien queda oculto sin sesion autenticada, evitando exponer control interno de QA en el hero de acceso.
 - Evidencia runtime local (2026-03-05): login por email validado en `http://localhost:5173`, con creacion de plan, carga de sesiones y detalle de sesion funcionales contra `http://127.0.0.1:8787`.
 - Gate final release (2026-03-05): `pnpm release:check` en verde, incluyendo `pnpm -r check`, `pnpm -r test`, suites criticas y `swift test` iOS.
+- Ajuste de mantenibilidad web (post-cierre 55/55): extraccion del panel de builder de planes a `PlanBuilderPanel` para reducir complejidad de `App.tsx` sin alterar el contrato runtime (`web.planBuilder.*`).
+- Evidencia de ajuste (2026-03-05): `pnpm --filter @flux/web test -- src/presentation/App.tsx`, `pnpm --filter @flux/web build` y `pnpm --filter @flux/web check` en verde; smoke en `http://127.0.0.1:5175/__qa?unlockQa=1&qa=1` con acción observable sobre acceso y consola limpia (`error=0`, `warning=0`).
