@@ -497,6 +497,7 @@ export function App() {
   const isAuthLoading = authStatus === "loading";
   const [webLane, setWebLane] = useState<WebLane>("main");
   const isQAMode = useMemo(() => readWebRuntimeMode() === "qa", []);
+  const showQATools = isQAMode && hasAuthenticatedSession;
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
   );
@@ -4088,7 +4089,7 @@ export function App() {
               <span style={{ width: `${readiness.score}%` }} />
             </div>
             <div className="hero-metrics">
-              {isQAMode ? (
+              {showQATools ? (
                 <>
                   <Metric
                     title={translate("authMetric")}
@@ -4131,7 +4132,7 @@ export function App() {
           </section>
         ) : null}
 
-        {isQAMode ? (
+        {showQATools ? (
           <section className="domain-filter-card">
             <p className="domain-filter-label">
               {translate("domainFilterLabel")}
@@ -4155,7 +4156,7 @@ export function App() {
                 </button>
               ))}
             </div>
-            {isQAMode ? (
+            {showQATools ? (
               <div className="inline-inputs">
                 <label className="runtime-state-control">
                   <span>{translate("roleLabel")}</span>
@@ -4199,7 +4200,7 @@ export function App() {
           </section>
         ) : null}
 
-        {isQAMode ? (
+        {showQATools ? (
           <section className="runtime-state-card">
           <header className="runtime-state-header">
             <p className="domain-filter-label">{translate("runtimeStateSectionTitle")}</p>
@@ -4265,6 +4266,7 @@ export function App() {
                 status={accessGateScreenModel.status}
                 statusLabel={translate("authMetric")}
                 language={language}
+                showStatus={false}
               />
               <div className="form-grid">
                 <p className="runtime-state-copy">{translate("heroCopy")}</p>
@@ -7644,15 +7646,17 @@ type SectionHeaderProps = {
   statusLabel: string;
   status: string;
   language: AppLanguage;
+  showStatus?: boolean;
 };
 
 const SectionHeader = memo(function SectionHeader({
   title,
   statusLabel,
   status,
-  language
+  language,
+  showStatus
 }: SectionHeaderProps) {
-  const shouldShowStatus = readWebRuntimeMode() === "qa";
+  const shouldShowStatus = showStatus ?? readWebRuntimeMode() === "qa";
 
   return (
     <header className="module-header">
