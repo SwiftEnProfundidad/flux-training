@@ -29,6 +29,7 @@ public struct FluxTrainingProductRootView: View {
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
   private let showStageControls: Bool
+  private static let languagePreferenceKey = "flux.language.preference"
 
   public init(
     authViewModel: AuthViewModel,
@@ -57,6 +58,7 @@ public struct FluxTrainingProductRootView: View {
     _privacyConsentViewModel = State(initialValue: privacyConsentViewModel)
     _exportDataViewModel = State(initialValue: exportDataViewModel)
     _deleteAccountViewModel = State(initialValue: deleteAccountViewModel)
+    _language = State(initialValue: Self.resolveStoredLanguage())
     self.generateAIRecommendationsUseCase = generateAIRecommendationsUseCase
     self.showStageControls = showStageControls
     self.userID = userID
@@ -117,6 +119,9 @@ public struct FluxTrainingProductRootView: View {
         isOnboardingCompleted = false
       }
     }
+    .onChange(of: language) { _, newValue in
+      UserDefaults.standard.set(newValue.rawValue, forKey: Self.languagePreferenceKey)
+    }
   }
 
   private var authFlow: some View {
@@ -155,7 +160,10 @@ public struct FluxTrainingProductRootView: View {
           AuthSessionExpiredView(viewModel: authViewModel, copy: copy)
         }
 
-        if authScreen != .welcome {
+        switch authScreen {
+        case .welcome:
+          EmptyView()
+        default:
           Button(copy.text(.backToSignInAction)) {
             authScreen = .welcome
           }
@@ -273,7 +281,10 @@ public struct FluxTrainingProductRootView: View {
           }
         } else {
           VStack(spacing: 8) {
-            if selectedTrainingStage != .today {
+            switch selectedTrainingStage {
+            case .today:
+              EmptyView()
+            default:
               Button(copy.text(.todayTab)) {
                 selectedTrainingStage = .today
               }
@@ -305,7 +316,10 @@ public struct FluxTrainingProductRootView: View {
           }
         } else {
           VStack(spacing: 8) {
-            if selectedProgressStage != .metrics {
+            switch selectedProgressStage {
+            case .metrics:
+              EmptyView()
+            default:
               Button(copy.text(.progressStageOverview)) {
                 selectedProgressStage = .metrics
               }
@@ -333,7 +347,10 @@ public struct FluxTrainingProductRootView: View {
           }
         } else {
           VStack(spacing: 8) {
-            if selectedNutritionStage != .hub {
+            switch selectedNutritionStage {
+            case .hub:
+              EmptyView()
+            default:
               Button(copy.text(.nutritionStageOverview)) {
                 selectedNutritionStage = .hub
               }
@@ -480,6 +497,16 @@ public struct FluxTrainingProductRootView: View {
     case .habit:
       copy.text(.goalHabit)
     }
+  }
+
+  private static func resolveStoredLanguage() -> SupportedLanguage {
+    let storedValue = UserDefaults.standard.string(forKey: languagePreferenceKey)?.trimmingCharacters(
+      in: .whitespacesAndNewlines
+    )
+    guard let storedValue, let resolved = SupportedLanguage(rawValue: storedValue) else {
+      return .es
+    }
+    return resolved
   }
 
   private func moveOnboardingBack() {
