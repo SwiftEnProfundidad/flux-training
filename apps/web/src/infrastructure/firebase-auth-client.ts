@@ -14,7 +14,14 @@ import { assertApiResponse, createApiHeaders } from "./api-client";
 let cachedAuth: Auth | null = null;
 
 function isLocalHostname(candidate: string): boolean {
-  return candidate === "127.0.0.1" || candidate === "localhost";
+  const normalized = candidate.trim().toLowerCase();
+  return (
+    normalized === "127.0.0.1" ||
+    normalized === "localhost" ||
+    normalized === "::1" ||
+    normalized === "[::1]" ||
+    normalized === "::ffff:127.0.0.1"
+  );
 }
 
 function hasFirebaseWebConfig(): boolean {

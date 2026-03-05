@@ -8,6 +8,7 @@ describe("isLocalDemoApiTarget", () => {
   it("returns true for localhost demo API target", () => {
     expect(isLocalDemoApiTarget("http://127.0.0.1:8787")).toBe(true);
     expect(isLocalDemoApiTarget("http://localhost:8787")).toBe(true);
+    expect(isLocalDemoApiTarget("http://[::1]:8787")).toBe(true);
   });
 
   it("returns false for cloud API target", () => {
@@ -32,6 +33,8 @@ describe("shouldUseLocalDemoAuthFallbackFromContext", () => {
   it("uses local fallback in localhost runtime when api target is not defined", () => {
     expect(shouldUseLocalDemoAuthFallbackFromContext("", "localhost")).toBe(true);
     expect(shouldUseLocalDemoAuthFallbackFromContext("", "127.0.0.1")).toBe(true);
+    expect(shouldUseLocalDemoAuthFallbackFromContext("", "::1")).toBe(true);
+    expect(shouldUseLocalDemoAuthFallbackFromContext("", "[::1]")).toBe(true);
   });
 
   it("does not use local fallback in non-local runtime when api target is not defined", () => {

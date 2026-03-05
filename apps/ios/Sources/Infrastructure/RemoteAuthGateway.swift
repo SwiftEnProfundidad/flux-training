@@ -208,5 +208,10 @@ func shouldUseLocalDemoAuthFallback(baseURL: URL) -> Bool {
   guard let host = baseURL.host?.lowercased() else {
     return false
   }
-  return host == "127.0.0.1" || host == "localhost"
+  switch host {
+  case "127.0.0.1", "localhost", "::1", "::ffff:127.0.0.1":
+    return true
+  default:
+    return false
+  }
 }
