@@ -109,6 +109,7 @@ import { SessionDetailPanel } from "./SessionDetailPanel";
 import { ExerciseLibraryPanel } from "./ExerciseLibraryPanel";
 import { ExerciseDetailPanel } from "./ExerciseDetailPanel";
 import { AthleteOperationsToolbar } from "./AthleteOperationsToolbar";
+import { SessionHistoryPanel } from "./SessionHistoryPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -944,6 +945,28 @@ export function App() {
       .filter((session) => session.userId === selectedAthleteId)
       .sort((left, right) => right.endedAt.localeCompare(left.endedAt));
   }, [selectedAthleteIds, sessions]);
+  const selectedAthleteSessionHistoryCards = useMemo(
+    () =>
+      selectedAthleteSessionHistoryRows.map((session) => {
+        const durationMinutes = Math.max(
+          0,
+          Math.round(
+            (new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()) /
+              (60 * 1000)
+          )
+        );
+        return {
+          key: `${session.userId}-${session.planId}-${session.startedAt}`,
+          athleteId: session.userId,
+          planId: session.planId,
+          startedAt: new Date(session.startedAt).toLocaleString(),
+          endedAt: new Date(session.endedAt).toLocaleString(),
+          durationMinutes,
+          exercisesCount: session.exercises.length
+        };
+      }),
+    [selectedAthleteSessionHistoryRows]
+  );
   const selectedAthleteCoachNotesRows = useMemo(() => {
     const selectedAthleteId = selectedAthleteIds[0];
     if (selectedAthleteId === undefined) {
@@ -4973,90 +4996,35 @@ export function App() {
                   </button>
                 </div>
               </div>
-              <div
-                className="history-list"
-                data-screen-id={sessionHistoryScreenModel.screenId}
-                data-route-id={sessionHistoryScreenModel.routeId}
-                data-status-id={sessionHistoryScreenModel.screenId.replace(".screen", ".status")}
-              >
-                <p className="section-subtitle">{translate("sessionHistoryTitle")}</p>
-                <StatLine
-                  label={translate("sessionsLoadedLabel")}
-                  value={String(selectedAthleteSessionHistoryRows.length)}
-                  language={language}
-                />
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    data-action-id={sessionHistoryScreenModel.actions.loadSessions}
-                    onClick={() => void handleLoadSessions()}
-                    type="button"
-                  >
-                    {translate("loadSessions")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={sessionHistoryScreenModel.actions.selectFirstAthlete}
-                    onClick={handleSelectFirstAthleteDetail}
-                    type="button"
-                  >
-                    {translate("athleteDetailSelectFirst")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={sessionHistoryScreenModel.actions.clearSelection}
-                    onClick={handleClearAthleteSelection}
-                    type="button"
-                  >
-                    {translate("clearAthleteSelection")}
-                  </button>
-                </div>
-                {selectedAthleteIds.length === 0 ? (
-                  <p className="empty-state">{translate("sessionHistoryEmpty")}</p>
-                ) : selectedAthleteSessionHistoryRows.length === 0 ? (
-                  <p className="empty-state">{translate("sessionHistoryNoRows")}</p>
-                ) : (
-                  selectedAthleteSessionHistoryRows.map((session) => {
-                    const durationMinutes = Math.max(
-                      0,
-                      Math.round(
-                        (new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()) /
-                          (60 * 1000)
-                      )
-                    );
-                    return (
-                      <article
-                        key={`${session.userId}-${session.planId}-${session.startedAt}`}
-                        className="history-item"
-                      >
-                        <strong>
-                          {translate("athleteColumn")} {session.userId}
-                        </strong>
-                        <div className="history-values">
-                          <span>
-                            {translate("sessionHistoryPlanLabel")} {session.planId}
-                          </span>
-                          <span>
-                            {translate("sessionHistoryStartedLabel")}{" "}
-                            {new Date(session.startedAt).toLocaleString()}
-                          </span>
-                          <span>
-                            {translate("sessionHistoryEndedLabel")}{" "}
-                            {new Date(session.endedAt).toLocaleString()}
-                          </span>
-                          <span>
-                            {translate("sessionHistoryDurationLabel")} {durationMinutes}{" "}
-                            {translate("historyMinutesLabel")}
-                          </span>
-                          <span>
-                            {translate("sessionHistoryExercisesLabel")} {session.exercises.length}
-                          </span>
-                        </div>
-                      </article>
-                    );
-                  })
-                )}
-              </div>
+              <SessionHistoryPanel
+                screenId={sessionHistoryScreenModel.screenId}
+                routeId={sessionHistoryScreenModel.routeId}
+                statusId={sessionHistoryScreenModel.screenId.replace(".screen", ".status")}
+                title={translate("sessionHistoryTitle")}
+                sessionsLoadedLabel={translate("sessionsLoadedLabel")}
+                sessionsLoadedValue={String(selectedAthleteSessionHistoryRows.length)}
+                loadSessionsLabel={translate("loadSessions")}
+                loadSessionsActionId={sessionHistoryScreenModel.actions.loadSessions}
+                onLoadSessions={() => void handleLoadSessions()}
+                selectFirstAthleteLabel={translate("athleteDetailSelectFirst")}
+                selectFirstAthleteActionId={sessionHistoryScreenModel.actions.selectFirstAthlete}
+                onSelectFirstAthlete={handleSelectFirstAthleteDetail}
+                clearSelectionLabel={translate("clearAthleteSelection")}
+                clearSelectionActionId={sessionHistoryScreenModel.actions.clearSelection}
+                onClearSelection={handleClearAthleteSelection}
+                hasSelection={selectedAthleteIds.length > 0}
+                hasRows={selectedAthleteSessionHistoryRows.length > 0}
+                emptySelectionLabel={translate("sessionHistoryEmpty")}
+                noRowsLabel={translate("sessionHistoryNoRows")}
+                rows={selectedAthleteSessionHistoryCards}
+                athleteLabel={translate("athleteColumn")}
+                planLabel={translate("sessionHistoryPlanLabel")}
+                startedLabel={translate("sessionHistoryStartedLabel")}
+                endedLabel={translate("sessionHistoryEndedLabel")}
+                durationLabel={translate("sessionHistoryDurationLabel")}
+                minutesLabel={translate("historyMinutesLabel")}
+                exercisesLabel={translate("sessionHistoryExercisesLabel")}
+              />
               <div
                 className="history-list"
                 data-screen-id={compareProgressScreenModel.screenId}
