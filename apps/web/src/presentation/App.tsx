@@ -90,6 +90,7 @@ import { AccessGateCard } from "./AccessGateCard";
 import { RuntimeStateBannerCard } from "./RuntimeStateBannerCard";
 import { DashboardHomeCard } from "./DashboardHomeCard";
 import { QuickActionsCard } from "./QuickActionsCard";
+import { AlertCenterCard } from "./AlertCenterCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4209,81 +4210,43 @@ export function App() {
                   void handleLoadRecommendations();
                 }}
               />
-              <article
-                className="module-card"
-                data-screen-id={alertCenterScreenModel.screenId}
-                data-route-id={alertCenterScreenModel.routeId}
-                data-status-id={`${alertCenterScreenModel.screenId}.status`}
-              >
-                <SectionHeader
-                  title={translate("alertCenterTitle")}
-                  status={alertCenterScreenModel.status}
-                  statusLabel={translate("alertCenterStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("alertCenterSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("alertCenterOpenCountLabel")}
-                      value={String(openOperationalAlerts.length)}
-                    />
-                    <Metric
-                      title={translate("alertCenterHighSeverityLabel")}
-                      value={String(
-                        openOperationalAlerts.filter((alert) => alert.severity === "critical")
-                          .length
-                      )}
-                    />
-                    <Metric
-                      title={translate("alertCenterRunbooksLabel")}
-                      value={String(operationalRunbooks.length)}
-                    />
-                  </div>
-                  <div className="inline-inputs">
-                    <button
-                      className="button primary"
-                      type="button"
-                      data-action-id={alertCenterScreenModel.actions.load}
-                      onClick={() => void handleRefreshAlertCenter()}
-                    >
-                      {translate("alertCenterLoadAction")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={alertCenterScreenModel.actions.audit}
-                      onClick={() => void handleLoadAuditTimeline()}
-                    >
-                      {translate("alertCenterAuditAction")}
-                    </button>
-                  </div>
-                  {openOperationalAlerts.length === 0 ? (
-                    <p className="empty-state">{translate("alertCenterNoAlerts")}</p>
-                  ) : (
-                    <div className="dense-table">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>{translate("auditOccurredAtColumn")}</th>
-                            <th>{translate("auditSeverityColumn")}</th>
-                            <th>{translate("auditSummaryColumn")}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {openOperationalAlerts.slice(0, 3).map((alert) => (
-                            <tr key={alert.id}>
-                              <td>{new Date(alert.triggeredAt).toLocaleString()}</td>
-                              <td>{toHumanStatus(alert.severity, language)}</td>
-                              <td>{alert.summary}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </article>
+              <AlertCenterCard
+                screenId={alertCenterScreenModel.screenId}
+                routeId={alertCenterScreenModel.routeId}
+                title={translate("alertCenterTitle")}
+                statusLabel={translate("alertCenterStatusLabel")}
+                statusValue={toHumanStatus(alertCenterScreenModel.status, language)}
+                statusClass={toStatusClass(alertCenterScreenModel.status)}
+                summary={translate("alertCenterSummary")}
+                openCountLabel={translate("alertCenterOpenCountLabel")}
+                openCountValue={String(openOperationalAlerts.length)}
+                highSeverityLabel={translate("alertCenterHighSeverityLabel")}
+                highSeverityValue={String(
+                  openOperationalAlerts.filter((alert) => alert.severity === "critical").length
+                )}
+                runbooksLabel={translate("alertCenterRunbooksLabel")}
+                runbooksValue={String(operationalRunbooks.length)}
+                loadActionId={alertCenterScreenModel.actions.load}
+                loadLabel={translate("alertCenterLoadAction")}
+                onLoad={() => {
+                  void handleRefreshAlertCenter();
+                }}
+                auditActionId={alertCenterScreenModel.actions.audit}
+                auditLabel={translate("alertCenterAuditAction")}
+                onAudit={() => {
+                  void handleLoadAuditTimeline();
+                }}
+                noAlertsLabel={translate("alertCenterNoAlerts")}
+                occurredAtLabel={translate("auditOccurredAtColumn")}
+                severityLabel={translate("auditSeverityColumn")}
+                summaryLabel={translate("auditSummaryColumn")}
+                rows={openOperationalAlerts.slice(0, 3).map((alert) => ({
+                  id: alert.id,
+                  occurredAt: new Date(alert.triggeredAt).toLocaleString(),
+                  severity: toHumanStatus(alert.severity, language),
+                  summary: alert.summary
+                }))}
+              />
               <article
                 className="module-card"
                 data-screen-id={systemStatusScreenModel.screenId}
