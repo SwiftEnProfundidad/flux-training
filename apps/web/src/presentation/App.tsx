@@ -105,6 +105,7 @@ import { PlansSelectionPanel } from "./PlansSelectionPanel";
 import { PublishReviewPanel } from "./PublishReviewPanel";
 import { PlanAssignmentPanel } from "./PlanAssignmentPanel";
 import { SessionActionsPanel } from "./SessionActionsPanel";
+import { SessionDetailPanel } from "./SessionDetailPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -1376,6 +1377,30 @@ export function App() {
       sessionSelectionRows.find((row) => row.key === selectedSessionKey)?.session ?? null,
     [selectedSessionKey, sessionSelectionRows]
   );
+  const sessionDetailOptions = useMemo(
+    () =>
+      sessionSelectionRows.map((row) => ({
+        key: row.key,
+        label: `${row.session.planId} · ${row.session.startedAt.slice(0, 10)}`
+      })),
+    [sessionSelectionRows]
+  );
+  const selectedSessionSummary = useMemo(() => {
+    if (selectedSession === null) {
+      return null;
+    }
+    const durationInMinutes = Math.max(
+      0,
+      Math.round((Date.parse(selectedSession.endedAt) - Date.parse(selectedSession.startedAt)) / 60000)
+    );
+    return {
+      planId: selectedSession.planId,
+      startedAt: selectedSession.startedAt,
+      endedAt: selectedSession.endedAt,
+      durationLabel: `${durationInMinutes}m`,
+      exerciseCount: String(selectedSession.exercises.length)
+    };
+  }, [selectedSession]);
   const hasSelectedSession = selectedSession !== null;
   const selectedSessionPrimaryExerciseId = selectedSession?.exercises[0]?.exerciseId ?? null;
   const sessionDetailScreenModel = useMemo(
@@ -4750,80 +4775,32 @@ export function App() {
                 sessionsLoadedLabel={translate("sessionsLoadedLabel")}
                 sessionsLoadedValue={String(sessions.length)}
               />
-              <div
-                className="history-list"
-                data-screen-id={sessionDetailScreenModel.screenId}
-                data-route-id={sessionDetailScreenModel.routeId}
-                data-status-id="web.sessionDetail.status"
-              >
-                <p className="section-subtitle">{translate("sessionDetailTitle")}</p>
-                <p>{translate("sessionDetailSummary")}</p>
-                <div className="inline-inputs">
-                  <select
-                    aria-label={translate("sessionDetailSelectLabel")}
-                    value={selectedSessionKey}
-                    data-action-id={sessionDetailScreenModel.actions.selectSession}
-                    onChange={(event) => setSelectedSessionKey(event.target.value)}
-                  >
-                    <option value="">{translate("sessionDetailSelectLabel")}</option>
-                    {sessionSelectionRows.map((row) => (
-                      <option key={row.key} value={row.key}>
-                        {row.session.planId} · {row.session.startedAt.slice(0, 10)}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="button ghost"
-                    onClick={handleClearSessionSelection}
-                    type="button"
-                    data-action-id={sessionDetailScreenModel.actions.clearSelection}
-                  >
-                    {translate("sessionDetailClearAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleOpenSessionExerciseVideo}
-                    type="button"
-                    data-action-id={sessionDetailScreenModel.actions.openExerciseVideo}
-                    disabled={selectedSessionPrimaryExerciseId === null}
-                  >
-                    {translate("sessionDetailOpenVideoAction")}
-                  </button>
-                </div>
-                {selectedSession === null ? (
-                  <p className="empty-state">{translate("sessionDetailNoSelection")}</p>
-                ) : (
-                  <div className="metric-grid">
-                    <Metric
-                      title={translate("sessionDetailPlanLabel")}
-                      value={selectedSession.planId}
-                    />
-                    <Metric
-                      title={translate("sessionDetailStartedLabel")}
-                      value={selectedSession.startedAt}
-                    />
-                    <Metric
-                      title={translate("sessionDetailEndedLabel")}
-                      value={selectedSession.endedAt}
-                    />
-                    <Metric
-                      title={translate("sessionDetailDurationLabel")}
-                      value={`${Math.max(
-                        0,
-                        Math.round(
-                          (Date.parse(selectedSession.endedAt) -
-                            Date.parse(selectedSession.startedAt)) /
-                            60000
-                        )
-                      )}m`}
-                    />
-                    <Metric
-                      title={translate("sessionDetailExerciseCountLabel")}
-                      value={String(selectedSession.exercises.length)}
-                    />
-                  </div>
-                )}
-              </div>
+              <SessionDetailPanel
+                screenId={sessionDetailScreenModel.screenId}
+                routeId={sessionDetailScreenModel.routeId}
+                statusId="web.sessionDetail.status"
+                title={translate("sessionDetailTitle")}
+                summary={translate("sessionDetailSummary")}
+                selectLabel={translate("sessionDetailSelectLabel")}
+                selectedKey={selectedSessionKey}
+                selectActionId={sessionDetailScreenModel.actions.selectSession}
+                onSelectKey={setSelectedSessionKey}
+                options={sessionDetailOptions}
+                clearLabel={translate("sessionDetailClearAction")}
+                clearActionId={sessionDetailScreenModel.actions.clearSelection}
+                onClear={handleClearSessionSelection}
+                openVideoLabel={translate("sessionDetailOpenVideoAction")}
+                openVideoActionId={sessionDetailScreenModel.actions.openExerciseVideo}
+                onOpenVideo={handleOpenSessionExerciseVideo}
+                openVideoDisabled={selectedSessionPrimaryExerciseId === null}
+                noSelectionLabel={translate("sessionDetailNoSelection")}
+                selectedSession={selectedSessionSummary}
+                planLabel={translate("sessionDetailPlanLabel")}
+                startedLabel={translate("sessionDetailStartedLabel")}
+                endedLabel={translate("sessionDetailEndedLabel")}
+                durationLabel={translate("sessionDetailDurationLabel")}
+                exerciseCountLabel={translate("sessionDetailExerciseCountLabel")}
+              />
               <div
                 className="history-list"
                 data-screen-id={exerciseLibraryScreenModel.screenId}
