@@ -92,13 +92,6 @@ public struct AuthWelcomeView: View {
       .padding(16)
       .frame(maxWidth: .infinity, alignment: .leading)
     }
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        Text(copy.text(.authenticationTitle))
-          .font(.headline.weight(.semibold))
-          .foregroundStyle(.white)
-      }
-    }
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
   }

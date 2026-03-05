@@ -113,10 +113,9 @@ public struct AuthEmailLoginView: View {
               .accessibilityIdentifier("auth.emailLogin.status")
           }
         }
-      }
-      .padding(16)
     }
-    .navigationTitle(copy.text(.signInWithEmail))
+    .padding(16)
+    }
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
   }

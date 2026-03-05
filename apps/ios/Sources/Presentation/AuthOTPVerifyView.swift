@@ -76,10 +76,9 @@ public struct AuthOTPVerifyView: View {
               .accessibilityIdentifier("auth.otp.status")
           }
         }
-      }
-      .padding(16)
     }
-    .navigationTitle(copy.text(.verifyOTPTitle))
+    .padding(16)
+    }
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
   }

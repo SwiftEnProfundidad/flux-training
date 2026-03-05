@@ -65,10 +65,9 @@ public struct AuthAppleHandoffView: View {
               .accessibilityIdentifier("auth.appleHandoff.status")
           }
         }
-      }
-      .padding(16)
     }
-    .navigationTitle(copy.text(.signInWithApple))
+    .padding(16)
+    }
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
   }

@@ -70,10 +70,9 @@ public struct AuthRecoverAccountView: View {
               .accessibilityIdentifier("auth.recover.status")
           }
         }
-      }
-      .padding(16)
     }
-    .navigationTitle(copy.text(.recoverAccountTitle))
+    .padding(16)
+    }
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
   }

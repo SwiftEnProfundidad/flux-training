@@ -55,10 +55,9 @@ public struct AuthSessionExpiredView: View {
               .accessibilityIdentifier("auth.sessionExpired.status")
           }
         }
-      }
-      .padding(16)
     }
-    .navigationTitle(copy.text(.sessionExpiredTitle))
+    .padding(16)
+    }
     .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .onAppear {
