@@ -23,49 +23,57 @@ public struct AICoachView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.recommendationsTitle)) {
-        Button(copy.text(.loadRecommendations)) {
-          Task { await loadAction() }
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("aiCoach.load")
-        .disabled(status == NutritionProgressAIScreenStatus.loading.rawValue)
-      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.recommendationsTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
 
-      Section(copy.text(.statusLabel)) {
-        Text(copy.humanStatus(status))
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("aiCoach.status")
-      }
-
-      if recommendations.isEmpty {
-        Section {
-          Text(copy.text(.noRecommendations))
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("aiCoach.empty")
-        }
-      } else {
-        Section(copy.text(.recommendationsTitle)) {
-          ForEach(recommendations, id: \.id) { recommendation in
-            VStack(alignment: .leading, spacing: 6) {
-              Text(recommendation.title)
-                .font(.headline)
-              Text(recommendation.rationale)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-              Text(recommendation.actionLabel)
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.orange)
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text("\(copy.text(.statusLabel)): \(copy.humanStatus(status))")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+              .accessibilityIdentifier("aiCoach.status")
+            Button(copy.text(.loadRecommendations)) {
+              Task { await loadAction() }
             }
-            .padding(.vertical, 4)
+            .buttonStyle(FluxPrimaryButtonStyle())
+            .accessibilityIdentifier("aiCoach.load")
+            .disabled(status == NutritionProgressAIScreenStatus.loading.rawValue)
+          }
+        }
+
+        if recommendations.isEmpty {
+          FluxCard {
+            Text(copy.text(.noRecommendations))
+              .foregroundStyle(.white.opacity(0.7))
+              .accessibilityIdentifier("aiCoach.empty")
+          }
+        } else {
+          FluxCard {
+            VStack(alignment: .leading, spacing: 12) {
+              ForEach(recommendations, id: \.id) { recommendation in
+                VStack(alignment: .leading, spacing: 6) {
+                  Text(recommendation.title)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                  Text(recommendation.rationale)
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.7))
+                  Text(recommendation.actionLabel)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.orange)
+                }
+              }
+            }
           }
         }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.recommendationsTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
   }
 }

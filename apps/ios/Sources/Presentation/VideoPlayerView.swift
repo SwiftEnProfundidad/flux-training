@@ -23,69 +23,85 @@ public struct VideoPlayerView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.videoPlayerTitle)) {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.videoPlayerTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
+
         Text(copy.text(.videoPlayerDescription))
           .font(.subheadline)
-          .foregroundStyle(.secondary)
-      }
+          .foregroundStyle(.white.opacity(0.74))
 
-      Section(copy.text(.exercisePicker)) {
-        Picker(copy.text(.exercisePicker), selection: $viewModel.selectedExerciseIDForVideos) {
-          Text("goblet-squat").tag("goblet-squat")
-          Text("bench-press").tag("bench-press")
-        }
-        .pickerStyle(.segmented)
-        .accessibilityIdentifier("training.videoPlayer.exercisePicker")
-      }
-
-      Section(copy.text(.localePicker)) {
-        Picker(copy.text(.localePicker), selection: $viewModel.videoLocale) {
-          Text("es-ES").tag("es-ES")
-          Text("en-US").tag("en-US")
-        }
-        .pickerStyle(.segmented)
-        .accessibilityIdentifier("training.videoPlayer.localePicker")
-      }
-
-      Section {
-        Button(copy.text(.loadVideos)) {
-          Task { await viewModel.loadVideoPlayer(userID: userID) }
-        }
-        .buttonStyle(.bordered)
-        .accessibilityIdentifier("training.videoPlayer.load")
-      }
-
-      Section(copy.text(.videoPlayerSelectionLabel)) {
-        if viewModel.exerciseVideos.isEmpty {
-          Text(copy.text(.noVideosLoaded))
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("training.videoPlayer.empty")
-        } else {
-          Picker(copy.text(.videoPlayerSelectionLabel), selection: $viewModel.selectedVideoID) {
-            ForEach(viewModel.exerciseVideos, id: \.id) { video in
-              Text(video.title).tag(video.id)
+        FluxCard {
+          VStack(alignment: .leading, spacing: 12) {
+            Text(copy.text(.exercisePicker))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            Picker(copy.text(.exercisePicker), selection: $viewModel.selectedExerciseIDForVideos) {
+              Text("goblet-squat").tag("goblet-squat")
+              Text("bench-press").tag("bench-press")
             }
-          }
-          .accessibilityIdentifier("training.videoPlayer.videoPicker")
+            .pickerStyle(.segmented)
+            .tint(.orange)
+            .accessibilityIdentifier("training.videoPlayer.exercisePicker")
 
-          if let selectedVideo = selectedVideo {
-            VStack(alignment: .leading, spacing: 4) {
-              Text(selectedVideo.title)
-                .font(.subheadline.bold())
-              Text("\(selectedVideo.coach) · \(selectedVideo.difficulty.rawValue) · \(selectedVideo.locale)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Text(copy.text(.localePicker))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            Picker(copy.text(.localePicker), selection: $viewModel.videoLocale) {
+              Text("es-ES").tag("es-ES")
+              Text("en-US").tag("en-US")
             }
-            .accessibilityIdentifier("training.videoPlayer.selected")
+            .pickerStyle(.segmented)
+            .tint(.orange)
+            .accessibilityIdentifier("training.videoPlayer.localePicker")
 
-            Link(copy.text(.openVideo), destination: selectedVideo.videoURL)
-              .accessibilityIdentifier("training.videoPlayer.open.\(selectedVideo.id)")
+            Button(copy.text(.loadVideos)) {
+              Task { await viewModel.loadVideoPlayer(userID: userID) }
+            }
+            .buttonStyle(FluxSecondaryButtonStyle())
+            .accessibilityIdentifier("training.videoPlayer.load")
           }
         }
-      }
 
-      Section {
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text(copy.text(.videoPlayerSelectionLabel))
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+            if viewModel.exerciseVideos.isEmpty {
+              Text(copy.text(.noVideosLoaded))
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier("training.videoPlayer.empty")
+            } else {
+              Picker(copy.text(.videoPlayerSelectionLabel), selection: $viewModel.selectedVideoID) {
+                ForEach(viewModel.exerciseVideos, id: \.id) { video in
+                  Text(video.title).tag(video.id)
+                }
+              }
+              .pickerStyle(.menu)
+              .tint(.orange)
+              .accessibilityIdentifier("training.videoPlayer.videoPicker")
+
+              if let selectedVideo = selectedVideo {
+                VStack(alignment: .leading, spacing: 4) {
+                  Text(selectedVideo.title)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.white)
+                  Text("\(selectedVideo.coach) · \(selectedVideo.difficulty.rawValue) · \(selectedVideo.locale)")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+                }
+                .accessibilityIdentifier("training.videoPlayer.selected")
+
+                Link(copy.text(.openVideo), destination: selectedVideo.videoURL)
+                  .accessibilityIdentifier("training.videoPlayer.open.\(selectedVideo.id)")
+              }
+            }
+          }
+        }
+
         Button(copy.text(.playSelectedVideoAction)) {
           Task {
             await viewModel.playSelectedVideo(userID: userID)
@@ -99,24 +115,29 @@ public struct VideoPlayerView: View {
             )
           }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
+        .buttonStyle(FluxPrimaryButtonStyle())
         .disabled(selectedVideo == nil)
         .accessibilityIdentifier("training.videoPlayer.play")
-      }
 
-      Section(copy.text(.videoPlayerStatusLabel)) {
-        Text("\(copy.text(.videoPlayerStatusLabel)): \(copy.humanStatus(viewModel.videoPlayerStatus))")
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("training.videoPlayer.status")
-        Text("\(copy.text(.videoStatusLabel)): \(copy.humanStatus(viewModel.videoStatus))")
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("training.videoPlayer.videoStatus")
+        FluxCard {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("\(copy.text(.videoPlayerStatusLabel)): \(copy.humanStatus(viewModel.videoPlayerStatus))")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+              .accessibilityIdentifier("training.videoPlayer.status")
+            Text("\(copy.text(.videoStatusLabel)): \(copy.humanStatus(viewModel.videoStatus))")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+              .accessibilityIdentifier("training.videoPlayer.videoStatus")
+          }
+        }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.videoPlayerTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
-    .task {
+    .task(id: userID) {
       await viewModel.loadVideoPlayer(userID: userID)
     }
     .sheet(item: $playbackSession) { session in
