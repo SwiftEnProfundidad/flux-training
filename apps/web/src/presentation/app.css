@@ -118,7 +118,38 @@ body {
 
 .hero-actions {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  align-content: start;
+}
+
+.hero-primary-action {
+  min-height: 46px;
+  font-size: 1.05rem;
+}
+
+.hero-auth-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.hero-auth-fields .button {
+  min-width: 172px;
+}
+
+.hero-recovery-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hero-status {
+  margin: 0;
+  color: var(--text-2);
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.25;
 }
 
 .language-toggle {
@@ -717,6 +748,14 @@ input::placeholder {
 
   .inline-inputs {
     flex-direction: column;
+  }
+
+  .hero-auth-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-auth-fields .button {
+    min-width: 100%;
   }
 
   .metric-grid {

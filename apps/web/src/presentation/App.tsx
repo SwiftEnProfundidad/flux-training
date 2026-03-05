@@ -3979,7 +3979,7 @@ export function App() {
             <p className="hero-copy">{translate("heroCopy")}</p>
             <div className="hero-actions">
               <button
-                className="button primary"
+                className="button primary hero-primary-action"
                 onClick={handleAppleSignIn}
                 type="button"
                 disabled={isAuthLoading}
@@ -3987,7 +3987,7 @@ export function App() {
               >
                 {translate("signInWithApple")}
               </button>
-              <div className="inline-inputs">
+              <div className="inline-inputs hero-auth-fields">
                 <input
                   aria-label={translate("emailPlaceholder")}
                   placeholder={translate("emailPlaceholder")}
@@ -4011,7 +4011,7 @@ export function App() {
                   {translate("signInWithEmail")}
                 </button>
               </div>
-              <div className="inline-inputs">
+              <div className="inline-inputs hero-recovery-actions">
                 <button
                   className="button ghost"
                   onClick={() => handleEmailRecovery("email")}
@@ -4031,7 +4031,7 @@ export function App() {
                   {translate("recoverBySMS")}
                 </button>
               </div>
-              <p className="hero-copy" data-status-id={signInScreenModel.statusId}>
+              <p className="hero-status" data-status-id={signInScreenModel.statusId}>
                 {resolveAuthHeroStatus({
                   authStatus,
                   hasAuthenticatedSession,
