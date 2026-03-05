@@ -5,15 +5,18 @@ public struct RPERatingLightView: View {
   private let viewModel: TrainingFlowViewModel
   private let userID: String
   private let copy: LocalizedCopy
+  private let onOpenSessionSummary: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
-    copy: LocalizedCopy
+    copy: LocalizedCopy,
+    onOpenSessionSummary: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
+    self.onOpenSessionSummary = onOpenSessionSummary
   }
 
   public var body: some View {
@@ -21,7 +24,8 @@ public struct RPERatingLightView: View {
       viewModel: viewModel,
       userID: userID,
       copy: copy,
-      screenAccessibilityID: TrainingRouteContract.rpeRatingLightScreenID
+      screenAccessibilityID: TrainingRouteContract.rpeRatingLightScreenID,
+      onOpenSessionSummary: onOpenSessionSummary
     )
     .preferredColorScheme(.light)
     .accessibilityIdentifier(TrainingRouteContract.rpeRatingLightScreenID)
