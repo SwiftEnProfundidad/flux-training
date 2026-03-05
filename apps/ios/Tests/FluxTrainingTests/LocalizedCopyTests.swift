@@ -7,6 +7,7 @@ final class LocalizedCopyTests: XCTestCase {
 
     XCTAssertEqual(copy.text(.heroTitle), "Entrena con foco y seguimiento real")
     XCTAssertEqual(copy.text(.trainingTitle), "Entrenamiento")
+    XCTAssertEqual(copy.text(.operationsNavigationTitle), "Ajustes")
     XCTAssertEqual(copy.text(.domainFilterLabel), "Dominio")
     XCTAssertEqual(copy.text(.domainOperations), "Operaciones")
     XCTAssertEqual(copy.text(.offlineSyncTitle), "Offline + Sync")
@@ -15,6 +16,10 @@ final class LocalizedCopyTests: XCTestCase {
     XCTAssertEqual(copy.text(.passwordField), "Contrasena")
     XCTAssertEqual(copy.text(.recoverByEmail), "Recuperar por email")
     XCTAssertEqual(copy.text(.recoverBySMS), "Recuperar por SMS")
+    XCTAssertEqual(copy.text(.authenticationTitle), "Acceso")
+    XCTAssertEqual(copy.text(.readinessLabel), "Preparacion")
+    XCTAssertEqual(copy.text(.applePermissionHealthKitRead), "Lectura de HealthKit")
+    XCTAssertEqual(copy.text(.applePermissionCalendarEvents), "Eventos del calendario")
     XCTAssertEqual(copy.text(.rememberMe), "recordarme")
     XCTAssertEqual(copy.text(.forgotPassword), "olvide mi contrasena")
     XCTAssertEqual(copy.text(.languageOptionSpanish), "ES")

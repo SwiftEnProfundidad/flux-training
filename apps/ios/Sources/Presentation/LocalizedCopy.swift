@@ -467,7 +467,7 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .progressNavigationTitle:
     return "Progreso"
   case .operationsNavigationTitle:
-    return "Operaciones"
+    return "Ajustes"
   case .overallStatusLabel:
     return "Estado general"
   case .languageLabel:
@@ -569,11 +569,11 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .incidentSummaryLabel:
     return "Resumen"
   case .readinessLabel:
-    return "Readiness"
+    return "Preparacion"
   case .dailyObjective:
     return "Objetivo diario: completar entrenamiento y nutricion sin acciones pendientes."
   case .authenticationTitle:
-    return "Autenticacion"
+    return "Acceso"
   case .signInEmailSubtitle:
     return "Accede con email y contrasena o usa proveedores seguros."
   case .authEmailHelpText:
@@ -585,9 +585,9 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .applePermissionNameEmail:
     return "Nombre y email"
   case .applePermissionHealthKitRead:
-    return "HealthKit read"
+    return "Lectura de HealthKit"
   case .applePermissionCalendarEvents:
-    return "Calendar events"
+    return "Eventos del calendario"
   case .applePermissionRequiredCount:
     return "3 de 3 permisos requeridos"
   case .appleUseEmailInstead:
