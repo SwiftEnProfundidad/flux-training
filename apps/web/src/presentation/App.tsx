@@ -1812,13 +1812,17 @@ export function App() {
 
   useEffect(() => {
     persistDomainPreference(activeDomain);
-    persistDomainQueryParam(activeDomain);
+    if (isQAMode) {
+      persistDomainQueryParam(activeDomain);
+    } else {
+      clearDomainQueryParam();
+    }
     if (isInitialDomainRender.current) {
       isInitialDomainRender.current = false;
       return;
     }
     void trackDomainChange(activeDomain);
-  }, [activeDomain]);
+  }, [activeDomain, isQAMode]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -7858,6 +7862,23 @@ function persistDomainQueryParam(domain: DashboardDomain): void {
   }
   const nextURL = applyDashboardDomainToURL(window.location.href, domain);
   if (nextURL !== window.location.href) {
+    window.history.replaceState(null, "", nextURL);
+  }
+}
+
+function clearDomainQueryParam(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("domain") === false) {
+    return;
+  }
+  url.searchParams.delete("domain");
+  const nextSearch = url.searchParams.toString();
+  const nextURL = `${url.pathname}${nextSearch.length > 0 ? `?${nextSearch}` : ""}${url.hash}`;
+  const currentURL = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (nextURL !== currentURL) {
     window.history.replaceState(null, "", nextURL);
   }
 }
