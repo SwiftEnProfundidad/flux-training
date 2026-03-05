@@ -160,4 +160,5 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 - Avance actual (auth UX): pantallas `welcome`, `email login`, `apple handoff`, `otp`, `recover` y `session expired` ya muestran feedback de estado no tecnico via `LocalizedCopy.authFeedback(...)` y botones bilingues sin hardcode.
 - Avance actual (auth flow): `welcome` queda como puerta de entrada y delega en pantallas dedicadas (`email login`, `apple handoff`) para completar autenticacion por pasos, manteniendo `recover`, `otp` y `session expired` como rutas separadas de producto.
 - Avance actual (auth email): `email login` ya usa recuperacion real por `email/SMS` en la propia pantalla y deja `apple handoff` como ruta secundaria explicita, alineado con flujo operativo esperado.
+- Avance actual (today/progress UI): `TrainingTodayView` y `ProgressMetricsView` migradas de `Form` tecnico a layout de producto (`ScrollView + FluxCard + CTAs`) para acercar jerarquia visual al board de Pencil.
 - Se considera cerrado solo lo que tenga evidencia de runtime y paridad visual, no solo contrato/test.

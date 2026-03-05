@@ -166,6 +166,7 @@
 - iOS Auth flow por pantallas: `welcome` deja de mezclar login completo y pasa a orquestar navegacion por pasos (`email login`, `apple handoff`, `recover`, `otp`, `session expired`) con retorno controlado a entrada principal.
 - iOS Auth Email alineado a flujo real: se reemplaza bloque de proveedores tecnicos por recuperacion operativa (`recover by email` / `recover by SMS`) con transicion de estado real hacia `recover`/`otp`.
 - Web modo producto depurado: cabecera sin metricas internas (`auth/queue/sync/runtime`) y tarjeta de shortcuts sin datos de rol/dominio/modulos ni accion de `recoverDomain` fuera de QA.
+- iOS Today/Progress depurado: `TrainingTodayView` y `ProgressMetricsView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA principal`) con copy/jerarquia visual de usuario final.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
