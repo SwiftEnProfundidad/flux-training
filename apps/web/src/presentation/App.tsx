@@ -83,6 +83,7 @@ import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { resolveAuthHeroStatus } from "./auth-feedback";
 import { HeroAuthPanel } from "./HeroAuthPanel";
+import { HeroStatusPanel } from "./HeroStatusPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -3948,6 +3949,14 @@ export function App() {
     ]);
   }
 
+  const heroAuthMetricValue = hasAuthenticatedSession
+    ? language === "es"
+      ? "activa"
+      : "active"
+    : language === "es"
+      ? "pendiente"
+      : "pending";
+
   return (
     <div className={`app-shell tone-${readiness.tone}`}>
       <div className="app-background app-background-left" />
@@ -3995,88 +4004,35 @@ export function App() {
               onEmailRecovery={handleEmailRecovery}
             />
           </div>
-          <div className="language-toggle">
-            <span>{translate("languageLabel")}</span>
-            <div className="language-toggle-buttons">
-              <button
-                className={`button ghost language-button ${language === "es" ? "active" : ""}`}
-                onClick={() => setLanguage("es")}
-                type="button"
-              >
-                ES
-              </button>
-              <button
-                className={`button ghost language-button ${language === "en" ? "active" : ""}`}
-                onClick={() => setLanguage("en")}
-                type="button"
-              >
-                EN
-              </button>
-            </div>
-            {showQATools ? (
-              <>
-                <span>{translate("laneLabel")}</span>
-                <div className="language-toggle-buttons">
-                  <button
-                    className={`button ghost language-button ${webLane === "main" ? "active" : ""}`}
-                    onClick={() => setWebLane("main")}
-                    type="button"
-                  >
-                    {translate("laneMain")}
-                  </button>
-                  <button
-                    className={`button ghost language-button ${webLane === "secondary" ? "active" : ""}`}
-                    onClick={() => setWebLane("secondary")}
-                    type="button"
-                  >
-                    {translate("laneSecondary")}
-                  </button>
-                </div>
-              </>
-            ) : null}
-          </div>
-          <div className="readiness-panel">
-            <p className="readiness-label">{translate("readinessLabel")}</p>
-            <p className="readiness-score">{readiness.score}%</p>
-            <p className="readiness-state">{readinessLabel(readiness.label, language)}</p>
-            <div className="readiness-progress" role="presentation">
-              <span style={{ width: `${readiness.score}%` }} />
-            </div>
-            <div className="hero-metrics">
-              {showQATools ? (
-                <>
-                  <Metric
-                    title={translate("authMetric")}
-                    value={
-                      hasAuthenticatedSession
-                        ? language === "es"
-                          ? "activa"
-                          : "active"
-                        : language === "es"
-                          ? "pendiente"
-                          : "pending"
-                    }
-                  />
-                  {hasAuthenticatedSession ? (
-                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
-                  ) : null}
-                  <Metric title={translate("goalMetric")} value={goalLabel(goal, language)} />
-                  {hasAuthenticatedSession ? (
-                    <Metric
-                      title={translate("syncMetric")}
-                      value={humanizeStatus(syncStatus, language)}
-                    />
-                  ) : null}
-                  <Metric
-                    title={translate("runtimeStateModeLabel")}
-                    value={toHumanStatus(runtimeStateForUI, language)}
-                  />
-                </>
-              ) : (
-                <Metric title={translate("goalMetric")} value={goalLabel(goal, language)} />
-              )}
-            </div>
-          </div>
+          <HeroStatusPanel
+            language={language}
+            showQATools={showQATools}
+            webLane={webLane}
+            readinessScore={readiness.score}
+            readinessStateLabel={readinessLabel(readiness.label, language)}
+            labels={{
+              language: translate("languageLabel"),
+              lane: translate("laneLabel"),
+              laneMain: translate("laneMain"),
+              laneSecondary: translate("laneSecondary"),
+              readiness: translate("readinessLabel"),
+              authMetric: translate("authMetric"),
+              queueMetric: translate("queueMetric"),
+              goalMetric: translate("goalMetric"),
+              syncMetric: translate("syncMetric"),
+              runtimeMetric: translate("runtimeStateModeLabel")
+            }}
+            values={{
+              goal: goalLabel(goal, language),
+              auth: heroAuthMetricValue,
+              queue: String(pendingQueueCount),
+              sync: humanizeStatus(syncStatus, language),
+              runtime: toHumanStatus(runtimeStateForUI, language)
+            }}
+            hasAuthenticatedSession={hasAuthenticatedSession}
+            onLanguageChange={setLanguage}
+            onWebLaneChange={setWebLane}
+          />
         </section>
 
         {releaseCompatibilityStatus === "upgrade_required" ? (
