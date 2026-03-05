@@ -20,6 +20,24 @@ function hasFirebaseWebConfig(): boolean {
   return apiKey.length > 0 && authDomain.length > 0 && projectId.length > 0;
 }
 
+export function isLocalDemoApiTarget(rawTarget: string): boolean {
+  const candidate = rawTarget.trim();
+  if (candidate.length === 0) {
+    return false;
+  }
+  try {
+    const url = new URL(candidate);
+    return url.hostname === "127.0.0.1" || url.hostname === "localhost";
+  } catch {
+    return false;
+  }
+}
+
+function shouldUseLocalDemoAuthFallback(): boolean {
+  const rawTarget = String(import.meta.env.VITE_API_TARGET ?? "");
+  return isLocalDemoApiTarget(rawTarget);
+}
+
 function getClientAuth(): Auth {
   if (cachedAuth !== null) {
     return cachedAuth;
@@ -58,6 +76,9 @@ async function createBackendSession(providerToken: string): Promise<AuthSession>
 class FirebaseAuthGateway implements AuthGateway {
   async signInWithApple(): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
+      if (shouldUseLocalDemoAuthFallback()) {
+        return createBackendSession("apple-local-dev-token");
+      }
       throw new Error("missing_firebase_web_config");
     }
 
@@ -70,6 +91,13 @@ class FirebaseAuthGateway implements AuthGateway {
 
   async signInWithEmail(email: string, password: string): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
+      if (shouldUseLocalDemoAuthFallback()) {
+        const fallbackToken = email.trim().toLowerCase();
+        if (fallbackToken.length === 0) {
+          throw new Error("missing_email_for_local_demo_auth");
+        }
+        return createBackendSession(fallbackToken);
+      }
       throw new Error("missing_firebase_web_config");
     }
 

@@ -70,14 +70,25 @@ public struct RemoteAuthGateway: AuthGateway {
     let providerToken = configuration.appleProviderToken
       .trimmingCharacters(in: .whitespacesAndNewlines)
     if providerToken.isEmpty || providerToken == "ios-apple-provider-token" {
+      if shouldUseLocalDemoAuthFallback(baseURL: configuration.baseURL) {
+        return try await createSession(providerToken: "ios-apple-local-dev-token")
+      }
       throw FluxBackendClientError.backend(code: "missing_apple_provider_token")
     }
     return try await createSession(providerToken: providerToken)
   }
 
   public func createSessionWithEmail(email: String, password: String) async throws -> AuthSession {
+    let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    if configuration.firebaseWebAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+       shouldUseLocalDemoAuthFallback(baseURL: configuration.baseURL) {
+      guard normalizedEmail.isEmpty == false else {
+        throw FluxBackendClientError.backend(code: "missing_email_for_local_demo_auth")
+      }
+      return try await createSession(providerToken: normalizedEmail)
+    }
     let providerToken = try await requestFirebaseEmailProviderToken(
-      email: email,
+      email: normalizedEmail,
       password: password
     )
     return try await createSession(providerToken: providerToken)
@@ -191,4 +202,11 @@ public struct RemoteAuthGateway: AuthGateway {
     }
     return payload.idToken
   }
+}
+
+func shouldUseLocalDemoAuthFallback(baseURL: URL) -> Bool {
+  guard let host = baseURL.host?.lowercased() else {
+    return false
+  }
+  return host == "127.0.0.1" || host == "localhost"
 }

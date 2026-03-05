@@ -36,3 +36,4 @@ Orquestar la entrega del MVP operativo real con tracking separado por plataforma
 - iOS: sin task en construccion (66/66 en ✅)
 - Web: `✅ 55/55 pantallas en operativo`
 - Siguiente global: `🚧 F5 Paridad final Pencil -> Codigo`
+- Avance F5 (runtime local funcional): autenticacion Web+iOS ahora permite fallback local controlado (solo `localhost/127.0.0.1`) para validar flujo E2E contra `backend:start:demo` sin bloqueo por credenciales Firebase/Apple ausentes.
