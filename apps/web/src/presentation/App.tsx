@@ -86,6 +86,7 @@ import { HeroAuthPanel } from "./HeroAuthPanel";
 import { HeroStatusPanel } from "./HeroStatusPanel";
 import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
+import { AccessGateCard } from "./AccessGateCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4113,47 +4114,23 @@ export function App() {
         >
           {hasAuthenticatedSession === false ? (
             isQAMode ? (
-            <article
-              className="module-card access-gate-card"
-              data-screen-id={accessGateScreenModel.screenId}
-              data-route-id={accessGateScreenModel.routeId}
-              data-status-id="web.accessGate.status"
-              aria-live="polite"
-            >
-              <SectionHeader
+              <AccessGateCard
+                screenId={accessGateScreenModel.screenId}
+                routeId={accessGateScreenModel.routeId}
                 title={translate("heroTitle")}
-                status={accessGateScreenModel.status}
-                statusLabel={translate("authMetric")}
-                language={language}
-                showStatus={false}
-              />
-              <div className="form-grid">
-                <p className="runtime-state-copy">{translate("heroCopy")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    onClick={handleAppleSignIn}
-                    type="button"
-                    data-action-id={accessGateAppleActionId}
-                  >
-                    {translate("signInWithApple")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleEmailSignIn}
-                    type="button"
-                    data-action-id={accessGateEmailActionId}
-                  >
-                    {translate("signInWithEmail")}
-                  </button>
-                </div>
-                <p className="empty-state">
-                  {language === "es"
+                summary={translate("heroCopy")}
+                hint={
+                  language === "es"
                     ? "Acceso requerido para cargar el dashboard operativo."
-                    : "Access required to load the operational dashboard."}
-                </p>
-              </div>
-            </article>
+                    : "Access required to load the operational dashboard."
+                }
+                signInWithAppleLabel={translate("signInWithApple")}
+                signInWithEmailLabel={translate("signInWithEmail")}
+                appleActionId={accessGateAppleActionId}
+                emailActionId={accessGateEmailActionId}
+                onAppleSignIn={handleAppleSignIn}
+                onEmailSignIn={handleEmailSignIn}
+              />
             ) : null
           ) : runtimeStateForUI !== "success" ? (
             <article className={`module-card runtime-state-banner state-${runtimeStateForUI}`}>
