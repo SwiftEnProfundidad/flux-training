@@ -91,6 +91,7 @@ import { RuntimeStateBannerCard } from "./RuntimeStateBannerCard";
 import { DashboardHomeCard } from "./DashboardHomeCard";
 import { QuickActionsCard } from "./QuickActionsCard";
 import { AlertCenterCard } from "./AlertCenterCard";
+import { SystemStatusCard } from "./SystemStatusCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4247,66 +4248,36 @@ export function App() {
                   summary: alert.summary
                 }))}
               />
-              <article
-                className="module-card"
-                data-screen-id={systemStatusScreenModel.screenId}
-                data-route-id={systemStatusScreenModel.routeId}
-                data-status-id={`${systemStatusScreenModel.screenId}.status`}
-              >
-                <SectionHeader
-                  title={translate("systemStatusTitle")}
-                  status={systemStatusScreenModel.status}
-                  statusLabel={translate("systemStatusStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("systemStatusSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("systemStatusRuntimeLabel")}
-                      value={toHumanStatus(activeDomainRuntimeState, language)}
-                    />
-                    <Metric
-                      title={translate("systemStatusReleaseLabel")}
-                      value={toHumanStatus(releaseCompatibilityStatus, language)}
-                    />
-                    <Metric
-                      title={translate("systemStatusRoleMatrixLabel")}
-                      value={toHumanStatus(roleCapabilitiesStatus, language)}
-                    />
-                    <Metric
-                      title={translate("systemStatusQueueLabel")}
-                      value={String(pendingQueueCount)}
-                    />
-                  </div>
-                  <div className="inline-inputs">
-                    <button
-                      className="button primary"
-                      type="button"
-                      data-action-id={systemStatusScreenModel.actions.syncQueue}
-                      onClick={() => void handleSyncOfflineQueue()}
-                    >
-                      {translate("syncQueue")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={systemStatusScreenModel.actions.recoverDomain}
-                      onClick={() => void recoverActiveDomainState()}
-                    >
-                      {translate("runtimeStateRecoveryAction")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={systemStatusScreenModel.actions.reloadCapabilities}
-                      onClick={handleReloadRoleCapabilitiesMatrix}
-                    >
-                      {translate("retryRoleCapabilities")}
-                    </button>
-                  </div>
-                </div>
-              </article>
+              <SystemStatusCard
+                screenId={systemStatusScreenModel.screenId}
+                routeId={systemStatusScreenModel.routeId}
+                title={translate("systemStatusTitle")}
+                statusLabel={translate("systemStatusStatusLabel")}
+                statusValue={toHumanStatus(systemStatusScreenModel.status, language)}
+                statusClass={toStatusClass(systemStatusScreenModel.status)}
+                summary={translate("systemStatusSummary")}
+                runtimeLabel={translate("systemStatusRuntimeLabel")}
+                runtimeValue={toHumanStatus(activeDomainRuntimeState, language)}
+                releaseLabel={translate("systemStatusReleaseLabel")}
+                releaseValue={toHumanStatus(releaseCompatibilityStatus, language)}
+                roleMatrixLabel={translate("systemStatusRoleMatrixLabel")}
+                roleMatrixValue={toHumanStatus(roleCapabilitiesStatus, language)}
+                queueLabel={translate("systemStatusQueueLabel")}
+                queueValue={String(pendingQueueCount)}
+                syncQueueActionId={systemStatusScreenModel.actions.syncQueue}
+                syncQueueLabel={translate("syncQueue")}
+                onSyncQueue={() => {
+                  void handleSyncOfflineQueue();
+                }}
+                recoverDomainActionId={systemStatusScreenModel.actions.recoverDomain}
+                recoverDomainLabel={translate("runtimeStateRecoveryAction")}
+                onRecoverDomain={() => {
+                  void recoverActiveDomainState();
+                }}
+                reloadCapabilitiesActionId={systemStatusScreenModel.actions.reloadCapabilities}
+                reloadCapabilitiesLabel={translate("retryRoleCapabilities")}
+                onReloadCapabilities={handleReloadRoleCapabilitiesMatrix}
+              />
               <article
                 className="module-card"
                 data-screen-id={dashboardKpisScreenModel.screenId}
