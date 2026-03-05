@@ -21,71 +21,88 @@ public struct ExerciseSubstitutionView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.substitutionTitle)) {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.substitutionTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
+
         Text(copy.text(.substitutionDescription))
           .font(.subheadline)
-          .foregroundStyle(.secondary)
-      }
+          .foregroundStyle(.white.opacity(0.74))
 
-      Section(copy.text(.currentExerciseLabel)) {
-        Picker(copy.text(.currentExerciseLabel), selection: $viewModel.selectedExerciseIDForVideos) {
-          Text("goblet-squat").tag("goblet-squat")
-          Text("bench-press").tag("bench-press")
-        }
-        .pickerStyle(.segmented)
-        .accessibilityIdentifier("training.substitution.currentExercise")
-      }
+        FluxCard {
+          VStack(alignment: .leading, spacing: 12) {
+            Text(copy.text(.currentExerciseLabel))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            Picker(copy.text(.currentExerciseLabel), selection: $viewModel.selectedExerciseIDForVideos) {
+              Text("goblet-squat").tag("goblet-squat")
+              Text("bench-press").tag("bench-press")
+            }
+            .pickerStyle(.segmented)
+            .tint(.orange)
+            .accessibilityIdentifier("training.substitution.currentExercise")
 
-      Section(copy.text(.substituteExerciseLabel)) {
-        Picker(copy.text(.substituteExerciseLabel), selection: $viewModel.selectedSubstituteExerciseID) {
-          Text("goblet-squat").tag("goblet-squat")
-          Text("bench-press").tag("bench-press")
-        }
-        .pickerStyle(.segmented)
-        .accessibilityIdentifier("training.substitution.substituteExercise")
-      }
+            Text(copy.text(.substituteExerciseLabel))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            Picker(copy.text(.substituteExerciseLabel), selection: $viewModel.selectedSubstituteExerciseID) {
+              Text("goblet-squat").tag("goblet-squat")
+              Text("bench-press").tag("bench-press")
+            }
+            .pickerStyle(.segmented)
+            .tint(.orange)
+            .accessibilityIdentifier("training.substitution.substituteExercise")
 
-      Section(copy.text(.localePicker)) {
-        Picker(copy.text(.localePicker), selection: $viewModel.videoLocale) {
-          Text("es-ES").tag("es-ES")
-          Text("en-US").tag("en-US")
-        }
-        .pickerStyle(.segmented)
-        .accessibilityIdentifier("training.substitution.localePicker")
-      }
+            Text(copy.text(.localePicker))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            Picker(copy.text(.localePicker), selection: $viewModel.videoLocale) {
+              Text("es-ES").tag("es-ES")
+              Text("en-US").tag("en-US")
+            }
+            .pickerStyle(.segmented)
+            .tint(.orange)
+            .accessibilityIdentifier("training.substitution.localePicker")
 
-      Section {
-        Button(copy.text(.applySubstitutionAction)) {
-          Task { await viewModel.applyExerciseSubstitution(userID: userID) }
+            Button(copy.text(.applySubstitutionAction)) {
+              Task { await viewModel.applyExerciseSubstitution(userID: userID) }
+            }
+            .buttonStyle(FluxPrimaryButtonStyle())
+            .accessibilityIdentifier("training.substitution.apply")
+          }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("training.substitution.apply")
-      }
 
-      Section(copy.text(.substitutionStatusLabel)) {
-        Text("\(copy.text(.substitutionStatusLabel)): \(copy.humanStatus(viewModel.substitutionStatus))")
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("training.substitution.status")
-        Text("\(copy.text(.videoStatusLabel)): \(copy.humanStatus(viewModel.videoStatus))")
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("training.substitution.videoStatus")
-        if viewModel.substitutionStatus == "saved" {
-          Text(copy.text(.substitutionSavedMessage))
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("training.substitution.saved")
-        }
-        if viewModel.substitutionStatus == "validation_error" {
-          Text(copy.text(.substitutionInvalidSelection))
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("training.substitution.validationError")
+        FluxCard {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("\(copy.text(.substitutionStatusLabel)): \(copy.humanStatus(viewModel.substitutionStatus))")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+              .accessibilityIdentifier("training.substitution.status")
+            Text("\(copy.text(.videoStatusLabel)): \(copy.humanStatus(viewModel.videoStatus))")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+              .accessibilityIdentifier("training.substitution.videoStatus")
+            if viewModel.substitutionStatus == "saved" {
+              Text(copy.text(.substitutionSavedMessage))
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier("training.substitution.saved")
+            }
+            if viewModel.substitutionStatus == "validation_error" {
+              Text(copy.text(.substitutionInvalidSelection))
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier("training.substitution.validationError")
+            }
+          }
         }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.substitutionTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
-    .task {
+    .task(id: userID) {
       await viewModel.prepareInWorkoutSetup(userID: userID)
     }
   }

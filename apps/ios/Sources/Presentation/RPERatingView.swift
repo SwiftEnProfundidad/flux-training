@@ -21,67 +21,82 @@ public struct RPERatingView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.rpeRatingTitle)) {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.rpeRatingTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
+
         Text(copy.text(.rpeRatingDescription))
           .font(.subheadline)
-          .foregroundStyle(.secondary)
-      }
+          .foregroundStyle(.white.opacity(0.74))
 
-      Section(copy.text(.planName)) {
-        if viewModel.plans.isEmpty {
-          Text(copy.text(.noPlansYet))
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("training.rpe.noPlans")
-        } else {
-          Picker(copy.text(.planName), selection: $viewModel.selectedPlanID) {
-            ForEach(viewModel.plans, id: \.id) { plan in
-              Text(plan.name).tag(plan.id)
+        FluxCard {
+          VStack(alignment: .leading, spacing: 12) {
+            Text(copy.text(.planName))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            if viewModel.plans.isEmpty {
+              Text(copy.text(.noPlansYet))
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier("training.rpe.noPlans")
+            } else {
+              Picker(copy.text(.planName), selection: $viewModel.selectedPlanID) {
+                ForEach(viewModel.plans, id: \.id) { plan in
+                  Text(plan.name).tag(plan.id)
+                }
+              }
+              .pickerStyle(.menu)
+              .tint(.orange)
+              .accessibilityIdentifier("training.rpe.planPicker")
+            }
+
+            Text(copy.text(.exercisePicker))
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            Picker(copy.text(.exercisePicker), selection: $viewModel.selectedExerciseIDForVideos) {
+              Text("goblet-squat").tag("goblet-squat")
+              Text("bench-press").tag("bench-press")
+            }
+            .pickerStyle(.segmented)
+            .tint(.orange)
+            .accessibilityIdentifier("training.rpe.exercisePicker")
+
+            Stepper(value: $viewModel.selectedRPE, in: 1...10) {
+              Text("\(copy.text(.selectedRPELabel)): \(viewModel.selectedRPE)")
+                .foregroundStyle(.white)
+            }
+            .tint(.orange)
+            .accessibilityIdentifier("training.rpe.value")
+
+            Button(copy.text(.submitRPEAction)) {
+              Task { await viewModel.submitRPERating(userID: userID) }
+            }
+            .buttonStyle(FluxPrimaryButtonStyle())
+            .accessibilityIdentifier("training.rpe.submit")
+          }
+        }
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("\(copy.text(.sessionStatusLabel)): \(copy.humanStatus(viewModel.sessionStatus))")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+              .accessibilityIdentifier("training.rpe.sessionStatus")
+            if viewModel.status == "saved" {
+              Text(copy.text(.rpeSavedMessage))
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier("training.rpe.saved")
             }
           }
-          .accessibilityIdentifier("training.rpe.planPicker")
-        }
-      }
-
-      Section(copy.text(.exercisePicker)) {
-        Picker(copy.text(.exercisePicker), selection: $viewModel.selectedExerciseIDForVideos) {
-          Text("goblet-squat").tag("goblet-squat")
-          Text("bench-press").tag("bench-press")
-        }
-        .pickerStyle(.segmented)
-        .accessibilityIdentifier("training.rpe.exercisePicker")
-      }
-
-      Section(copy.text(.selectedRPELabel)) {
-        Stepper(value: $viewModel.selectedRPE, in: 1...10) {
-          Text("\(copy.text(.selectedRPELabel)): \(viewModel.selectedRPE)")
-        }
-        .accessibilityIdentifier("training.rpe.value")
-      }
-
-      Section {
-        Button(copy.text(.submitRPEAction)) {
-          Task { await viewModel.submitRPERating(userID: userID) }
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("training.rpe.submit")
-      }
-
-      Section(copy.text(.rpeRatingTitle)) {
-        Text("\(copy.text(.sessionStatusLabel)): \(copy.humanStatus(viewModel.sessionStatus))")
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("training.rpe.sessionStatus")
-        if viewModel.status == "saved" {
-          Text(copy.text(.rpeSavedMessage))
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("training.rpe.saved")
         }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.rpeRatingTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
-    .task {
+    .task(id: userID) {
       await viewModel.prepareInWorkoutSetup(userID: userID)
     }
   }

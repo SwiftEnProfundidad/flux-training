@@ -21,56 +21,76 @@ public struct PlanActiveView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.planName)) {
-        TextField(copy.text(.planName), text: $viewModel.planName)
-          .accessibilityIdentifier("training.planActive.planName")
-        Button(copy.text(.createPlan)) {
-          Task { await viewModel.createStarterPlan(userID: userID) }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.trainingTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
+
+        Text(copy.text(.planName))
+          .font(.subheadline.weight(.medium))
+          .foregroundStyle(.white.opacity(0.74))
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 12) {
+            TextField(copy.text(.planName), text: $viewModel.planName)
+              .fluxInputFieldStyle()
+              .accessibilityIdentifier("training.planActive.planName")
+
+            Button(copy.text(.createPlan)) {
+              Task { await viewModel.createStarterPlan(userID: userID) }
+            }
+            .buttonStyle(FluxPrimaryButtonStyle())
+            .accessibilityIdentifier("training.planActive.createPlan")
+
+            Text("\(copy.text(.statusLabel)): \(copy.humanStatus(viewModel.status))")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+              .accessibilityIdentifier("training.planActive.status")
+          }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("training.planActive.createPlan")
-      }
 
-      Section(copy.text(.statusLabel)) {
-        Text(copy.humanStatus(viewModel.status))
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("training.planActive.status")
-      }
-
-      Section(copy.text(.plansLoadedLabel)) {
-        if viewModel.plans.isEmpty {
-          Text(copy.text(.noPlansYet))
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("training.planActive.empty")
-        } else {
-          ForEach(viewModel.plans, id: \.id) { plan in
-            Button {
-              viewModel.selectedPlanID = plan.id
-            } label: {
-              HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                  Text(plan.name)
-                    .font(.body.weight(.semibold))
-                  Text("\(plan.weeks)w")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text(copy.text(.plansLoadedLabel))
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+            if viewModel.plans.isEmpty {
+              Text(copy.text(.noPlansYet))
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier("training.planActive.empty")
+            } else {
+              ForEach(viewModel.plans, id: \.id) { plan in
+                Button {
+                  viewModel.selectedPlanID = plan.id
+                } label: {
+                  HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                      Text(plan.name)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                      Text("\(plan.weeks)w")
+                        .font(.footnote)
+                        .foregroundStyle(.white.opacity(0.65))
+                    }
+                    Spacer()
+                    if viewModel.selectedPlanID == plan.id {
+                      Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.orange)
+                    }
+                  }
                 }
-                Spacer()
-                if viewModel.selectedPlanID == plan.id {
-                  Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.orange)
-                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("training.planActive.plan.\(plan.id)")
               }
             }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("training.planActive.plan.\(plan.id)")
           }
         }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.trainingTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .task(id: userID) {
       await viewModel.refreshDashboard(userID: userID)
