@@ -1,13 +1,4 @@
-import {
-  memo,
-  type FormEvent,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
+import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   AccessRole,
   ActivityLogEntry,
@@ -91,6 +82,7 @@ import { createAlertsFullLaneScreenModel } from "./alerts-full-lane-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { resolveAuthHeroStatus } from "./auth-feedback";
+import { HeroAuthPanel } from "./HeroAuthPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -2222,11 +2214,6 @@ export function App() {
     }
   }
 
-  function handleEmailSignInSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    void handleEmailSignIn();
-  }
-
   function handleEmailRecovery(channel: "email" | "sms") {
     if (!hasValidEmail(email)) {
       setAuthStatus("validation_error");
@@ -3977,70 +3964,36 @@ export function App() {
             <p className="eyebrow">{translate("appName")}</p>
             <h1>{translate("heroTitle")}</h1>
             <p className="hero-copy">{translate("heroCopy")}</p>
-            <div className="hero-actions">
-              <button
-                className="button primary hero-primary-action"
-                onClick={handleAppleSignIn}
-                type="button"
-                disabled={isAuthLoading}
-                data-action-id={signInScreenModel.actions.apple}
-              >
-                {translate("signInWithApple")}
-              </button>
-              <form className="inline-inputs hero-auth-fields" onSubmit={handleEmailSignInSubmit}>
-                <input
-                  aria-label={translate("emailPlaceholder")}
-                  placeholder={translate("emailPlaceholder")}
-                  value={email}
-                  type="email"
-                  autoComplete="email"
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-                <input
-                  aria-label={translate("passwordPlaceholder")}
-                  placeholder={translate("passwordPlaceholder")}
-                  value={password}
-                  type="password"
-                  autoComplete="current-password"
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-                <button
-                  className="button ghost"
-                  type="submit"
-                  disabled={isAuthLoading}
-                  data-action-id={signInScreenModel.actions.email}
-                >
-                  {translate("signInWithEmail")}
-                </button>
-              </form>
-              <div className="inline-inputs hero-recovery-actions">
-                <button
-                  className="button ghost"
-                  onClick={() => handleEmailRecovery("email")}
-                  type="button"
-                  disabled={isAuthLoading}
-                  data-action-id={signInScreenModel.actions.recoverEmail}
-                >
-                  {translate("recoverByEmail")}
-                </button>
-                <button
-                  className="button ghost"
-                  onClick={() => handleEmailRecovery("sms")}
-                  type="button"
-                  disabled={isAuthLoading}
-                  data-action-id={signInScreenModel.actions.recoverSMS}
-                >
-                  {translate("recoverBySMS")}
-                </button>
-              </div>
-              <p className="hero-status" data-status-id={signInScreenModel.statusId}>
-                {resolveAuthHeroStatus({
-                  authStatus,
-                  hasAuthenticatedSession,
-                  language
-                })}
-              </p>
-            </div>
+            <HeroAuthPanel
+              isAuthLoading={isAuthLoading}
+              email={email}
+              password={password}
+              emailPlaceholder={translate("emailPlaceholder")}
+              passwordPlaceholder={translate("passwordPlaceholder")}
+              signInWithAppleLabel={translate("signInWithApple")}
+              signInWithEmailLabel={translate("signInWithEmail")}
+              recoverByEmailLabel={translate("recoverByEmail")}
+              recoverBySMSLabel={translate("recoverBySMS")}
+              authStatusLabel={resolveAuthHeroStatus({
+                authStatus,
+                hasAuthenticatedSession,
+                language
+              })}
+              actionIds={{
+                apple: signInScreenModel.actions.apple,
+                email: signInScreenModel.actions.email,
+                recoverEmail: signInScreenModel.actions.recoverEmail,
+                recoverSMS: signInScreenModel.actions.recoverSMS,
+                status: signInScreenModel.statusId
+              }}
+              onAppleSignIn={handleAppleSignIn}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              onEmailSignIn={() => {
+                void handleEmailSignIn();
+              }}
+              onEmailRecovery={handleEmailRecovery}
+            />
           </div>
           <div className="language-toggle">
             <span>{translate("languageLabel")}</span>
