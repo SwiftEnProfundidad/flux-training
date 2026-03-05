@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "change_id": "pumuki-bugs-mejoras-log",
+  "stage": "PRE_COMMIT",
+  "task": null,
+  "generated_at": "2026-03-05T07:17:26.142Z",
+  "failed_patterns": [
+    "ai-gate.blocked",
+    "sdd.blocked.SDD_VALIDATION_EMPTY_SCOPE"
+  ],
+  "successful_patterns": [
+    "sync-docs.completed",
+    "sync-docs.no_changes"
+  ],
+  "rule_updates": [
+    "ai-gate.unblock.required",
+    "ai-gate.violation.SDD_VALIDATION_EMPTY_SCOPE.review",
+    "sdd.SDD_VALIDATION_EMPTY_SCOPE.remediate",
+    "snapshot.outcome.review"
+  ],
+  "gate_anomalies": [
+    "ai-gate.violation.SDD_VALIDATION_EMPTY_SCOPE",
+    "snapshot.outcome.block"
+  ],
+  "scoring": {
+    "profile": "heuristic-v1",
+    "score": 18,
+    "successful_count": 2,
+    "failed_count": 2,
+    "anomaly_count": 2,
+    "rule_update_count": 4
+  },
+  "sync_docs": {
+    "updated": false,
+    "file_paths": [
+      "docs/technical/08-validation/refactor/pumuki-integration-feedback.md"
+    ]
+  }
+}
