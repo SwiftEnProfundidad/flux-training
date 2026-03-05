@@ -6,6 +6,9 @@ describe("i18n", () => {
     const translate = createTranslator("es");
     expect(translate("heroTitle")).toBe("Entrena con foco y seguimiento real");
     expect(translate("trainingSectionTitle")).toBe("Entrenamiento");
+    expect(translate("offlineSyncTitle")).toBe("Sin conexión + Sincronización");
+    expect(translate("syncStatusLabel")).toBe("Sincronización");
+    expect(translate("rejectedLastSyncLabel")).toBe("Rechazadas en última sincronización");
   });
 
   it("supports english language", () => {

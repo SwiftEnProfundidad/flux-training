@@ -197,6 +197,7 @@
 - Guard rail web sin sesion (v2): el selector de `lane` (`main/secondary`) tambien queda oculto hasta autenticar sesion para no exponer controles internos de QA en la cabecera.
 - Limpieza de microcopy en artefacto Pencil (`flux.pen`): se sustituyo placeholder tecnico no util (`... [:::]`) en barras de estado iOS por copy neutral de producto (`wifi 100%`) para evitar ruido visual y confusiones.
 - Limpieza adicional de copy tecnico en `flux.pen`: se reemplazo `Reintentar sync / Retry sync` por `Reintentar sincronización / Retry sync` y se ajusto `Auth` a `Acceso` en secciones/flows para mantener lenguaje orientado a usuario.
+- Microcopy producto alineado iOS+Web: etiquetas tecnicas `Offline + Sync` y `ultimo sync` en español pasan a `Sin conexión + Sincronización` y `Rechazadas en última sincronización`, con tests de regresion.
 - Evidencia runtime web local (2026-03-05): en `localhost:5173` se valido login por email y operacion viva (crear plan, registrar sesion, cargar sesiones y detalle de sesion) contra `127.0.0.1:8787`.
 - Evidencia gate final (2026-03-05): `pnpm release:check` completado en verde (check + test workspace + critical suites + `swift test` completo).
 

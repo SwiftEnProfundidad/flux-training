@@ -531,7 +531,7 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .runtimeStateDeniedDescription:
     return "Permiso denegado para este dominio segun rol activo."
   case .offlineSyncTitle:
-    return "Offline + Sync"
+    return "Sin conexión + Sincronización"
   case .syncQueue:
     return "Sincronizar cola"
   case .refreshQueue:
@@ -539,7 +539,7 @@ private func spanishCopy(for key: CopyKey) -> String {
   case .pendingActionsLabel:
     return "Acciones pendientes"
   case .rejectedLastSyncLabel:
-    return "Rechazadas en ultimo sync"
+    return "Rechazadas en última sincronización"
   case .idempotencyKeyLabel:
     return "Clave idempotencia"
   case .idempotencyReplayLabel:
