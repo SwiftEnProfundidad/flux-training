@@ -21,36 +21,66 @@ public struct DeleteAccountView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.deleteAccountTitle)) {
-        TextField(copy.text(.deleteAccountReasonLabel), text: $viewModel.reason)
-          .accessibilityIdentifier("delete.reason")
-        LabeledContent(copy.text(.deleteAccountLatestRequestLabel), value: viewModel.latestRequestAtISO8601)
-          .accessibilityIdentifier("delete.latestRequestAt")
-      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.deleteAccountTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
 
-      Section {
-        Button(copy.text(.requestDeletion)) {
-          Task {
-            await viewModel.requestDeletion(userID: userID)
+        Text(copy.text(.deleteAccountStatusLabel))
+          .font(.subheadline.weight(.medium))
+          .foregroundStyle(.white.opacity(0.74))
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 12) {
+            fieldLabel(copy.text(.deleteAccountReasonLabel))
+            TextField(copy.text(.deleteAccountReasonLabel), text: $viewModel.reason)
+              .fluxInputFieldStyle()
+              .accessibilityIdentifier("delete.reason")
+            metricRow(copy.text(.deleteAccountLatestRequestLabel), viewModel.latestRequestAtISO8601)
+              .accessibilityIdentifier("delete.latestRequestAt")
           }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("delete.request")
-      }
 
-      Section(copy.text(.deleteAccountStatusLabel)) {
-        Text(copy.humanStatus(viewModel.status))
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("delete.status")
+        Button(copy.text(.requestDeletion)) {
+          Task { await viewModel.requestDeletion(userID: userID) }
+        }
+        .buttonStyle(FluxPrimaryButtonStyle())
+        .accessibilityIdentifier("delete.request")
+
+        FluxCard {
+          Text("\(copy.text(.deleteAccountStatusLabel)): \(copy.humanStatus(viewModel.status))")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.82))
+            .accessibilityIdentifier("delete.status")
+        }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.deleteAccountTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .task(id: userID) {
       await viewModel.refresh(userID: userID)
+    }
+  }
+
+  @ViewBuilder
+  private func fieldLabel(_ title: String) -> some View {
+    Text(title)
+      .font(.caption.weight(.semibold))
+      .foregroundStyle(.white.opacity(0.8))
+  }
+
+  @ViewBuilder
+  private func metricRow(_ title: String, _ value: String) -> some View {
+    HStack(alignment: .firstTextBaseline) {
+      Text(title)
+        .foregroundStyle(.white.opacity(0.7))
+      Spacer(minLength: 12)
+      Text(value)
+        .font(.body.weight(.semibold))
+        .foregroundStyle(.white)
     }
   }
 }

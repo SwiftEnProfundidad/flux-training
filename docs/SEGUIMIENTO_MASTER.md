@@ -170,6 +170,7 @@
 - iOS Nutricion depurado: `NutritionHubView` y `NutritionLogMealView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + campos/CTA`) con estado y carga de registros visibles para usuario final.
 - iOS Ajustes depurado: `SettingsHomeView` deja de renderizar `Form` de testing y pasa a composicion de producto (`ScrollView + cards de modulos + ajustes + CTA`) manteniendo rutas de perfil/notificaciones/legal/export/borrado.
 - iOS Ajustes detalle depurado: `AccountProfileView`, `NotificationsView` y `PrivacyConsentView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA`) con persistencia, estado legal y acciones reales.
+- iOS Ajustes export/delete depurado: `ExportDataView` y `DeleteAccountView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA`) manteniendo preview de payload y solicitud de borrado con estado real.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

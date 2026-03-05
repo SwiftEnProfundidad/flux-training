@@ -21,52 +21,79 @@ public struct ExportDataView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.exportDataTitle)) {
-        LabeledContent(copy.text(.exportGeneratedAtLabel), value: viewModel.generatedAtISO8601)
-          .accessibilityIdentifier("export.generatedAt")
-        LabeledContent(copy.text(.exportPayloadBytesLabel), value: "\(viewModel.payloadBytes)")
-          .accessibilityIdentifier("export.payloadBytes")
-      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.exportDataTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
 
-      Section {
-        Button(copy.text(.exportData)) {
-          Task {
-            await viewModel.export(userID: userID)
+        Text(copy.text(.exportStatusLabel))
+          .font(.subheadline.weight(.medium))
+          .foregroundStyle(.white.opacity(0.74))
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            metricRow(copy.text(.exportGeneratedAtLabel), viewModel.generatedAtISO8601)
+              .accessibilityIdentifier("export.generatedAt")
+            metricRow(copy.text(.exportPayloadBytesLabel), "\(viewModel.payloadBytes)")
+              .accessibilityIdentifier("export.payloadBytes")
           }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
+
+        Button(copy.text(.exportData)) {
+          Task { await viewModel.export(userID: userID) }
+        }
+        .buttonStyle(FluxPrimaryButtonStyle())
         .accessibilityIdentifier("export.action")
-      }
 
-      Section(copy.text(.exportStatusLabel)) {
-        Text(copy.humanStatus(viewModel.status))
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("export.status")
-      }
+        FluxCard {
+          Text("\(copy.text(.exportStatusLabel)): \(copy.humanStatus(viewModel.status))")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.82))
+            .accessibilityIdentifier("export.status")
+        }
 
-      Section(copy.text(.exportPayloadPreviewLabel)) {
-        if viewModel.payloadPreview.isEmpty {
-          Text(copy.text(.exportNoPayloadPreview))
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .accessibilityIdentifier("export.preview.empty")
-        } else {
-          ScrollView(.horizontal) {
-            Text(viewModel.payloadPreview)
-              .font(.system(.footnote, design: .monospaced))
-              .textSelection(.enabled)
-              .accessibilityIdentifier("export.preview.value")
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text(copy.text(.exportPayloadPreviewLabel))
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.82))
+            if viewModel.payloadPreview.isEmpty {
+              Text(copy.text(.exportNoPayloadPreview))
+                .font(.footnote)
+                .foregroundStyle(.white.opacity(0.7))
+                .accessibilityIdentifier("export.preview.empty")
+            } else {
+              ScrollView(.horizontal) {
+                Text(viewModel.payloadPreview)
+                  .font(.system(.footnote, design: .monospaced))
+                  .foregroundStyle(.white.opacity(0.88))
+                  .textSelection(.enabled)
+                  .accessibilityIdentifier("export.preview.value")
+              }
+            }
           }
         }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.exportDataTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .task(id: userID) {
       await viewModel.refresh(userID: userID)
+    }
+  }
+
+  @ViewBuilder
+  private func metricRow(_ title: String, _ value: String) -> some View {
+    HStack(alignment: .firstTextBaseline) {
+      Text(title)
+        .foregroundStyle(.white.opacity(0.7))
+      Spacer(minLength: 12)
+      Text(value)
+        .font(.body.weight(.semibold))
+        .foregroundStyle(.white)
     }
   }
 }

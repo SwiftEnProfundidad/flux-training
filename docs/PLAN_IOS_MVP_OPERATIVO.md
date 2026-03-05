@@ -164,4 +164,5 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 - Avance actual (nutrition UI): `NutritionHubView` y `NutritionLogMealView` migradas de `Form` tecnico a layout de producto (`ScrollView + FluxCard + campos/CTAs`) con jerarquia visual alineada al flujo de Nutricion del board de Pencil.
 - Avance actual (settings UI): `SettingsHomeView` migro de `Form` tecnico a layout de producto (`ScrollView + cards por modulo + ajustes + CTA`) manteniendo rutas y accesibilidad de perfil/notificaciones/legal/export/borrado.
 - Avance actual (settings detail UI): `AccountProfileView`, `NotificationsView` y `PrivacyConsentView` migraron de `Form` tecnico a layout de producto (`ScrollView + cards + CTA`) manteniendo rutas, estados y acciones legales.
+- Avance actual (settings export/delete UI): `ExportDataView` y `DeleteAccountView` migraron de `Form` tecnico a layout de producto (`ScrollView + cards + CTA`) manteniendo preview de export y solicitud de borrado con estado real.
 - Se considera cerrado solo lo que tenga evidencia de runtime y paridad visual, no solo contrato/test.
