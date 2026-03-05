@@ -4085,34 +4085,38 @@ export function App() {
               <span style={{ width: `${readiness.score}%` }} />
             </div>
             <div className="hero-metrics">
-              <Metric
-                title={translate("authMetric")}
-                value={
-                  hasAuthenticatedSession
-                    ? language === "es"
-                      ? "activa"
-                      : "active"
-                    : language === "es"
-                      ? "pendiente"
-                      : "pending"
-                }
-              />
-              {hasAuthenticatedSession ? (
-                <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
-              ) : null}
-              <Metric title={translate("goalMetric")} value={goalLabel(goal, language)} />
-              {hasAuthenticatedSession ? (
-                <Metric
-                  title={translate("syncMetric")}
-                  value={humanizeStatus(syncStatus, language)}
-                />
-              ) : null}
               {isQAMode ? (
-                <Metric
-                  title={translate("runtimeStateModeLabel")}
-                  value={toHumanStatus(runtimeStateForUI, language)}
-                />
-              ) : null}
+                <>
+                  <Metric
+                    title={translate("authMetric")}
+                    value={
+                      hasAuthenticatedSession
+                        ? language === "es"
+                          ? "activa"
+                          : "active"
+                        : language === "es"
+                          ? "pendiente"
+                          : "pending"
+                    }
+                  />
+                  {hasAuthenticatedSession ? (
+                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
+                  ) : null}
+                  <Metric title={translate("goalMetric")} value={goalLabel(goal, language)} />
+                  {hasAuthenticatedSession ? (
+                    <Metric
+                      title={translate("syncMetric")}
+                      value={humanizeStatus(syncStatus, language)}
+                    />
+                  ) : null}
+                  <Metric
+                    title={translate("runtimeStateModeLabel")}
+                    value={toHumanStatus(runtimeStateForUI, language)}
+                  />
+                </>
+              ) : (
+                <Metric title={translate("goalMetric")} value={goalLabel(goal, language)} />
+              )}
             </div>
           </div>
         </section>
@@ -4791,15 +4795,17 @@ export function App() {
                 />
                 <div className="form-grid">
                   <p className="runtime-state-copy">{translate("shortcutsSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("shortcutsVisibleModulesLabel")}
-                      value={String(visibleModulesForDomain.length)}
-                    />
-                    <Metric title={translate("roleLabel")} value={activeRole} />
-                    <Metric title={translate("domainFilterLabel")} value={activeDomainForUI} />
-                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
-                  </div>
+                  {isQAMode ? (
+                    <div className="inline-inputs">
+                      <Metric
+                        title={translate("shortcutsVisibleModulesLabel")}
+                        value={String(visibleModulesForDomain.length)}
+                      />
+                      <Metric title={translate("roleLabel")} value={activeRole} />
+                      <Metric title={translate("domainFilterLabel")} value={activeDomainForUI} />
+                      <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
+                    </div>
+                  ) : null}
                   <div className="inline-inputs">
                     <button
                       className="button primary"
@@ -4817,18 +4823,20 @@ export function App() {
                     >
                       {translate("shortcutsRefreshAction")}
                     </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id="web.shortcuts.recoverDomain"
-                      onClick={() => void recoverActiveDomainState()}
-                    >
-                      {translate("shortcutsRecoverAction")}
-                    </button>
+                    {isQAMode ? (
+                      <button
+                        className="button ghost"
+                        type="button"
+                        data-action-id="web.shortcuts.recoverDomain"
+                        onClick={() => void recoverActiveDomainState()}
+                      >
+                        {translate("shortcutsRecoverAction")}
+                      </button>
+                    ) : null}
                   </div>
-                  {visibleModulesForDomain.length === 0 ? (
+                  {isQAMode && visibleModulesForDomain.length === 0 ? (
                     <p className="empty-state">{translate("shortcutsNoItems")}</p>
-                  ) : (
+                  ) : isQAMode ? (
                     <div className="inline-inputs">
                       {visibleModulesForDomain.slice(0, 8).map((moduleId) => (
                         <span key={`shortcut-${moduleId}`} className="chip role-badge">
@@ -4836,7 +4844,7 @@ export function App() {
                         </span>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </article>
               <article

@@ -165,6 +165,7 @@
 - iOS Auth UX endurecido: `welcome`, `email login`, `apple handoff`, `otp`, `recover` y `session expired` ya no muestran `humanStatus` tecnico; ahora usan `authFeedback` (copy accionable ES/EN) y botones de login (`remember me` / `forgot password`) salen desde `LocalizedCopy`.
 - iOS Auth flow por pantallas: `welcome` deja de mezclar login completo y pasa a orquestar navegacion por pasos (`email login`, `apple handoff`, `recover`, `otp`, `session expired`) con retorno controlado a entrada principal.
 - iOS Auth Email alineado a flujo real: se reemplaza bloque de proveedores tecnicos por recuperacion operativa (`recover by email` / `recover by SMS`) con transicion de estado real hacia `recover`/`otp`.
+- Web modo producto depurado: cabecera sin metricas internas (`auth/queue/sync/runtime`) y tarjeta de shortcuts sin datos de rol/dominio/modulos ni accion de `recoverDomain` fuera de QA.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
