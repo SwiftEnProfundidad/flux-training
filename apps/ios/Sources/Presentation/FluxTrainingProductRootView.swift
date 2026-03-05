@@ -28,6 +28,7 @@ public struct FluxTrainingProductRootView: View {
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
+  private let showStageControls: Bool
 
   public init(
     authViewModel: AuthViewModel,
@@ -42,6 +43,7 @@ public struct FluxTrainingProductRootView: View {
     exportDataViewModel: ExportDataViewModel,
     deleteAccountViewModel: DeleteAccountViewModel,
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase = GenerateAIRecommendationsUseCase(),
+    showStageControls: Bool = false,
     userID: String = "flux-user-local"
   ) {
     _authViewModel = State(initialValue: authViewModel)
@@ -56,6 +58,7 @@ public struct FluxTrainingProductRootView: View {
     _exportDataViewModel = State(initialValue: exportDataViewModel)
     _deleteAccountViewModel = State(initialValue: deleteAccountViewModel)
     self.generateAIRecommendationsUseCase = generateAIRecommendationsUseCase
+    self.showStageControls = showStageControls
     self.userID = userID
   }
 
@@ -262,26 +265,15 @@ public struct FluxTrainingProductRootView: View {
 
   private var todayTab: some View {
     NavigationStack {
-      VStack(spacing: 8) {
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack(spacing: 8) {
-            ForEach(TrainingStage.allCases, id: \.self) { stage in
-              Button(stage.title(copy: copy)) {
-                selectedTrainingStage = stage
-              }
-              .font(.caption.weight(.semibold))
-              .foregroundStyle(stage == selectedTrainingStage ? Color.black : Color.white.opacity(0.85))
-              .padding(.horizontal, 12)
-              .padding(.vertical, 8)
-              .background(stage == selectedTrainingStage ? Color.orange : Color.white.opacity(0.10))
-              .clipShape(.rect(cornerRadius: 10))
-              .accessibilityIdentifier("training.stage.\(stage.rawValue)")
-            }
+      Group {
+        if showStageControls {
+          VStack(spacing: 8) {
+            trainingStageSelector
+            selectedTrainingStageView
           }
-          .padding(.horizontal, 16)
-          .padding(.top, 8)
+        } else {
+          selectedTrainingStageView
         }
-        selectedTrainingStageView
       }
       .background(backgroundGradient)
       .toolbar {
@@ -294,26 +286,15 @@ public struct FluxTrainingProductRootView: View {
 
   private var progressTab: some View {
     NavigationStack {
-      VStack(spacing: 8) {
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack(spacing: 8) {
-            ForEach(ProgressStage.allCases, id: \.self) { stage in
-              Button(stage.title(copy: copy)) {
-                selectedProgressStage = stage
-              }
-              .font(.caption.weight(.semibold))
-              .foregroundStyle(stage == selectedProgressStage ? Color.black : Color.white.opacity(0.85))
-              .padding(.horizontal, 12)
-              .padding(.vertical, 8)
-              .background(stage == selectedProgressStage ? Color.orange : Color.white.opacity(0.10))
-              .clipShape(.rect(cornerRadius: 10))
-              .accessibilityIdentifier("progress.stage.\(stage.rawValue)")
-            }
+      Group {
+        if showStageControls {
+          VStack(spacing: 8) {
+            progressStageSelector
+            selectedProgressStageView
           }
-          .padding(.horizontal, 16)
-          .padding(.top, 8)
+        } else {
+          selectedProgressStageView
         }
-        selectedProgressStageView
       }
       .background(backgroundGradient)
       .navigationTitle(copy.text(.progressTab))
@@ -322,26 +303,15 @@ public struct FluxTrainingProductRootView: View {
 
   private var nutritionTab: some View {
     NavigationStack {
-      VStack(spacing: 8) {
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack(spacing: 8) {
-            ForEach(NutritionStage.allCases, id: \.self) { stage in
-              Button(stage.title(copy: copy)) {
-                selectedNutritionStage = stage
-              }
-              .font(.caption.weight(.semibold))
-              .foregroundStyle(stage == selectedNutritionStage ? Color.black : Color.white.opacity(0.85))
-              .padding(.horizontal, 12)
-              .padding(.vertical, 8)
-              .background(stage == selectedNutritionStage ? Color.orange : Color.white.opacity(0.10))
-              .clipShape(.rect(cornerRadius: 10))
-              .accessibilityIdentifier("nutrition.stage.\(stage.rawValue)")
-            }
+      Group {
+        if showStageControls {
+          VStack(spacing: 8) {
+            nutritionStageSelector
+            selectedNutritionStageView
           }
-          .padding(.horizontal, 16)
-          .padding(.top, 8)
+        } else {
+          selectedNutritionStageView
         }
-        selectedNutritionStageView
       }
       .background(backgroundGradient)
       .navigationTitle(copy.text(.nutritionTitle))
@@ -350,26 +320,15 @@ public struct FluxTrainingProductRootView: View {
 
   private var settingsTab: some View {
     NavigationStack {
-      VStack(spacing: 8) {
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack(spacing: 8) {
-            ForEach(SettingsStage.allCases, id: \.self) { stage in
-              Button(stage.title(copy: copy)) {
-                selectedSettingsStage = stage
-              }
-              .font(.caption.weight(.semibold))
-              .foregroundStyle(stage == selectedSettingsStage ? Color.black : Color.white.opacity(0.85))
-              .padding(.horizontal, 12)
-              .padding(.vertical, 8)
-              .background(stage == selectedSettingsStage ? Color.orange : Color.white.opacity(0.10))
-              .clipShape(.rect(cornerRadius: 10))
-              .accessibilityIdentifier("settings.stage.\(stage.rawValue)")
-            }
+      Group {
+        if showStageControls {
+          VStack(spacing: 8) {
+            settingsStageSelector
+            selectedSettingsStageView
           }
-          .padding(.horizontal, 16)
-          .padding(.top, 8)
+        } else {
+          selectedSettingsStageView
         }
-        selectedSettingsStageView
       }
       .background(backgroundGradient)
       .navigationTitle(copy.text(.settingsTitle))
@@ -391,6 +350,90 @@ public struct FluxTrainingProductRootView: View {
     .pickerStyle(.segmented)
     .frame(maxWidth: 180)
     .accessibilityIdentifier("app.language.picker")
+  }
+
+  private var trainingStageSelector: some View {
+    ScrollView(.horizontal, showsIndicators: false) {
+      HStack(spacing: 8) {
+        ForEach(TrainingStage.allCases, id: \.self) { stage in
+          Button(stage.title(copy: copy)) {
+            selectedTrainingStage = stage
+          }
+          .font(.caption.weight(.semibold))
+          .foregroundStyle(stage == selectedTrainingStage ? Color.black : Color.white.opacity(0.85))
+          .padding(.horizontal, 12)
+          .padding(.vertical, 8)
+          .background(stage == selectedTrainingStage ? Color.orange : Color.white.opacity(0.10))
+          .clipShape(.rect(cornerRadius: 10))
+          .accessibilityIdentifier("training.stage.\(stage.rawValue)")
+        }
+      }
+      .padding(.horizontal, 16)
+      .padding(.top, 8)
+    }
+  }
+
+  private var progressStageSelector: some View {
+    ScrollView(.horizontal, showsIndicators: false) {
+      HStack(spacing: 8) {
+        ForEach(ProgressStage.allCases, id: \.self) { stage in
+          Button(stage.title(copy: copy)) {
+            selectedProgressStage = stage
+          }
+          .font(.caption.weight(.semibold))
+          .foregroundStyle(stage == selectedProgressStage ? Color.black : Color.white.opacity(0.85))
+          .padding(.horizontal, 12)
+          .padding(.vertical, 8)
+          .background(stage == selectedProgressStage ? Color.orange : Color.white.opacity(0.10))
+          .clipShape(.rect(cornerRadius: 10))
+          .accessibilityIdentifier("progress.stage.\(stage.rawValue)")
+        }
+      }
+      .padding(.horizontal, 16)
+      .padding(.top, 8)
+    }
+  }
+
+  private var nutritionStageSelector: some View {
+    ScrollView(.horizontal, showsIndicators: false) {
+      HStack(spacing: 8) {
+        ForEach(NutritionStage.allCases, id: \.self) { stage in
+          Button(stage.title(copy: copy)) {
+            selectedNutritionStage = stage
+          }
+          .font(.caption.weight(.semibold))
+          .foregroundStyle(stage == selectedNutritionStage ? Color.black : Color.white.opacity(0.85))
+          .padding(.horizontal, 12)
+          .padding(.vertical, 8)
+          .background(stage == selectedNutritionStage ? Color.orange : Color.white.opacity(0.10))
+          .clipShape(.rect(cornerRadius: 10))
+          .accessibilityIdentifier("nutrition.stage.\(stage.rawValue)")
+        }
+      }
+      .padding(.horizontal, 16)
+      .padding(.top, 8)
+    }
+  }
+
+  private var settingsStageSelector: some View {
+    ScrollView(.horizontal, showsIndicators: false) {
+      HStack(spacing: 8) {
+        ForEach(SettingsStage.allCases, id: \.self) { stage in
+          Button(stage.title(copy: copy)) {
+            selectedSettingsStage = stage
+          }
+          .font(.caption.weight(.semibold))
+          .foregroundStyle(stage == selectedSettingsStage ? Color.black : Color.white.opacity(0.85))
+          .padding(.horizontal, 12)
+          .padding(.vertical, 8)
+          .background(stage == selectedSettingsStage ? Color.orange : Color.white.opacity(0.10))
+          .clipShape(.rect(cornerRadius: 10))
+          .accessibilityIdentifier("settings.stage.\(stage.rawValue)")
+        }
+      }
+      .padding(.horizontal, 16)
+      .padding(.top, 8)
+    }
   }
 
   private var selectedGoalLabel: String {
