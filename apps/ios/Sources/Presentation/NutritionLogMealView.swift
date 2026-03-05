@@ -21,48 +21,90 @@ public struct NutritionLogMealView: View {
   }
 
   public var body: some View {
-    Form {
-      Section(copy.text(.saveLog)) {
-        TextField(copy.text(.nutritionDate), text: $viewModel.date)
-          .textFieldStyle(.roundedBorder)
-          .accessibilityIdentifier("nutrition.logMeal.date")
-      }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.saveLog))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
 
-      Section(copy.text(.nutritionTitle)) {
-        HStack {
-          TextField(copy.text(.calories), value: $viewModel.calories, format: .number)
-            .textFieldStyle(.roundedBorder)
-            .accessibilityIdentifier("nutrition.logMeal.calories")
-          TextField(copy.text(.protein), value: $viewModel.proteinGrams, format: .number)
-            .textFieldStyle(.roundedBorder)
-            .accessibilityIdentifier("nutrition.logMeal.protein")
-        }
-        HStack {
-          TextField(copy.text(.carbs), value: $viewModel.carbsGrams, format: .number)
-            .textFieldStyle(.roundedBorder)
-            .accessibilityIdentifier("nutrition.logMeal.carbs")
-          TextField(copy.text(.fats), value: $viewModel.fatsGrams, format: .number)
-            .textFieldStyle(.roundedBorder)
-            .accessibilityIdentifier("nutrition.logMeal.fats")
-        }
-      }
+        Text(copy.text(.nutritionStageLog))
+          .font(.subheadline.weight(.medium))
+          .foregroundStyle(.white.opacity(0.74))
 
-      Section {
-        Button(copy.text(.saveLog)) {
-          Task { await viewModel.saveLog(userID: userID) }
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
-        .accessibilityIdentifier("nutrition.logMeal.save")
-      }
+        FluxCard {
+          VStack(alignment: .leading, spacing: 12) {
+            fieldLabel(copy.text(.nutritionDate))
+            TextField(copy.text(.nutritionDate), text: $viewModel.date)
+              .fluxInputFieldStyle()
+              .accessibilityIdentifier("nutrition.logMeal.date")
 
-      Section(copy.text(.nutritionStatusLabel)) {
-        Text("\(copy.text(.nutritionStatusLabel)): \(copy.humanStatus(viewModel.status))")
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("nutrition.logMeal.status")
+            HStack(spacing: 10) {
+              metricInput(
+                label: copy.text(.calories),
+                value: $viewModel.calories,
+                identifier: "nutrition.logMeal.calories"
+              )
+              metricInput(
+                label: copy.text(.protein),
+                value: $viewModel.proteinGrams,
+                identifier: "nutrition.logMeal.protein"
+              )
+            }
+
+            HStack(spacing: 10) {
+              metricInput(
+                label: copy.text(.carbs),
+                value: $viewModel.carbsGrams,
+                identifier: "nutrition.logMeal.carbs"
+              )
+              metricInput(
+                label: copy.text(.fats),
+                value: $viewModel.fatsGrams,
+                identifier: "nutrition.logMeal.fats"
+              )
+            }
+
+            Button(copy.text(.saveLog)) {
+              Task { await viewModel.saveLog(userID: userID) }
+            }
+            .buttonStyle(FluxPrimaryButtonStyle())
+            .accessibilityIdentifier("nutrition.logMeal.save")
+          }
+        }
+
+        FluxCard {
+          Text("\(copy.text(.nutritionStatusLabel)): \(copy.humanStatus(viewModel.status))")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.82))
+            .accessibilityIdentifier("nutrition.logMeal.status")
+        }
       }
     }
+    .padding(16)
     .navigationTitle(copy.text(.saveLog))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
+  }
+
+  @ViewBuilder
+  private func fieldLabel(_ title: String) -> some View {
+    Text(title)
+      .font(.caption.weight(.semibold))
+      .foregroundStyle(.white.opacity(0.8))
+  }
+
+  @ViewBuilder
+  private func metricInput(
+    label: String,
+    value: Binding<Double>,
+    identifier: String
+  ) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      fieldLabel(label)
+      TextField(label, value: value, format: .number)
+        .fluxInputFieldStyle()
+        .accessibilityIdentifier(identifier)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
