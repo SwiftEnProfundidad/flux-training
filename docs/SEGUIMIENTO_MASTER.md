@@ -205,6 +205,8 @@
 - Web modularizacion progresiva (fase 3): extraccion de `domain-filter-card` a `DomainFilterCard` para desacoplar seleccion de dominio/rol del contenedor principal y facilitar evoluciones de QA sin tocar `App.tsx`.
 - Web modularizacion progresiva (fase 4): extraccion de `runtime-state-card` a `RuntimeStateCard` con opciones de estado derivadas por idioma para reducir complejidad visual y de eventos en `App.tsx`.
 - Evidencia runtime local de este bloque (2026-03-05): carga validada en `http://localhost:5173` sin errores ni warnings de consola (Playwright snapshot + `browser_console_messages`).
+- Web modularizacion progresiva (fase 5): extraccion de `access-gate-card` a `AccessGateCard` para aislar la entrada QA sin sesion y reducir acoplamiento visual/eventual con `App.tsx`.
+- Evidencia runtime local de fase 5 (2026-03-05): carga validada en `http://127.0.0.1:5174` con bloque de acceso visible y consola limpia (`error=0`, `warning=0`).
 - Limpieza de microcopy en artefacto Pencil (`flux.pen`): se sustituyo placeholder tecnico no util (`... [:::]`) en barras de estado iOS por copy neutral de producto (`wifi 100%`) para evitar ruido visual y confusiones.
 - Limpieza adicional de copy tecnico en `flux.pen`: se reemplazo `Reintentar sync / Retry sync` por `Reintentar sincronización / Retry sync` y se ajusto `Auth` a `Acceso` en secciones/flows para mantener lenguaje orientado a usuario.
 - Microcopy producto alineado iOS+Web: etiquetas tecnicas `Offline + Sync` y `ultimo sync` en español pasan a `Sin conexión + Sincronización` y `Rechazadas en última sincronización`, con tests de regresion.

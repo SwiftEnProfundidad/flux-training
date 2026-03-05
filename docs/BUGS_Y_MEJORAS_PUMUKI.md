@@ -81,4 +81,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - `PUM-011` detectado en consumer actual:
   - la salida JSON de `watch --once` no expone `lastTick.changedFiles[]` ni `lastTick.evaluatedFiles[]` en este repo.
   - impacto directo: no hay trazabilidad fina de qué archivos evaluó el gate en cada tick.
+- Verificación adicional de `PUM-011` en esta iteración:
+  - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` sigue devolviendo `lastTick` sin `changedFiles[]`/`evaluatedFiles[]`.
+  - se mantiene `PUM-011` en `⏳ Pendiente` hasta salida de versión consumer con ese payload.
 - Siguiente foco activo: `PUM-009` (`🚧 En construccion`).
