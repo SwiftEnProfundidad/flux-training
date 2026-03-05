@@ -199,3 +199,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`
   - resultado: `gateOutcome="ALLOW"`, `totalFindings=0`, `version.effective="6.3.47"`, con `changedFiles[]` y `evaluatedFiles[]` correctamente poblados para los dos archivos staged del bloque (`App.tsx`, `AthleteOperationsToolbar.tsx`).
   - sin nuevos bugs/mejoras detectados en Pumuki en esta iteración.
+- Revalidación iteración fase 28 (2026-03-05):
+  - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`
+  - resultado: `gateOutcome="ALLOW"`, `totalFindings=0`, `version.effective="6.3.47"`, con `changedFiles[]` y `evaluatedFiles[]` correctamente poblados para los dos archivos staged del bloque (`App.tsx`, `SessionHistoryPanel.tsx`).
+  - sin nuevos bugs/mejoras detectados en Pumuki en esta iteración.
