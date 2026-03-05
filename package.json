@@ -17,5 +17,9 @@
     "dev:web:qa": "pnpm --filter @flux/web dev:qa",
     "dev:backend": "pnpm --filter @flux/backend dev",
     "dev:backend:demo": "pnpm --filter @flux/backend start:demo"
+  },
+  "devDependencies": {
+    "@fission-ai/openspec": "1.2.0",
+    "pumuki": "6.3.41"
   }
 }
