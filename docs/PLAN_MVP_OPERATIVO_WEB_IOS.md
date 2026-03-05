@@ -30,11 +30,12 @@ Orquestar la entrega del MVP operativo real con tracking separado por plataforma
 | F2 | Errores observables (codigos + correlationId) | ✅ | Debug y soporte operativos |
 | F5 | QA funcional E2E iOS/Web/Backend | ✅ | Flujos completos sin roturas |
 | F5 | Paridad final Pencil -> Codigo | ✅ | 121/121 pantallas funcionales y trazables |
-| F5 | Gate MVP y checklist release | 🚧 | Producto usable por usuarios reales |
+| F5 | Gate MVP y checklist release | ✅ | Producto usable por usuarios reales |
 
 ## Estado activo global
 - iOS: sin task en construccion (66/66 en ✅)
 - Web: `✅ 55/55 pantallas en operativo`
-- Siguiente global: `🚧 F5 Gate MVP y checklist release`
+- Estado global actual: `✅ Ciclo MVP operativo cerrado`
 - Cierre de paridad F5 (2026-03-05): runtime web productivo validado contra backend local con login por email, creacion de plan y registro/carga de sesion en vivo (sin fallback de UI vacia).
 - Avance F5 (runtime local funcional): autenticacion Web+iOS permite fallback local controlado (solo `localhost/127.0.0.1`) para validar flujo E2E contra `backend:start:demo` cuando no hay credenciales Firebase/Apple.
+- Cierre gate release (2026-03-05): `pnpm release:check` en verde (check + test + critical + swift test), sin fallos en backend/web/iOS.
