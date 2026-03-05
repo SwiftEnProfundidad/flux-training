@@ -97,6 +97,7 @@ import { ReadinessMonitorCard } from "./ReadinessMonitorCard";
 import { AlertsFullCard } from "./AlertsFullCard";
 import { RecentActivityCard } from "./RecentActivityCard";
 import { ShortcutsCard } from "./ShortcutsCard";
+import { CohortAnalysisCard } from "./CohortAnalysisCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4455,77 +4456,43 @@ export function App() {
                 emptyLabel={translate("shortcutsNoItems")}
                 modules={visibleModulesForDomain}
               />
-              <article
-                className="module-card"
-                data-screen-id={cohortAnalysisScreenModel.screenId}
-                data-route-id={cohortAnalysisScreenModel.routeId}
-                data-status-id="web.cohortAnalysis.status"
-              >
-                <SectionHeader
-                  title={translate("cohortAnalysisTitle")}
-                  status={cohortAnalysisScreenModel.status}
-                  statusLabel={translate("cohortAnalysisStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("cohortAnalysisSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("cohortAnalysisSizeLabel")}
-                      value={String(athleteOperationRowsBase.length)}
-                    />
-                    <Metric
-                      title={translate("cohortAnalysisAttentionLabel")}
-                      value={String(cohortAttentionCount)}
-                    />
-                    <Metric
-                      title={translate("cohortAnalysisNormalLabel")}
-                      value={String(cohortNormalCount)}
-                    />
-                    <Metric
-                      title={translate("cohortAnalysisAvgSessionsLabel")}
-                      value={String(cohortAverageSessions)}
-                    />
-                  </div>
-                  <button
-                    className="button ghost"
-                    type="button"
-                    data-action-id={cohortAnalysisScreenModel.actions.refresh}
-                    onClick={() => void handleRefreshCohortAnalysis()}
-                    disabled={cohortAnalysisScreenModel.status === "loading"}
-                  >
-                    {translate("cohortAnalysisRefreshAction")}
-                  </button>
-                  {athleteOperationRowsBase.length === 0 ? (
-                    <p className="empty-state">{translate("cohortAnalysisNoRows")}</p>
-                  ) : (
-                    <div className="dense-table">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>{translate("athleteColumn")}</th>
-                            <th>{translate("plansColumn")}</th>
-                            <th>{translate("sessionsColumn")}</th>
-                            <th>{translate("nutritionColumn")}</th>
-                            <th>{translate("riskColumn")}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {athleteOperationRowsBase.slice(0, 6).map((row) => (
-                            <tr key={`cohort-${row.athleteId}`}>
-                              <td>{row.athleteId}</td>
-                              <td>{row.plansCount}</td>
-                              <td>{row.sessionsCount}</td>
-                              <td>{row.nutritionLogsCount}</td>
-                              <td>{toHumanStatus(row.riskLevel, language)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </article>
+              <CohortAnalysisCard
+                screenId={cohortAnalysisScreenModel.screenId}
+                routeId={cohortAnalysisScreenModel.routeId}
+                title={translate("cohortAnalysisTitle")}
+                statusLabel={translate("cohortAnalysisStatusLabel")}
+                statusValue={toHumanStatus(cohortAnalysisScreenModel.status, language)}
+                statusClass={toStatusClass(cohortAnalysisScreenModel.status)}
+                summary={translate("cohortAnalysisSummary")}
+                sizeLabel={translate("cohortAnalysisSizeLabel")}
+                sizeValue={String(athleteOperationRowsBase.length)}
+                attentionLabel={translate("cohortAnalysisAttentionLabel")}
+                attentionValue={String(cohortAttentionCount)}
+                normalLabel={translate("cohortAnalysisNormalLabel")}
+                normalValue={String(cohortNormalCount)}
+                averageSessionsLabel={translate("cohortAnalysisAvgSessionsLabel")}
+                averageSessionsValue={String(cohortAverageSessions)}
+                refreshActionId={cohortAnalysisScreenModel.actions.refresh}
+                refreshLabel={translate("cohortAnalysisRefreshAction")}
+                onRefresh={() => {
+                  void handleRefreshCohortAnalysis();
+                }}
+                refreshDisabled={cohortAnalysisScreenModel.status === "loading"}
+                emptyLabel={translate("cohortAnalysisNoRows")}
+                athleteLabel={translate("athleteColumn")}
+                plansLabel={translate("plansColumn")}
+                sessionsLabel={translate("sessionsColumn")}
+                nutritionLabel={translate("nutritionColumn")}
+                riskLabel={translate("riskColumn")}
+                rows={athleteOperationRowsBase.slice(0, 6).map((row) => ({
+                  id: `cohort-${row.athleteId}`,
+                  athleteId: row.athleteId,
+                  plansCount: row.plansCount,
+                  sessionsCount: row.sessionsCount,
+                  nutritionLogsCount: row.nutritionLogsCount,
+                  riskLevel: toHumanStatus(row.riskLevel, language)
+                }))}
+              />
               {visibleModulesForDomain.length === 0 ? (
                 <article className="module-card">
                   <p className="empty-state">{translate("noModulesForSelectedDomain")}</p>
