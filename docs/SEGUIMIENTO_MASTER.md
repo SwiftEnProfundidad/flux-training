@@ -202,6 +202,9 @@
 - Web acceso con semantica real: bloque email/password migrado a `<form>` con submit nativo (Enter), `type=\"email\"` y `autocomplete` (`email`, `current-password`) para comportamiento de producto y accesibilidad básica.
 - Web modularizacion progresiva: extraccion del bloque Hero/Auth a `HeroAuthPanel` para reducir tamaño/coupling de `App.tsx` manteniendo paridad visual y comportamiento runtime.
 - Web modularizacion progresiva (fase 2): extraccion del bloque `language + readiness + hero metrics` a `HeroStatusPanel` para seguir reduciendo complejidad de `App.tsx` sin alterar layout ni flujo de producto.
+- Web modularizacion progresiva (fase 3): extraccion de `domain-filter-card` a `DomainFilterCard` para desacoplar seleccion de dominio/rol del contenedor principal y facilitar evoluciones de QA sin tocar `App.tsx`.
+- Web modularizacion progresiva (fase 4): extraccion de `runtime-state-card` a `RuntimeStateCard` con opciones de estado derivadas por idioma para reducir complejidad visual y de eventos en `App.tsx`.
+- Evidencia runtime local de este bloque (2026-03-05): carga validada en `http://localhost:5173` sin errores ni warnings de consola (Playwright snapshot + `browser_console_messages`).
 - Limpieza de microcopy en artefacto Pencil (`flux.pen`): se sustituyo placeholder tecnico no util (`... [:::]`) en barras de estado iOS por copy neutral de producto (`wifi 100%`) para evitar ruido visual y confusiones.
 - Limpieza adicional de copy tecnico en `flux.pen`: se reemplazo `Reintentar sync / Retry sync` por `Reintentar sincronización / Retry sync` y se ajusto `Auth` a `Acceso` en secciones/flows para mantener lenguaje orientado a usuario.
 - Microcopy producto alineado iOS+Web: etiquetas tecnicas `Offline + Sync` y `ultimo sync` en español pasan a `Sin conexión + Sincronización` y `Rechazadas en última sincronización`, con tests de regresion.

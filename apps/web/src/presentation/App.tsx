@@ -84,6 +84,8 @@ import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { resolveAuthHeroStatus } from "./auth-feedback";
 import { HeroAuthPanel } from "./HeroAuthPanel";
 import { HeroStatusPanel } from "./HeroStatusPanel";
+import { DomainFilterCard } from "./DomainFilterCard";
+import { RuntimeStateCard } from "./RuntimeStateCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -593,6 +595,23 @@ export function App() {
               tab.id === "progress"
           ),
     [domainTabs, isQAMode]
+  );
+  const roleCapabilitiesSummary = useMemo(() => {
+    if (roleCapabilitiesStatus !== "loaded" || roleCapabilities === null) {
+      return toHumanStatus(roleCapabilitiesStatus, language);
+    }
+    return roleCapabilities.allowedDomains
+      .filter((domain) => domain !== "all")
+      .map((domain) => domainTabs.find((tab) => tab.id === domain)?.label ?? domain)
+      .join(" · ");
+  }, [domainTabs, language, roleCapabilities, roleCapabilitiesStatus]);
+  const runtimeStateOptions = useMemo(
+    () =>
+      (["success", "loading", "empty", "error", "offline", "denied"] as const).map((state) => ({
+        id: state,
+        label: toHumanStatus(state, language)
+      })),
+    [language]
   );
   const productVisibleModules = useMemo<DashboardModule[]>(
     () => [
@@ -4043,115 +4062,45 @@ export function App() {
         ) : null}
 
         {showQATools ? (
-          <section className="domain-filter-card">
-            <p className="domain-filter-label">
-              {translate("domainFilterLabel")}
-            </p>
-            <div
-              className="domain-filter-tabs"
-              role="tablist"
-              aria-label={translate("domainFilterLabel")}
-            >
-              {domainTabsForUI.map((tab) => (
-                <button
-                  key={tab.id}
-                  className={`button ghost domain-tab ${activeDomainForUI === tab.id ? "active" : ""}`}
-                  onClick={() => handleDomainSelection(tab.id)}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeDomainForUI === tab.id}
-                  aria-controls="dashboard-grid"
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-            {showQATools ? (
-              <div className="inline-inputs">
-                <label className="runtime-state-control">
-                  <span>{translate("roleLabel")}</span>
-                  <select
-                    aria-label={translate("roleLabel")}
-                    value={activeRole}
-                    onChange={(event) => setActiveRole(event.target.value as DashboardRole)}
-                  >
-                    {roleOptions.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <Metric
-                  title={translate("roleLabel")}
-                  value={
-                    roleCapabilitiesStatus === "loaded" && roleCapabilities !== null
-                      ? roleCapabilities.allowedDomains
-                          .filter((domain) => domain !== "all")
-                          .map(
-                            (domain) =>
-                              domainTabs.find((tab) => tab.id === domain)?.label ?? domain
-                          )
-                          .join(" · ")
-                      : toHumanStatus(roleCapabilitiesStatus, language)
-                  }
-                />
-                {roleCapabilitiesStatus === "error" ? (
-                  <button
-                    className="button ghost"
-                    onClick={() => setRoleCapabilitiesReloadNonce((current) => current + 1)}
-                    type="button"
-                  >
-                    {translate("retryRoleCapabilities")}
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-          </section>
+          <DomainFilterCard
+            label={translate("domainFilterLabel")}
+            tabs={domainTabsForUI}
+            activeDomain={activeDomainForUI}
+            onDomainSelect={handleDomainSelection}
+            roleLabel={translate("roleLabel")}
+            activeRole={activeRole}
+            roleOptions={roleOptions}
+            onRoleChange={setActiveRole}
+            roleCapabilitySummary={roleCapabilitiesSummary}
+            roleCapabilitiesStatus={roleCapabilitiesStatus}
+            retryRoleCapabilitiesLabel={translate("retryRoleCapabilities")}
+            onRetryRoleCapabilities={() =>
+              setRoleCapabilitiesReloadNonce((current) => current + 1)
+            }
+          />
         ) : null}
 
         {showQATools ? (
-          <section className="runtime-state-card">
-          <header className="runtime-state-header">
-            <p className="domain-filter-label">{translate("runtimeStateSectionTitle")}</p>
-            <span className={`status-pill status-${toStatusClass(activeDomainRuntimeState)}`}>
-              {toHumanStatus(activeDomainRuntimeState, language)}
-            </span>
-          </header>
-          <div className="inline-inputs">
-            <label className="runtime-state-control">
-              <span>{translate("runtimeStateModeLabel")}</span>
-              <select
-                aria-label={translate("runtimeStateModeLabel")}
-                disabled={activeDomain === "all"}
-                value={activeDomainRuntimeState}
-                onChange={(event) =>
-                  setActiveDomainRuntimeState(event.target.value as EnterpriseRuntimeState)
-                }
-              >
-                <option value="success">{toHumanStatus("success", language)}</option>
-                <option value="loading">{toHumanStatus("loading", language)}</option>
-                <option value="empty">{toHumanStatus("empty", language)}</option>
-                <option value="error">{toHumanStatus("error", language)}</option>
-                <option value="offline">{toHumanStatus("offline", language)}</option>
-                <option value="denied">{toHumanStatus("denied", language)}</option>
-              </select>
-            </label>
-            <button
-              className="button ghost"
-              disabled={activeDomain === "all" || activeDomainRuntimeState === "success"}
-              onClick={() => void recoverActiveDomainState()}
-              type="button"
-            >
-              {translate("runtimeStateRecoveryAction")}
-            </button>
-          </div>
-          <p className="runtime-state-copy">
-            {activeDomain === "all"
-              ? translate("runtimeStateHintAllDomains")
-              : runtimeStateDescription(activeDomainRuntimeState, translate)}
-          </p>
-          </section>
+          <RuntimeStateCard
+            title={translate("runtimeStateSectionTitle")}
+            statusClass={toStatusClass(activeDomainRuntimeState)}
+            statusLabel={toHumanStatus(activeDomainRuntimeState, language)}
+            modeLabel={translate("runtimeStateModeLabel")}
+            activeDomain={activeDomain}
+            value={activeDomainRuntimeState}
+            options={runtimeStateOptions}
+            onChange={setActiveDomainRuntimeState}
+            recoverLabel={translate("runtimeStateRecoveryAction")}
+            recoverDisabled={activeDomain === "all" || activeDomainRuntimeState === "success"}
+            onRecover={() => {
+              void recoverActiveDomainState();
+            }}
+            copy={
+              activeDomain === "all"
+                ? translate("runtimeStateHintAllDomains")
+                : runtimeStateDescription(activeDomainRuntimeState, translate)
+            }
+          />
         ) : null}
 
         <section
