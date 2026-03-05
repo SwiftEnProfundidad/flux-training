@@ -144,10 +144,11 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 ## Estado activo Web
 - Task en construccion: **ninguna (55/55 en ✅)**
-- Siguiente task: **F5 QA funcional E2E iOS/Web/Backend**
+- Siguiente task global: **F5 Gate MVP y checklist release**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
 - Ajuste UX producto (scope final de modulos): en modo productivo el dashboard queda limitado al set de usuario final (`onboarding`, `training`, `recommendations`, `nutrition`, `progress`, `settings`), retirando `offlineSync` y `legal` como bloques separados para evitar apariencia de consola interna.
 - Ajuste UX producto (feedback de autenticacion): el texto de estado en hero de acceso ahora refleja estados reales de login (`loading`, `validation_error`, `auth_error`, `recovery_sent_*`) con copy accionable para usuario final en ES/EN, evitando mensajes ambiguos tras un fallo de inicio.
 - Ajuste funcional auth email (producto): en Web, `signInWithEmail` ahora intenta alta automatica en Firebase cuando el usuario no existe (`auth/user-not-found` o `auth/invalid-credential`), de modo que el primer acceso por email deja de romper el flujo operativo para usuarios nuevos.
 - Ajuste funcional auth email (entorno local sin Firebase): cuando falta configuracion Firebase y `VITE_API_TARGET` apunta a `localhost/127.0.0.1`, Web usa fallback controlado a `createAuthSession` con token local para permitir pruebas E2E reales contra `backend:start:demo` sin bloquear el flujo de producto.
+- Evidencia runtime local (2026-03-05): login por email validado en `http://localhost:5173`, con creacion de plan, carga de sesiones y detalle de sesion funcionales contra `http://127.0.0.1:8787`.

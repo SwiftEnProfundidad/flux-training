@@ -13,9 +13,9 @@
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
-- Estado actual iOS: **⏳ en pausa temporal** mientras se cierra el bloque web activo.
+- Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
-- Estado actual global: **🚧 F5 Paridad final Pencil -> Codigo**.
+- Estado actual global: **🚧 F5 Gate MVP y checklist release**.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.
@@ -186,6 +186,7 @@
 - Web acceso con estado legible para usuario: la hero de login ya no queda fija en "listo para iniciar" tras errores; ahora muestra feedback contextual (`iniciando sesion`, `revisa correo y contrasena`, `no pudimos iniciar sesion...`) para cerrar el bucle UX cuando falla autenticacion.
 - Auth email de primer acceso endurecido en producto: Web+iOS ya intentan alta automatica al detectar usuario inexistente en Firebase, permitiendo que el primer login por email cree cuenta y abra sesion sin romper flujo.
 - Auth fallback local endurecido para desarrollo E2E: Web+iOS ya soportan inicio de sesion contra `backend:start:demo` sin credenciales Firebase/Apple cuando el backend apunta a `localhost/127.0.0.1`, manteniendo bloqueo estricto en entornos cloud.
+- Evidencia runtime web local (2026-03-05): en `localhost:5173` se valido login por email y operacion viva (crear plan, registrar sesion, cargar sesiones y detalle de sesion) contra `127.0.0.1:8787`.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
@@ -208,10 +209,11 @@ Planes activos:
 | Fase 2 | RBAC por endpoint y dominio | ✅ |
 | Fase 2 | Persistencia real (Firestore) sin in-memory | ✅ |
 | Fase 2 | Errores observables (codigos + correlationId) | ✅ |
-| Fase 3 | iOS pantalla a pantalla (fidelidad real contra Pencil) | ⏳ |
+| Fase 3 | iOS pantalla a pantalla (fidelidad real contra Pencil) | ✅ |
 | Fase 4 | Web pantalla a pantalla (fidelidad real contra Pencil) | ✅ |
 | Fase 5 | QA funcional E2E iOS/Web/Backend | ✅ |
-| Fase 5 | Paridad final Pencil -> Codigo | 🚧 |
+| Fase 5 | Paridad final Pencil -> Codigo | ✅ |
+| Fase 5 | Gate MVP y checklist release | 🚧 |
 
 ## Regla de operacion
 - Solo una task en `🚧`.

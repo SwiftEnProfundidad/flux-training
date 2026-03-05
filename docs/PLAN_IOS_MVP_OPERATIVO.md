@@ -59,7 +59,7 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 | 3.3.6 | IOS-040_PARQ | `gELT9` | ✅ | `todayTab -> onboarding.route.parQ -> onboarding.parQ.screen` | `OnboardingViewModel` (captura respuestas PAR-Q y serializacion a `parQResponses`) | Guardar PAR-Q (`onboarding.parq.continue`) | loading|success|denied|offline | ✅ `OnboardingViewModelTests` + `OnboardingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`onboarding.route.parQ`, `onboarding.parQ.screen`) |
 | 3.3.7 | IOS-050_CONSENT | `7OVvP` | ✅ | `todayTab -> onboarding.route.consent -> onboarding.consent.screen` | `OnboardingViewModel` (captura checklist legal y validacion de consentimiento completo) | Aceptar y continuar (`onboarding.consent.acceptContinue`) | loading|success|consent_required|denied|offline | ✅ `OnboardingViewModelTests` + `OnboardingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`onboarding.route.consent`, `onboarding.consent.screen`) |
 
-### Task 3.4 — iOS — Auth + Onboarding + Consentimiento / IOS_AUTH_DARK_STATES_LANE — ⏳
+### Task 3.4 — iOS — Auth + Onboarding + Consentimiento / IOS_AUTH_DARK_STATES_LANE — ✅
 - Total pantallas en este bloque: **3**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
@@ -67,7 +67,7 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 | 3.4.2 | IOS-070_RECOVER_ACCOUNT | `pM6WG` | ✅ | `todayTab -> auth.route.recoverAccount -> auth.recoverAccount.screen` | `AuthViewModel` (recuperacion por canal email/SMS + escalado a soporte) | Continuar recuperacion (`auth.recover.continue`) | loading|validation_error|recovery_sent_email|recovery_sent_sms|open|denied|offline | ✅ `AuthViewModelTests` + `AuthRouteContractTests` | ✅ ruta+pantalla instrumentadas (`auth.route.recoverAccount`, `auth.recoverAccount.screen`) |
 | 3.4.3 | IOS-080_SESSION_EXPIRED | `fjohT` | ✅ | `todayTab -> auth.route.sessionExpired -> auth.sessionExpired.screen` | `AuthViewModel` (expiracion de sesion con limpieza de credenciales y salida controlada) | Volver a login u abrir modo offline (`auth.sessionExpired.backToSignIn`, `auth.sessionExpired.openOfflineMode`) | loading|session_expired|signed_out|offline|denied|auth_error | ✅ `AuthViewModelTests` + `AuthRouteContractTests` | ✅ ruta+pantalla instrumentadas (`auth.route.sessionExpired`, `auth.sessionExpired.screen`) |
 
-### Task 3.5 — iOS — Auth + Onboarding + Consentimiento / IOS_AUTH_LIGHT_LANE — ⏳
+### Task 3.5 — iOS — Auth + Onboarding + Consentimiento / IOS_AUTH_LIGHT_LANE — ✅
 - Total pantallas en este bloque: **7**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
@@ -79,7 +79,7 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 | 3.5.6 | IOS-L-040_PARQ | `9TB4b` | ✅ | `todayTab -> onboarding.route.parQLight -> onboarding.parQ.light.screen` | `OnboardingViewModel` (captura respuestas PAR-Q y serializacion a `parQResponses`) | Guardar PAR-Q (`onboarding.parq.continue`) | loading|success|denied|offline | ✅ `OnboardingViewModelTests` + `OnboardingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`onboarding.route.parQLight`, `onboarding.parQ.light.screen`) |
 | 3.5.7 | IOS-L-050_CONSENT | `2AbfS` | ✅ | `todayTab -> onboarding.route.consentLight -> onboarding.consent.light.screen` | `OnboardingViewModel` (captura checklist legal y validacion de consentimiento completo) | Aceptar y continuar (`onboarding.consent.acceptContinue`) | loading|success|consent_required|denied|offline | ✅ `OnboardingViewModelTests` + `OnboardingRouteContractTests` | ✅ ruta+pantalla instrumentadas (`onboarding.route.consentLight`, `onboarding.consent.light.screen`) |
 
-### Task 3.6 — iOS — Auth + Onboarding + Consentimiento / IOS_AUTH_LIGHT_STATES_LANE — ⏳
+### Task 3.6 — iOS — Auth + Onboarding + Consentimiento / IOS_AUTH_LIGHT_STATES_LANE — ✅
 - Total pantallas en este bloque: **3**
 | Subtask | Pantalla | ID | Estado | Ruta | API/Datos | Accion | Estados UI | Test | Captura |
 |---|---|---|---|---|---|---|---|---|---|
@@ -153,9 +153,9 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 
 
 ## Estado activo iOS
-- Estado global iOS: **en reconstruccion de fidelidad visual contra `flux.pen`**
+- Estado global iOS: **✅ 66/66 pantallas operativas y trazables**
 - Runtime de entrada endurecido: `ExperienceHub` en produccion ya no muestra catalogo tecnico (usa `displayMode: .product` y renderiza `FluxTrainingProductRootView`).
-- Task iOS en construccion: **F5 correctivo de paridad visual/flujo en runtime productivo**
+- Task iOS en construccion: **ninguna (bloque iOS cerrado en plan canonico)**
 - Avance actual: tabs `Entrenamiento`, `Progreso`, `Nutricion` y `Ajustes` migradas a flujo por etapas (una pantalla visible por vez) para eliminar apariencia de listado tecnico; ademas, `Today/Auth` consolidado a login productivo unico (Apple + email/password + recovery directo) y microcopy de etapas/estados normalizada para usuario final en ES/EN.
 - Avance actual (auth UX): pantallas `welcome`, `email login`, `apple handoff`, `otp`, `recover` y `session expired` ya muestran feedback de estado no tecnico via `LocalizedCopy.authFeedback(...)` y botones bilingues sin hardcode.
 - Avance actual (auth flow): `welcome` queda como puerta de entrada y delega en pantallas dedicadas (`email login`, `apple handoff`) para completar autenticacion por pasos, manteniendo `recover`, `otp` y `session expired` como rutas separadas de producto.
