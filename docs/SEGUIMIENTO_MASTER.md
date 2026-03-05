@@ -282,3 +282,5 @@ Planes activos:
 ## Regla de operacion
 - Solo una task en `🚧`.
 - Al cerrar task: marcar `✅` y mover la siguiente a `🚧`.
+- Web modularizacion progresiva (fase 25): extraccion de `exercise-library` a `ExerciseLibraryPanel` para desacoplar selector de ejercicio/idioma, carga de videos y grid de resultados del contenedor `App.tsx`.
+- Evidencia de fase 25 (2026-03-05): `pnpm --filter @flux/web test -- src/presentation/App.tsx`, `pnpm --filter @flux/web build` y `pnpm --filter @flux/web check` en verde; smoke QA en `http://127.0.0.1:5176/__qa?unlockQa=1&qa=1` con accion real observable sobre acceso (campo `correo`: `"" -> "qa+exercise-library@flux.app"`) y consola limpia (`error=0`, `warning=0`).
