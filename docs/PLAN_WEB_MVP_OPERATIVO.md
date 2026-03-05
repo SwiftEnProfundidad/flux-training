@@ -146,3 +146,4 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Task en construccion: **ninguna (55/55 en ✅)**
 - Siguiente task: **F5 QA funcional E2E iOS/Web/Backend**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
+- Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.

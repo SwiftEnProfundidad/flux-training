@@ -620,6 +620,8 @@ export function App() {
     domainRuntimeStates
   );
   const runtimeStateForUI: EnterpriseRuntimeState = isQAMode ? activeDomainRuntimeState : "success";
+  const canRenderOperationalModules =
+    hasAuthenticatedSession && runtimeStateForUI === "success";
   const effectiveDashboardHomeRuntimeState =
     isQAMode ? dashboardHomeRuntimeStateOverride ?? activeDomainRuntimeState : "success";
   const dashboardHomeScreenModel = useMemo(
@@ -4929,7 +4931,7 @@ export function App() {
               ) : null}
                 </>
               ) : null}
-          {isModuleVisibleForUI("onboarding") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("onboarding") ? (
             <article className="module-card">
             <SectionHeader
               title={translate("onboardingSectionTitle")}
@@ -5037,7 +5039,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("training") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("training") ? (
             <article
               className="module-card"
               data-screen-id={plansListScreenModel.screenId}
@@ -5665,7 +5667,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("operationsHub") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("operationsHub") ? (
             <article
               className="module-card"
               data-screen-id={athletesListScreenModel.screenId}
@@ -6085,7 +6087,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("adminGovernance") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("adminGovernance") ? (
             <article
               className="module-card"
               data-screen-id={adminUsersScreenModel.screenId}
@@ -6267,7 +6269,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("auditCompliance") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("auditCompliance") ? (
             <article
               className="module-card"
               data-screen-id={auditTrailScreenModel.screenId}
@@ -6457,7 +6459,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("billingSupport") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("billingSupport") ? (
             <article
               className="module-card"
               data-screen-id={billingOverviewScreenModel.screenId}
@@ -6741,7 +6743,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("recommendations") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("recommendations") ? (
             <article
               className="module-card"
               data-screen-id={aiInsightsScreenModel.screenId}
@@ -6822,7 +6824,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("nutrition") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("nutrition") ? (
             <article
               className="module-card"
               data-screen-id={nutritionOverviewScreenModel.screenId}
@@ -7280,7 +7282,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("progress") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("progress") ? (
             <article
               className="module-card"
               data-screen-id={progressTrendsScreenModel.screenId}
@@ -7397,7 +7399,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("offlineSync") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("offlineSync") ? (
             <article className="module-card">
             <SectionHeader
               title={translate("offlineSyncTitle")}
@@ -7453,7 +7455,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("settings") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("settings") ? (
             <article className="module-card">
             <SectionHeader
               title={translate("settingsTitle")}
@@ -7493,7 +7495,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("legal") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("legal") ? (
             <article
               className="module-card"
               data-screen-id={legalComplianceScreenModel.screenId}
@@ -7542,7 +7544,7 @@ export function App() {
             </article>
           ) : null}
 
-          {isModuleVisibleForUI("observability") ? (
+          {canRenderOperationalModules && isModuleVisibleForUI("observability") ? (
             <article
               className="module-card"
               data-screen-id={analyticsOverviewScreenModel.screenId}
