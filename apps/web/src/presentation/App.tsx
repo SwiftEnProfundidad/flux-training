@@ -4059,7 +4059,7 @@ export function App() {
                 EN
               </button>
             </div>
-            {isQAMode ? (
+            {showQATools ? (
               <>
                 <span>{translate("laneLabel")}</span>
                 <div className="language-toggle-buttons">

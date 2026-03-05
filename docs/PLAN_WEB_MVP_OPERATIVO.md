@@ -157,5 +157,6 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Ajuste UX microcopy de preparacion (producto): la cabecera en espanol reemplaza el literal tecnico `Readiness` por `Preparacion` y alinea el bloque de monitor con copy de producto (`Monitor de preparacion`, `Actualizar preparacion`).
 - Ajuste UX anti-consola sin sesion (producto): los controles QA de dominio/runtime/rol solo se renderizan con sesion autenticada y la tarjeta de acceso inicial ya no muestra badge tecnico de estado (`Auth`) fuera de flujo operativo.
 - Ajuste UX de estados de acceso (producto): `humanizeStatus` ahora normaliza variantes tecnicas (`Session Required`, `signed-in:apple`, etc.) para mostrar siempre copy de usuario en ES/EN y evitar literales internos mezclados en la interfaz.
+- Ajuste UX anti-consola v2 (producto): el selector tecnico de `lane` (main/secondary) en cabecera tambien queda oculto sin sesion autenticada, evitando exponer control interno de QA en el hero de acceso.
 - Evidencia runtime local (2026-03-05): login por email validado en `http://localhost:5173`, con creacion de plan, carga de sesiones y detalle de sesion funcionales contra `http://127.0.0.1:8787`.
 - Gate final release (2026-03-05): `pnpm release:check` en verde, incluyendo `pnpm -r check`, `pnpm -r test`, suites criticas y `swift test` iOS.
