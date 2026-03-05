@@ -94,6 +94,7 @@ import { AlertCenterCard } from "./AlertCenterCard";
 import { SystemStatusCard } from "./SystemStatusCard";
 import { DashboardKpisCard } from "./DashboardKpisCard";
 import { ReadinessMonitorCard } from "./ReadinessMonitorCard";
+import { AlertsFullCard } from "./AlertsFullCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4330,89 +4331,49 @@ export function App() {
                   void handleRefreshReadinessMonitor();
                 }}
               />
-              <article
-                className="module-card"
-                data-screen-id={alertsFullScreenModel.screenId}
-                data-route-id={alertsFullScreenModel.routeId}
-                data-status-id={`${alertsFullScreenModel.screenId}.status`}
-              >
-                <SectionHeader
-                  title={translate("alertsFullTitle")}
-                  status={alertsFullScreenModel.status}
-                  statusLabel={translate("alertsFullStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("alertsFullSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("alertCenterOpenCountLabel")}
-                      value={String(openOperationalAlerts.length)}
-                    />
-                    <Metric
-                      title={translate("alertCenterRunbooksLabel")}
-                      value={String(operationalRunbooks.length)}
-                    />
-                    <Metric
-                      title={translate("auditActivityLogLabel")}
-                      value={String(activityLogEntries.length)}
-                    />
-                    <Metric
-                      title={translate("alertCenterHighSeverityLabel")}
-                      value={String(
-                        openOperationalAlerts.filter((alert) => alert.severity === "critical")
-                          .length
-                      )}
-                    />
-                  </div>
-                  <div className="inline-inputs">
-                    <button
-                      className="button primary"
-                      type="button"
-                      data-action-id={alertsFullScreenModel.actions.refresh}
-                      onClick={() => void handleRefreshAlertsFull()}
-                    >
-                      {translate("alertsFullRefreshAction")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={alertsFullScreenModel.actions.audit}
-                      onClick={() => void handleLoadAuditTimeline()}
-                    >
-                      {translate("alertsFullAuditAction")}
-                    </button>
-                  </div>
-                  {openOperationalAlerts.length === 0 ? (
-                    <p className="empty-state">{translate("alertsFullNoAlerts")}</p>
-                  ) : (
-                    <div className="dense-table">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>{translate("auditOccurredAtColumn")}</th>
-                            <th>{translate("auditSeverityColumn")}</th>
-                            <th>{translate("alertsFullCodeLabel")}</th>
-                            <th>{translate("alertsFullRunbookLabel")}</th>
-                            <th>{translate("auditSummaryColumn")}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {openOperationalAlerts.slice(0, 6).map((alert) => (
-                            <tr key={alert.id}>
-                              <td>{new Date(alert.triggeredAt).toLocaleString()}</td>
-                              <td>{toHumanStatus(alert.severity, language)}</td>
-                              <td>{alert.code}</td>
-                              <td>{runbookTitleById[alert.runbookId] ?? alert.runbookId}</td>
-                              <td>{alert.summary}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </article>
+              <AlertsFullCard
+                screenId={alertsFullScreenModel.screenId}
+                routeId={alertsFullScreenModel.routeId}
+                title={translate("alertsFullTitle")}
+                statusLabel={translate("alertsFullStatusLabel")}
+                statusValue={toHumanStatus(alertsFullScreenModel.status, language)}
+                statusClass={toStatusClass(alertsFullScreenModel.status)}
+                summary={translate("alertsFullSummary")}
+                openCountLabel={translate("alertCenterOpenCountLabel")}
+                openCountValue={String(openOperationalAlerts.length)}
+                runbooksLabel={translate("alertCenterRunbooksLabel")}
+                runbooksValue={String(operationalRunbooks.length)}
+                activityLabel={translate("auditActivityLogLabel")}
+                activityValue={String(activityLogEntries.length)}
+                highSeverityLabel={translate("alertCenterHighSeverityLabel")}
+                highSeverityValue={String(
+                  openOperationalAlerts.filter((alert) => alert.severity === "critical").length
+                )}
+                refreshActionId={alertsFullScreenModel.actions.refresh}
+                refreshLabel={translate("alertsFullRefreshAction")}
+                onRefresh={() => {
+                  void handleRefreshAlertsFull();
+                }}
+                auditActionId={alertsFullScreenModel.actions.audit}
+                auditLabel={translate("alertsFullAuditAction")}
+                onAudit={() => {
+                  void handleLoadAuditTimeline();
+                }}
+                emptyLabel={translate("alertsFullNoAlerts")}
+                occurredAtLabel={translate("auditOccurredAtColumn")}
+                severityLabel={translate("auditSeverityColumn")}
+                codeLabel={translate("alertsFullCodeLabel")}
+                runbookLabel={translate("alertsFullRunbookLabel")}
+                summaryLabel={translate("auditSummaryColumn")}
+                rows={openOperationalAlerts.slice(0, 6).map((alert) => ({
+                  id: alert.id,
+                  occurredAt: new Date(alert.triggeredAt).toLocaleString(),
+                  severity: toHumanStatus(alert.severity, language),
+                  code: alert.code,
+                  runbook: runbookTitleById[alert.runbookId] ?? alert.runbookId,
+                  summary: alert.summary
+                }))}
+              />
               <article
                 className="module-card"
                 data-screen-id={recentActivityScreenModel.screenId}
