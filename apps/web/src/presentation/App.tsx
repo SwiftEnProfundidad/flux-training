@@ -92,6 +92,7 @@ import { DashboardHomeCard } from "./DashboardHomeCard";
 import { QuickActionsCard } from "./QuickActionsCard";
 import { AlertCenterCard } from "./AlertCenterCard";
 import { SystemStatusCard } from "./SystemStatusCard";
+import { DashboardKpisCard } from "./DashboardKpisCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4278,45 +4279,33 @@ export function App() {
                 reloadCapabilitiesLabel={translate("retryRoleCapabilities")}
                 onReloadCapabilities={handleReloadRoleCapabilitiesMatrix}
               />
-              <article
-                className="module-card"
-                data-screen-id={dashboardKpisScreenModel.screenId}
-                data-route-id={dashboardKpisScreenModel.routeId}
-                data-status-id={`${dashboardKpisScreenModel.screenId}.status`}
-              >
-                <SectionHeader
-                  title={translate("dashboardKpisTitle")}
-                  status={dashboardKpisScreenModel.status}
-                  statusLabel={translate("dashboardKpisStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("dashboardKpisSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric title={translate("planStatusLabel")} value={String(plans.length)} />
-                    <Metric title={translate("sessionStatusLabel")} value={String(sessions.length)} />
-                    <Metric title={translate("nutritionStatusLabel")} value={String(nutritionLogs.length)} />
-                    <Metric
-                      title={translate("recommendationsStatusLabel")}
-                      value={String(recommendations.length)}
-                    />
-                    <Metric
-                      title={translate("alertCenterOpenCountLabel")}
-                      value={String(openOperationalAlerts.length)}
-                    />
-                    <Metric title={translate("queueMetric")} value={String(pendingQueueCount)} />
-                  </div>
-                  <button
-                    className="button ghost"
-                    type="button"
-                    data-action-id={dashboardKpisScreenModel.actions.refresh}
-                    onClick={() => void handleRefreshDashboardKpis()}
-                    disabled={dashboardKpisScreenModel.status === "loading"}
-                  >
-                    {translate("dashboardKpisRefreshAction")}
-                  </button>
-                </div>
-              </article>
+              <DashboardKpisCard
+                screenId={dashboardKpisScreenModel.screenId}
+                routeId={dashboardKpisScreenModel.routeId}
+                title={translate("dashboardKpisTitle")}
+                statusLabel={translate("dashboardKpisStatusLabel")}
+                statusValue={toHumanStatus(dashboardKpisScreenModel.status, language)}
+                statusClass={toStatusClass(dashboardKpisScreenModel.status)}
+                summary={translate("dashboardKpisSummary")}
+                planLabel={translate("planStatusLabel")}
+                planValue={String(plans.length)}
+                sessionLabel={translate("sessionStatusLabel")}
+                sessionValue={String(sessions.length)}
+                nutritionLabel={translate("nutritionStatusLabel")}
+                nutritionValue={String(nutritionLogs.length)}
+                recommendationsLabel={translate("recommendationsStatusLabel")}
+                recommendationsValue={String(recommendations.length)}
+                openAlertsLabel={translate("alertCenterOpenCountLabel")}
+                openAlertsValue={String(openOperationalAlerts.length)}
+                queueLabel={translate("queueMetric")}
+                queueValue={String(pendingQueueCount)}
+                refreshActionId={dashboardKpisScreenModel.actions.refresh}
+                refreshLabel={translate("dashboardKpisRefreshAction")}
+                refreshDisabled={dashboardKpisScreenModel.status === "loading"}
+                onRefresh={() => {
+                  void handleRefreshDashboardKpis();
+                }}
+              />
               <article
                 className="module-card"
                 data-screen-id={readinessMonitorScreenModel.screenId}
