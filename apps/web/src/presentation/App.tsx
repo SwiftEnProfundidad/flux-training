@@ -101,6 +101,7 @@ import { CohortAnalysisCard } from "./CohortAnalysisCard";
 import { OnboardingCard } from "./OnboardingCard";
 import { PlanBuilderPanel } from "./PlanBuilderPanel";
 import { PlanTemplatesPanel } from "./PlanTemplatesPanel";
+import { PublishReviewPanel } from "./PublishReviewPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4651,84 +4652,46 @@ export function App() {
                 focusLabel={translate("planTemplatesFocusLabel")}
                 selectedOption={selectedPlanTemplateOption}
               />
-              <div
-                className="history-list"
-                data-screen-id={publishReviewScreenModel.screenId}
-                data-route-id={publishReviewScreenModel.routeId}
-                data-status-id="web.light.publishReview.status"
-              >
-                <SectionHeader
-                  title={translate("publishReviewTitle")}
-                  status={publishReviewScreenModel.status}
-                  statusLabel={translate("publishReviewStatusLabel")}
-                  language={language}
-                />
-                <p>{translate("publishReviewSummary")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button ghost"
-                    onClick={handlePreviewPublishPlan}
-                    type="button"
-                    data-action-id={publishReviewScreenModel.actions.previewPlan}
-                  >
-                    {translate("publishReviewPreviewAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleRunPublishChecklist}
-                    type="button"
-                    data-action-id={publishReviewScreenModel.actions.runChecklist}
-                  >
-                    {translate("publishReviewChecklistAction")}
-                  </button>
-                  <button
-                    className="button primary"
-                    onClick={handlePublishPlanReview}
-                    type="button"
-                    data-action-id={publishReviewScreenModel.actions.publishPlan}
-                    disabled={publishChecklistAcknowledged === false || selectedPlan === null}
-                  >
-                    {translate("publishReviewPublishAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleClearPublishReview}
-                    type="button"
-                    data-action-id={publishReviewScreenModel.actions.clearReview}
-                  >
-                    {translate("publishReviewClearAction")}
-                  </button>
-                </div>
-                <div className="choice-list">
-                  {publishChecklistItems.map((item) => (
-                    <label key={item.id}>
-                      <span>{item.label}</span>
-                      <span>{item.valid ? translate("publishReviewCheckOk") : translate("publishReviewCheckPending")}</span>
-                    </label>
-                  ))}
-                </div>
-                <div className="inline-inputs">
-                  <Metric
-                    title={translate("publishReviewPlanLabel")}
-                    value={selectedPlan?.name ?? "-"}
-                  />
-                  <Metric
-                    title={translate("publishReviewChecklistLabel")}
-                    value={isPublishChecklistReady ? translate("publishReviewCheckOk") : translate("publishReviewCheckPending")}
-                  />
-                  <Metric
-                    title={translate("publishReviewResultLabel")}
-                    value={publishedPlanId ?? "-"}
-                  />
-                </div>
-                {publishedPlanId === null ? (
-                  <p className="empty-state">{translate("publishReviewNoResult")}</p>
-                ) : (
-                  <p className="section-subtitle">
-                    {translate("publishReviewPublishedPrefix")} {publishedPlanId}
-                  </p>
-                )}
-              </div>
+              <PublishReviewPanel
+                screenId={publishReviewScreenModel.screenId}
+                routeId={publishReviewScreenModel.routeId}
+                statusId="web.light.publishReview.status"
+                title={translate("publishReviewTitle")}
+                statusLabel={translate("publishReviewStatusLabel")}
+                statusClass={toStatusClass(publishReviewScreenModel.status)}
+                statusValue={toHumanStatus(publishReviewScreenModel.status, language)}
+                showStatus={readWebRuntimeMode() === "qa"}
+                summary={translate("publishReviewSummary")}
+                previewLabel={translate("publishReviewPreviewAction")}
+                previewActionId={publishReviewScreenModel.actions.previewPlan}
+                onPreview={handlePreviewPublishPlan}
+                checklistLabel={translate("publishReviewChecklistAction")}
+                checklistActionId={publishReviewScreenModel.actions.runChecklist}
+                onRunChecklist={handleRunPublishChecklist}
+                publishLabel={translate("publishReviewPublishAction")}
+                publishActionId={publishReviewScreenModel.actions.publishPlan}
+                onPublish={handlePublishPlanReview}
+                publishDisabled={publishChecklistAcknowledged === false || selectedPlan === null}
+                clearLabel={translate("publishReviewClearAction")}
+                clearActionId={publishReviewScreenModel.actions.clearReview}
+                onClear={handleClearPublishReview}
+                checklistItems={publishChecklistItems}
+                checklistOkLabel={translate("publishReviewCheckOk")}
+                checklistPendingLabel={translate("publishReviewCheckPending")}
+                planMetricLabel={translate("publishReviewPlanLabel")}
+                planMetricValue={selectedPlan?.name ?? "-"}
+                checklistMetricLabel={translate("publishReviewChecklistLabel")}
+                checklistMetricValue={
+                  isPublishChecklistReady
+                    ? translate("publishReviewCheckOk")
+                    : translate("publishReviewCheckPending")
+                }
+                resultMetricLabel={translate("publishReviewResultLabel")}
+                resultMetricValue={publishedPlanId ?? "-"}
+                noResultLabel={translate("publishReviewNoResult")}
+                publishedPrefix={translate("publishReviewPublishedPrefix")}
+                publishedId={publishedPlanId}
+              />
               <StatLine
                 label={translate("plansLoadedLabel")}
                 value={String(plans.length)}
