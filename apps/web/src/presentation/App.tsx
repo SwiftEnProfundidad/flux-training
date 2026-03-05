@@ -81,6 +81,7 @@ import { createReadinessMonitorLaneScreenModel } from "./readiness-monitor-lane-
 import { createAlertsFullLaneScreenModel } from "./alerts-full-lane-contract";
 import { createRecentActivityScreenModel } from "./recent-activity-contract";
 import { createShortcutsScreenModel } from "./shortcuts-contract";
+import { resolveAuthHeroStatus } from "./auth-feedback";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4031,13 +4032,11 @@ export function App() {
                 </button>
               </div>
               <p className="hero-copy" data-status-id={signInScreenModel.statusId}>
-                {hasAuthenticatedSession
-                  ? language === "es"
-                    ? "sesion activa"
-                    : "active session"
-                  : language === "es"
-                    ? "listo para iniciar"
-                    : "ready to sign in"}
+                {resolveAuthHeroStatus({
+                  authStatus,
+                  hasAuthenticatedSession,
+                  language
+                })}
               </p>
             </div>
           </div>
