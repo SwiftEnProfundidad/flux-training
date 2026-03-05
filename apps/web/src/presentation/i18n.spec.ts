@@ -488,5 +488,9 @@ describe("i18n", () => {
     expect(humanizeStatus("offline", "en")).toBe("offline");
     expect(humanizeStatus("denied", "es")).toBe("sin permiso");
     expect(humanizeStatus("denied", "en")).toBe("denied");
+    expect(humanizeStatus("Session Required", "es")).toBe("acceso requerido");
+    expect(humanizeStatus("Session Required", "en")).toBe("sign in to continue");
+    expect(humanizeStatus("signed in:email", "es")).toBe("sesion iniciada email");
+    expect(humanizeStatus("signed-in:apple", "en")).toBe("signed in apple");
   });
 });

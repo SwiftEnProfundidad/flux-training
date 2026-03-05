@@ -192,6 +192,7 @@
 - Microcopy de preparacion en web alineado a producto: en ES se elimina el literal tecnico `Readiness` y se normaliza a `Preparacion`, incluyendo bloque de monitor (`Monitor de preparacion`, `Actualizar preparacion`).
 - Microcopy iOS alineado a producto: en ES se elimina terminologia tecnica residual en acceso (`Autenticacion` -> `Acceso`), readiness (`Readiness` -> `Preparacion`) y permisos Apple (textos localizados a castellano).
 - Guard rail web sin sesion: controles QA de dominio/runtime/rol quedan ocultos hasta autenticar sesion, y la tarjeta inicial de acceso deja de mostrar badge tecnico (`Auth`) en flujo de usuario final.
+- Normalizacion de estados de acceso web: `humanizeStatus` ya traduce tambien variantes tecnicas con espacios/guiones (`Session Required`, `signed-in:apple`) para evitar texto interno en la UI final.
 - Evidencia runtime web local (2026-03-05): en `localhost:5173` se valido login por email y operacion viva (crear plan, registrar sesion, cargar sesiones y detalle de sesion) contra `127.0.0.1:8787`.
 - Evidencia gate final (2026-03-05): `pnpm release:check` completado en verde (check + test workspace + critical suites + `swift test` completo).
 

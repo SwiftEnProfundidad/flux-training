@@ -1697,13 +1697,23 @@ export function humanizeStatus(rawStatus: string, language: AppLanguage): string
     return localizedStatuses.idle ?? "idle";
   }
 
+  const canonicalStatus = normalizedStatus
+    .replace(/[:\s-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
   const direct = localizedStatuses[normalizedStatus];
   if (direct !== undefined) {
     return direct;
   }
 
-  if (normalizedStatus.startsWith("signed_in:")) {
-    const provider = normalizedStatus.split(":")[1] ?? "";
+  const canonicalDirect = localizedStatuses[canonicalStatus];
+  if (canonicalDirect !== undefined) {
+    return canonicalDirect;
+  }
+
+  if (canonicalStatus.startsWith("signed_in_")) {
+    const provider = canonicalStatus.split("_")[2] ?? "";
     const providerLabel = localizedStatuses[provider] ?? provider;
     const signedInLabel = localizedStatuses.signed_in ?? "signed in";
     return `${signedInLabel} ${providerLabel}`.trim();
