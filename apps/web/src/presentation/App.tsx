@@ -1,4 +1,13 @@
-import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  type FormEvent,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   AccessRole,
   ActivityLogEntry,
@@ -1748,44 +1757,31 @@ export function App() {
   }
 
   function invoiceStatusLabel(status: BillingInvoiceStatusFilter): string {
-    switch (status) {
-      case "draft":
-        return translate("billingInvoiceStatusDraft");
-      case "open":
-        return translate("billingInvoiceStatusOpen");
-      case "paid":
-        return translate("billingInvoiceStatusPaid");
-      case "overdue":
-        return translate("billingInvoiceStatusOverdue");
-      default:
-        return translate("billingFilterAllInvoiceStatuses");
-    }
+    const labelByStatus: Partial<Record<BillingInvoiceStatusFilter, string>> = {
+      draft: translate("billingInvoiceStatusDraft"),
+      open: translate("billingInvoiceStatusOpen"),
+      paid: translate("billingInvoiceStatusPaid"),
+      overdue: translate("billingInvoiceStatusOverdue")
+    };
+    return labelByStatus[status] ?? translate("billingFilterAllInvoiceStatuses");
   }
 
   function incidentStateLabel(status: SupportIncidentStateFilter): string {
-    switch (status) {
-      case "open":
-        return translate("billingIncidentStateOpen");
-      case "in_progress":
-        return translate("billingIncidentStateInProgress");
-      case "resolved":
-        return translate("billingIncidentStateResolved");
-      default:
-        return translate("billingFilterAllIncidentStates");
-    }
+    const labelByState: Partial<Record<SupportIncidentStateFilter, string>> = {
+      open: translate("billingIncidentStateOpen"),
+      in_progress: translate("billingIncidentStateInProgress"),
+      resolved: translate("billingIncidentStateResolved")
+    };
+    return labelByState[status] ?? translate("billingFilterAllIncidentStates");
   }
 
   function incidentSeverityLabel(status: SupportIncidentSeverityFilter): string {
-    switch (status) {
-      case "high":
-        return translate("billingIncidentSeverityHigh");
-      case "medium":
-        return translate("billingIncidentSeverityMedium");
-      case "low":
-        return translate("billingIncidentSeverityLow");
-      default:
-        return translate("billingFilterAllIncidentSeverities");
-    }
+    const labelBySeverity: Partial<Record<SupportIncidentSeverityFilter, string>> = {
+      high: translate("billingIncidentSeverityHigh"),
+      medium: translate("billingIncidentSeverityMedium"),
+      low: translate("billingIncidentSeverityLow")
+    };
+    return labelBySeverity[status] ?? translate("billingFilterAllIncidentSeverities");
   }
 
   useEffect(() => {
@@ -2224,6 +2220,11 @@ export function App() {
       setAuthStatus("auth_error");
       markDomainFailure("onboarding", error);
     }
+  }
+
+  function handleEmailSignInSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void handleEmailSignIn();
   }
 
   function handleEmailRecovery(channel: "email" | "sms") {
@@ -3835,34 +3836,32 @@ export function App() {
       resetRuntimeStateForActiveDomain(activeDomain, currentStates)
     );
 
-    switch (activeDomain) {
-      case "onboarding":
+    const recoveryByDomain: Record<DashboardDomain, () => Promise<void> | void> = {
+      onboarding: () => {
         setActiveSession(null);
         setAuthStatus("signed_out");
         setOnboardingStatus("idle");
-        return;
-      case "training":
+      },
+      training: () => {
         setTrainingStatus("idle");
         setSessionStatus("idle");
         setVideoStatus("idle");
-        return;
-      case "nutrition":
+      },
+      nutrition: () => {
         setNutritionStatus("idle");
-        return;
-      case "progress":
+      },
+      progress: () => {
         setProgressStatus("idle");
-        return;
-      case "operations":
+      },
+      operations: async () => {
         setSyncStatus("idle");
         setObservabilityStatus("idle");
         setRecommendationsStatus("idle");
         await refreshPendingQueue();
-        return;
-      case "all":
-        return;
-      default:
-        return;
-    }
+      },
+      all: () => {}
+    };
+    await recoveryByDomain[activeDomain]();
   }
 
   async function handleRefreshDashboardHome() {
@@ -3988,11 +3987,13 @@ export function App() {
               >
                 {translate("signInWithApple")}
               </button>
-              <div className="inline-inputs hero-auth-fields">
+              <form className="inline-inputs hero-auth-fields" onSubmit={handleEmailSignInSubmit}>
                 <input
                   aria-label={translate("emailPlaceholder")}
                   placeholder={translate("emailPlaceholder")}
                   value={email}
+                  type="email"
+                  autoComplete="email"
                   onChange={(event) => setEmail(event.target.value)}
                 />
                 <input
@@ -4000,18 +4001,18 @@ export function App() {
                   placeholder={translate("passwordPlaceholder")}
                   value={password}
                   type="password"
+                  autoComplete="current-password"
                   onChange={(event) => setPassword(event.target.value)}
                 />
                 <button
                   className="button ghost"
-                  onClick={handleEmailSignIn}
-                  type="button"
+                  type="submit"
                   disabled={isAuthLoading}
                   data-action-id={signInScreenModel.actions.email}
                 >
                   {translate("signInWithEmail")}
                 </button>
-              </div>
+              </form>
               <div className="inline-inputs hero-recovery-actions">
                 <button
                   className="button ghost"
@@ -7787,22 +7788,15 @@ function runtimeStateDescription(
       | "runtimeStateDeniedDescription"
   ) => string
 ): string {
-  switch (runtimeState) {
-    case "success":
-      return translate("runtimeStateSuccessDescription");
-    case "loading":
-      return translate("runtimeStateLoadingDescription");
-    case "empty":
-      return translate("runtimeStateEmptyDescription");
-    case "error":
-      return translate("runtimeStateErrorDescription");
-    case "offline":
-      return translate("runtimeStateOfflineDescription");
-    case "denied":
-      return translate("runtimeStateDeniedDescription");
-    default:
-      return translate("runtimeStateSuccessDescription");
-  }
+  const descriptionByState: Record<EnterpriseRuntimeState, string> = {
+    success: translate("runtimeStateSuccessDescription"),
+    loading: translate("runtimeStateLoadingDescription"),
+    empty: translate("runtimeStateEmptyDescription"),
+    error: translate("runtimeStateErrorDescription"),
+    offline: translate("runtimeStateOfflineDescription"),
+    denied: translate("runtimeStateDeniedDescription")
+  };
+  return descriptionByState[runtimeState];
 }
 
 function readLanguagePreference(): string | null {
