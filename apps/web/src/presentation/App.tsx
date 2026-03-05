@@ -103,6 +103,7 @@ import { PlanBuilderPanel } from "./PlanBuilderPanel";
 import { PlanTemplatesPanel } from "./PlanTemplatesPanel";
 import { PlansSelectionPanel } from "./PlansSelectionPanel";
 import { PublishReviewPanel } from "./PublishReviewPanel";
+import { PlanAssignmentPanel } from "./PlanAssignmentPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4703,81 +4704,40 @@ export function App() {
                 onSelectPlan={setSelectedPlanId}
                 weeksSuffix={translate("planTemplatesWeeksLabel")}
               />
-              <div
-                className="history-list"
-                data-screen-id={planAssignmentScreenModel.screenId}
-                data-route-id={planAssignmentScreenModel.routeId}
-                data-status-id="web.planAssignment.status"
-              >
-                <SectionHeader
-                  title={translate("planAssignmentTitle")}
-                  status={planAssignmentScreenModel.status}
-                  statusLabel={translate("planAssignmentStatusLabel")}
-                  language={language}
-                />
-                <p>{translate("planAssignmentSummary")}</p>
-                <div className="inline-inputs">
-                  <Metric
-                    title={translate("planAssignmentPlanLabel")}
-                    value={selectedPlan?.name ?? "-"}
-                  />
-                  <Metric
-                    title={translate("planAssignmentSelectedAthletesLabel")}
-                    value={String(selectedAthleteRows.length)}
-                  />
-                  <Metric
-                    title={translate("planAssignmentAtRiskAthletesLabel")}
-                    value={String(atRiskAthleteRows.length)}
-                  />
-                </div>
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    onClick={handleBulkAssignStarterPlan}
-                    type="button"
-                    data-action-id={planAssignmentScreenModel.actions.assignSelected}
-                    disabled={selectedPlan === null || selectedAthleteRows.length === 0}
-                  >
-                    {translate("planAssignmentAssignSelectedAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleAssignPlanToAtRiskAthletes}
-                    type="button"
-                    data-action-id={planAssignmentScreenModel.actions.assignAtRisk}
-                    disabled={selectedPlan === null || atRiskAthleteRows.length === 0}
-                  >
-                    {translate("planAssignmentAssignAtRiskAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleClearAthleteSelection}
-                    type="button"
-                    data-action-id={planAssignmentScreenModel.actions.clearSelection}
-                    disabled={selectedAthleteRows.length === 0}
-                  >
-                    {translate("planAssignmentClearAction")}
-                  </button>
-                </div>
-                {selectedAthleteRows.length === 0 ? (
-                  <p className="empty-state">{translate("planAssignmentNoSelection")}</p>
-                ) : (
-                  <>
-                    <p className="section-subtitle">{translate("planAssignmentSelectedListTitle")}</p>
-                    <div className="choice-list">
-                      {selectedAthleteRows.map((row) => (
-                        <label key={row.athleteId}>
-                          <span>{row.athleteId}</span>
-                          <span>
-                            {translate("sessionsColumn")} {row.sessionsCount} · {translate("plansColumn")}{" "}
-                            {row.plansCount}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              <PlanAssignmentPanel
+                screenId={planAssignmentScreenModel.screenId}
+                routeId={planAssignmentScreenModel.routeId}
+                statusId="web.planAssignment.status"
+                title={translate("planAssignmentTitle")}
+                statusLabel={translate("planAssignmentStatusLabel")}
+                statusClass={toStatusClass(planAssignmentScreenModel.status)}
+                statusValue={toHumanStatus(planAssignmentScreenModel.status, language)}
+                showStatus={readWebRuntimeMode() === "qa"}
+                summary={translate("planAssignmentSummary")}
+                planLabel={translate("planAssignmentPlanLabel")}
+                planValue={selectedPlan?.name ?? "-"}
+                selectedAthletesLabel={translate("planAssignmentSelectedAthletesLabel")}
+                selectedAthletesValue={String(selectedAthleteRows.length)}
+                atRiskAthletesLabel={translate("planAssignmentAtRiskAthletesLabel")}
+                atRiskAthletesValue={String(atRiskAthleteRows.length)}
+                assignSelectedLabel={translate("planAssignmentAssignSelectedAction")}
+                assignSelectedActionId={planAssignmentScreenModel.actions.assignSelected}
+                onAssignSelected={handleBulkAssignStarterPlan}
+                assignSelectedDisabled={selectedPlan === null || selectedAthleteRows.length === 0}
+                assignAtRiskLabel={translate("planAssignmentAssignAtRiskAction")}
+                assignAtRiskActionId={planAssignmentScreenModel.actions.assignAtRisk}
+                onAssignAtRisk={handleAssignPlanToAtRiskAthletes}
+                assignAtRiskDisabled={selectedPlan === null || atRiskAthleteRows.length === 0}
+                clearLabel={translate("planAssignmentClearAction")}
+                clearActionId={planAssignmentScreenModel.actions.clearSelection}
+                onClear={handleClearAthleteSelection}
+                clearDisabled={selectedAthleteRows.length === 0}
+                noSelectionLabel={translate("planAssignmentNoSelection")}
+                selectedListTitle={translate("planAssignmentSelectedListTitle")}
+                selectedRows={selectedAthleteRows}
+                sessionsLabel={translate("sessionsColumn")}
+                plansLabel={translate("plansColumn")}
+              />
               <div className="inline-inputs">
                 <button className="button primary" onClick={handleLogWorkoutSession} type="button">
                   {translate("logWorkout")}
