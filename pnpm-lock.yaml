@@ -12,8 +12,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0(@types/node@22.19.11)
       pumuki:
-        specifier: 6.3.41
-        version: 6.3.41(ts-morph@27.0.2)
+        specifier: 6.3.46
+        version: 6.3.46(ts-morph@27.0.2)
 
   apps/backend:
     dependencies:
@@ -1999,8 +1999,8 @@ packages:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
 
-  pumuki@6.3.41:
-    resolution: {integrity: sha512-2uDFAxth/qCL/R/6ZQVkhXM3+9R676tOftF6Wgoks/c0BHzkC0iHV+TCmlYk+AR6lTKyfbaewb8wql2HdFnSnw==}
+  pumuki@6.3.46:
+    resolution: {integrity: sha512-6Kt+9JH/3t8+e3Aq6g/STkuCvk3QaZvl8MK7ip9owXgbMLNStNOXM7kKIxvXycwVV5kmWQKNj/cYqnS0Jx6OhA==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
     hasBin: true
     peerDependencies:
@@ -4396,7 +4396,7 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
-  pumuki@6.3.41(ts-morph@27.0.2):
+  pumuki@6.3.46(ts-morph@27.0.2):
     dependencies:
       '@babel/parser': 7.29.0
       npm-packlist: 10.0.4
