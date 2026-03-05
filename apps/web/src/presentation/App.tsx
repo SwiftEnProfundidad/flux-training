@@ -88,6 +88,7 @@ import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
 import { RuntimeStateBannerCard } from "./RuntimeStateBannerCard";
+import { DashboardHomeCard } from "./DashboardHomeCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4149,44 +4150,28 @@ export function App() {
             <>
               {isQAMode ? (
                 <>
-                  <article
-                className="module-card"
-                data-screen-id={dashboardHomeScreenModel.screenId}
-                data-route-id={dashboardHomeScreenModel.routeId}
-                data-status-id="web.dashboardHome.status"
-              >
-                <SectionHeader
-                  title={translate("dashboardHomeTitle")}
-                  status={dashboardHomeScreenModel.status}
-                  statusLabel={translate("dashboardHomeStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("dashboardHomeSummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("dashboardHomeVisibleModulesLabel")}
-                      value={String(dashboardHomeScreenModel.visibleModulesCount)}
-                    />
-                    <Metric
-                      title={translate("dashboardHomeActiveDomainLabel")}
-                      value={
-                        domainTabs.find((tab) => tab.id === dashboardHomeScreenModel.activeDomain)
-                          ?.label ?? dashboardHomeScreenModel.activeDomain
-                      }
-                    />
-                  </div>
-                  <button
-                    className="button ghost"
-                    onClick={() => void handleRefreshDashboardHome()}
-                    type="button"
-                    data-action-id="web.dashboardHome.refresh"
-                    disabled={dashboardHomeScreenModel.status === "loading"}
-                  >
-                    {translate("dashboardHomeRefreshAction")}
-                  </button>
-                </div>
-              </article>
+                  <DashboardHomeCard
+                    screenId={dashboardHomeScreenModel.screenId}
+                    routeId={dashboardHomeScreenModel.routeId}
+                    title={translate("dashboardHomeTitle")}
+                    statusLabel={translate("dashboardHomeStatusLabel")}
+                    statusValue={toHumanStatus(dashboardHomeScreenModel.status, language)}
+                    statusClass={toStatusClass(dashboardHomeScreenModel.status)}
+                    summary={translate("dashboardHomeSummary")}
+                    visibleModulesLabel={translate("dashboardHomeVisibleModulesLabel")}
+                    visibleModulesValue={String(dashboardHomeScreenModel.visibleModulesCount)}
+                    activeDomainLabel={translate("dashboardHomeActiveDomainLabel")}
+                    activeDomainValue={
+                      domainTabs.find((tab) => tab.id === dashboardHomeScreenModel.activeDomain)
+                        ?.label ?? dashboardHomeScreenModel.activeDomain
+                    }
+                    refreshActionId="web.dashboardHome.refresh"
+                    refreshLabel={translate("dashboardHomeRefreshAction")}
+                    refreshDisabled={dashboardHomeScreenModel.status === "loading"}
+                    onRefresh={() => {
+                      void handleRefreshDashboardHome();
+                    }}
+                  />
               <article
                 className="module-card"
                 data-screen-id={quickActionsScreenModel.screenId}
