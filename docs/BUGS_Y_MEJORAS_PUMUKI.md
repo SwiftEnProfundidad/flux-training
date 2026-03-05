@@ -68,4 +68,9 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - validación técnica en core:
     - `npx --yes tsx@4.21.0 --test integrations/config/__tests__/skillsRuleSet.test.ts integrations/git/__tests__/runPlatformGateOutput.test.ts`
     - `npm run -s typecheck`
+- `PUM-009` abierto en consumer con repro vigente:
+  - `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/p3_t1_web_shell_dashboard ...`
+  - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`
+  - resultado: `TDD_BDD_EVIDENCE_INVALID` (`Invalid input: expected array, received undefined`).
+  - workaround operativo temporal: regenerar `.pumuki/artifacts/pumuki-evidence-v1.json` con `version: "1"` y `slices[]` antes de commit.
 - Siguiente foco activo: `PUM-009` (`🚧 En construccion`).
