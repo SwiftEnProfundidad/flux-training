@@ -89,6 +89,7 @@ import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
 import { RuntimeStateBannerCard } from "./RuntimeStateBannerCard";
 import { DashboardHomeCard } from "./DashboardHomeCard";
+import { QuickActionsCard } from "./QuickActionsCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4172,68 +4173,42 @@ export function App() {
                       void handleRefreshDashboardHome();
                     }}
                   />
-              <article
-                className="module-card"
-                data-screen-id={quickActionsScreenModel.screenId}
-                data-route-id={quickActionsScreenModel.routeId}
-                data-status-id={`${quickActionsScreenModel.screenId}.status`}
-              >
-                <SectionHeader
-                  title={translate("quickActionsTitle")}
-                  status={quickActionsScreenModel.status}
-                  statusLabel={translate("quickActionsStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("quickActionsSummary")}</p>
-                  <div className="inline-inputs">
-                    <button
-                      className="button primary"
-                      type="button"
-                      data-action-id={quickActionsScreenModel.actions.runAll}
-                      onClick={() => void handleRunQuickActions()}
-                      disabled={quickActionsScreenModel.status === "loading"}
-                    >
-                      {translate("quickActionsRunAll")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={quickActionsScreenModel.actions.refreshDashboard}
-                      onClick={() => void handleRefreshDashboardHome()}
-                      disabled={quickActionsScreenModel.status === "loading"}
-                    >
-                      {translate("dashboardHomeRefreshAction")}
-                    </button>
-                  </div>
-                  <div className="inline-inputs">
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={quickActionsScreenModel.actions.loadPlans}
-                      onClick={() => void handleLoadPlans()}
-                    >
-                      {translate("loadPlans")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={quickActionsScreenModel.actions.loadSessions}
-                      onClick={() => void handleLoadSessions()}
-                    >
-                      {translate("loadSessions")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      type="button"
-                      data-action-id={quickActionsScreenModel.actions.loadRecommendations}
-                      onClick={() => void handleLoadRecommendations()}
-                    >
-                      {translate("loadRecommendations")}
-                    </button>
-                  </div>
-                </div>
-              </article>
+              <QuickActionsCard
+                screenId={quickActionsScreenModel.screenId}
+                routeId={quickActionsScreenModel.routeId}
+                title={translate("quickActionsTitle")}
+                statusLabel={translate("quickActionsStatusLabel")}
+                statusValue={toHumanStatus(quickActionsScreenModel.status, language)}
+                statusClass={toStatusClass(quickActionsScreenModel.status)}
+                summary={translate("quickActionsSummary")}
+                runAllActionId={quickActionsScreenModel.actions.runAll}
+                runAllLabel={translate("quickActionsRunAll")}
+                runAllDisabled={quickActionsScreenModel.status === "loading"}
+                onRunAll={() => {
+                  void handleRunQuickActions();
+                }}
+                refreshActionId={quickActionsScreenModel.actions.refreshDashboard}
+                refreshLabel={translate("dashboardHomeRefreshAction")}
+                refreshDisabled={quickActionsScreenModel.status === "loading"}
+                onRefresh={() => {
+                  void handleRefreshDashboardHome();
+                }}
+                loadPlansActionId={quickActionsScreenModel.actions.loadPlans}
+                loadPlansLabel={translate("loadPlans")}
+                onLoadPlans={() => {
+                  void handleLoadPlans();
+                }}
+                loadSessionsActionId={quickActionsScreenModel.actions.loadSessions}
+                loadSessionsLabel={translate("loadSessions")}
+                onLoadSessions={() => {
+                  void handleLoadSessions();
+                }}
+                loadRecommendationsActionId={quickActionsScreenModel.actions.loadRecommendations}
+                loadRecommendationsLabel={translate("loadRecommendations")}
+                onLoadRecommendations={() => {
+                  void handleLoadRecommendations();
+                }}
+              />
               <article
                 className="module-card"
                 data-screen-id={alertCenterScreenModel.screenId}
