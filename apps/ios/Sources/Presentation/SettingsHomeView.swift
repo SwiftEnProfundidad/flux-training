@@ -66,130 +66,94 @@ public struct SettingsHomeView: View {
   }
 
   public var body: some View {
-    Form {
-      Section {
-        NavigationLink {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 14) {
+        Text(copy.text(.settingsTitle))
+          .font(.system(size: 32, weight: .black, design: .rounded))
+          .foregroundStyle(.white)
+
+        routeLink(
+          title: copy.text(.accountProfileTitle),
+          subtitle: copy.text(.profileStatusLabel),
+          status: copy.humanStatus(accountProfileViewModel.status),
+          accessibilityID: accountProfileRouteID
+        ) {
           accountProfileDestination
-        } label: {
-          VStack(alignment: .leading, spacing: 4) {
-            Text(copy.text(.accountProfileTitle))
-              .font(.body.weight(.semibold))
-            Text(copy.text(.profileStatusLabel))
-              .font(.footnote)
-              .foregroundStyle(.secondary)
-            Text(copy.humanStatus(accountProfileViewModel.status))
-              .font(.footnote.weight(.medium))
-              .foregroundStyle(.orange)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityIdentifier(accountProfileRouteID)
-      }
 
-      Section {
-        NavigationLink {
+        routeLink(
+          title: copy.text(.notificationsTitle),
+          subtitle: copy.text(.notificationsStatusLabel),
+          status: copy.humanStatus(notificationsViewModel.status),
+          accessibilityID: notificationsRouteID
+        ) {
           notificationsDestination
-        } label: {
-          VStack(alignment: .leading, spacing: 4) {
-            Text(copy.text(.notificationsTitle))
-              .font(.body.weight(.semibold))
-            Text(copy.text(.notificationsStatusLabel))
-              .font(.footnote)
-              .foregroundStyle(.secondary)
-            Text(copy.humanStatus(notificationsViewModel.status))
-              .font(.footnote.weight(.medium))
-              .foregroundStyle(.orange)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityIdentifier(notificationsRouteID)
-      }
 
-      Section {
-        NavigationLink {
+        routeLink(
+          title: copy.text(.legalSectionTitle),
+          subtitle: copy.text(.legalStatusLabel),
+          status: copy.humanStatus(privacyConsentViewModel.status),
+          accessibilityID: privacyConsentRouteID
+        ) {
           privacyConsentDestination
-        } label: {
-          VStack(alignment: .leading, spacing: 4) {
-            Text(copy.text(.legalSectionTitle))
-              .font(.body.weight(.semibold))
-            Text(copy.text(.legalStatusLabel))
-              .font(.footnote)
-              .foregroundStyle(.secondary)
-            Text(copy.humanStatus(privacyConsentViewModel.status))
-              .font(.footnote.weight(.medium))
-              .foregroundStyle(.orange)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityIdentifier(privacyConsentRouteID)
-      }
 
-      Section {
-        NavigationLink {
+        routeLink(
+          title: copy.text(.exportDataTitle),
+          subtitle: copy.text(.exportStatusLabel),
+          status: copy.humanStatus(exportDataViewModel.status),
+          accessibilityID: exportDataRouteID
+        ) {
           exportDataDestination
-        } label: {
-          VStack(alignment: .leading, spacing: 4) {
-            Text(copy.text(.exportDataTitle))
-              .font(.body.weight(.semibold))
-            Text(copy.text(.exportStatusLabel))
-              .font(.footnote)
-              .foregroundStyle(.secondary)
-            Text(copy.humanStatus(exportDataViewModel.status))
-              .font(.footnote.weight(.medium))
-              .foregroundStyle(.orange)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityIdentifier(exportDataRouteID)
-      }
 
-      Section {
-        NavigationLink {
+        routeLink(
+          title: copy.text(.deleteAccountTitle),
+          subtitle: copy.text(.deleteAccountStatusLabel),
+          status: copy.humanStatus(deleteAccountViewModel.status),
+          accessibilityID: deleteAccountRouteID
+        ) {
           deleteAccountDestination
-        } label: {
-          VStack(alignment: .leading, spacing: 4) {
-            Text(copy.text(.deleteAccountTitle))
-              .font(.body.weight(.semibold))
-            Text(copy.text(.deleteAccountStatusLabel))
-              .font(.footnote)
-              .foregroundStyle(.secondary)
-            Text(copy.humanStatus(deleteAccountViewModel.status))
-              .font(.footnote.weight(.medium))
-              .foregroundStyle(.orange)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityIdentifier(deleteAccountRouteID)
-      }
 
-      Section(copy.text(.settingsTitle)) {
-        Toggle(copy.text(.notificationsPreference), isOn: $viewModel.notificationsEnabled)
-          .accessibilityIdentifier("settings.home.notifications")
-        Toggle(copy.text(.watchPreference), isOn: $viewModel.watchSyncEnabled)
-          .accessibilityIdentifier("settings.home.watchSync")
-        Toggle(copy.text(.calendarPreference), isOn: $viewModel.calendarSyncEnabled)
-          .accessibilityIdentifier("settings.home.calendarSync")
-      }
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            toggleRow(
+              title: copy.text(.notificationsPreference),
+              isOn: $viewModel.notificationsEnabled,
+              identifier: "settings.home.notifications"
+            )
+            toggleRow(
+              title: copy.text(.watchPreference),
+              isOn: $viewModel.watchSyncEnabled,
+              identifier: "settings.home.watchSync"
+            )
+            toggleRow(
+              title: copy.text(.calendarPreference),
+              isOn: $viewModel.calendarSyncEnabled,
+              identifier: "settings.home.calendarSync"
+            )
+          }
+        }
 
-      Section {
         Button(copy.text(.saveSettings)) {
-          Task {
-            await viewModel.save(userID: userID)
-          }
+          Task { await viewModel.save(userID: userID) }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
+        .buttonStyle(FluxPrimaryButtonStyle())
         .accessibilityIdentifier("settings.home.save")
-      }
 
-      Section(copy.text(.settingsStatusLabel)) {
-        Text(copy.humanStatus(viewModel.status))
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .accessibilityIdentifier("settings.home.status")
+        FluxCard {
+          Text("\(copy.text(.settingsStatusLabel)): \(copy.humanStatus(viewModel.status))")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.82))
+            .accessibilityIdentifier("settings.home.status")
+        }
       }
+      .padding(16)
     }
     .navigationTitle(copy.text(.settingsTitle))
+    .fluxScreenStyle()
     .accessibilityIdentifier(screenAccessibilityID)
     .task(id: userID) {
       await viewModel.refresh(userID: userID)
@@ -199,6 +163,51 @@ public struct SettingsHomeView: View {
       await exportDataViewModel.refresh(userID: userID)
       await deleteAccountViewModel.refresh(userID: userID)
     }
+  }
+
+  @ViewBuilder
+  private func routeCard(title: String, subtitle: String, status: String) -> some View {
+    FluxCard {
+      VStack(alignment: .leading, spacing: 4) {
+        Text(title)
+          .font(.body.weight(.semibold))
+          .foregroundStyle(.white)
+        Text(subtitle)
+          .font(.footnote)
+          .foregroundStyle(.white.opacity(0.65))
+        Text(status)
+          .font(.footnote.weight(.semibold))
+          .foregroundStyle(.orange)
+      }
+    }
+  }
+
+  @ViewBuilder
+  private func routeLink<Destination: View>(
+    title: String,
+    subtitle: String,
+    status: String,
+    accessibilityID: String,
+    @ViewBuilder destination: () -> Destination
+  ) -> some View {
+    NavigationLink {
+      destination()
+    } label: {
+      routeCard(title: title, subtitle: subtitle, status: status)
+    }
+    .buttonStyle(.plain)
+    .accessibilityIdentifier(accessibilityID)
+  }
+
+  @ViewBuilder
+  private func toggleRow(title: String, isOn: Binding<Bool>, identifier: String) -> some View {
+    Toggle(isOn: isOn) {
+      Text(title)
+        .font(.body.weight(.medium))
+        .foregroundStyle(.white.opacity(0.86))
+    }
+    .tint(.orange)
+    .accessibilityIdentifier(identifier)
   }
 
   @ViewBuilder

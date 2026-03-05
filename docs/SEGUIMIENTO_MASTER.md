@@ -168,6 +168,7 @@
 - Web modo producto depurado: cabecera sin metricas internas (`auth/queue/sync/runtime`) y tarjeta de shortcuts sin datos de rol/dominio/modulos ni accion de `recoverDomain` fuera de QA.
 - iOS Today/Progress depurado: `TrainingTodayView` y `ProgressMetricsView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA principal`) con copy/jerarquia visual de usuario final.
 - iOS Nutricion depurado: `NutritionHubView` y `NutritionLogMealView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + campos/CTA`) con estado y carga de registros visibles para usuario final.
+- iOS Ajustes depurado: `SettingsHomeView` deja de renderizar `Form` de testing y pasa a composicion de producto (`ScrollView + cards de modulos + ajustes + CTA`) manteniendo rutas de perfil/notificaciones/legal/export/borrado.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.

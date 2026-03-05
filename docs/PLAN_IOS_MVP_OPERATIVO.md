@@ -162,4 +162,5 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 - Avance actual (auth email): `email login` ya usa recuperacion real por `email/SMS` en la propia pantalla y deja `apple handoff` como ruta secundaria explicita, alineado con flujo operativo esperado.
 - Avance actual (today/progress UI): `TrainingTodayView` y `ProgressMetricsView` migradas de `Form` tecnico a layout de producto (`ScrollView + FluxCard + CTAs`) para acercar jerarquia visual al board de Pencil.
 - Avance actual (nutrition UI): `NutritionHubView` y `NutritionLogMealView` migradas de `Form` tecnico a layout de producto (`ScrollView + FluxCard + campos/CTAs`) con jerarquia visual alineada al flujo de Nutricion del board de Pencil.
+- Avance actual (settings UI): `SettingsHomeView` migro de `Form` tecnico a layout de producto (`ScrollView + cards por modulo + ajustes + CTA`) manteniendo rutas y accesibilidad de perfil/notificaciones/legal/export/borrado.
 - Se considera cerrado solo lo que tenga evidencia de runtime y paridad visual, no solo contrato/test.
