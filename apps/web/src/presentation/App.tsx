@@ -100,6 +100,7 @@ import { ShortcutsCard } from "./ShortcutsCard";
 import { CohortAnalysisCard } from "./CohortAnalysisCard";
 import { OnboardingCard } from "./OnboardingCard";
 import { PlanBuilderPanel } from "./PlanBuilderPanel";
+import { PlanTemplatesPanel } from "./PlanTemplatesPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4614,99 +4615,42 @@ export function App() {
                     : null
                 }
               />
-              <div
-                className="history-list"
-                data-screen-id={planTemplatesScreenModel.screenId}
-                data-route-id={planTemplatesScreenModel.routeId}
-                data-status-id="web.light.planTemplates.status"
-              >
-                <SectionHeader
-                  title={translate("planTemplatesTitle")}
-                  status={planTemplatesScreenModel.status}
-                  statusLabel={translate("planTemplatesStatusLabel")}
-                  language={language}
-                />
-                <p>{translate("planTemplatesSummary")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button ghost"
-                    onClick={handleLoadPlanTemplates}
-                    type="button"
-                    data-action-id={planTemplatesScreenModel.actions.loadTemplates}
-                  >
-                    {translate("planTemplatesLoadAction")}
-                  </button>
-                  <button
-                    className="button primary"
-                    onClick={handleApplyPlanTemplate}
-                    type="button"
-                    data-action-id={planTemplatesScreenModel.actions.applyTemplate}
-                    disabled={selectedPlanTemplateOption === null}
-                  >
-                    {translate("planTemplatesApplyAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleClearPlanTemplateSelection}
-                    type="button"
-                    data-action-id={planTemplatesScreenModel.actions.clearSelection}
-                    disabled={selectedPlanTemplateOption === null}
-                  >
-                    {translate("planTemplatesClearAction")}
-                  </button>
-                </div>
-                {planTemplateOptions.length === 0 ? (
-                  <p className="empty-state">{translate("planTemplatesNoSelection")}</p>
-                ) : (
-                  <div className="choice-list">
-                    {planTemplateOptions.map((option) => (
-                      <label key={option.template}>
-                        <input
-                          type="radio"
-                          name="selected-plan-template"
-                          value={option.template}
-                          data-action-id={planTemplatesScreenModel.actions.selectTemplate}
-                          checked={selectedPlanTemplate === option.template}
-                          onChange={() => {
-                            setSelectedPlanTemplate(option.template);
-                            setPlanTemplatesStatus("loaded");
-                          }}
-                        />
-                        <span>
-                          {option.template === "strength"
-                            ? translate("planBuilderTemplateStrength")
-                            : option.template === "hypertrophy"
-                              ? translate("planBuilderTemplateHypertrophy")
-                              : translate("planBuilderTemplateRecomposition")}
-                        </span>
-                        <span>
-                          {translate("planTemplatesWeeksLabel")} {option.weeks} ·{" "}
-                          {translate("planTemplatesDaysLabel")} {option.daysPerWeek} ·{" "}
-                          {translate("planTemplatesFocusLabel")} {option.focus}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-                {selectedPlanTemplateOption === null ? (
-                  <p className="empty-state">{translate("planTemplatesNoSelection")}</p>
-                ) : (
-                  <div className="inline-inputs">
-                    <Metric
-                      title={translate("planTemplatesWeeksLabel")}
-                      value={String(selectedPlanTemplateOption.weeks)}
-                    />
-                    <Metric
-                      title={translate("planTemplatesDaysLabel")}
-                      value={String(selectedPlanTemplateOption.daysPerWeek)}
-                    />
-                    <Metric
-                      title={translate("planTemplatesFocusLabel")}
-                      value={selectedPlanTemplateOption.focus}
-                    />
-                  </div>
-                )}
-              </div>
+              <PlanTemplatesPanel
+                screenId={planTemplatesScreenModel.screenId}
+                routeId={planTemplatesScreenModel.routeId}
+                statusId="web.light.planTemplates.status"
+                title={translate("planTemplatesTitle")}
+                statusLabel={translate("planTemplatesStatusLabel")}
+                statusClass={toStatusClass(planTemplatesScreenModel.status)}
+                statusValue={toHumanStatus(planTemplatesScreenModel.status, language)}
+                showStatus={readWebRuntimeMode() === "qa"}
+                summary={translate("planTemplatesSummary")}
+                loadLabel={translate("planTemplatesLoadAction")}
+                loadActionId={planTemplatesScreenModel.actions.loadTemplates}
+                onLoad={handleLoadPlanTemplates}
+                applyLabel={translate("planTemplatesApplyAction")}
+                applyActionId={planTemplatesScreenModel.actions.applyTemplate}
+                onApply={handleApplyPlanTemplate}
+                clearLabel={translate("planTemplatesClearAction")}
+                clearActionId={planTemplatesScreenModel.actions.clearSelection}
+                onClear={handleClearPlanTemplateSelection}
+                isSelectionEmpty={selectedPlanTemplateOption === null}
+                noSelectionLabel={translate("planTemplatesNoSelection")}
+                options={planTemplateOptions}
+                selectedTemplate={selectedPlanTemplate}
+                selectActionId={planTemplatesScreenModel.actions.selectTemplate}
+                onSelectTemplate={(template) => {
+                  setSelectedPlanTemplate(template);
+                  setPlanTemplatesStatus("loaded");
+                }}
+                strengthLabel={translate("planBuilderTemplateStrength")}
+                hypertrophyLabel={translate("planBuilderTemplateHypertrophy")}
+                recompositionLabel={translate("planBuilderTemplateRecomposition")}
+                weeksLabel={translate("planTemplatesWeeksLabel")}
+                daysLabel={translate("planTemplatesDaysLabel")}
+                focusLabel={translate("planTemplatesFocusLabel")}
+                selectedOption={selectedPlanTemplateOption}
+              />
               <div
                 className="history-list"
                 data-screen-id={publishReviewScreenModel.screenId}
