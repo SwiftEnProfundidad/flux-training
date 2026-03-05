@@ -99,6 +99,7 @@ import { RecentActivityCard } from "./RecentActivityCard";
 import { ShortcutsCard } from "./ShortcutsCard";
 import { CohortAnalysisCard } from "./CohortAnalysisCard";
 import { OnboardingCard } from "./OnboardingCard";
+import { PlanBuilderPanel } from "./PlanBuilderPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4569,89 +4570,50 @@ export function App() {
               language={language}
             />
             <div className="form-grid">
-              <div
-                className="history-list"
-                data-screen-id={planBuilderScreenModel.screenId}
-                data-route-id={planBuilderScreenModel.routeId}
-                data-status-id="web.planBuilder.status"
-              >
-                <p className="section-subtitle">{translate("planBuilderTitle")}</p>
-                <div className="inline-inputs">
-                  <input
-                    aria-label={translate("planNamePlaceholder")}
-                    placeholder={translate("planNamePlaceholder")}
-                    value={planName}
-                    data-action-id={planBuilderScreenModel.actions.updateName}
-                    onChange={(event) => setPlanName(event.target.value)}
-                  />
-                  <input
-                    aria-label={translate("planBuilderWeeksLabel")}
-                    placeholder={translate("planBuilderWeeksLabel")}
-                    value={planBuilderWeeksInput}
-                    data-action-id={planBuilderScreenModel.actions.updateWeeks}
-                    onChange={(event) => setPlanBuilderWeeksInput(event.target.value)}
-                  />
-                  <input
-                    aria-label={translate("planBuilderDaysLabel")}
-                    placeholder={translate("planBuilderDaysLabel")}
-                    value={planBuilderDaysInput}
-                    data-action-id={planBuilderScreenModel.actions.updateDays}
-                    onChange={(event) => setPlanBuilderDaysInput(event.target.value)}
-                  />
-                  <select
-                    aria-label={translate("planBuilderTemplateLabel")}
-                    value={planBuilderTemplate}
-                    data-action-id={planBuilderScreenModel.actions.updateTemplate}
-                    onChange={(event) =>
-                      setPlanBuilderTemplate(event.target.value as PlanBuilderTemplate)
-                    }
-                  >
-                    <option value="strength">{translate("planBuilderTemplateStrength")}</option>
-                    <option value="hypertrophy">
-                      {translate("planBuilderTemplateHypertrophy")}
-                    </option>
-                    <option value="recomposition">
-                      {translate("planBuilderTemplateRecomposition")}
-                    </option>
-                  </select>
-                </div>
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    onClick={handleCreatePlan}
-                    type="button"
-                    data-action-id={planBuilderScreenModel.actions.createPlan}
-                  >
-                    {translate("createPlan")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleLoadPlans}
-                    type="button"
-                    data-action-id={planBuilderScreenModel.actions.loadPlans}
-                  >
-                    {translate("loadPlans")}
-                  </button>
-                </div>
-                <p className="section-subtitle">{translate("planBuilderPreviewTitle")}</p>
-                <div className="inline-inputs">
-                  <Metric
-                    title={translate("planBuilderPreviewDaysLabel")}
-                    value={
-                      normalizedPlanBuilderDays === null
-                        ? "-"
-                        : String(normalizedPlanBuilderDays)
-                    }
-                  />
-                  <Metric
-                    title={translate("planBuilderPreviewExercisesLabel")}
-                    value={String(planBuilderDayExercises.length)}
-                  />
-                </div>
-                {hasPlanBuilderValidationError ? (
-                  <p className="validation-copy">{translate("planBuilderInvalidConfiguration")}</p>
-                ) : null}
-              </div>
+              <PlanBuilderPanel
+                screenId={planBuilderScreenModel.screenId}
+                routeId={planBuilderScreenModel.routeId}
+                title={translate("planBuilderTitle")}
+                planNameLabel={translate("planNamePlaceholder")}
+                planNameValue={planName}
+                planNameActionId={planBuilderScreenModel.actions.updateName}
+                onPlanNameChange={setPlanName}
+                weeksLabel={translate("planBuilderWeeksLabel")}
+                weeksValue={planBuilderWeeksInput}
+                weeksActionId={planBuilderScreenModel.actions.updateWeeks}
+                onWeeksChange={setPlanBuilderWeeksInput}
+                daysLabel={translate("planBuilderDaysLabel")}
+                daysValue={planBuilderDaysInput}
+                daysActionId={planBuilderScreenModel.actions.updateDays}
+                onDaysChange={setPlanBuilderDaysInput}
+                templateLabel={translate("planBuilderTemplateLabel")}
+                templateValue={planBuilderTemplate}
+                templateActionId={planBuilderScreenModel.actions.updateTemplate}
+                onTemplateChange={(value) => setPlanBuilderTemplate(value as PlanBuilderTemplate)}
+                templateOptions={{
+                  strength: translate("planBuilderTemplateStrength"),
+                  hypertrophy: translate("planBuilderTemplateHypertrophy"),
+                  recomposition: translate("planBuilderTemplateRecomposition")
+                }}
+                createLabel={translate("createPlan")}
+                createActionId={planBuilderScreenModel.actions.createPlan}
+                onCreate={handleCreatePlan}
+                loadLabel={translate("loadPlans")}
+                loadActionId={planBuilderScreenModel.actions.loadPlans}
+                onLoad={handleLoadPlans}
+                previewTitle={translate("planBuilderPreviewTitle")}
+                previewDaysLabel={translate("planBuilderPreviewDaysLabel")}
+                previewDaysValue={
+                  normalizedPlanBuilderDays === null ? "-" : String(normalizedPlanBuilderDays)
+                }
+                previewExercisesLabel={translate("planBuilderPreviewExercisesLabel")}
+                previewExercisesValue={String(planBuilderDayExercises.length)}
+                validationCopy={
+                  hasPlanBuilderValidationError
+                    ? translate("planBuilderInvalidConfiguration")
+                    : null
+                }
+              />
               <div
                 className="history-list"
                 data-screen-id={planTemplatesScreenModel.screenId}
