@@ -95,6 +95,7 @@ import { SystemStatusCard } from "./SystemStatusCard";
 import { DashboardKpisCard } from "./DashboardKpisCard";
 import { ReadinessMonitorCard } from "./ReadinessMonitorCard";
 import { AlertsFullCard } from "./AlertsFullCard";
+import { RecentActivityCard } from "./RecentActivityCard";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4374,77 +4375,50 @@ export function App() {
                   summary: alert.summary
                 }))}
               />
-              <article
-                className="module-card"
-                data-screen-id={recentActivityScreenModel.screenId}
-                data-route-id={recentActivityScreenModel.routeId}
-                data-status-id="web.recentActivity.status"
-              >
-                <SectionHeader
-                  title={translate("recentActivityTitle")}
-                  status={recentActivityScreenModel.status}
-                  statusLabel={translate("recentActivityStatusLabel")}
-                  language={language}
-                />
-                <div className="form-grid">
-                  <p className="runtime-state-copy">{translate("recentActivitySummary")}</p>
-                  <div className="inline-inputs">
-                    <Metric title={translate("auditActivityLogLabel")} value={String(recentActivityRows.length)} />
-                    <Metric
-                      title={translate("recentActivityDeniedLabel")}
-                      value={String(recentActivityRows.filter((entry) => entry.outcome === "denied").length)}
-                    />
-                    <Metric
-                      title={translate("recentActivityErrorLabel")}
-                      value={String(recentActivityRows.filter((entry) => entry.outcome === "error").length)}
-                    />
-                      <Metric
-                        title={translate("auditOccurredAtColumn")}
-                        value={
-                          latestRecentActivityRow
-                            ? new Date(latestRecentActivityRow.occurredAt).toLocaleString()
-                            : "-"
-                        }
-                      />
-                  </div>
-                  <button
-                    className="button ghost"
-                    type="button"
-                    data-action-id="web.recentActivity.refresh"
-                    onClick={() => void handleRefreshRecentActivity()}
-                  >
-                    {translate("recentActivityRefreshAction")}
-                  </button>
-                  {recentActivityRows.length === 0 ? (
-                    <p className="empty-state">{translate("recentActivityNoEntries")}</p>
-                  ) : (
-                    <div className="dense-table">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>{translate("auditOccurredAtColumn")}</th>
-                            <th>{translate("auditNameColumn")}</th>
-                            <th>{translate("auditDomainColumn")}</th>
-                            <th>{translate("recentActivityOutcomeLabel")}</th>
-                            <th>{translate("auditSummaryColumn")}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {recentActivityRows.slice(0, 8).map((entry) => (
-                            <tr key={entry.id}>
-                              <td>{new Date(entry.occurredAt).toLocaleString()}</td>
-                              <td>{entry.action}</td>
-                              <td>{entry.domain}</td>
-                              <td>{toHumanStatus(entry.outcome, language)}</td>
-                              <td>{entry.summary}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </article>
+              <RecentActivityCard
+                screenId={recentActivityScreenModel.screenId}
+                routeId={recentActivityScreenModel.routeId}
+                title={translate("recentActivityTitle")}
+                statusLabel={translate("recentActivityStatusLabel")}
+                statusValue={toHumanStatus(recentActivityScreenModel.status, language)}
+                statusClass={toStatusClass(recentActivityScreenModel.status)}
+                summary={translate("recentActivitySummary")}
+                activityLabel={translate("auditActivityLogLabel")}
+                activityValue={String(recentActivityRows.length)}
+                deniedLabel={translate("recentActivityDeniedLabel")}
+                deniedValue={String(
+                  recentActivityRows.filter((entry) => entry.outcome === "denied").length
+                )}
+                errorLabel={translate("recentActivityErrorLabel")}
+                errorValue={String(
+                  recentActivityRows.filter((entry) => entry.outcome === "error").length
+                )}
+                lastOccurredLabel={translate("auditOccurredAtColumn")}
+                lastOccurredValue={
+                  latestRecentActivityRow
+                    ? new Date(latestRecentActivityRow.occurredAt).toLocaleString()
+                    : "-"
+                }
+                refreshActionId="web.recentActivity.refresh"
+                refreshLabel={translate("recentActivityRefreshAction")}
+                onRefresh={() => {
+                  void handleRefreshRecentActivity();
+                }}
+                emptyLabel={translate("recentActivityNoEntries")}
+                occurredAtLabel={translate("auditOccurredAtColumn")}
+                nameLabel={translate("auditNameColumn")}
+                domainLabel={translate("auditDomainColumn")}
+                outcomeLabel={translate("recentActivityOutcomeLabel")}
+                summaryLabel={translate("auditSummaryColumn")}
+                rows={recentActivityRows.slice(0, 8).map((entry) => ({
+                  id: entry.id,
+                  occurredAt: new Date(entry.occurredAt).toLocaleString(),
+                  action: entry.action,
+                  domain: entry.domain,
+                  outcome: toHumanStatus(entry.outcome, language),
+                  summary: entry.summary
+                }))}
+              />
               <article
                 className="module-card"
                 data-screen-id={shortcutsScreenModel.screenId}
