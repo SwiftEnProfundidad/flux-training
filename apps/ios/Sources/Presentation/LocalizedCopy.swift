@@ -313,12 +313,16 @@ public struct LocalizedCopy: Sendable {
   public func humanStatus(_ rawStatus: String) -> String {
     let normalizedStatus = rawStatus.trimmingCharacters(in: .whitespacesAndNewlines)
       .lowercased()
+    let canonicalStatus = normalizedStatus
+      .replacingOccurrences(of: ":", with: "_")
+      .replacingOccurrences(of: "-", with: "_")
+      .replacingOccurrences(of: " ", with: "_")
     if normalizedStatus.isEmpty {
       return language == .es ? "listo" : "ready"
     }
 
-    if normalizedStatus.hasPrefix("signed_in:") {
-      let provider = String(normalizedStatus.split(separator: ":").last ?? "")
+    if canonicalStatus.hasPrefix("signed_in_") {
+      let provider = String(canonicalStatus.split(separator: "_").last ?? "")
       switch language {
       case .es:
         return "sesion iniciada \(provider)"
@@ -330,6 +334,7 @@ public struct LocalizedCopy: Sendable {
     let labels: [SupportedLanguage: [String: String]] = [
       .es: [
         "signed_out": "inicia sesion",
+        "session_required": "inicia sesion",
         "session_expired": "sesion expirada",
         "auth_error": "no pudimos iniciar sesion",
         "validation_error": "error de validacion",
@@ -362,6 +367,7 @@ public struct LocalizedCopy: Sendable {
       ],
       .en: [
         "signed_out": "sign in to continue",
+        "session_required": "sign in to continue",
         "session_expired": "session expired",
         "auth_error": "sign in failed",
         "validation_error": "validation error",
@@ -395,6 +401,10 @@ public struct LocalizedCopy: Sendable {
     ]
 
     if let localized = labels[language]?[normalizedStatus] {
+      return localized
+    }
+
+    if let localized = labels[language]?[canonicalStatus] {
       return localized
     }
 

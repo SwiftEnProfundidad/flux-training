@@ -177,5 +177,6 @@ Implementar y validar todas las pantallas iOS de `flux.pen` con flujo real, dato
 - Avance actual (auth email primer acceso): `RemoteAuthGateway` ahora intenta alta automatica en Firebase (`accounts:signUp`) cuando `signInWithPassword` responde `EMAIL_NOT_FOUND`, permitiendo que usuarios nuevos entren por email sin bloqueo en el primer login.
 - Avance actual (auth fallback local): `RemoteAuthGateway` habilita fallback controlado para entorno local (`baseURL localhost/127.0.0.1`) cuando faltan tokens Firebase/Apple, permitiendo iniciar sesion contra `backend:start:demo` y validar flujo iOS E2E sin dependencia inmediata de credenciales cloud.
 - Avance actual (microcopy producto): `LocalizedCopy` elimina remanentes tecnicos visibles en ES (`Readiness` -> `Preparacion`, `Autenticacion` -> `Acceso`, permisos Apple en castellano) para alinear la entrada con UX de producto.
+- Avance actual (normalizacion de estado auth): `LocalizedCopy.humanStatus` ya traduce variantes tecnicas con espacios/guiones (`Session Required`, `signed-in:apple`) para evitar copy interno en tarjetas y cabeceras de acceso.
 - Gate final release (2026-03-05): `pnpm release:check` en verde, incluyendo `swift test` completo (174/174) y suite critica (`CriticalRegressionFlowTests`).
 - Se considera cerrado solo lo que tenga evidencia de runtime y paridad visual, no solo contrato/test.
