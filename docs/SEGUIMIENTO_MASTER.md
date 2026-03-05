@@ -176,6 +176,7 @@
 - iOS Entrenamiento/progreso media depurado: `ExerciseLibraryView`, `VideoPlayerView`, `SessionSummaryView`, `GoalAdjustView`, `AICoachView` y `WeeklyReviewView` dejan de renderizar `Form` de testing y pasan a composicion de producto (`ScrollView + cards + CTA`), eliminando el remanente de layout tecnico legacy en runtime iOS.
 - iOS runtime de usuario final sin selector tecnico de pantallas: `FluxTrainingProductRootView` oculta por defecto los chips de etapas internas (training/progress/nutrition/settings) y deja cada tab en su flujo principal de producto.
 - iOS navegacion por CTA en tabs principales: `TrainingTodayView`, `ProgressMetricsView` y `NutritionHubView` ahora abren pantallas secundarias reales por accion de usuario (sin chips tecnicos) y cada tab expone retorno claro a su vista principal.
+- iOS navegacion CTA de entrenamiento extendida: `PlanActive`, `SessionSetup`, `WorkoutActive`, `RPE`, `Substitution`, `Library` y `VideoPlayer` ya enlazan flujo real hacia `SessionSummary` sin usar controles internos de catalogo.
 - Web runtime blindado contra QA accidental en `localhost:5173`: la UI de QA solo puede abrirse en ruta dedicada `'/__qa'` con opt-in explicito, y `dev:web`/`dev:web:product` fuerzan modo producto por defecto.
 - Web producto limpio de query tecnica: fuera de QA se elimina automaticamente `?domain=...` de la URL para no exponer navegacion interna ni estados de depuracion al usuario final.
 

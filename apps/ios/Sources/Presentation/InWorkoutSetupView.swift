@@ -7,17 +7,26 @@ public struct InWorkoutSetupView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenRPE: () -> Void
+  private let onOpenSubstitution: () -> Void
+  private let onOpenVideoPlayer: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = TrainingRouteContract.inWorkoutSetupDarkScreenID
+    screenAccessibilityID: String = TrainingRouteContract.inWorkoutSetupDarkScreenID,
+    onOpenRPE: @escaping () -> Void = {},
+    onOpenSubstitution: @escaping () -> Void = {},
+    onOpenVideoPlayer: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenRPE = onOpenRPE
+    self.onOpenSubstitution = onOpenSubstitution
+    self.onOpenVideoPlayer = onOpenVideoPlayer
   }
 
   public var body: some View {
@@ -101,6 +110,25 @@ public struct InWorkoutSetupView: View {
                 .foregroundStyle(.white.opacity(0.7))
                 .accessibilityIdentifier("training.inWorkoutSetup.readyState")
             }
+          }
+        }
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text(copy.text(.trainingStageSetup))
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            HStack(spacing: 10) {
+              Button(copy.text(.trainingStageRPE), action: onOpenRPE)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("training.inWorkoutSetup.openRPE")
+              Button(copy.text(.trainingStageSubstitution), action: onOpenSubstitution)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("training.inWorkoutSetup.openSubstitution")
+            }
+            Button(copy.text(.trainingStageVideo), action: onOpenVideoPlayer)
+              .buttonStyle(FluxSecondaryButtonStyle())
+              .accessibilityIdentifier("training.inWorkoutSetup.openVideo")
           }
         }
       }

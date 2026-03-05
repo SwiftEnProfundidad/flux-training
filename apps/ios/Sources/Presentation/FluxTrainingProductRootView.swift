@@ -601,19 +601,59 @@ public struct FluxTrainingProductRootView: View {
         onOpenSessionSummary: { selectedTrainingStage = .summary }
       )
     case .planActive:
-      PlanActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      PlanActiveView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenSessionSetup: { selectedTrainingStage = .sessionSetup },
+        onOpenExerciseLibrary: { selectedTrainingStage = .library }
+      )
     case .sessionSetup:
-      InWorkoutSetupView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      InWorkoutSetupView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenRPE: { selectedTrainingStage = .rpe },
+        onOpenSubstitution: { selectedTrainingStage = .substitution },
+        onOpenVideoPlayer: { selectedTrainingStage = .video }
+      )
     case .workoutActive:
-      WorkoutActiveView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      WorkoutActiveView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenExerciseLibrary: { selectedTrainingStage = .library },
+        onOpenVideoPlayer: { selectedTrainingStage = .video }
+      )
     case .rpe:
-      RPERatingView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      RPERatingView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenSessionSummary: { selectedTrainingStage = .summary }
+      )
     case .substitution:
-      ExerciseSubstitutionView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      ExerciseSubstitutionView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenExerciseLibrary: { selectedTrainingStage = .library },
+        onOpenVideoPlayer: { selectedTrainingStage = .video }
+      )
     case .library:
-      ExerciseLibraryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      ExerciseLibraryView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenVideoPlayer: { selectedTrainingStage = .video }
+      )
     case .video:
-      VideoPlayerView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
+      VideoPlayerView(
+        viewModel: trainingViewModel,
+        userID: activeUserID,
+        copy: copy,
+        onOpenSessionSummary: { selectedTrainingStage = .summary }
+      )
     case .summary:
       SessionSummaryView(viewModel: trainingViewModel, userID: activeUserID, copy: copy)
     }

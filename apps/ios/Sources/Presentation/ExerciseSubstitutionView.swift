@@ -7,17 +7,23 @@ public struct ExerciseSubstitutionView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenExerciseLibrary: () -> Void
+  private let onOpenVideoPlayer: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = TrainingRouteContract.substitutionDarkScreenID
+    screenAccessibilityID: String = TrainingRouteContract.substitutionDarkScreenID,
+    onOpenExerciseLibrary: @escaping () -> Void = {},
+    onOpenVideoPlayer: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenExerciseLibrary = onOpenExerciseLibrary
+    self.onOpenVideoPlayer = onOpenVideoPlayer
   }
 
   public var body: some View {
@@ -95,6 +101,15 @@ public struct ExerciseSubstitutionView: View {
                 .accessibilityIdentifier("training.substitution.validationError")
             }
           }
+        }
+
+        HStack(spacing: 10) {
+          Button(copy.text(.trainingStageLibrary), action: onOpenExerciseLibrary)
+            .buttonStyle(FluxSecondaryButtonStyle())
+            .accessibilityIdentifier("training.substitution.openLibrary")
+          Button(copy.text(.trainingStageVideo), action: onOpenVideoPlayer)
+            .buttonStyle(FluxSecondaryButtonStyle())
+            .accessibilityIdentifier("training.substitution.openVideo")
         }
       }
     }

@@ -8,18 +8,21 @@ public struct VideoPlayerView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenSessionSummary: () -> Void
   @State private var playbackSession: VideoPlaybackSession?
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = TrainingRouteContract.videoPlayerDarkScreenID
+    screenAccessibilityID: String = TrainingRouteContract.videoPlayerDarkScreenID,
+    onOpenSessionSummary: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenSessionSummary = onOpenSessionSummary
   }
 
   public var body: some View {
@@ -131,6 +134,10 @@ public struct VideoPlayerView: View {
               .accessibilityIdentifier("training.videoPlayer.videoStatus")
           }
         }
+
+        Button(copy.text(.trainingStageSummary), action: onOpenSessionSummary)
+          .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("training.videoPlayer.openSummary")
       }
     }
     .padding(16)

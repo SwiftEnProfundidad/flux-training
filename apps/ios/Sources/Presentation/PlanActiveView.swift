@@ -7,17 +7,23 @@ public struct PlanActiveView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenSessionSetup: () -> Void
+  private let onOpenExerciseLibrary: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = TrainingRouteContract.planActiveDarkScreenID
+    screenAccessibilityID: String = TrainingRouteContract.planActiveDarkScreenID,
+    onOpenSessionSetup: @escaping () -> Void = {},
+    onOpenExerciseLibrary: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenSessionSetup = onOpenSessionSetup
+    self.onOpenExerciseLibrary = onOpenExerciseLibrary
   }
 
   public var body: some View {
@@ -83,6 +89,22 @@ public struct PlanActiveView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("training.planActive.plan.\(plan.id)")
               }
+            }
+          }
+        }
+
+        FluxCard {
+          VStack(alignment: .leading, spacing: 10) {
+            Text(copy.text(.trainingStagePlan))
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.white.opacity(0.8))
+            HStack(spacing: 10) {
+              Button(copy.text(.trainingStageSetup), action: onOpenSessionSetup)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("training.planActive.openSetup")
+              Button(copy.text(.trainingStageLibrary), action: onOpenExerciseLibrary)
+                .buttonStyle(FluxSecondaryButtonStyle())
+                .accessibilityIdentifier("training.planActive.openLibrary")
             }
           }
         }

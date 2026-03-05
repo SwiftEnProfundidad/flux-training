@@ -5,15 +5,21 @@ public struct WorkoutActiveView: View {
   private let viewModel: TrainingFlowViewModel
   private let userID: String
   private let copy: LocalizedCopy
+  private let onOpenExerciseLibrary: () -> Void
+  private let onOpenVideoPlayer: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
-    copy: LocalizedCopy
+    copy: LocalizedCopy,
+    onOpenExerciseLibrary: @escaping () -> Void = {},
+    onOpenVideoPlayer: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
+    self.onOpenExerciseLibrary = onOpenExerciseLibrary
+    self.onOpenVideoPlayer = onOpenVideoPlayer
   }
 
   public var body: some View {
@@ -21,7 +27,9 @@ public struct WorkoutActiveView: View {
       viewModel: viewModel,
       userID: userID,
       copy: copy,
-      screenAccessibilityID: TrainingRouteContract.workoutActiveDarkScreenID
+      screenAccessibilityID: TrainingRouteContract.workoutActiveDarkScreenID,
+      onOpenExerciseLibrary: onOpenExerciseLibrary,
+      onOpenVideoPlayer: onOpenVideoPlayer
     )
   }
 }

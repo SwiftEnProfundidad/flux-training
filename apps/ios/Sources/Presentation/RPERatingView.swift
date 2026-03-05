@@ -7,17 +7,20 @@ public struct RPERatingView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenSessionSummary: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = TrainingRouteContract.rpeRatingDarkScreenID
+    screenAccessibilityID: String = TrainingRouteContract.rpeRatingDarkScreenID,
+    onOpenSessionSummary: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenSessionSummary = onOpenSessionSummary
   }
 
   public var body: some View {
@@ -90,6 +93,10 @@ public struct RPERatingView: View {
             }
           }
         }
+
+        Button(copy.text(.trainingStageSummary), action: onOpenSessionSummary)
+          .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("training.rpe.openSummary")
       }
     }
     .padding(16)

@@ -7,17 +7,20 @@ public struct ExerciseLibraryView: View {
   private let userID: String
   private let copy: LocalizedCopy
   private let screenAccessibilityID: String
+  private let onOpenVideoPlayer: () -> Void
 
   public init(
     viewModel: TrainingFlowViewModel,
     userID: String,
     copy: LocalizedCopy,
-    screenAccessibilityID: String = TrainingRouteContract.exerciseLibraryDarkScreenID
+    screenAccessibilityID: String = TrainingRouteContract.exerciseLibraryDarkScreenID,
+    onOpenVideoPlayer: @escaping () -> Void = {}
   ) {
     self.viewModel = viewModel
     self.userID = userID
     self.copy = copy
     self.screenAccessibilityID = screenAccessibilityID
+    self.onOpenVideoPlayer = onOpenVideoPlayer
   }
 
   public var body: some View {
@@ -102,6 +105,10 @@ public struct ExerciseLibraryView: View {
             }
           }
         }
+
+        Button(copy.text(.trainingStageVideo), action: onOpenVideoPlayer)
+          .buttonStyle(FluxSecondaryButtonStyle())
+          .accessibilityIdentifier("training.library.openVideoPlayer")
       }
     }
     .padding(16)
