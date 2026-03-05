@@ -597,9 +597,7 @@ export function App() {
       "recommendations",
       "nutrition",
       "progress",
-      "offlineSync",
-      "settings",
-      "legal"
+      "settings"
     ],
     []
   );

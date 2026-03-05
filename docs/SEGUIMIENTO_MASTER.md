@@ -182,6 +182,7 @@
 - Web runtime blindado contra QA accidental en `localhost:5173`: la UI de QA solo puede abrirse en ruta dedicada `'/__qa'` con opt-in explicito, y `dev:web`/`dev:web:product` fuerzan modo producto por defecto.
 - Web producto limpio de query tecnica: fuera de QA se elimina automaticamente `?domain=...` de la URL para no exponer navegacion interna ni estados de depuracion al usuario final.
 - iOS runtime blindado contra catalogo tecnico: `ExperienceHubView` queda forzado a modo producto por defecto y solo habilita modo catalogo con opt-in explicito (`FLUX_IOS_ALLOW_CATALOG=1`), evitando exponer tabs internas (`Hoy/Progreso/Ops`) en ejecucion de usuario final.
+- Web runtime de usuario final depurado: en modo productivo quedan solo modulos de experiencia (`onboarding/training/recommendations/nutrition/progress/settings`), retirando bloques `offlineSync` y `legal` como secciones separadas para evitar UI de consola operativa.
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
