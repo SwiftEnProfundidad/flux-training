@@ -143,8 +143,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 
 ## Estado activo Web
-- 🚧 Task en construccion: **Fase 30 — Extraer panel comparativo de progreso a `CompareProgressPanel`**
-- ⏳ Siguiente task global documentada: **Fase 31 — Extraer notas de coach a `CoachNotesPanel`**
+- 🚧 Task en construccion: **Fase 31 — Extraer notas de coach a `CoachNotesPanel`**
+- ⏳ Siguiente task global documentada: **Fase 32 — Extraer tabla principal de atletas a `AthletesOperationsTablePanel`**
 - ✅ Bloques cerrados previos: **Fases 4.1 a 4.12 + fases 19 a 28**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
@@ -185,14 +185,16 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Evidencia de ajuste fase 28 (2026-03-05): `pnpm --filter @flux/web test -- src/presentation/App.tsx`, `pnpm --filter @flux/web build` y `pnpm --filter @flux/web check` en verde; smoke QA en `http://127.0.0.1:5176/__qa?unlockQa=1&qa=1` con accion real observable sobre acceso (campo `correo`: `"" -> "qa+session-history-panel@flux.app"`) y consola limpia (`error=0`, `warning=0`).
 - Ajuste de mantenibilidad web (post-cierre 55/55, fase 29): extraccion del panel de detalle de atleta a `AthleteDetailPanel` para desacoplar seleccion, resumen operativo del atleta y CTAs de historial/limpieza del contenedor `App.tsx` sin alterar contrato runtime (`web.athleteDetail.*`).
 - Evidencia de ajuste fase 29 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/AthleteDetailPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke con backend demo real en `http://localhost:5173/__qa?unlockQa=1&qa=1` validando login por email (`qa+athlete-detail-panel@flux.app`) y transición observable `inicia sesion para continuar -> acceso activo`, con consola limpia (`error=0`, `warning=0`).
+- Ajuste de mantenibilidad web (post-cierre 55/55, fase 30): extraccion del panel comparativo de progreso a `CompareProgressPanel` para desacoplar acciones, estado vacío y delta frente a cohorte del contenedor `App.tsx`; adicionalmente, se habilita fallback QA local controlado en `localhost/127.0.0.1` para que `/__qa` exponga los módulos enterprise reales cuando el entorno no inyecta flags QA.
+- Evidencia de ajuste fase 30 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/web-runtime-mode.spec.ts src/presentation/CompareProgressPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/web-runtime-mode.spec.ts src/presentation/CompareProgressPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase30-runtime-qa-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5180/__qa?unlockQa=1&qa=1`, login por email, cambio a dominio `Operaciones` y visibilidad confirmada de `web.compareProgress.screen`.
 
 ## Cola documentada de modularizacion web posterior a fase 28
 
 | Fase | Task | Estado | Objetivo real |
 |---|---|---|---|
 | 29 | Extraer detalle de atleta a `AthleteDetailPanel` | ✅ | Sacar de `App.tsx` el bloque `web.athleteDetail.*` con seleccion, resumen del atleta y CTAs operativos |
-| 30 | Extraer comparativa de progreso a `CompareProgressPanel` | 🚧 | Sacar de `App.tsx` el bloque `web.compareProgress.*` con carga de resumen y delta vs cohorte |
-| 31 | Extraer notas de coach a `CoachNotesPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.coachNotes.*` con carga, guardado y listado de notas |
+| 30 | Extraer comparativa de progreso a `CompareProgressPanel` | ✅ | Sacar de `App.tsx` el bloque `web.compareProgress.*` con carga de resumen y delta vs cohorte |
+| 31 | Extraer notas de coach a `CoachNotesPanel` | 🚧 | Sacar de `App.tsx` el bloque `web.coachNotes.*` con carga, guardado y listado de notas |
 | 32 | Extraer tabla principal de atletas a `AthletesOperationsTablePanel` | ⏳ | Sacar de `App.tsx` la tabla densa de atletas, seleccion masiva y paginacion visible |
 | 33 | Extraer gobernanza/RBAC a `AdminUsersPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.adminUsers.*` con filtros, asignacion de roles y cobertura |
 | 34 | Extraer auditoria a `AuditTrailPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.auditTrail.*` con filtros, export y tabla densa |
