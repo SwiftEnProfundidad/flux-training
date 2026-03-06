@@ -123,6 +123,7 @@ import { DailyLogReviewPanel } from "./DailyLogReviewPanel";
 import { DeviationAlertsPanel } from "./DeviationAlertsPanel";
 import { NutritionCoachPanel } from "./NutritionCoachPanel";
 import { NutritionLogDetailPanel } from "./NutritionLogDetailPanel";
+import { ProgressTrendsPanel } from "./ProgressTrendsPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5630,120 +5631,48 @@ export function App() {
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("progress") ? (
-            <article
-              className="module-card"
-              data-screen-id={progressTrendsScreenModel.screenId}
-              data-route-id={progressTrendsScreenModel.routeId}
-              data-status-id="web.progressTrends.status"
-            >
-            <SectionHeader
+            <ProgressTrendsPanel
+              screenId={progressTrendsScreenModel.screenId}
+              routeId={progressTrendsScreenModel.routeId}
+              statusId="web.progressTrends.status"
               title={translate("progressTrendsTitle")}
               status={progressTrendsScreenModel.status}
               statusLabel={translate("progressTrendsStatusLabel")}
-              language={language}
+              summary={translate("progressTrendsSummary")}
+              refreshLabel={translate("progressTrendsRefreshAction")}
+              refreshActionId={progressTrendsScreenModel.actions.refresh}
+              onRefresh={() => void handleRefreshProgressTrends()}
+              refreshDisabled={progressTrendsScreenModel.status === "loading"}
+              progressSummary={progressSummary}
+              noDataLabel={translate("progressTrendsNoData")}
+              workoutsLabel={translate("workoutsMetric")}
+              minutesLabel={translate("minutesMetric")}
+              setsLabel={translate("setsMetric")}
+              nutritionLabel={translate("nutritionMetric")}
+              avgCaloriesLabel={translate("avgCaloriesMetric")}
+              avgProteinLabel={translate("avgProteinMetric")}
+              filtersLabel={translate("progressFiltersLabel")}
+              minSessionsPlaceholder={translate("progressMinSessionsPlaceholder")}
+              minSessionsValue={progressMinSessionsFilter}
+              onMinSessionsChange={setProgressMinSessionsFilter}
+              sortLabel={translate("progressSortLabel")}
+              sortMode={progressSortMode}
+              onSortModeChange={setProgressSortMode}
+              sortByDateLabel={translate("progressSortByDate")}
+              sortBySessionsLabel={translate("progressSortBySessions")}
+              sortByMinutesLabel={translate("progressSortByMinutes")}
+              clearFiltersLabel={translate("clearProgressFilters")}
+              onClearFilters={handleClearProgressFilters}
+              filteredHistoryLabel={translate("filteredHistoryLabel")}
+              filteredHistoryValue={String(filteredProgressHistory.length)}
+              filteredHistory={filteredProgressHistory}
+              noFilteredHistoryLabel={translate("noProgressFilteredHistory")}
+              historySessionsLabel={translate("historySessionsLabel")}
+              historyMinutesLabel={translate("historyMinutesLabel")}
+              historySetsLabel={translate("historySetsLabel")}
+              historyCaloriesLabel={translate("historyCaloriesLabel")}
+              effortLabel={translate("effortMetric")}
             />
-            <div className="form-grid">
-              <p className="runtime-state-copy">{translate("progressTrendsSummary")}</p>
-              <button
-                className="button primary"
-                onClick={() => void handleRefreshProgressTrends()}
-                type="button"
-                data-action-id={progressTrendsScreenModel.actions.refresh}
-                disabled={progressTrendsScreenModel.status === "loading"}
-              >
-                {translate("progressTrendsRefreshAction")}
-              </button>
-              {progressSummary === null ? (
-                <p className="empty-state">{translate("progressTrendsNoData")}</p>
-              ) : (
-                <>
-                  <div className="metric-grid">
-                    <Metric
-                      title={translate("workoutsMetric")}
-                      value={String(progressSummary.workoutSessionsCount)}
-                    />
-                    <Metric
-                      title={translate("minutesMetric")}
-                      value={String(progressSummary.totalTrainingMinutes)}
-                    />
-                    <Metric
-                      title={translate("setsMetric")}
-                      value={String(progressSummary.totalCompletedSets)}
-                    />
-                    <Metric
-                      title={translate("nutritionMetric")}
-                      value={String(progressSummary.nutritionLogsCount)}
-                    />
-                    <Metric
-                      title={translate("avgCaloriesMetric")}
-                      value={String(progressSummary.averageCalories)}
-                    />
-                    <Metric
-                      title={translate("avgProteinMetric")}
-                      value={String(progressSummary.averageProteinGrams)}
-                    />
-                  </div>
-                  <p className="section-subtitle">{translate("progressFiltersLabel")}</p>
-                  <div className="inline-inputs">
-                    <input
-                      aria-label={translate("progressMinSessionsPlaceholder")}
-                      placeholder={translate("progressMinSessionsPlaceholder")}
-                      value={progressMinSessionsFilter}
-                      onChange={(event) => setProgressMinSessionsFilter(event.target.value)}
-                    />
-                    <label className="compact-label">
-                      {translate("progressSortLabel")}
-                      <select
-                        aria-label={translate("progressSortLabel")}
-                        value={progressSortMode}
-                        onChange={(event) =>
-                          setProgressSortMode(event.target.value as ProgressSortMode)
-                        }
-                      >
-                        <option value="date_desc">{translate("progressSortByDate")}</option>
-                        <option value="sessions_desc">{translate("progressSortBySessions")}</option>
-                        <option value="minutes_desc">{translate("progressSortByMinutes")}</option>
-                      </select>
-                    </label>
-                    <button className="button ghost" onClick={handleClearProgressFilters} type="button">
-                      {translate("clearProgressFilters")}
-                    </button>
-                  </div>
-                  <StatLine
-                    label={translate("filteredHistoryLabel")}
-                    value={String(filteredProgressHistory.length)}
-                    language={language}
-                  />
-                  <div className="history-list">
-                    {filteredProgressHistory.length === 0 ? (
-                      <p className="empty-state">{translate("noProgressFilteredHistory")}</p>
-                    ) : (
-                      filteredProgressHistory.map((entry) => (
-                        <article key={entry.date} className="history-item">
-                          <strong>{entry.date}</strong>
-                          <div className="history-values">
-                            <span>
-                              {translate("historySessionsLabel")} {entry.workoutSessions}
-                            </span>
-                            <span>
-                              {translate("historyMinutesLabel")} {entry.trainingMinutes}
-                            </span>
-                            <span>
-                              {translate("historySetsLabel")} {entry.completedSets}
-                            </span>
-                            <span>
-                              {translate("historyCaloriesLabel")} {entry.calories ?? "-"}
-                            </span>
-                            <span>{translate("effortMetric")} {entry.effortScore}</span>
-                          </div>
-                        </article>
-                      ))
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-            </article>
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("offlineSync") ? (
