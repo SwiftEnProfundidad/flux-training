@@ -284,6 +284,13 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `NutritionOverviewPanel.tsx` y `NutritionOverviewPanel.spec.tsx`.
   - smoke adicional: QA local validada en `http://127.0.0.1:5182/__qa?unlockQa=1&qa=1&domain=nutrition` con login por email (`qa+nutrition-overview@flux.app`) y ejecucion de `Guardar registro nutricional`, confirmando visibilidad de `web.nutritionOverview.screen` con `Registros cargados 1` y `Registros filtrados 1`.
   - sin nuevos bugs/mejoras de Pumuki detectados en el cierre de la fase 37.
+- Revalidación iteración fase 38 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/DailyLogReviewPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/DailyLogReviewPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase38-daily-log-review-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `DailyLogReviewPanel.tsx` y `DailyLogReviewPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5182/__qa?unlockQa=1&qa=1&domain=nutrition` con login por email (`qa+daily-log-review@flux.app`), ejecucion de `Cargar registros` y filtro `calorias maximas = 1000`, confirmando visibilidad de `web.dailyLogReview.screen` con `Registros cargados 3` y `Registros filtrados 0`.
+  - sin nuevos bugs/mejoras de Pumuki detectados en el cierre de la fase 38.
 - `PUM-016` cerrado (validación local 2026-03-06):
   - issue upstream: `#726`.
   - release publicada: `pumuki@6.3.51`.
@@ -293,4 +300,4 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - validación técnica en core:
     - `npx --yes tsx@4.21.0 --test integrations/sdd/__tests__/evidenceScaffold.test.ts integrations/lifecycle/__tests__/cli.test.ts`
     - resultado: `49 pass / 0 fail`.
-- foco activo actual: backlog Flux con fase web 37 `✅` cerrada y fase 38 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- foco activo actual: backlog Flux con fase web 38 `✅` cerrada y fase 39 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
