@@ -367,4 +367,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - cuando un componente nuevo intenta reutilizar helpers visuales locales embebidos en `App.tsx`, el fallo real aparece tarde en `build/check` como import inexistente.
   - impacto: añade una vuelta extra de validación y rompe el flujo fino de commits atómicos.
   - propuesta Pumuki: añadir una regla DX opcional que detecte imports nuevos hacia módulos inexistentes de la misma carpeta antes del `build`, con mensaje corto y corrección sugerida.
-- foco activo actual: backlog Flux con fase web 45 `✅` cerrada y fase 46 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Revalidación iteración fase 46 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/ObservabilityPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/ObservabilityPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase46-observability-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `ObservabilityPanel.tsx` y `ObservabilityPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5188/__qa?unlockQa=1&qa=1&domain=all` con login por email (`qa+observability@flux.app`), ejecucion de `Registrar evento`, `Reportar crash` y `Cargar datos`, confirmando presencia de `web.analyticsOverview.screen` con `Eventos de analitica 6`, `Reportes de fallos 2`, `Cobertura canonica 6/6` y consola limpia (`Errors: 0`, `Warnings: 0`).
+- Mejora detectada en fase 46:
+  - el warning de bundle de Vite sigue apareciendo (`dist/assets/index-DIoU7dMQ.js 656.88 kB`) incluso con fases de desacoplo ya cerradas y todas las validaciones verdes.
+  - impacto: el gate funcional queda limpio, pero la señal de deuda de bundle persiste fuera del reporte estructurado de Pumuki y obliga a revisarla manualmente iteración tras iteración.
+  - propuesta Pumuki: añadir una sección opcional de `build health` no bloqueante que capture warnings repetidos de bundle y los marque como `deuda_recurrente` con contador, para separar regresión nueva de deuda conocida.
+- foco activo actual: backlog Flux con fase web 46 `✅` cerrada y backlog web modularizado completo; el siguiente ciclo debe documentarse antes de ejecutarse.
