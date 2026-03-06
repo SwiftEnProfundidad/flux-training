@@ -327,4 +327,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - durante `pnpm --filter @flux/web build`, Vite sigue avisando de chunk principal `>500 kB`.
   - impacto: aunque no bloquea Pumuki ni la build, el warning aparece en cada fase y ensucia la señal de calidad del ciclo.
   - propuesta Pumuki: permitir una regla/opinion opcional que recoja warnings de bundling recurrentes como deuda no bloqueante pero trazable en el mismo reporte de gate.
-- foco activo actual: backlog Flux con fase web 41 `✅` cerrada y fase 42 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Revalidación iteración fase 42 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase42-progress-trends-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `ProgressTrendsPanel.tsx` y `ProgressTrendsPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5185/__qa?unlockQa=1&qa=1&domain=progress` con login por email (`qa+progress-trends@flux.app`), `Refrescar tendencias` y filtro `sesiones minimas = 1`, confirmando visibilidad de `web.progressTrends.screen` con `Dias filtrados 0` y estado `Tendencias: success`.
+- Mejora detectada en fase 42:
+  - `pnpm --filter @flux/web build` sigue reportando chunk principal `652.59 kB`.
+  - impacto: el warning ya es recurrente y repetible, y señala que la modularización por componentes todavía no se traduce en partición real del bundle.
+  - propuesta Pumuki: añadir una sugerencia de deuda técnica persistente cuando el mismo warning de bundling aparece en iteraciones consecutivas, para distinguir “warning nuevo” de “warning arrastrado”.
+- foco activo actual: backlog Flux con fase web 42 `✅` cerrada y fase 43 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
