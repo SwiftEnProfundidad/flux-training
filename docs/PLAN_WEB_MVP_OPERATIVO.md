@@ -143,8 +143,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 
 ## Estado activo Web
-- 🚧 Task en construccion: **Fase 41 — Extraer detalle de log nutricional a `NutritionLogDetailPanel`**
-- ⏳ Siguiente task global documentada: **Fase 42 — Extraer tendencias de progreso a `ProgressTrendsPanel`**
+- 🚧 Task en construccion: **Fase 42 — Extraer tendencias de progreso a `ProgressTrendsPanel`**
+- ⏳ Siguiente task global documentada: **Fase 43 — Extraer sincronizacion offline a `OfflineSyncPanel`**
 - ✅ Bloques cerrados previos: **Fases 4.1 a 4.12 + fases 19 a 34**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
@@ -207,6 +207,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Evidencia de ajuste fase 39 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/DeviationAlertsPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/DeviationAlertsPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase39-deviation-alerts-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5182/__qa?unlockQa=1&qa=1&domain=nutrition`, login por email (`qa+deviation-alerts@flux.app`), `Guardar registro nutricional`, `Evaluar desvios` y visibilidad confirmada de `web.deviationAlerts.screen` con alerta de riesgo alto (`calorias 3100`, `proteina g 100`).
 - Ajuste de mantenibilidad web (post-cierre 55/55, fase 40): extraccion del bloque combinado de vista coach nutricional y cohorte secundaria a `NutritionCoachPanel` para desacoplar acciones, metricas y listados de `web.nutritionCoachView.*` y `web.light.cohortNutrition.*` del contenedor `App.tsx` sin alterar contrato runtime.
 - Evidencia de ajuste fase 40 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/NutritionCoachPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/NutritionCoachPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase40-nutrition-coach-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5183/__qa?unlockQa=1&qa=1&domain=nutrition`, login por email (`qa+nutrition-coach@flux.app`), `Cargar registros`, lane `Secondary` y visibilidad confirmada de `web.nutritionCoachView.screen` + `web.light.cohortNutrition.screen` con cohorte visible (`demo-user`, `Nutricion 4`, `kcal media 2425`, `proteina media 138`).
+- Ajuste de mantenibilidad web (post-cierre 55/55, fase 41): extraccion del bloque de detalle de log nutricional a `NutritionLogDetailPanel` para desacoplar selector de log, CTAs de refresco/limpieza/apertura coach y resumen de macros del contenedor `App.tsx` sin alterar contrato runtime (`web.light.logDetail.*`).
+- Evidencia de ajuste fase 41 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/NutritionLogDetailPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/NutritionLogDetailPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase41-log-detail-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5184/__qa?unlockQa=1&qa=1&domain=nutrition`, login por email (`qa+nutrition-log-detail@flux.app`), `Cargar registros`, lane `Secondary` y seleccion manual del ultimo log confirmando actualizacion visible del detalle de `2200/150` a `3100/100` en `web.light.logDetail.screen`.
 
 ## Cola documentada de modularizacion web posterior a fase 28
 
@@ -223,9 +225,9 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 | 37 | Extraer formulario/resumen de nutricion a `NutritionOverviewPanel` | ✅ | Sacar de `App.tsx` el bloque principal `web.nutritionOverview.*` |
 | 38 | Extraer revision diaria de logs a `DailyLogReviewPanel` | ✅ | Sacar de `App.tsx` el bloque `web.dailyLogReview.*` con filtros y orden |
 | 39 | Extraer alertas de desviacion a `DeviationAlertsPanel` | ✅ | Sacar de `App.tsx` el bloque `web.deviationAlerts.*` |
-| 40 | Extraer vista coach/corte nutricional a `NutritionCoachPanel` | 🚧 | Sacar de `App.tsx` los bloques `web.nutritionCoachView.*` + `web.light.cohortNutrition.*` |
-| 41 | Extraer detalle de log nutricional a `NutritionLogDetailPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.light.logDetail.*` |
-| 42 | Extraer progreso a `ProgressTrendsPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.progressTrends.*` con metricas, filtros e historial |
+| 40 | Extraer vista coach/corte nutricional a `NutritionCoachPanel` | ✅ | Sacar de `App.tsx` los bloques `web.nutritionCoachView.*` + `web.light.cohortNutrition.*` |
+| 41 | Extraer detalle de log nutricional a `NutritionLogDetailPanel` | ✅ | Sacar de `App.tsx` el bloque `web.light.logDetail.*` |
+| 42 | Extraer progreso a `ProgressTrendsPanel` | 🚧 | Sacar de `App.tsx` el bloque `web.progressTrends.*` con metricas, filtros e historial |
 | 43 | Extraer sincronizacion offline a `OfflineSyncPanel` | ⏳ | Sacar de `App.tsx` el bloque de cola, idempotencia y refresco |
 | 44 | Extraer ajustes de usuario a `SettingsPanel` | ⏳ | Sacar de `App.tsx` el bloque de preferencias y guardado |
 | 45 | Extraer privacidad/cumplimiento a `LegalCompliancePanel` | ⏳ | Sacar de `App.tsx` el bloque `web.legalCompliance.*` |

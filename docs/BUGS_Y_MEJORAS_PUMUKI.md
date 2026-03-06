@@ -317,4 +317,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - con `docs/PLAN_WEB_MVP_OPERATIVO.md`, `docs/SEGUIMIENTO_MASTER.md` y `docs/BUGS_Y_MEJORAS_PUMUKI.md` staged, `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` vuelve a responder `changed=true`, `evaluated=true`, `gateOutcome="ALLOW"`, pero con `changedFiles=[]` y `evaluatedFiles=[]`.
   - impacto: la trazabilidad del gate en commits documentales queda vacia aunque habia staged files reales.
   - propuesta: cuando `scope=staged`, si el index contiene archivos, el JSON debe reflejarlos siempre aunque el resultado sea `ALLOW`.
-- foco activo actual: backlog Flux con fase web 40 `✅` cerrada y fase 41 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Revalidación iteración fase 41 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/NutritionLogDetailPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/NutritionLogDetailPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase41-log-detail-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `NutritionLogDetailPanel.tsx` y `NutritionLogDetailPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5184/__qa?unlockQa=1&qa=1&domain=nutrition` con login por email (`qa+nutrition-log-detail@flux.app`), `Cargar registros`, lane `Secondary` y seleccion del ultimo log confirmando actualizacion visible del detalle de `2200/150` a `3100/100` en `web.light.logDetail.screen`.
+- Mejora detectada en fase 41:
+  - durante `pnpm --filter @flux/web build`, Vite sigue avisando de chunk principal `>500 kB`.
+  - impacto: aunque no bloquea Pumuki ni la build, el warning aparece en cada fase y ensucia la señal de calidad del ciclo.
+  - propuesta Pumuki: permitir una regla/opinion opcional que recoja warnings de bundling recurrentes como deuda no bloqueante pero trazable en el mismo reporte de gate.
+- foco activo actual: backlog Flux con fase web 41 `✅` cerrada y fase 42 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
