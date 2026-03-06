@@ -1,6 +1,0 @@
-rule,target,result,detail
-required_boards_present,root,PASS,"BOARD_IOS_APP|BOARD_WEB_APP"
-screen_orphan_check,global,PASS,"screens=150;sections=19"
-numeric_bounds_overflow,global,PASS,"mediumOverflows=0"
-critical_issues,global,PASS,"critical=0"
-high_issues,global,PASS,"high=0"

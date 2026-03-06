@@ -1,7 +1,0 @@
-boardId,boardName,sectionId,sectionName,childCount,reason,recommendedAction,status
-rdY3Z,BOARD_IOS_APP,mtHNQ,IOS_BOARD_HEADER,2,"Bloque de cabecera informativa, no pantalla funcional",minimize_or_move_to_docs,candidate
-rdY3Z,BOARD_IOS_APP,DYJyI,IOS_SECTION_COPY_I18N,3,"Tabla de copy/i18n de soporte, no pantalla de producto",move_to_docs_and_delete_section,candidate
-rdY3Z,BOARD_IOS_APP,vRCVB,IOS_SECTION_A11Y_CHECKLIST,2,"Checklist QA/A11y de soporte, no flujo de producto",move_to_docs_and_delete_section,candidate
-HaFxT,BOARD_WEB_APP,kWs9m,WEB_BOARD_HEADER,2,"Bloque de cabecera informativa, no pantalla funcional",minimize_or_move_to_docs,candidate
-HaFxT,BOARD_WEB_APP,KjC7D,WEB_SECTION_COPY_I18N,3,"Tabla de copy/i18n de soporte, no pantalla de producto",move_to_docs_and_delete_section,candidate
-HaFxT,BOARD_WEB_APP,7vu79,WEB_SECTION_HANDOFF_NOTES,2,"Notas de handoff, no pantalla/flujo funcional",move_to_docs_and_delete_section,candidate

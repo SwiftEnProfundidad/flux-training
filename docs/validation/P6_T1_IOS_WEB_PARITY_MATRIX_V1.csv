@@ -1,5 +1,0 @@
-domain,iosScreens,webScreens,requiredShared,sharedFound,iosHasScreens,webHasScreens,iosStateCoverage,webStateCoverage,requiredSharedActions,domainPass
-access,20,22,ACCESS|SESSION,ACCESS|SESSION,true,true,true,true,true,true
-training,22,32,PLAN|SESSION,PLAN|SESSION,true,true,true,true,true,true
-nutrition_progress,12,12,NUTRITION|PROGRESS,NUTRITION|PROGRESS,true,true,true,true,true,true
-governance_settings,12,18,LEGAL|EXPORT,LEGAL|EXPORT,true,true,true,true,true,true

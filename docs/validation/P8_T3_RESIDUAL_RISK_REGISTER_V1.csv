@@ -1,4 +1,0 @@
-riskId,area,severity,status,detail,mitigation
-R-001,Visual QA tool coverage,media,closed,"Evidencia MCP completada sobre flux.pen (top-level canónico + snapshot_layout iOS/web sin problemas).","Cerrado con evidencia en docs/validation/R1_MCP_LAYOUT_EVIDENCE_V1.json."
-R-002,Color outliers,baja,closed,"Outliers de bajo uso reducidos 44 -> 12 sin romper token consistency.","Mantener revisión periódica de paleta en hardening visual post-freeze."
-R-003,Semantic naming legal/privacy,baja,closed,"Controles auto_ctrl en legal/privacy reducidos 146 -> 0.","Mantener revisión manual de microcopy legal antes de release de código final."

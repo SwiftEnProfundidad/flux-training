@@ -1,8 +1,0 @@
-rule,value,result,detail
-baseline_screen_count_available,"150",PASS,"baselineScreens=150"
-handoff_screen_coverage_matches_baseline,"150/150",PASS,"handoffScreens=150;baselineScreens=150"
-critical_states_coverage_100_percent,"true",PASS,"sectionsPassing=10;sectionsChecked=10"
-ios_web_parity_closed,"true",PASS,"overallPass=true"
-a11y_aa_pass,"true",PASS,"screensPassing=150;screensChecked=150"
-i18n_es_en_pass,"true",PASS,"sectionsPassing=19;sectionsChecked=19"
-visual_flow_qa_pass,"true",PASS,"issues=0;screensChecked=150"

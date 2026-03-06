@@ -1,6 +1,0 @@
-layer,scope,required_command,executed,result,exit_code,evidence
-contracts,shared schemas/types,pnpm -r test,yes,pass,0,"packages/contracts: 20/20 tests"
-backend,api/application/domain,pnpm -r test,yes,pass,0,"@flux/backend: 40/40 tests"
-web,presentation/application/infrastructure,pnpm -r test,yes,pass,0,"@flux/web: 55/55 tests"
-ios,presentation/application,cd apps/ios && swift test,yes,pass,0,"FluxTrainingTests: 63 tests"
-cross_layer,critical_regression_cross_stack,pnpm test:critical,yes,pass,0,"backend+web critical suites + iOS CriticalRegressionFlowTests"
