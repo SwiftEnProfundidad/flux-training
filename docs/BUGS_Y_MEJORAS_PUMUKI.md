@@ -256,6 +256,13 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `AdminUsersPanel.tsx` y `AdminUsersPanel.spec.tsx`.
   - smoke adicional: QA local validada en `http://127.0.0.1:5181/__qa?unlockQa=1&qa=1&domain=operations` con login por email (`qa+governance@flux.app`), ejecucion de `Ejecutar acciones rapidas` y `Cargar matriz RBAC`, confirmando visibilidad de `web.adminUsers.screen` con filas y coverage cards.
   - sin nuevos bugs/mejoras de Pumuki detectados en el cierre de la fase 33.
+- Revalidación iteración fase 34 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/AuditTrailPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/AuditTrailPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase34-audit-trail-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `AuditTrailPanel.tsx` y `AuditTrailPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5181/__qa?unlockQa=1&qa=1&domain=operations` con login por email (`qa+audit@flux.app`), ejecucion de `Ejecutar acciones rapidas` y `Cargar timeline audit`, confirmando visibilidad de `web.auditTrail.screen` con filas reales.
+  - sin nuevos bugs/mejoras de Pumuki detectados en el cierre de la fase 34.
 - `PUM-016` cerrado (validación local 2026-03-06):
   - issue upstream: `#726`.
   - release publicada: `pumuki@6.3.51`.
