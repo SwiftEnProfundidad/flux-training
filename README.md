@@ -26,12 +26,14 @@ Monorepo for iOS, web, backend, and shared contracts.
   - Build/run `FluxTrainingHost.xcodeproj` in Simulator (target iOS 17+)
 
 ## UI/UX and language support
-- Professional redesign direction for Pencil MCP: `docs/PENCIL_UIUX_PROMPT.md`
-- Active MVP tracking:
-  - Master orchestration: `docs/PLAN_MVP_OPERATIVO_WEB_IOS.md`
+- Design source of truth: `flux.pen`
+- Official docs index: `docs/README.md`
+- Active product tracking:
+  - Master: `docs/SEGUIMIENTO_MASTER.md`
   - iOS screen-by-screen: `docs/PLAN_IOS_MVP_OPERATIVO.md`
   - Web screen-by-screen: `docs/PLAN_WEB_MVP_OPERATIVO.md`
   - Pumuki bugs and improvements log: `docs/BUGS_Y_MEJORAS_PUMUKI.md`
+  - Current validation pack: `docs/validation/README.md`
 - Bilingual UI support:
   - Web: Spanish (`es`) default + English (`en`) switch in hero.
   - iOS: Spanish (`es`) default + English (`en`) switch in readiness hero.
@@ -42,9 +44,6 @@ Monorepo for iOS, web, backend, and shared contracts.
 - Web UI shows an actionable upgrade warning when backend requires a newer version.
 - Web and backend include legal hardening flows for consent capture and data deletion requests.
 
-## Release v1
+## Release
 - Release gate command: `pnpm release:check`
-- Detailed checklist: `docs/RELEASE_CHECKLIST_V1.md`
-
-## Post-release v1.1
-- Product and technical roadmap: `docs/ROADMAP_V1_1.md`
+- Current validation and release criteria: `docs/validation/README.md`

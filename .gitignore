@@ -26,3 +26,6 @@ output/
 *.bak
 *.orig
 *.rej
+.ai_evidence.json
+.AI_EVIDENCE.json
+.pumuki/
