@@ -121,6 +121,7 @@ import { AIInsightsPanel } from "./AIInsightsPanel";
 import { NutritionOverviewPanel } from "./NutritionOverviewPanel";
 import { DailyLogReviewPanel } from "./DailyLogReviewPanel";
 import { DeviationAlertsPanel } from "./DeviationAlertsPanel";
+import { NutritionCoachPanel } from "./NutritionCoachPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5522,157 +5523,58 @@ export function App() {
                 moderateSeverityLabel={translate("deviationAlertsModerateRiskLabel")}
                 severityClassName={toStatusClass}
               />
-              <div
-                className="history-list"
-                data-screen-id={nutritionCoachViewScreenModel.screenId}
-                data-route-id={nutritionCoachViewScreenModel.routeId}
-                data-status-id="web.nutritionCoachView.status"
-              >
-                <p className="section-subtitle">{translate("nutritionCoachViewTitle")}</p>
-                <p className="runtime-state-copy">{translate("nutritionCoachViewSummary")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    onClick={handleLoadNutritionLogs}
-                    type="button"
-                    data-action-id={nutritionCoachViewScreenModel.actions.loadCohort}
-                    disabled={nutritionCoachViewScreenModel.status === "loading"}
-                  >
-                    {translate("nutritionCoachViewLoadAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleFocusNutritionCoachAtRisk}
-                    type="button"
-                    data-action-id={nutritionCoachViewScreenModel.actions.focusAtRisk}
-                  >
-                    {translate("nutritionCoachViewFocusAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleOpenNutritionCoachOperations}
-                    type="button"
-                    data-action-id={nutritionCoachViewScreenModel.actions.openOperations}
-                  >
-                    {translate("nutritionCoachViewOpenOperationsAction")}
-                  </button>
-                </div>
-                <StatLine
-                  label={translate("athletesLoadedLabel")}
-                  value={String(nutritionCoachRows.length)}
-                  language={language}
-                />
-                <StatLine
-                  label={translate("nutritionCoachViewAtRiskLabel")}
-                  value={String(nutritionCoachAtRiskCount)}
-                  language={language}
-                />
-                {nutritionCoachRows.length === 0 ? (
-                  <p className="empty-state">{translate("nutritionCoachViewNoRows")}</p>
-                ) : (
-                  <div className="history-list">
-                    {nutritionCoachRows.map((row) => (
-                      <article key={row.athleteId} className="history-item">
-                        <div className="history-item-head">
-                          <strong>{row.athleteId}</strong>
-                          <span
-                            className={
-                              row.riskLevel === "attention"
-                                ? "status-pill status-critical"
-                                : "status-pill status-positive"
-                            }
-                          >
-                            {row.riskLevel === "attention"
-                              ? translate("riskAttention")
-                              : translate("riskNormal")}
-                          </span>
-                        </div>
-                        <div className="history-values">
-                          <span>{translate("plansColumn")} {row.plansCount}</span>
-                          <span>{translate("sessionsColumn")} {row.sessionsCount}</span>
-                          <span>{translate("nutritionColumn")} {row.nutritionLogsCount}</span>
-                          <span>{translate("lastSessionColumn")} {row.lastSessionDate}</span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
+              <NutritionCoachPanel
+                coachScreenId={nutritionCoachViewScreenModel.screenId}
+                coachRouteId={nutritionCoachViewScreenModel.routeId}
+                coachStatusId="web.nutritionCoachView.status"
+                coachTitle={translate("nutritionCoachViewTitle")}
+                coachSummary={translate("nutritionCoachViewSummary")}
+                coachLoadLabel={translate("nutritionCoachViewLoadAction")}
+                coachLoadActionId={nutritionCoachViewScreenModel.actions.loadCohort}
+                onCoachLoad={handleLoadNutritionLogs}
+                coachLoadDisabled={nutritionCoachViewScreenModel.status === "loading"}
+                coachFocusLabel={translate("nutritionCoachViewFocusAction")}
+                coachFocusActionId={nutritionCoachViewScreenModel.actions.focusAtRisk}
+                onCoachFocusAtRisk={handleFocusNutritionCoachAtRisk}
+                coachOpenOperationsLabel={translate("nutritionCoachViewOpenOperationsAction")}
+                coachOpenOperationsActionId={nutritionCoachViewScreenModel.actions.openOperations}
+                onCoachOpenOperations={handleOpenNutritionCoachOperations}
+                athletesLoadedLabel={translate("athletesLoadedLabel")}
+                athletesLoadedValue={String(nutritionCoachRows.length)}
+                athletesAtRiskLabel={translate("nutritionCoachViewAtRiskLabel")}
+                athletesAtRiskValue={String(nutritionCoachAtRiskCount)}
+                coachEmptyLabel={translate("nutritionCoachViewNoRows")}
+                coachRows={nutritionCoachRows}
+                plansLabel={translate("plansColumn")}
+                sessionsLabel={translate("sessionsColumn")}
+                nutritionLabel={translate("nutritionColumn")}
+                lastSessionLabel={translate("lastSessionColumn")}
+                riskAttentionLabel={translate("riskAttention")}
+                riskNormalLabel={translate("riskNormal")}
+                riskClassName={riskToStatusClass}
+                showCohortView={webLane === "secondary"}
+                cohortScreenId={cohortNutritionScreenModel.screenId}
+                cohortRouteId={cohortNutritionScreenModel.routeId}
+                cohortStatusId="web.light.cohortNutrition.status"
+                cohortTitle={translate("cohortNutritionTitle")}
+                cohortSummary={translate("cohortNutritionSummary")}
+                cohortLoadLabel={translate("cohortNutritionLoadAction")}
+                cohortLoadActionId={cohortNutritionScreenModel.actions.loadCohort}
+                onCohortLoad={handleLoadNutritionLogs}
+                cohortLoadDisabled={cohortNutritionScreenModel.status === "loading"}
+                cohortFocusLabel={translate("cohortNutritionFocusAction")}
+                cohortFocusActionId={cohortNutritionScreenModel.actions.focusHighestRisk}
+                onCohortFocusHighestRisk={handleFocusHighestNutritionRisk}
+                cohortRows={cohortNutritionRows}
+                cohortRowsLoadedValue={String(cohortNutritionRows.length)}
+                cohortAtRiskValue={String(
+                  cohortNutritionRows.filter((row) => row.riskLevel === "attention").length
                 )}
-              </div>
-              {webLane === "secondary" ? (
-                <div
-                  className="history-list"
-                  data-screen-id={cohortNutritionScreenModel.screenId}
-                  data-route-id={cohortNutritionScreenModel.routeId}
-                  data-status-id="web.light.cohortNutrition.status"
-                >
-                  <p className="section-subtitle">{translate("cohortNutritionTitle")}</p>
-                  <p className="runtime-state-copy">{translate("cohortNutritionSummary")}</p>
-                  <div className="inline-inputs">
-                    <button
-                      className="button primary"
-                      onClick={handleLoadNutritionLogs}
-                      type="button"
-                      data-action-id={cohortNutritionScreenModel.actions.loadCohort}
-                      disabled={cohortNutritionScreenModel.status === "loading"}
-                    >
-                      {translate("cohortNutritionLoadAction")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      onClick={handleFocusHighestNutritionRisk}
-                      type="button"
-                      data-action-id={cohortNutritionScreenModel.actions.focusHighestRisk}
-                    >
-                      {translate("cohortNutritionFocusAction")}
-                    </button>
-                  </div>
-                  <StatLine
-                    label={translate("athletesLoadedLabel")}
-                    value={String(cohortNutritionRows.length)}
-                    language={language}
-                  />
-                  <StatLine
-                    label={translate("nutritionCoachViewAtRiskLabel")}
-                    value={String(
-                      cohortNutritionRows.filter((row) => row.riskLevel === "attention").length
-                    )}
-                    language={language}
-                  />
-                  {cohortNutritionRows.length === 0 ? (
-                    <p className="empty-state">{translate("cohortNutritionNoRows")}</p>
-                  ) : (
-                    <div className="history-list">
-                      {cohortNutritionRows.map((row) => (
-                        <article key={row.athleteId} className="history-item">
-                          <div className="history-item-head">
-                            <strong>{row.athleteId}</strong>
-                            <span
-                              className={
-                                row.riskLevel === "attention"
-                                  ? "status-pill status-critical"
-                                  : "status-pill status-positive"
-                              }
-                            >
-                              {row.riskLevel === "attention"
-                                ? translate("riskAttention")
-                                : translate("riskNormal")}
-                            </span>
-                          </div>
-                          <div className="history-values">
-                            <span>{translate("cohortNutritionLogsLabel")} {row.logsCount}</span>
-                            <span>
-                              {translate("cohortNutritionAvgCaloriesLabel")} {row.averageCalories}
-                            </span>
-                            <span>
-                              {translate("cohortNutritionAvgProteinLabel")} {row.averageProteinGrams}
-                            </span>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : null}
+                cohortEmptyLabel={translate("cohortNutritionNoRows")}
+                cohortLogsLabel={translate("cohortNutritionLogsLabel")}
+                cohortAvgCaloriesLabel={translate("cohortNutritionAvgCaloriesLabel")}
+                cohortAvgProteinLabel={translate("cohortNutritionAvgProteinLabel")}
+              />
               {webLane === "secondary" ? (
                 <div
                   className="history-list"
