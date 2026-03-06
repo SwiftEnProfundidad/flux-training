@@ -112,6 +112,7 @@ import { AthleteOperationsToolbar } from "./AthleteOperationsToolbar";
 import { AthleteDetailPanel } from "./AthleteDetailPanel";
 import { SessionHistoryPanel } from "./SessionHistoryPanel";
 import { CompareProgressPanel } from "./CompareProgressPanel";
+import { CoachNotesPanel } from "./CoachNotesPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5011,66 +5012,36 @@ export function App() {
                 cohortAverageSessions={cohortAverageSessions}
                 cohortAverageNutritionLogs={cohortAverageNutritionLogs}
               />
-              <div
-                className="history-list"
-                data-screen-id={coachNotesScreenModel.screenId}
-                data-route-id={coachNotesScreenModel.routeId}
-                data-status-id={coachNotesScreenModel.screenId.replace(".screen", ".status")}
-              >
-                <p className="section-subtitle">{translate("coachNotesTitle")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    data-action-id={coachNotesScreenModel.actions.loadNotes}
-                    onClick={() => void handleLoadCoachNotes()}
-                    type="button"
-                  >
-                    {translate("coachNotesLoad")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={coachNotesScreenModel.actions.saveFollowUp}
-                    onClick={() => void handleSaveCoachFollowUp()}
-                    type="button"
-                  >
-                    {translate("coachNotesSaveFollowUp")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={coachNotesScreenModel.actions.clearSelection}
-                    onClick={handleClearAthleteSelection}
-                    type="button"
-                  >
-                    {translate("clearAthleteSelection")}
-                  </button>
-                </div>
-                {selectedAthleteIds.length === 0 ? (
-                  <p className="empty-state">{translate("coachNotesEmpty")}</p>
-                ) : selectedAthleteCoachNotesRows.length === 0 ? (
-                  <p className="empty-state">{translate("coachNotesNoRows")}</p>
-                ) : (
-                  selectedAthleteCoachNotesRows.map((note) => (
-                    <article key={note.id} className="history-item">
-                      <strong>{new Date(note.occurredAt).toLocaleString()}</strong>
-                      <div className="history-values">
-                        <span>
-                          {translate("coachNotesOccurredAtLabel")}{" "}
-                          {new Date(note.occurredAt).toLocaleString()}
-                        </span>
-                        <span>
-                          {translate("coachNotesSourceLabel")} {note.source}
-                        </span>
-                        <span>
-                          {translate("coachNotesOutcomeLabel")} {note.outcome}
-                        </span>
-                        <span>
-                          {translate("coachNotesSummaryLabel")} {note.summary}
-                        </span>
-                      </div>
-                    </article>
-                  ))
-                )}
-              </div>
+              <CoachNotesPanel
+                screenId={coachNotesScreenModel.screenId}
+                routeId={coachNotesScreenModel.routeId}
+                statusId={coachNotesScreenModel.screenId.replace(".screen", ".status")}
+                title={translate("coachNotesTitle")}
+                loadNotesLabel={translate("coachNotesLoad")}
+                loadNotesActionId={coachNotesScreenModel.actions.loadNotes}
+                onLoadNotes={() => void handleLoadCoachNotes()}
+                saveFollowUpLabel={translate("coachNotesSaveFollowUp")}
+                saveFollowUpActionId={coachNotesScreenModel.actions.saveFollowUp}
+                onSaveFollowUp={() => void handleSaveCoachFollowUp()}
+                clearSelectionLabel={translate("clearAthleteSelection")}
+                clearSelectionActionId={coachNotesScreenModel.actions.clearSelection}
+                onClearSelection={handleClearAthleteSelection}
+                hasSelection={selectedAthleteIds.length > 0}
+                hasRows={selectedAthleteCoachNotesRows.length > 0}
+                emptyLabel={translate("coachNotesEmpty")}
+                noRowsLabel={translate("coachNotesNoRows")}
+                occurredAtLabel={translate("coachNotesOccurredAtLabel")}
+                sourceLabel={translate("coachNotesSourceLabel")}
+                outcomeLabel={translate("coachNotesOutcomeLabel")}
+                summaryLabel={translate("coachNotesSummaryLabel")}
+                rows={selectedAthleteCoachNotesRows.map((note) => ({
+                  id: note.id,
+                  occurredAt: new Date(note.occurredAt).toLocaleString(),
+                  source: note.source,
+                  outcome: note.outcome,
+                  summary: note.summary
+                }))}
+              />
               {athleteOperationRows.length === 0 ? (
                 <p className="empty-state">{translate("noAthletesFound")}</p>
               ) : (
