@@ -127,6 +127,7 @@ import { ProgressTrendsPanel } from "./ProgressTrendsPanel";
 import { OfflineSyncPanel } from "./OfflineSyncPanel";
 import { SettingsPanel } from "./SettingsPanel";
 import { LegalCompliancePanel } from "./LegalCompliancePanel";
+import { ObservabilityPanel } from "./ObservabilityPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5761,94 +5762,44 @@ export function App() {
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("observability") ? (
-            <article
-              className="module-card"
-              data-screen-id={analyticsOverviewScreenModel.screenId}
-              data-route-id={analyticsOverviewScreenModel.routeId}
-              data-status-id="web.analyticsOverview.status"
-            >
-            <SectionHeader
+            <ObservabilityPanel
+              screenId={analyticsOverviewScreenModel.screenId}
+              routeId={analyticsOverviewScreenModel.routeId}
+              statusId="web.analyticsOverview.status"
               title={translate("observabilityTitle")}
               status={analyticsOverviewScreenModel.status}
               statusLabel={translate("observabilityStatusLabel")}
               language={language}
+              trackEventLabel={translate("trackEvent")}
+              reportCrashLabel={translate("reportCrash")}
+              loadDataLabel={translate("loadData")}
+              trackEventActionId={analyticsOverviewScreenModel.actions.trackEvent}
+              reportCrashActionId={analyticsOverviewScreenModel.actions.reportCrash}
+              loadDataActionId={analyticsOverviewScreenModel.actions.loadData}
+              onTrackEvent={handleTrackAnalyticsEvent}
+              onReportCrash={handleReportDemoCrash}
+              onLoadData={handleLoadObservabilityData}
+              analyticsEventsLabel={translate("analyticsEventsLabel")}
+              analyticsEventsValue={String(analyticsEvents.length)}
+              crashReportsLabel={translate("crashReportsLabel")}
+              crashReportsValue={String(crashReports.length)}
+              blockedActionsLabel={translate("observabilityBlockedActionsLabel")}
+              blockedActionsValue={String(observabilitySummary?.blockedActions ?? 0)}
+              deniedEventsLabel={translate("observabilityDeniedEventsLabel")}
+              deniedEventsValue={String(observabilitySummary?.deniedAccessEvents ?? 0)}
+              fatalCrashesLabel={translate("observabilityFatalCrashesLabel")}
+              fatalCrashesValue={String(observabilitySummary?.fatalCrashReports ?? 0)}
+              canonicalCoverageLabel={translate("observabilityCanonicalCoverageLabel")}
+              canonicalCoverageValue={`${observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0}/${(observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0) + (observabilitySummary?.canonicalCoverage.customEvents ?? 0)}`}
+              operationalAlertsLabel={translate("observabilityOperationalAlertsLabel")}
+              operationalAlertsValue={String(
+                operationalAlerts.filter((alert) => alert.state !== "resolved").length
+              )}
+              runbooksLabel={translate("observabilityRunbooksLabel")}
+              runbooksValue={String(operationalRunbooks.length)}
+              onCallOwnerLabel={translate("observabilityOnCallOwnerLabel")}
+              onCallOwnerValue={operationalAlerts[0]?.ownerOnCall ?? "-"}
             />
-            <div className="form-grid">
-              <div className="inline-inputs">
-                <button
-                  className="button primary"
-                  data-action-id={analyticsOverviewScreenModel.actions.trackEvent}
-                  onClick={handleTrackAnalyticsEvent}
-                  type="button"
-                >
-                  {translate("trackEvent")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={analyticsOverviewScreenModel.actions.reportCrash}
-                  onClick={handleReportDemoCrash}
-                  type="button"
-                >
-                  {translate("reportCrash")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={analyticsOverviewScreenModel.actions.loadData}
-                  onClick={handleLoadObservabilityData}
-                  type="button"
-                >
-                  {translate("loadData")}
-                </button>
-              </div>
-              <StatLine
-                label={translate("analyticsEventsLabel")}
-                value={String(analyticsEvents.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("crashReportsLabel")}
-                value={String(crashReports.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("observabilityBlockedActionsLabel")}
-                value={String(observabilitySummary?.blockedActions ?? 0)}
-                language={language}
-              />
-              <StatLine
-                label={translate("observabilityDeniedEventsLabel")}
-                value={String(observabilitySummary?.deniedAccessEvents ?? 0)}
-                language={language}
-              />
-              <StatLine
-                label={translate("observabilityFatalCrashesLabel")}
-                value={String(observabilitySummary?.fatalCrashReports ?? 0)}
-                language={language}
-              />
-              <StatLine
-                label={translate("observabilityCanonicalCoverageLabel")}
-                value={`${observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0}/${(observabilitySummary?.canonicalCoverage.trackedCanonicalEvents ?? 0) + (observabilitySummary?.canonicalCoverage.customEvents ?? 0)}`}
-                language={language}
-              />
-              <StatLine
-                label={translate("observabilityOperationalAlertsLabel")}
-                value={String(
-                  operationalAlerts.filter((alert) => alert.state !== "resolved").length
-                )}
-                language={language}
-              />
-              <StatLine
-                label={translate("observabilityRunbooksLabel")}
-                value={String(operationalRunbooks.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("observabilityOnCallOwnerLabel")}
-                value={operationalAlerts[0]?.ownerOnCall ?? "-"}
-                language={language}
-              />
-            </div>
-            </article>
           ) : null}
             </>
           )}
