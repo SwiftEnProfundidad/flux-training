@@ -377,4 +377,8 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - el warning de bundle de Vite sigue apareciendo (`dist/assets/index-DIoU7dMQ.js 656.88 kB`) incluso con fases de desacoplo ya cerradas y todas las validaciones verdes.
   - impacto: el gate funcional queda limpio, pero la señal de deuda de bundle persiste fuera del reporte estructurado de Pumuki y obliga a revisarla manualmente iteración tras iteración.
   - propuesta Pumuki: añadir una sección opcional de `build health` no bloqueante que capture warnings repetidos de bundle y los marque como `deuda_recurrente` con contador, para separar regresión nueva de deuda conocida.
+- Revalidación de versión instalada (2026-03-06):
+  - el repo queda alineado manualmente a `pumuki@6.3.55` en `package.json` y `pnpm-lock.yaml`.
+  - alcance del cambio: actualización de dependencia sin cambios funcionales adicionales en código de producto.
+  - validación operativa: la versión efectiva ya coincide con la usada por los últimos gates (`6.3.55`) y no introduce deriva entre `consumerInstalled` y `runtime`.
 - foco activo actual: backlog Flux con fase web 46 `✅` cerrada y backlog web modularizado completo; el siguiente ciclo debe documentarse antes de ejecutarse.
