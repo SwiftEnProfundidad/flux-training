@@ -126,6 +126,7 @@ import { NutritionLogDetailPanel } from "./NutritionLogDetailPanel";
 import { ProgressTrendsPanel } from "./ProgressTrendsPanel";
 import { OfflineSyncPanel } from "./OfflineSyncPanel";
 import { SettingsPanel } from "./SettingsPanel";
+import { LegalCompliancePanel } from "./LegalCompliancePanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5737,52 +5738,26 @@ export function App() {
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("legal") ? (
-            <article
-              className="module-card"
-              data-screen-id={legalComplianceScreenModel.screenId}
-              data-route-id={legalComplianceScreenModel.routeId}
-              data-status-id="web.legalCompliance.status"
-            >
-            <SectionHeader
+            <LegalCompliancePanel
+              screenId={legalComplianceScreenModel.screenId}
+              routeId={legalComplianceScreenModel.routeId}
+              statusId="web.legalCompliance.status"
               title={translate("legalSectionTitle")}
               status={legalComplianceScreenModel.status}
               statusLabel={translate("legalStatusLabel")}
+              summaryLabel={translate("legalSummaryLabel")}
+              summaryValue={`${privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"}`}
               language={language}
+              saveConsentLabel={translate("saveConsent")}
+              exportDataLabel={translate("exportData")}
+              requestDeletionLabel={translate("requestDeletion")}
+              saveConsentActionId={legalComplianceScreenModel.actions.saveConsent}
+              exportDataActionId={legalComplianceScreenModel.actions.exportData}
+              requestDeletionActionId={legalComplianceScreenModel.actions.requestDeletion}
+              onSaveConsent={handleSubmitLegalConsent}
+              onExportData={handleExportData}
+              onRequestDeletion={handleRequestDataDeletion}
             />
-            <div className="form-grid">
-              <StatLine
-                label={translate("legalSummaryLabel")}
-                value={`${privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"}`}
-                language={language}
-              />
-              <div className="inline-inputs">
-                <button
-                  className="button primary"
-                  data-action-id={legalComplianceScreenModel.actions.saveConsent}
-                  onClick={handleSubmitLegalConsent}
-                  type="button"
-                >
-                  {translate("saveConsent")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={legalComplianceScreenModel.actions.exportData}
-                  onClick={handleExportData}
-                  type="button"
-                >
-                  {translate("exportData")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={legalComplianceScreenModel.actions.requestDeletion}
-                  onClick={handleRequestDataDeletion}
-                  type="button"
-                >
-                  {translate("requestDeletion")}
-                </button>
-              </div>
-            </div>
-            </article>
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("observability") ? (
