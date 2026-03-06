@@ -109,6 +109,7 @@ import { SessionDetailPanel } from "./SessionDetailPanel";
 import { ExerciseLibraryPanel } from "./ExerciseLibraryPanel";
 import { ExerciseDetailPanel } from "./ExerciseDetailPanel";
 import { AthleteOperationsToolbar } from "./AthleteOperationsToolbar";
+import { AthleteDetailPanel } from "./AthleteDetailPanel";
 import { SessionHistoryPanel } from "./SessionHistoryPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
@@ -4931,71 +4932,29 @@ export function App() {
                 athletesSelectedLabel={translate("athletesSelectedLabel")}
                 athletesSelectedValue={String(selectedAthleteIds.length)}
               />
-              <div
-                className="history-list"
-                data-screen-id={athleteDetailScreenModel.screenId}
-                data-route-id={athleteDetailScreenModel.routeId}
-                data-status-id={athleteDetailScreenModel.screenId.replace(".screen", ".status")}
-              >
-                <p className="section-subtitle">{translate("athleteDetailTitle")}</p>
-                {selectedAthleteDetailRow === null ? (
-                  <p className="empty-state">{translate("athleteDetailEmpty")}</p>
-                ) : (
-                  <article className="history-item">
-                    <strong>{selectedAthleteDetailRow.athleteId}</strong>
-                    <div className="history-values">
-                      <span>
-                        {translate("plansColumn")} {selectedAthleteDetailRow.plansCount}
-                      </span>
-                      <span>
-                        {translate("sessionsColumn")} {selectedAthleteDetailRow.sessionsCount}
-                      </span>
-                      <span>
-                        {translate("nutritionColumn")}{" "}
-                        {selectedAthleteDetailRow.nutritionLogsCount}
-                      </span>
-                      <span>
-                        {translate("lastSessionColumn")} {selectedAthleteDetailRow.lastSessionDate}
-                      </span>
-                    </div>
-                    <span
-                      className={`status-pill status-${riskToStatusClass(
-                        selectedAthleteDetailRow.riskLevel
-                      )}`}
-                    >
-                      {selectedAthleteDetailRow.riskLevel === "normal"
-                        ? translate("riskNormal")
-                        : translate("riskAttention")}
-                    </span>
-                  </article>
-                )}
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    data-action-id={athleteDetailScreenModel.actions.selectFirstAthlete}
-                    onClick={handleSelectFirstAthleteDetail}
-                    type="button"
-                  >
-                    {translate("athleteDetailSelectFirst")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={athleteDetailScreenModel.actions.openSessionHistory}
-                    onClick={handleOpenAthleteSessionHistory}
-                    type="button"
-                  >
-                    {translate("athleteDetailOpenSessionHistory")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={athleteDetailScreenModel.actions.clearSelection}
-                    onClick={handleClearAthleteSelection}
-                    type="button"
-                  >
-                    {translate("clearAthleteSelection")}
-                  </button>
-                </div>
-              </div>
+              <AthleteDetailPanel
+                screenId={athleteDetailScreenModel.screenId}
+                routeId={athleteDetailScreenModel.routeId}
+                statusId={athleteDetailScreenModel.screenId.replace(".screen", ".status")}
+                title={translate("athleteDetailTitle")}
+                emptyLabel={translate("athleteDetailEmpty")}
+                selectedRow={selectedAthleteDetailRow}
+                plansLabel={translate("plansColumn")}
+                sessionsLabel={translate("sessionsColumn")}
+                nutritionLabel={translate("nutritionColumn")}
+                lastSessionLabel={translate("lastSessionColumn")}
+                riskNormalLabel={translate("riskNormal")}
+                riskAttentionLabel={translate("riskAttention")}
+                selectFirstAthleteLabel={translate("athleteDetailSelectFirst")}
+                selectFirstAthleteActionId={athleteDetailScreenModel.actions.selectFirstAthlete}
+                onSelectFirstAthlete={handleSelectFirstAthleteDetail}
+                openSessionHistoryLabel={translate("athleteDetailOpenSessionHistory")}
+                openSessionHistoryActionId={athleteDetailScreenModel.actions.openSessionHistory}
+                onOpenSessionHistory={handleOpenAthleteSessionHistory}
+                clearSelectionLabel={translate("clearAthleteSelection")}
+                clearSelectionActionId={athleteDetailScreenModel.actions.clearSelection}
+                onClearSelection={handleClearAthleteSelection}
+              />
               <SessionHistoryPanel
                 screenId={sessionHistoryScreenModel.screenId}
                 routeId={sessionHistoryScreenModel.routeId}
