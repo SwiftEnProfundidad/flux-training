@@ -116,6 +116,7 @@ import { CoachNotesPanel } from "./CoachNotesPanel";
 import { AthletesOperationsTablePanel } from "./AthletesOperationsTablePanel";
 import { AdminUsersPanel } from "./AdminUsersPanel";
 import { AuditTrailPanel } from "./AuditTrailPanel";
+import { BillingSupportPanel } from "./BillingSupportPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5265,274 +5266,111 @@ export function App() {
               statusLabel={translate("billingSupportStatusLabel")}
               language={language}
             />
-            <div className="form-grid">
-              <div className="inline-inputs">
-                <button
-                  className="button ghost"
-                  data-action-id={billingOverviewScreenModel.actions.loadData}
-                  onClick={handleLoadBillingSupportData}
-                  type="button"
-                >
-                  {translate("billingSupportLoadData")}
-                </button>
-                <button
-                  className="button primary"
-                  data-action-id={billingOverviewScreenModel.actions.resolveSelected}
-                  onClick={handleResolveBillingIncidents}
-                  type="button"
-                >
-                  {translate("billingSupportResolveSelected")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={billingOverviewScreenModel.actions.clearSelection}
-                  onClick={handleClearBillingIncidentSelection}
-                  type="button"
-                >
-                  {translate("billingSupportClearSelection")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={billingOverviewScreenModel.actions.clearFilters}
-                  onClick={handleClearBillingSupportFilters}
-                  type="button"
-                >
-                  {translate("billingSupportClearFilters")}
-                </button>
-              </div>
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("billingSupportSearchPlaceholder")}
-                  placeholder={translate("billingSupportSearchPlaceholder")}
-                  value={billingSupportSearch}
-                  onChange={(event) => setBillingSupportSearch(event.target.value)}
-                />
-                <input
-                  aria-label={translate("billingDomainFilterPlaceholder")}
-                  placeholder={translate("billingDomainFilterPlaceholder")}
-                  value={billingDomainFilter}
-                  onChange={(event) => setBillingDomainFilter(event.target.value)}
-                />
-              </div>
-              <div className="inline-inputs">
-                <label className="compact-label">
-                  {translate("billingInvoiceStatusFilterLabel")}
-                  <select
-                    aria-label={translate("billingInvoiceStatusFilterLabel")}
-                    value={billingInvoiceStatusFilter}
-                    onChange={(event) =>
-                      setBillingInvoiceStatusFilter(event.target.value as BillingInvoiceStatusFilter)
-                    }
-                  >
-                    <option value="all">{translate("billingFilterAllInvoiceStatuses")}</option>
-                    <option value="draft">{translate("billingInvoiceStatusDraft")}</option>
-                    <option value="open">{translate("billingInvoiceStatusOpen")}</option>
-                    <option value="paid">{translate("billingInvoiceStatusPaid")}</option>
-                    <option value="overdue">{translate("billingInvoiceStatusOverdue")}</option>
-                  </select>
-                </label>
-                <label className="compact-label">
-                  {translate("billingIncidentStateFilterLabel")}
-                  <select
-                    aria-label={translate("billingIncidentStateFilterLabel")}
-                    value={billingIncidentStateFilter}
-                    onChange={(event) =>
-                      setBillingIncidentStateFilter(event.target.value as SupportIncidentStateFilter)
-                    }
-                  >
-                    <option value="all">{translate("billingFilterAllIncidentStates")}</option>
-                    <option value="open">{translate("billingIncidentStateOpen")}</option>
-                    <option value="in_progress">
-                      {translate("billingIncidentStateInProgress")}
-                    </option>
-                    <option value="resolved">{translate("billingIncidentStateResolved")}</option>
-                  </select>
-                </label>
-                <label className="compact-label">
-                  {translate("billingIncidentSeverityFilterLabel")}
-                  <select
-                    aria-label={translate("billingIncidentSeverityFilterLabel")}
-                    value={billingIncidentSeverityFilter}
-                    onChange={(event) =>
-                      setBillingIncidentSeverityFilter(
-                        event.target.value as SupportIncidentSeverityFilter
-                      )
-                    }
-                  >
-                    <option value="all">{translate("billingFilterAllIncidentSeverities")}</option>
-                    <option value="high">{translate("billingIncidentSeverityHigh")}</option>
-                    <option value="medium">{translate("billingIncidentSeverityMedium")}</option>
-                    <option value="low">{translate("billingIncidentSeverityLow")}</option>
-                  </select>
-                </label>
-              </div>
-              <StatLine
-                label={translate("billingInvoicesLoadedLabel")}
-                value={String(billingInvoiceRows.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("billingIncidentsLoadedLabel")}
-                value={String(supportIncidentRows.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("billingIncidentsSelectedLabel")}
-                value={String(billingSelectedIncidentIds.length)}
-                language={language}
-              />
-              <p className="section-subtitle">{translate("billingInvoicesSectionTitle")}</p>
-              {billingInvoiceRows.length === 0 ? (
-                <p className="empty-state">{translate("billingNoInvoices")}</p>
-              ) : (
-                <>
-                  <DenseRowsInfo
-                    visibleRows={visibleBillingInvoiceRows.length}
-                    totalRows={billingInvoiceRows.length}
-                    language={language}
-                  />
-                  <div className="operations-table">
-                    <header className="operations-table-row operations-table-header billing-table-row">
-                      <span>{translate("billingInvoiceIdColumn")}</span>
-                      <span>{translate("billingAccountColumn")}</span>
-                      <span>{translate("billingPeriodColumn")}</span>
-                      <span>{translate("billingAmountColumn")}</span>
-                      <span>{translate("billingInvoiceStatusColumn")}</span>
-                      <span>{translate("billingSourceColumn")}</span>
-                    </header>
-                    {visibleBillingInvoiceRows.map((invoice) => (
-                      <div key={invoice.id} className="operations-table-row billing-table-row">
-                        <span>{invoice.id}</span>
-                        <span>{invoice.accountId}</span>
-                        <span>{invoice.period}</span>
-                        <span>{invoice.amountEUR.toFixed(2)}</span>
-                        <span className={`status-pill status-${toStatusClass(invoice.status)}`}>
-                          {invoiceStatusLabel(invoice.status)}
-                        </span>
-                        <span>{toHumanStatus(invoice.source, language)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {hasMoreBillingInvoiceRows ? (
-                    <div className="dense-table-actions">
-                      <button className="button ghost" onClick={handleShowMoreBillingInvoiceRows} type="button">
-                        {translate("loadMoreRows")}
-                      </button>
-                      <button className="button ghost" onClick={handleShowAllBillingInvoiceRows} type="button">
-                        {translate("showAllRows")}
-                      </button>
-                    </div>
-                  ) : null}
-                </>
-              )}
-              <section
-                data-screen-id={supportIncidentsScreenModel.screenId}
-                data-route-id={supportIncidentsScreenModel.routeId}
-                data-status-id="web.supportIncidents.status"
-              >
-                <p className="section-subtitle">{translate("billingIncidentsSectionTitle")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button ghost"
-                    data-action-id={supportIncidentsScreenModel.actions.loadData}
-                    onClick={handleLoadBillingSupportData}
-                    type="button"
-                  >
-                    {translate("billingSupportLoadData")}
-                  </button>
-                  <button
-                    className="button primary"
-                    data-action-id={supportIncidentsScreenModel.actions.resolveSelected}
-                    onClick={handleResolveBillingIncidents}
-                    type="button"
-                  >
-                    {translate("billingSupportResolveSelected")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={supportIncidentsScreenModel.actions.clearSelection}
-                    onClick={handleClearBillingIncidentSelection}
-                    type="button"
-                  >
-                    {translate("billingSupportClearSelection")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={supportIncidentsScreenModel.actions.clearFilters}
-                    onClick={handleClearBillingSupportFilters}
-                    type="button"
-                  >
-                    {translate("billingSupportClearFilters")}
-                  </button>
-                </div>
-                {supportIncidentRows.length === 0 ? (
-                  <p className="empty-state">{translate("billingNoIncidents")}</p>
-                ) : (
-                  <>
-                    <DenseRowsInfo
-                      visibleRows={visibleBillingIncidentRows.length}
-                      totalRows={supportIncidentRows.length}
-                      language={language}
-                    />
-                    <div className="operations-table">
-                      <header className="operations-table-row operations-table-header support-table-row">
-                        <span>{translate("billingIncidentIdColumn")}</span>
-                        <span>{translate("billingOpenedAtColumn")}</span>
-                        <span>{translate("billingIncidentDomainColumn")}</span>
-                        <span>{translate("billingIncidentSeverityColumn")}</span>
-                        <span>{translate("billingIncidentStateColumn")}</span>
-                        <span>{translate("billingIncidentCorrelationColumn")}</span>
-                        <span>{translate("billingIncidentSummaryColumn")}</span>
-                      </header>
-                      {visibleBillingIncidentRows.map((incident) => (
-                        <label key={incident.id} className="operations-table-row support-table-row">
-                          <div className="operations-athlete-cell">
-                            <input
-                              type="checkbox"
-                              checked={selectedBillingIncidentIdSet.has(incident.id)}
-                              onChange={() => handleToggleBillingIncidentSelection(incident.id)}
-                            />
-                            <strong>{incident.id}</strong>
-                          </div>
-                          <span>{incident.openedAt}</span>
-                          <span>{incident.domain}</span>
-                          <span
-                            className={`status-pill status-${toStatusClass(
-                              incident.severity
-                            )}`}
-                          >
-                            {incidentSeverityLabel(incident.severity)}
-                          </span>
-                          <span
-                            className={`status-pill status-${toStatusClass(
-                              incident.state === "resolved"
-                                ? "low"
-                                : incident.state === "in_progress"
-                                  ? "medium"
-                                  : "high"
-                            )}`}
-                          >
-                            {incidentStateLabel(incident.state)}
-                          </span>
-                          <span>{incident.correlationId}</span>
-                          <span>{incident.summary}</span>
-                        </label>
-                      ))}
-                    </div>
-                    {hasMoreBillingIncidentRows ? (
-                      <div className="dense-table-actions">
-                        <button className="button ghost" onClick={handleShowMoreBillingIncidentRows} type="button">
-                          {translate("loadMoreRows")}
-                        </button>
-                        <button className="button ghost" onClick={handleShowAllBillingIncidentRows} type="button">
-                          {translate("showAllRows")}
-                        </button>
-                      </div>
-                    ) : null}
-                  </>
-                )}
-              </section>
-            </div>
+            <BillingSupportPanel
+              screenId={billingOverviewScreenModel.screenId}
+              routeId={billingOverviewScreenModel.routeId}
+              statusId="web.billingOverview.status"
+              title={translate("billingSupportTitle")}
+              supportScreenId={supportIncidentsScreenModel.screenId}
+              supportRouteId={supportIncidentsScreenModel.routeId}
+              supportStatusId="web.supportIncidents.status"
+              loadDataLabel={translate("billingSupportLoadData")}
+              billingLoadDataActionId={billingOverviewScreenModel.actions.loadData}
+              supportLoadDataActionId={supportIncidentsScreenModel.actions.loadData}
+              onLoadData={handleLoadBillingSupportData}
+              resolveSelectedLabel={translate("billingSupportResolveSelected")}
+              billingResolveSelectedActionId={billingOverviewScreenModel.actions.resolveSelected}
+              supportResolveSelectedActionId={supportIncidentsScreenModel.actions.resolveSelected}
+              onResolveSelected={handleResolveBillingIncidents}
+              clearSelectionLabel={translate("billingSupportClearSelection")}
+              billingClearSelectionActionId={billingOverviewScreenModel.actions.clearSelection}
+              supportClearSelectionActionId={supportIncidentsScreenModel.actions.clearSelection}
+              onClearSelection={handleClearBillingIncidentSelection}
+              clearFiltersLabel={translate("billingSupportClearFilters")}
+              billingClearFiltersActionId={billingOverviewScreenModel.actions.clearFilters}
+              supportClearFiltersActionId={supportIncidentsScreenModel.actions.clearFilters}
+              onClearFilters={handleClearBillingSupportFilters}
+              searchPlaceholder={translate("billingSupportSearchPlaceholder")}
+              searchValue={billingSupportSearch}
+              onSearchChange={setBillingSupportSearch}
+              domainPlaceholder={translate("billingDomainFilterPlaceholder")}
+              domainValue={billingDomainFilter}
+              onDomainChange={setBillingDomainFilter}
+              invoiceStatusFilterLabel={translate("billingInvoiceStatusFilterLabel")}
+              invoiceStatusFilterValue={billingInvoiceStatusFilter}
+              invoiceStatusOptions={[
+                { value: "all", label: translate("billingFilterAllInvoiceStatuses") },
+                { value: "draft", label: translate("billingInvoiceStatusDraft") },
+                { value: "open", label: translate("billingInvoiceStatusOpen") },
+                { value: "paid", label: translate("billingInvoiceStatusPaid") },
+                { value: "overdue", label: translate("billingInvoiceStatusOverdue") }
+              ]}
+              onInvoiceStatusFilterChange={setBillingInvoiceStatusFilter}
+              incidentStateFilterLabel={translate("billingIncidentStateFilterLabel")}
+              incidentStateFilterValue={billingIncidentStateFilter}
+              incidentStateOptions={[
+                { value: "all", label: translate("billingFilterAllIncidentStates") },
+                { value: "open", label: translate("billingIncidentStateOpen") },
+                { value: "in_progress", label: translate("billingIncidentStateInProgress") },
+                { value: "resolved", label: translate("billingIncidentStateResolved") }
+              ]}
+              onIncidentStateFilterChange={setBillingIncidentStateFilter}
+              incidentSeverityFilterLabel={translate("billingIncidentSeverityFilterLabel")}
+              incidentSeverityFilterValue={billingIncidentSeverityFilter}
+              incidentSeverityOptions={[
+                { value: "all", label: translate("billingFilterAllIncidentSeverities") },
+                { value: "high", label: translate("billingIncidentSeverityHigh") },
+                { value: "medium", label: translate("billingIncidentSeverityMedium") },
+                { value: "low", label: translate("billingIncidentSeverityLow") }
+              ]}
+              onIncidentSeverityFilterChange={setBillingIncidentSeverityFilter}
+              invoicesLoadedLabel={translate("billingInvoicesLoadedLabel")}
+              invoicesLoadedValue={String(billingInvoiceRows.length)}
+              incidentsLoadedLabel={translate("billingIncidentsLoadedLabel")}
+              incidentsLoadedValue={String(supportIncidentRows.length)}
+              incidentsSelectedLabel={translate("billingIncidentsSelectedLabel")}
+              incidentsSelectedValue={String(billingSelectedIncidentIds.length)}
+              invoicesSectionTitle={translate("billingInvoicesSectionTitle")}
+              noInvoicesLabel={translate("billingNoInvoices")}
+              invoiceRowsInfoLabel={`${translate("rowsShownLabel")} ${visibleBillingInvoiceRows.length}/${billingInvoiceRows.length}`}
+              invoiceRows={visibleBillingInvoiceRows}
+              invoiceIdColumnLabel={translate("billingInvoiceIdColumn")}
+              accountColumnLabel={translate("billingAccountColumn")}
+              periodColumnLabel={translate("billingPeriodColumn")}
+              amountColumnLabel={translate("billingAmountColumn")}
+              invoiceStatusColumnLabel={translate("billingInvoiceStatusColumn")}
+              sourceColumnLabel={translate("billingSourceColumn")}
+              invoiceStatusHumanizer={invoiceStatusLabel}
+              invoiceSourceHumanizer={(source) => toHumanStatus(source, language)}
+              invoiceStatusClassName={toStatusClass}
+              hasMoreInvoiceRows={hasMoreBillingInvoiceRows}
+              loadMoreRowsLabel={translate("loadMoreRows")}
+              onLoadMoreInvoiceRows={handleShowMoreBillingInvoiceRows}
+              showAllRowsLabel={translate("showAllRows")}
+              onShowAllInvoiceRows={handleShowAllBillingInvoiceRows}
+              incidentsSectionTitle={translate("billingIncidentsSectionTitle")}
+              noIncidentsLabel={translate("billingNoIncidents")}
+              incidentRowsInfoLabel={`${translate("rowsShownLabel")} ${visibleBillingIncidentRows.length}/${supportIncidentRows.length}`}
+              incidentRows={visibleBillingIncidentRows}
+              selectedIncidentIds={selectedBillingIncidentIdSet}
+              onToggleIncidentSelection={handleToggleBillingIncidentSelection}
+              incidentIdColumnLabel={translate("billingIncidentIdColumn")}
+              openedAtColumnLabel={translate("billingOpenedAtColumn")}
+              incidentDomainColumnLabel={translate("billingIncidentDomainColumn")}
+              incidentSeverityColumnLabel={translate("billingIncidentSeverityColumn")}
+              incidentStateColumnLabel={translate("billingIncidentStateColumn")}
+              incidentCorrelationColumnLabel={translate("billingIncidentCorrelationColumn")}
+              incidentSummaryColumnLabel={translate("billingIncidentSummaryColumn")}
+              incidentSeverityHumanizer={incidentSeverityLabel}
+              incidentStateHumanizer={incidentStateLabel}
+              incidentSeverityClassName={toStatusClass}
+              incidentStateClassName={(state) =>
+                toStatusClass(state === "resolved" ? "low" : state === "in_progress" ? "medium" : "high")
+              }
+              hasMoreIncidentRows={hasMoreBillingIncidentRows}
+              onLoadMoreIncidentRows={handleShowMoreBillingIncidentRows}
+              onShowAllIncidentRows={handleShowAllBillingIncidentRows}
+            />
             </article>
           ) : null}
 
