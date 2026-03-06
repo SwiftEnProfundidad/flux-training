@@ -48,7 +48,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 | PUM-013 | 2026-03-05 | Bug | DX/Determinismo de dependencias | Durante iteraciones de validación (`pnpm exec pumuki watch` + ciclo test/build/check), el repo mostró drift de dependencia `pumuki` (`6.3.46 -> 6.3.47`) en `package.json` y `pnpm-lock.yaml` sin `pnpm add` explícito. | Alta (ensucia worktree y rompe regla de commits atómicos por scope funcional). | Evidencia: `git diff -- package.json pnpm-lock.yaml` mostró cambio de versión tras el ciclo de validación; restaurado con `git restore package.json pnpm-lock.yaml`. | Garantizar modo no mutante en comandos de validación (`watch/doctor/bootstrap`) o emitir prompt explícito antes de cualquier write en manifest/lockfile. | ✅ Cerrado (#722, validado 2026-03-05) |
 | PUM-014 | 2026-03-05 | Mejora | Watch/JSON contract | `watch --once --scope=staged` devuelve `lastTick.changed=true` incluso cuando `changedFiles=[]` y `evaluatedFiles=[]`. | Media (puede inducir a interpretar que hubo cambios reales cuando no hubo ficheros staged). | Validación en esta iteración: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` con salida `changed=true`, `changedFiles=[]`, `evaluatedFiles=[]`, `gateOutcome=\"ALLOW\"`. | Ajustar semántica de `changed` a `false` cuando no existan ficheros staged, o documentar explícitamente que `changed` indica tick ejecutado y no delta de archivos. | ✅ Cerrado (#723, v6.3.49) |
 | PUM-015 | 2026-03-05 | Bug | Watch/Rollout parity | En Flux (consumer `6.3.47`) persiste el comportamiento semántico previo: `lastTick.changed=true` con `changedFiles=[]` y `evaluatedFiles=[]` en `scope=staged`. | Media (genera falso positivo de cambio y confunde trazabilidad de gates). | Validación fase 12: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `version.effective=6.3.47`, `changed=true`, `changedFiles=[]`, `evaluatedFiles=[]`, `gateOutcome=\"ALLOW\"`. | Alinear rollout consumer de Flux al fix ya publicado (`>=6.3.49`) o backport explícito en versión instalada; revalidar contrato JSON tras upgrade. | ✅ Cerrado (#725, validado 2026-03-05) |
-| PUM-016 | 2026-03-06 | Mejora | SDD/Evidence DX | `pumuki sdd evidence` rechaza `--test-output` fuera del repo (`/tmp/...`) pero el mensaje no orienta a una ruta efímera recomendada dentro del proyecto. | Media (fricción evitable en generación de evidencia TDD/BDD para hooks bloqueantes). | Repro fase 29: `pnpm exec pumuki sdd evidence ... --test-output=/tmp/flux-athlete-detail-phase29-test.log --json` -> `[pumuki][sdd] --test-output must resolve inside repository root`. | Mejorar DX del error con sugerencia inmediata (`.pumuki/runtime/<file>.log`) o permitir `/tmp` cuando el artefacto final quede dentro de `.pumuki/artifacts/`. | ✅ Cerrado (#726, validado local 2026-03-06; pendiente próxima release) |
+| PUM-016 | 2026-03-06 | Mejora | SDD/Evidence DX | `pumuki sdd evidence` rechaza `--test-output` fuera del repo (`/tmp/...`) pero el mensaje no orienta a una ruta efímera recomendada dentro del proyecto. | Media (fricción evitable en generación de evidencia TDD/BDD para hooks bloqueantes). | Repro fase 29: `pnpm exec pumuki sdd evidence ... --test-output=/tmp/flux-athlete-detail-phase29-test.log --json` -> `[pumuki][sdd] --test-output must resolve inside repository root`. | Mejorar DX del error con sugerencia inmediata (`.pumuki/runtime/<file>.log`) o permitir `/tmp` cuando el artefacto final quede dentro de `.pumuki/artifacts/`. | ✅ Cerrado (#726, release 6.3.51, validado local 2026-03-06) |
 
 ## Criterio de cierre por entrada
 - Reproducida y documentada.
@@ -235,12 +235,20 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `web-runtime-mode.ts` y `web-runtime-mode.spec.ts`.
   - smoke adicional: QA local validada en `http://127.0.0.1:5180/__qa?unlockQa=1&qa=1` con login y cambio a dominio `Operaciones`, confirmando visibilidad de `web.compareProgress.screen`.
   - sin nuevos bugs/mejoras de Pumuki detectados en el cierre completo de la fase 30.
+- Revalidación iteración fase 31 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/CoachNotesPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/CoachNotesPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase31-coach-notes-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `CoachNotesPanel.tsx` y `CoachNotesPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5181/__qa?unlockQa=1&qa=1` con login por email (`qa+coach-notes@flux.app`) y cambio a dominio `Operaciones`, confirmando visibilidad de `web.coachNotes.screen`.
+  - sin nuevos bugs/mejoras de Pumuki detectados en el cierre de la fase 31.
 - `PUM-016` cerrado (validación local 2026-03-06):
   - issue upstream: `#726`.
+  - release publicada: `pumuki@6.3.51`.
   - fix técnico en core:
     - `pumuki sdd evidence` mantiene el bloqueo de seguridad cuando `--test-output` apunta fuera del repo,
     - pero ahora el error sugiere una ruta efímera válida y accionable, por ejemplo `.pumuki/runtime/flux-athlete-detail-phase29-test.log`.
   - validación técnica en core:
     - `npx --yes tsx@4.21.0 --test integrations/sdd/__tests__/evidenceScaffold.test.ts integrations/lifecycle/__tests__/cli.test.ts`
     - resultado: `49 pass / 0 fail`.
-- foco activo actual: backlog Flux `✅ 100% cerrado` (sin `🚧/⏳/⛔`).
+- foco activo actual: backlog Flux con fase web 31 `✅` cerrada y fase 32 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
