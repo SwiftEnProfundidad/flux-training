@@ -113,6 +113,7 @@ import { AthleteDetailPanel } from "./AthleteDetailPanel";
 import { SessionHistoryPanel } from "./SessionHistoryPanel";
 import { CompareProgressPanel } from "./CompareProgressPanel";
 import { CoachNotesPanel } from "./CoachNotesPanel";
+import { AthletesOperationsTablePanel } from "./AthletesOperationsTablePanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5042,70 +5043,31 @@ export function App() {
                   summary: note.summary
                 }))}
               />
-              {athleteOperationRows.length === 0 ? (
-                <p className="empty-state">{translate("noAthletesFound")}</p>
-              ) : (
-                <>
-                  <DenseRowsInfo
-                    visibleRows={visibleAthleteRows.length}
-                    totalRows={athleteOperationRows.length}
-                    language={language}
-                  />
-                  <div className="operations-table">
-                    <header className="operations-table-row operations-table-header">
-                      <span>{translate("athleteColumn")}</span>
-                      <span>{translate("plansColumn")}</span>
-                      <span>{translate("sessionsColumn")}</span>
-                      <span>{translate("nutritionColumn")}</span>
-                      <span>{translate("lastSessionColumn")}</span>
-                      <span>{translate("riskColumn")}</span>
-                    </header>
-                    {visibleAthleteRows.map((row) => (
-                      <label key={row.athleteId} className="operations-table-row">
-                        <div className="operations-athlete-cell">
-                          <input
-                            type="checkbox"
-                            checked={selectedAthleteIdSet.has(row.athleteId)}
-                            onChange={() => handleToggleAthleteSelection(row.athleteId)}
-                          />
-                          <strong>{row.athleteId}</strong>
-                        </div>
-                        <span>{row.plansCount}</span>
-                        <span>{row.sessionsCount}</span>
-                        <span>{row.nutritionLogsCount}</span>
-                        <span>{row.lastSessionDate}</span>
-                        <span
-                          className={`status-pill status-${riskToStatusClass(row.riskLevel)}`}
-                        >
-                          {row.riskLevel === "normal"
-                            ? translate("riskNormal")
-                            : translate("riskAttention")}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  {hasMoreAthleteRows ? (
-                    <div className="dense-table-actions">
-                      <button
-                        className="button ghost"
-                        data-action-id={athletesListScreenModel.actions.showMoreRows}
-                        onClick={handleShowMoreAthleteRows}
-                        type="button"
-                      >
-                        {translate("loadMoreRows")}
-                      </button>
-                      <button
-                        className="button ghost"
-                        data-action-id={athletesListScreenModel.actions.showAllRows}
-                        onClick={handleShowAllAthleteRows}
-                        type="button"
-                      >
-                        {translate("showAllRows")}
-                      </button>
-                    </div>
-                  ) : null}
-                </>
-              )}
+              <AthletesOperationsTablePanel
+                screenId={athletesListScreenModel.screenId}
+                routeId={athletesListScreenModel.routeId}
+                statusId={athletesListScreenModel.screenId.replace(".screen", ".status")}
+                rows={visibleAthleteRows}
+                selectedAthleteIds={selectedAthleteIdSet}
+                onToggleAthleteSelection={handleToggleAthleteSelection}
+                athleteColumnLabel={translate("athleteColumn")}
+                plansColumnLabel={translate("plansColumn")}
+                sessionsColumnLabel={translate("sessionsColumn")}
+                nutritionColumnLabel={translate("nutritionColumn")}
+                lastSessionColumnLabel={translate("lastSessionColumn")}
+                riskColumnLabel={translate("riskColumn")}
+                riskNormalLabel={translate("riskNormal")}
+                riskAttentionLabel={translate("riskAttention")}
+                emptyLabel={translate("noAthletesFound")}
+                rowsInfoLabel={`${translate("rowsShownLabel")} ${visibleAthleteRows.length}/${athleteOperationRows.length}`}
+                hasMoreRows={hasMoreAthleteRows}
+                loadMoreRowsLabel={translate("loadMoreRows")}
+                loadMoreRowsActionId={athletesListScreenModel.actions.showMoreRows}
+                onLoadMoreRows={handleShowMoreAthleteRows}
+                showAllRowsLabel={translate("showAllRows")}
+                showAllRowsActionId={athletesListScreenModel.actions.showAllRows}
+                onShowAllRows={handleShowAllAthleteRows}
+              />
             </div>
             </article>
           ) : null}
