@@ -7,7 +7,7 @@
 - ⛔ Bloqueado
 
 ## Estado global
-- Se mantiene un plan maestro de orquestacion y dos planes canonicos por plataforma (iOS/Web) para llevar el producto a estado operativo real.
+- Se mantiene un documento maestro y dos planes canonicos por plataforma (iOS/Web) para llevar el producto a estado operativo real.
 - Objetivo actual: MVP web+iOS usable end-to-end, sin fallback demo, con paridad funcional contra `flux.pen`.
 - El plan activo esta en formato pantalla a pantalla (121 subtasks trazables).
 
@@ -20,8 +20,7 @@
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.
 - El ciclo actual revalida todo con criterio funcional estricto (evidencia runtime obligatoria).
-- Reapertura formal de cierres no validados: `docs/validation/MVP_T1_2_REOPENED_CLOSURES_V1.csv`.
-- Priorizacion ejecutable por olas: `docs/validation/MVP_T1_3_EXECUTION_PRIORITY_V1.csv`.
+- La reapertura de cierres no validados y la priorizacion inicial ya quedaron consolidadas en este documento maestro; los artefactos historicos generados dejaron de ser fuente de verdad.
 - `IOS-300_SETTINGS_HOME` ya esta operativo con ruta navegable, persistencia durable por usuario y test funcional verde.
 - `IOS-310_ACCOUNT_PROFILE` ya esta operativo con ruta de ajustes, guardado de perfil por usuario y test funcional verde.
 - `IOS-320_NOTIFICATIONS` ya esta operativo con ruta dedicada, persistencia durable por usuario y test funcional verde.
@@ -260,7 +259,7 @@
 
 ## Ciclo activo (producto real)
 Planes activos:
-- Orquestacion: `docs/PLAN_MVP_OPERATIVO_WEB_IOS.md`
+- Master: `docs/SEGUIMIENTO_MASTER.md`
 - iOS: `docs/PLAN_IOS_MVP_OPERATIVO.md`
 - Web: `docs/PLAN_WEB_MVP_OPERATIVO.md`
 
@@ -282,6 +281,7 @@ Planes activos:
 ## Regla de operacion
 - Solo una task en `🚧`.
 - Al cerrar task: marcar `✅` y mover la siguiente a `🚧`.
+- Limpieza documental pre-ciclo (2026-03-06): `docs/` pasa a estructura canónica simple con `SEGUIMIENTO_MASTER.md`, planes activos por plataforma, `BUGS_Y_MEJORAS_PUMUKI.md`, `docs/README.md` y `docs/validation/README.md`; el histórico redundante sale del árbol operativo.
 - Cola web documentada tras fase 28 en `docs/PLAN_WEB_MVP_OPERATIVO.md`: fase 29 `AthleteDetailPanel` (`🚧`), seguida por fases 30-46 (`⏳`) para compare progress, coach notes, tabla de atletas, governance, audit, billing, IA, nutricion, progreso, sync, settings, legal y observabilidad.
 - Web modularizacion progresiva (fase 25): extraccion de `exercise-library` a `ExerciseLibraryPanel` para desacoplar selector de ejercicio/idioma, carga de videos y grid de resultados del contenedor `App.tsx`.
 - Evidencia de fase 25 (2026-03-05): `pnpm --filter @flux/web test -- src/presentation/App.tsx`, `pnpm --filter @flux/web build` y `pnpm --filter @flux/web check` en verde; smoke QA en `http://127.0.0.1:5176/__qa?unlockQa=1&qa=1` con accion real observable sobre acceso (campo `correo`: `"" -> "qa+exercise-library@flux.app"`) y consola limpia (`error=0`, `warning=0`).

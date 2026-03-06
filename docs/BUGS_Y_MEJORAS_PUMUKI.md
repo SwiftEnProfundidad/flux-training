@@ -68,6 +68,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - smoke real en este repo con CLI local de Pumuki core:
     - `node /Users/juancarlosmerlosalbarracin/Developer/Projects/ast-intelligence-hooks/bin/pumuki.js watch --once --stage=PRE_COMMIT --scope=staged --json`
     - `git status --short` sin ruido de `.ai_evidence.json` / `.pumuki/**` tras la ejecución.
+  - hardening adicional en consumer (2026-03-06): el repo ahora ignora también `.ai_evidence.json`, `.AI_EVIDENCE.json` y `.pumuki/` desde `.gitignore` para evitar reaparición del ruido al clonar o trabajar sin `info/exclude`.
 - `PUM-008` cerrado en core Pumuki (pendiente rollout de versión en consumer):
   - el finding `SKILLS_SKILLS_FRONTEND_NO_SOLID_VIOLATIONS` ahora incluye criterios accionables (`ast_nodes`), métricas observadas (`observed_paths`) y muestra de rutas (`sample_paths`) para diagnóstico incremental.
   - la salida humana del gate añade `next_action` específico para remediación progresiva (extracción por componente/hook en commits pequeños).
@@ -208,3 +209,9 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - evidencia: actualización de `docs/PLAN_WEB_MVP_OPERATIVO.md` y `docs/SEGUIMIENTO_MASTER.md`.
   - impacto: evita huecos de trazabilidad y elimina tareas “mentales” no reflejadas en tracking.
   - propuesta para Pumuki: incorporar una regla opcional de governance documental que avise cuando un plan marque “sin task en construcción” pero siga habiendo trabajo de continuación en el mismo ciclo.
+- Iteración de saneamiento documental (2026-03-06):
+  - comando: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`
+  - resultado observado: `lastTick.changed=true`, `lastTick.evaluated=true`, pero `changedFiles=[]` y `evaluatedFiles=[]` cuando no había cambios staged, solo cambios unstaged.
+  - impacto: genera una señal ambigua en modo `PRE_COMMIT` porque parece que sí hubo evaluación útil, pero no hay superficie exacta de archivos sobre la que razonar.
+  - mejora propuesta: exponer un estado explícito tipo `noStagedFiles=true` o `reason="no-staged-files"` y forzar `changed=false`/`evaluated=false` cuando el scope staged esté vacío.
+  - severidad: media; no bloquea, pero complica trazabilidad enterprise y automatización de reporting.
