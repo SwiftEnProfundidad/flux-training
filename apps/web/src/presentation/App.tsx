@@ -118,6 +118,7 @@ import { AdminUsersPanel } from "./AdminUsersPanel";
 import { AuditTrailPanel } from "./AuditTrailPanel";
 import { BillingSupportPanel } from "./BillingSupportPanel";
 import { AIInsightsPanel } from "./AIInsightsPanel";
+import { NutritionOverviewPanel } from "./NutritionOverviewPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5429,65 +5430,39 @@ export function App() {
               statusLabel={translate("nutritionStatusLabel")}
               language={language}
             />
-            <div className="form-grid">
-              <input
-                aria-label={translate("datePlaceholder")}
-                placeholder={translate("datePlaceholder")}
-                value={nutritionDate}
-                onChange={(event) => setNutritionDate(event.target.value)}
-              />
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("caloriesPlaceholder")}
-                  placeholder={translate("caloriesPlaceholder")}
-                  value={calories}
-                  onChange={(event) => setCalories(event.target.value)}
-                />
-                <input
-                  aria-label={translate("proteinPlaceholder")}
-                  placeholder={translate("proteinPlaceholder")}
-                  value={proteinGrams}
-                  onChange={(event) => setProteinGrams(event.target.value)}
-                />
-              </div>
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("carbsPlaceholder")}
-                  placeholder={translate("carbsPlaceholder")}
-                  value={carbsGrams}
-                  onChange={(event) => setCarbsGrams(event.target.value)}
-                />
-                <input
-                  aria-label={translate("fatsPlaceholder")}
-                  placeholder={translate("fatsPlaceholder")}
-                  value={fatsGrams}
-                  onChange={(event) => setFatsGrams(event.target.value)}
-                />
-              </div>
-              <div className="inline-inputs">
-                <button
-                  className="button primary"
-                  onClick={handleCreateNutritionLog}
-                  type="button"
-                  data-action-id={nutritionOverviewScreenModel.actions.saveLog}
-                >
-                  {translate("saveNutritionLog")}
-                </button>
-                <button
-                  className="button ghost"
-                  onClick={handleLoadNutritionLogs}
-                  type="button"
-                  data-action-id={nutritionOverviewScreenModel.actions.loadLogs}
-                >
-                  {translate("loadLogs")}
-                </button>
-              </div>
-              <div
-                className="history-list"
-                data-screen-id={dailyLogReviewScreenModel.screenId}
-                data-route-id={dailyLogReviewScreenModel.routeId}
-                data-status-id="web.dailyLogReview.status"
-              >
+            <NutritionOverviewPanel
+              screenId={nutritionOverviewScreenModel.screenId}
+              routeId={nutritionOverviewScreenModel.routeId}
+              statusId="web.nutritionOverview.status"
+              title={translate("nutritionTitle")}
+              datePlaceholder={translate("datePlaceholder")}
+              nutritionDate={nutritionDate}
+              onNutritionDateChange={setNutritionDate}
+              caloriesPlaceholder={translate("caloriesPlaceholder")}
+              calories={calories}
+              onCaloriesChange={setCalories}
+              proteinPlaceholder={translate("proteinPlaceholder")}
+              proteinGrams={proteinGrams}
+              onProteinChange={setProteinGrams}
+              carbsPlaceholder={translate("carbsPlaceholder")}
+              carbsGrams={carbsGrams}
+              onCarbsChange={setCarbsGrams}
+              fatsPlaceholder={translate("fatsPlaceholder")}
+              fatsGrams={fatsGrams}
+              onFatsChange={setFatsGrams}
+              saveLabel={translate("saveNutritionLog")}
+              saveActionId={nutritionOverviewScreenModel.actions.saveLog}
+              onSave={handleCreateNutritionLog}
+              loadLabel={translate("loadLogs")}
+              loadActionId={nutritionOverviewScreenModel.actions.loadLogs}
+              onLoad={handleLoadNutritionLogs}
+            />
+            <div
+              className="history-list"
+              data-screen-id={dailyLogReviewScreenModel.screenId}
+              data-route-id={dailyLogReviewScreenModel.routeId}
+              data-status-id="web.dailyLogReview.status"
+            >
                 <p className="section-subtitle">{translate("nutritionFiltersLabel")}</p>
                 <div className="inline-inputs">
                   <input
@@ -5870,7 +5845,6 @@ export function App() {
                   ))}
                 </div>
               )}
-            </div>
             </article>
           ) : null}
 
