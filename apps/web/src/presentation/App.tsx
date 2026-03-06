@@ -115,6 +115,7 @@ import { CompareProgressPanel } from "./CompareProgressPanel";
 import { CoachNotesPanel } from "./CoachNotesPanel";
 import { AthletesOperationsTablePanel } from "./AthletesOperationsTablePanel";
 import { AdminUsersPanel } from "./AdminUsersPanel";
+import { AuditTrailPanel } from "./AuditTrailPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5162,180 +5163,92 @@ export function App() {
               statusLabel={translate("auditStatusLabel")}
               language={language}
             />
-            <div className="form-grid">
-              <div className="inline-inputs">
-                <button
-                  className="button ghost"
-                  data-action-id={auditTrailScreenModel.actions.loadTimeline}
-                  onClick={handleLoadAuditTimeline}
-                  type="button"
-                >
-                  {translate("auditLoadTimeline")}
-                </button>
-                <button
-                  className="button primary"
-                  data-action-id={auditTrailScreenModel.actions.exportCsv}
-                  onClick={handleExportAuditCSV}
-                  type="button"
-                >
-                  {translate("auditExportCSV")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={auditTrailScreenModel.actions.exportForensic}
-                  onClick={handleExportForensicAudit}
-                  type="button"
-                >
-                  {translate("auditExportForensic")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={auditTrailScreenModel.actions.clearFilters}
-                  onClick={handleClearAuditFilters}
-                  type="button"
-                >
-                  {translate("auditClearFilters")}
-                </button>
-              </div>
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("auditSearchPlaceholder")}
-                  placeholder={translate("auditSearchPlaceholder")}
-                  value={auditQuery}
-                  onChange={(event) => setAuditQuery(event.target.value)}
-                />
-                <input
-                  aria-label={translate("auditDomainFilterPlaceholder")}
-                  placeholder={translate("auditDomainFilterPlaceholder")}
-                  value={auditDomainFilter}
-                  onChange={(event) => setAuditDomainFilter(event.target.value)}
-                />
-              </div>
-              <div className="inline-inputs">
-                <label className="compact-label">
-                  {translate("auditSourceFilterLabel")}
-                  <select
-                    aria-label={translate("auditSourceFilterLabel")}
-                    value={auditSourceFilter}
-                    onChange={(event) => setAuditSourceFilter(event.target.value as AuditSourceFilter)}
-                  >
-                    <option value="all">{translate("auditFilterAllSources")}</option>
-                    <option value="web">web</option>
-                    <option value="ios">ios</option>
-                    <option value="backend">backend</option>
-                  </select>
-                </label>
-                <label className="compact-label">
-                  {translate("auditCategoryFilterLabel")}
-                  <select
-                    aria-label={translate("auditCategoryFilterLabel")}
-                    value={auditCategoryFilter}
-                    onChange={(event) =>
-                      setAuditCategoryFilter(event.target.value as AuditCategoryFilter)
-                    }
-                  >
-                    <option value="all">{translate("auditFilterAllCategories")}</option>
-                    <option value="analytics">{translate("auditCategoryAnalytics")}</option>
-                    <option value="crash">{translate("auditCategoryCrash")}</option>
-                  </select>
-                </label>
-                <label className="compact-label">
-                  {translate("auditSeverityFilterLabel")}
-                  <select
-                    aria-label={translate("auditSeverityFilterLabel")}
-                    value={auditSeverityFilter}
-                    onChange={(event) =>
-                      setAuditSeverityFilter(event.target.value as AuditSeverityFilter)
-                    }
-                  >
-                    <option value="all">{translate("auditFilterAllSeverities")}</option>
-                    <option value="info">{translate("auditSeverityInfo")}</option>
-                    <option value="warning">warning</option>
-                    <option value="fatal">fatal</option>
-                  </select>
-                </label>
-              </div>
-              <StatLine
-                label={translate("auditRowsLoadedLabel")}
-                value={String(auditTimelineRowsBase.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("auditRowsFilteredLabel")}
-                value={String(auditTimelineRows.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("auditStructuredLogsLabel")}
-                value={String(structuredLogs.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("auditActivityLogLabel")}
-                value={String(activityLogEntries.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("auditForensicStatusLabel")}
-                value={forensicExportResult === null ? "-" : humanizeStatus(forensicExportResult.status, language)}
-                language={language}
-              />
-              {auditTimelineRows.length === 0 ? (
-                <p className="empty-state">{translate("auditNoRows")}</p>
-              ) : (
-                <>
-                  <DenseRowsInfo
-                    visibleRows={visibleAuditRows.length}
-                    totalRows={auditTimelineRows.length}
-                    language={language}
-                  />
-                  <div className="operations-table">
-                    <header className="operations-table-row operations-table-header">
-                      <span>{translate("auditOccurredAtColumn")}</span>
-                      <span>{translate("auditSourceColumn")}</span>
-                      <span>{translate("auditCategoryColumn")}</span>
-                      <span>{translate("auditSeverityColumn")}</span>
-                      <span>{translate("auditNameColumn")}</span>
-                      <span>{translate("auditDomainColumn")}</span>
-                      <span>{translate("auditCorrelationColumn")}</span>
-                      <span>{translate("auditSummaryColumn")}</span>
-                    </header>
-                    {visibleAuditRows.map((row) => (
-                      <div key={row.id} className="operations-table-row audit-table-row">
-                        <span>{row.occurredAt}</span>
-                        <span>{row.source}</span>
-                        <span>{row.category}</span>
-                        <span
-                          className={`status-pill status-${toStatusClass(
-                            row.severity === "fatal"
-                              ? "high"
-                              : row.severity === "warning"
-                                ? "medium"
-                                : "low"
-                          )}`}
-                        >
-                          {toHumanStatus(row.severity, language)}
-                        </span>
-                        <span>{row.name}</span>
-                        <span>{row.domain}</span>
-                        <span>{row.correlationId}</span>
-                        <span>{row.summary}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {hasMoreAuditRows ? (
-                    <div className="dense-table-actions">
-                      <button className="button ghost" onClick={handleShowMoreAuditRows} type="button">
-                        {translate("loadMoreRows")}
-                      </button>
-                      <button className="button ghost" onClick={handleShowAllAuditRows} type="button">
-                        {translate("showAllRows")}
-                      </button>
-                    </div>
-                  ) : null}
-                </>
-              )}
-            </div>
+            <AuditTrailPanel
+              screenId={auditTrailScreenModel.screenId}
+              routeId={auditTrailScreenModel.routeId}
+              statusId="web.auditTrail.status"
+              title={translate("auditTitle")}
+              loadTimelineLabel={translate("auditLoadTimeline")}
+              loadTimelineActionId={auditTrailScreenModel.actions.loadTimeline}
+              onLoadTimeline={handleLoadAuditTimeline}
+              exportCsvLabel={translate("auditExportCSV")}
+              exportCsvActionId={auditTrailScreenModel.actions.exportCsv}
+              onExportCsv={handleExportAuditCSV}
+              exportForensicLabel={translate("auditExportForensic")}
+              exportForensicActionId={auditTrailScreenModel.actions.exportForensic}
+              onExportForensic={handleExportForensicAudit}
+              clearFiltersLabel={translate("auditClearFilters")}
+              clearFiltersActionId={auditTrailScreenModel.actions.clearFilters}
+              onClearFilters={handleClearAuditFilters}
+              searchPlaceholder={translate("auditSearchPlaceholder")}
+              searchValue={auditQuery}
+              onSearchChange={setAuditQuery}
+              domainPlaceholder={translate("auditDomainFilterPlaceholder")}
+              domainValue={auditDomainFilter}
+              onDomainChange={setAuditDomainFilter}
+              sourceFilterLabel={translate("auditSourceFilterLabel")}
+              sourceFilterValue={auditSourceFilter}
+              sourceOptions={[
+                { value: "all", label: translate("auditFilterAllSources") },
+                { value: "web", label: "web" },
+                { value: "ios", label: "ios" },
+                { value: "backend", label: "backend" }
+              ]}
+              onSourceFilterChange={setAuditSourceFilter}
+              categoryFilterLabel={translate("auditCategoryFilterLabel")}
+              categoryFilterValue={auditCategoryFilter}
+              categoryOptions={[
+                { value: "all", label: translate("auditFilterAllCategories") },
+                { value: "analytics", label: translate("auditCategoryAnalytics") },
+                { value: "crash", label: translate("auditCategoryCrash") }
+              ]}
+              onCategoryFilterChange={setAuditCategoryFilter}
+              severityFilterLabel={translate("auditSeverityFilterLabel")}
+              severityFilterValue={auditSeverityFilter}
+              severityOptions={[
+                { value: "all", label: translate("auditFilterAllSeverities") },
+                { value: "info", label: translate("auditSeverityInfo") },
+                { value: "warning", label: "warning" },
+                { value: "fatal", label: "fatal" }
+              ]}
+              onSeverityFilterChange={setAuditSeverityFilter}
+              rowsLoadedLabel={translate("auditRowsLoadedLabel")}
+              rowsLoadedValue={String(auditTimelineRowsBase.length)}
+              rowsFilteredLabel={translate("auditRowsFilteredLabel")}
+              rowsFilteredValue={String(auditTimelineRows.length)}
+              structuredLogsLabel={translate("auditStructuredLogsLabel")}
+              structuredLogsValue={String(structuredLogs.length)}
+              activityLogLabel={translate("auditActivityLogLabel")}
+              activityLogValue={String(activityLogEntries.length)}
+              forensicStatusLabel={translate("auditForensicStatusLabel")}
+              forensicStatusValue={
+                forensicExportResult === null
+                  ? "-"
+                  : humanizeStatus(forensicExportResult.status, language)
+              }
+              emptyLabel={translate("auditNoRows")}
+              rowsInfoLabel={`${translate("rowsShownLabel")} ${visibleAuditRows.length}/${auditTimelineRows.length}`}
+              rows={visibleAuditRows}
+              occurredAtLabel={translate("auditOccurredAtColumn")}
+              sourceLabel={translate("auditSourceColumn")}
+              categoryLabel={translate("auditCategoryColumn")}
+              severityLabel={translate("auditSeverityColumn")}
+              nameLabel={translate("auditNameColumn")}
+              domainLabel={translate("auditDomainColumn")}
+              correlationLabel={translate("auditCorrelationColumn")}
+              summaryLabel={translate("auditSummaryColumn")}
+              severityHumanizer={(value) => toHumanStatus(value, language)}
+              severityClassName={(severity) =>
+                toStatusClass(
+                  severity === "fatal" ? "high" : severity === "warning" ? "medium" : "low"
+                )
+              }
+              hasMoreRows={hasMoreAuditRows}
+              loadMoreRowsLabel={translate("loadMoreRows")}
+              onLoadMoreRows={handleShowMoreAuditRows}
+              showAllRowsLabel={translate("showAllRows")}
+              onShowAllRows={handleShowAllAuditRows}
+            />
             </article>
           ) : null}
 
