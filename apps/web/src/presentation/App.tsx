@@ -111,6 +111,7 @@ import { ExerciseDetailPanel } from "./ExerciseDetailPanel";
 import { AthleteOperationsToolbar } from "./AthleteOperationsToolbar";
 import { AthleteDetailPanel } from "./AthleteDetailPanel";
 import { SessionHistoryPanel } from "./SessionHistoryPanel";
+import { CompareProgressPanel } from "./CompareProgressPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -4984,80 +4985,31 @@ export function App() {
                 minutesLabel={translate("historyMinutesLabel")}
                 exercisesLabel={translate("sessionHistoryExercisesLabel")}
               />
-              <div
-                className="history-list"
-                data-screen-id={compareProgressScreenModel.screenId}
-                data-route-id={compareProgressScreenModel.routeId}
-                data-status-id={compareProgressScreenModel.screenId.replace(".screen", ".status")}
-              >
-                <p className="section-subtitle">{translate("compareProgressTitle")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    data-action-id={compareProgressScreenModel.actions.loadProgress}
-                    onClick={() => void handleLoadProgressSummary()}
-                    type="button"
-                  >
-                    {translate("compareProgressLoad")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={compareProgressScreenModel.actions.selectFirstAthlete}
-                    onClick={handleSelectFirstAthleteDetail}
-                    type="button"
-                  >
-                    {translate("athleteDetailSelectFirst")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    data-action-id={compareProgressScreenModel.actions.openSessionHistory}
-                    onClick={handleOpenAthleteSessionHistory}
-                    type="button"
-                  >
-                    {translate("athleteDetailOpenSessionHistory")}
-                  </button>
-                </div>
-                {selectedAthleteDetailRow === null ? (
-                  <p className="empty-state">{translate("compareProgressEmpty")}</p>
-                ) : (
-                  <>
-                    <StatLine
-                      label={translate("compareProgressSelectedSessions")}
-                      value={String(selectedAthleteDetailRow.sessionsCount)}
-                      language={language}
-                    />
-                    <StatLine
-                      label={translate("compareProgressCohortSessions")}
-                      value={String(cohortAverageSessions)}
-                      language={language}
-                    />
-                    <StatLine
-                      label={translate("compareProgressDeltaSessions")}
-                      value={`${selectedAthleteDetailRow.sessionsCount - cohortAverageSessions >= 0 ? "+" : ""}${(
-                        selectedAthleteDetailRow.sessionsCount - cohortAverageSessions
-                      ).toFixed(1)}`}
-                      language={language}
-                    />
-                    <StatLine
-                      label={translate("compareProgressSelectedNutrition")}
-                      value={String(selectedAthleteDetailRow.nutritionLogsCount)}
-                      language={language}
-                    />
-                    <StatLine
-                      label={translate("compareProgressCohortNutrition")}
-                      value={String(cohortAverageNutritionLogs)}
-                      language={language}
-                    />
-                    <StatLine
-                      label={translate("compareProgressDeltaNutrition")}
-                      value={`${selectedAthleteDetailRow.nutritionLogsCount - cohortAverageNutritionLogs >= 0 ? "+" : ""}${(
-                        selectedAthleteDetailRow.nutritionLogsCount - cohortAverageNutritionLogs
-                      ).toFixed(1)}`}
-                      language={language}
-                    />
-                  </>
-                )}
-              </div>
+              <CompareProgressPanel
+                screenId={compareProgressScreenModel.screenId}
+                routeId={compareProgressScreenModel.routeId}
+                statusId={compareProgressScreenModel.screenId.replace(".screen", ".status")}
+                title={translate("compareProgressTitle")}
+                loadProgressLabel={translate("compareProgressLoad")}
+                loadProgressActionId={compareProgressScreenModel.actions.loadProgress}
+                onLoadProgress={() => void handleLoadProgressSummary()}
+                selectFirstAthleteLabel={translate("athleteDetailSelectFirst")}
+                selectFirstAthleteActionId={compareProgressScreenModel.actions.selectFirstAthlete}
+                onSelectFirstAthlete={handleSelectFirstAthleteDetail}
+                openSessionHistoryLabel={translate("athleteDetailOpenSessionHistory")}
+                openSessionHistoryActionId={compareProgressScreenModel.actions.openSessionHistory}
+                onOpenSessionHistory={handleOpenAthleteSessionHistory}
+                emptyLabel={translate("compareProgressEmpty")}
+                selectedRow={selectedAthleteDetailRow}
+                selectedSessionsLabel={translate("compareProgressSelectedSessions")}
+                cohortSessionsLabel={translate("compareProgressCohortSessions")}
+                deltaSessionsLabel={translate("compareProgressDeltaSessions")}
+                selectedNutritionLabel={translate("compareProgressSelectedNutrition")}
+                cohortNutritionLabel={translate("compareProgressCohortNutrition")}
+                deltaNutritionLabel={translate("compareProgressDeltaNutrition")}
+                cohortAverageSessions={cohortAverageSessions}
+                cohortAverageNutritionLogs={cohortAverageNutritionLogs}
+              />
               <div
                 className="history-list"
                 data-screen-id={coachNotesScreenModel.screenId}
