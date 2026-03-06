@@ -119,6 +119,7 @@ import { AuditTrailPanel } from "./AuditTrailPanel";
 import { BillingSupportPanel } from "./BillingSupportPanel";
 import { AIInsightsPanel } from "./AIInsightsPanel";
 import { NutritionOverviewPanel } from "./NutritionOverviewPanel";
+import { DailyLogReviewPanel } from "./DailyLogReviewPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5457,72 +5458,38 @@ export function App() {
               loadActionId={nutritionOverviewScreenModel.actions.loadLogs}
               onLoad={handleLoadNutritionLogs}
             />
-            <div
-              className="history-list"
-              data-screen-id={dailyLogReviewScreenModel.screenId}
-              data-route-id={dailyLogReviewScreenModel.routeId}
-              data-status-id="web.dailyLogReview.status"
-            >
-                <p className="section-subtitle">{translate("nutritionFiltersLabel")}</p>
-                <div className="inline-inputs">
-                  <input
-                    aria-label={translate("nutritionDateFilterPlaceholder")}
-                    placeholder={translate("nutritionDateFilterPlaceholder")}
-                    value={nutritionDateFilter}
-                    data-action-id={dailyLogReviewScreenModel.actions.updateFilters}
-                    onChange={(event) => setNutritionDateFilter(event.target.value)}
-                  />
-                  <input
-                    aria-label={translate("nutritionMinProteinPlaceholder")}
-                    placeholder={translate("nutritionMinProteinPlaceholder")}
-                    value={nutritionMinProteinFilter}
-                    data-action-id={dailyLogReviewScreenModel.actions.updateFilters}
-                    onChange={(event) => setNutritionMinProteinFilter(event.target.value)}
-                  />
-                  <input
-                    aria-label={translate("nutritionMaxCaloriesPlaceholder")}
-                    placeholder={translate("nutritionMaxCaloriesPlaceholder")}
-                    value={nutritionMaxCaloriesFilter}
-                    data-action-id={dailyLogReviewScreenModel.actions.updateFilters}
-                    onChange={(event) => setNutritionMaxCaloriesFilter(event.target.value)}
-                  />
-                </div>
-                <div className="inline-inputs">
-                  <label className="compact-label">
-                    {translate("nutritionSortLabel")}
-                    <select
-                      aria-label={translate("nutritionSortLabel")}
-                      value={nutritionSortMode}
-                      data-action-id={dailyLogReviewScreenModel.actions.updateSort}
-                      onChange={(event) =>
-                        setNutritionSortMode(event.target.value as NutritionSortMode)
-                      }
-                    >
-                      <option value="date_desc">{translate("nutritionSortByDate")}</option>
-                      <option value="calories_desc">{translate("nutritionSortByCalories")}</option>
-                      <option value="protein_desc">{translate("nutritionSortByProtein")}</option>
-                    </select>
-                  </label>
-                  <button
-                    className="button ghost"
-                    onClick={handleClearNutritionFilters}
-                    type="button"
-                    data-action-id={dailyLogReviewScreenModel.actions.clearFilters}
-                  >
-                    {translate("clearNutritionFilters")}
-                  </button>
-                </div>
-              </div>
-              <StatLine
-                label={translate("logsLoadedLabel")}
-                value={String(nutritionLogs.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("filteredLogsLabel")}
-                value={String(filteredNutritionLogs.length)}
-                language={language}
-              />
+            <DailyLogReviewPanel
+              screenId={dailyLogReviewScreenModel.screenId}
+              routeId={dailyLogReviewScreenModel.routeId}
+              statusId="web.dailyLogReview.status"
+              title={translate("nutritionFiltersLabel")}
+              dateFilterPlaceholder={translate("nutritionDateFilterPlaceholder")}
+              dateFilterValue={nutritionDateFilter}
+              onDateFilterChange={setNutritionDateFilter}
+              minProteinPlaceholder={translate("nutritionMinProteinPlaceholder")}
+              minProteinValue={nutritionMinProteinFilter}
+              onMinProteinChange={setNutritionMinProteinFilter}
+              maxCaloriesPlaceholder={translate("nutritionMaxCaloriesPlaceholder")}
+              maxCaloriesValue={nutritionMaxCaloriesFilter}
+              onMaxCaloriesChange={setNutritionMaxCaloriesFilter}
+              sortLabel={translate("nutritionSortLabel")}
+              sortValue={nutritionSortMode}
+              sortOptions={[
+                { value: "date_desc", label: translate("nutritionSortByDate") },
+                { value: "calories_desc", label: translate("nutritionSortByCalories") },
+                { value: "protein_desc", label: translate("nutritionSortByProtein") }
+              ]}
+              onSortChange={(value) => setNutritionSortMode(value as NutritionSortMode)}
+              clearFiltersLabel={translate("clearNutritionFilters")}
+              clearFiltersActionId={dailyLogReviewScreenModel.actions.clearFilters}
+              onClearFilters={handleClearNutritionFilters}
+              updateFiltersActionId={dailyLogReviewScreenModel.actions.updateFilters}
+              updateSortActionId={dailyLogReviewScreenModel.actions.updateSort}
+              logsLoadedLabel={translate("logsLoadedLabel")}
+              logsLoadedValue={String(nutritionLogs.length)}
+              filteredLogsLabel={translate("filteredLogsLabel")}
+              filteredLogsValue={String(filteredNutritionLogs.length)}
+            />
               <div
                 className="history-list"
                 data-screen-id={deviationAlertsScreenModel.screenId}
