@@ -143,8 +143,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 
 ## Estado activo Web
-- 🚧 Task en construccion: **Fase 37 — Extraer formulario/resumen de nutricion a `NutritionOverviewPanel`**
-- ⏳ Siguiente task global documentada: **Fase 38 — Extraer revision diaria de logs a `DailyLogReviewPanel`**
+- 🚧 Task en construccion: **Fase 38 — Extraer revision diaria de logs a `DailyLogReviewPanel`**
+- ⏳ Siguiente task global documentada: **Fase 39 — Extraer alertas de desviacion a `DeviationAlertsPanel`**
 - ✅ Bloques cerrados previos: **Fases 4.1 a 4.12 + fases 19 a 34**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
@@ -199,6 +199,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Evidencia de ajuste fase 35 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/BillingSupportPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/BillingSupportPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase35-billing-support-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5181/__qa?unlockQa=1&qa=1&domain=operations`, login por email (`qa+billing-support@flux.app`), `Cargar billing/soporte` y visibilidad confirmada de `web.billingOverview.screen` + `web.supportIncidents.screen` con acciones y filas de incidencias reales.
 - Ajuste de mantenibilidad web (post-cierre 55/55, fase 36): extraccion del bloque de recomendaciones IA a `AIInsightsPanel` para desacoplar acciones, metricas y lista priorizada del contenedor `App.tsx` sin alterar contrato runtime (`web.aiInsights.*`).
 - Evidencia de ajuste fase 36 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/AIInsightsPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/AIInsightsPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase36-ai-insights-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5181/__qa?unlockQa=1&qa=1&domain=operations`, login por email (`qa+ai-insights@flux.app`), `Cargar insights IA` y visibilidad confirmada de `web.aiInsights.screen` con dos recomendaciones renderizadas.
+- Ajuste de mantenibilidad web (post-cierre 55/55, fase 37): extraccion del bloque principal de nutricion a `NutritionOverviewPanel` para desacoplar formulario de captura y CTAs de guardado/carga del contenedor `App.tsx` sin alterar contrato runtime (`web.nutritionOverview.*`).
+- Evidencia de ajuste fase 37 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/NutritionOverviewPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/NutritionOverviewPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase37-nutrition-overview-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5182/__qa?unlockQa=1&qa=1&domain=nutrition`, login por email (`qa+nutrition-overview@flux.app`), `Guardar registro nutricional` y visibilidad confirmada de `web.nutritionOverview.screen` con `Registros cargados 1` y `Registros filtrados 1`.
 
 ## Cola documentada de modularizacion web posterior a fase 28
 
@@ -212,8 +214,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 | 34 | Extraer auditoria a `AuditTrailPanel` | ✅ | Sacar de `App.tsx` el bloque `web.auditTrail.*` con filtros, export y tabla densa |
 | 35 | Extraer billing e incidencias a `BillingSupportPanel` | ✅ | Sacar de `App.tsx` el bloque combinado `web.billingOverview.*` + `web.supportIncidents.*` |
 | 36 | Extraer recomendaciones IA a `AIInsightsPanel` | ✅ | Sacar de `App.tsx` el bloque `web.aiInsights.*` con señales y lista priorizada |
-| 37 | Extraer formulario/resumen de nutricion a `NutritionOverviewPanel` | 🚧 | Sacar de `App.tsx` el bloque principal `web.nutritionOverview.*` |
-| 38 | Extraer revision diaria de logs a `DailyLogReviewPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.dailyLogReview.*` con filtros y orden |
+| 37 | Extraer formulario/resumen de nutricion a `NutritionOverviewPanel` | ✅ | Sacar de `App.tsx` el bloque principal `web.nutritionOverview.*` |
+| 38 | Extraer revision diaria de logs a `DailyLogReviewPanel` | 🚧 | Sacar de `App.tsx` el bloque `web.dailyLogReview.*` con filtros y orden |
 | 39 | Extraer alertas de desviacion a `DeviationAlertsPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.deviationAlerts.*` |
 | 40 | Extraer vista coach/corte nutricional a `NutritionCoachPanel` | ⏳ | Sacar de `App.tsx` los bloques `web.nutritionCoachView.*` + `web.light.cohortNutrition.*` |
 | 41 | Extraer detalle de log nutricional a `NutritionLogDetailPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.light.logDetail.*` |
