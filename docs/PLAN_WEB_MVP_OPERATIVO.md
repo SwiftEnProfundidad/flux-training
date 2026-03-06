@@ -143,8 +143,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 
 ## Estado activo Web
-- 🚧 Task en construccion: **Fase 44 — Extraer ajustes de usuario a `SettingsPanel`**
-- ⏳ Siguiente task global documentada: **Fase 45 — Extraer privacidad/cumplimiento a `LegalCompliancePanel`**
+- 🚧 Task en construccion: **Fase 45 — Extraer privacidad/cumplimiento a `LegalCompliancePanel`**
+- ⏳ Siguiente task global documentada: **Fase 46 — Extraer observabilidad a `ObservabilityPanel`**
 - ✅ Bloques cerrados previos: **Fases 4.1 a 4.12 + fases 19 a 34**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
@@ -213,6 +213,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Evidencia de ajuste fase 42 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase42-progress-trends-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5185/__qa?unlockQa=1&qa=1&domain=progress`, login por email (`qa+progress-trends@flux.app`), `Refrescar tendencias`, filtro `sesiones minimas = 1` y visibilidad confirmada de `web.progressTrends.screen` con `Dias filtrados 0` y estado `Tendencias: success`.
 - Ajuste de mantenibilidad web (post-cierre 55/55, fase 43): extraccion del bloque de sincronizacion offline a `OfflineSyncPanel` para desacoplar acciones de cola, idempotencia y contadores de rechazo del contenedor `App.tsx` sin alterar contrato runtime (`web.offlineSync.*`).
 - Evidencia de ajuste fase 43 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/OfflineSyncPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/OfflineSyncPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase43-offline-sync-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5186/__qa?unlockQa=1&qa=1&domain=operations`, login por email (`qa+offline-sync@flux.app`), `Sincronizar cola` y visibilidad confirmada de `web.offlineSync.screen` con cambio de estado `Sincronización: sincronizado`, `Preparacion 40%` y consola limpia (`Errors: 0`, `Warnings: 0`).
+- Ajuste de mantenibilidad web (post-cierre 55/55, fase 44): extraccion del bloque de ajustes de usuario a `SettingsPanel` para desacoplar toggles de preferencias y CTA de guardado del contenedor `App.tsx` sin alterar contrato runtime (`web.settings.*`).
+- Evidencia de ajuste fase 44 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/SettingsPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/SettingsPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase44-settings-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5187/__qa?unlockQa=1&qa=1&domain=all`, login por email (`qa+settings@flux.app`), activacion de `Sincronizar calendario` y `Guardar ajustes`, confirmando presencia de `web.settings.screen`, cambio de estado a `Ajustes: guardado` y consola limpia (`Errors: 0`, `Warnings: 0`).
 
 ## Cola documentada de modularizacion web posterior a fase 28
 
@@ -233,6 +235,6 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 | 41 | Extraer detalle de log nutricional a `NutritionLogDetailPanel` | ✅ | Sacar de `App.tsx` el bloque `web.light.logDetail.*` |
 | 42 | Extraer progreso a `ProgressTrendsPanel` | ✅ | Sacar de `App.tsx` el bloque `web.progressTrends.*` con metricas, filtros e historial |
 | 43 | Extraer sincronizacion offline a `OfflineSyncPanel` | ✅ | Sacar de `App.tsx` el bloque de cola, idempotencia y refresco |
-| 44 | Extraer ajustes de usuario a `SettingsPanel` | 🚧 | Sacar de `App.tsx` el bloque de preferencias y guardado |
-| 45 | Extraer privacidad/cumplimiento a `LegalCompliancePanel` | ⏳ | Sacar de `App.tsx` el bloque `web.legalCompliance.*` |
+| 44 | Extraer ajustes de usuario a `SettingsPanel` | ✅ | Sacar de `App.tsx` el bloque de preferencias y guardado |
+| 45 | Extraer privacidad/cumplimiento a `LegalCompliancePanel` | 🚧 | Sacar de `App.tsx` el bloque `web.legalCompliance.*` |
 | 46 | Extraer observabilidad a `ObservabilityPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.analyticsOverview.*` con eventos, crash y resumen |

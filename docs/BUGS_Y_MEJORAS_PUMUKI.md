@@ -347,4 +347,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - el build sigue reportando chunk principal `653.89 kB` pese a la modularización incremental.
   - impacto: el warning de bundling ya es claramente persistente y puede perder valor como señal puntual de regresión.
   - propuesta Pumuki: distinguir en el reporte entre `warning_recurrente_conocido` y `warning_nuevo`, para no mezclar deuda heredada con regresiones frescas del bloque actual.
-- foco activo actual: backlog Flux con fase web 43 `✅` cerrada y fase 44 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Revalidación iteración fase 44 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/SettingsPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/SettingsPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase44-settings-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `SettingsPanel.tsx` y `SettingsPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5187/__qa?unlockQa=1&qa=1&domain=all` con login por email (`qa+settings@flux.app`), activacion de `Sincronizar calendario` y `Guardar ajustes`, confirmando visibilidad de `web.settings.screen` y cambio de estado a `Ajustes: guardado`.
+- Mejora detectada en fase 44:
+  - el flujo real de cierre documental sigue obligando a ejecutar `pumuki watch --scope=staged` una segunda vez para docs, aunque la revalidación funcional ya quedó trazada en el bloque de código.
+  - impacto: añade fricción repetitiva en iteraciones atómicas de doble commit (código + docs) sin aportar nueva señal funcional.
+  - propuesta Pumuki: ofrecer un modo `--reuse-last-evidence` o agrupar evidencia+docs dentro del mismo cierre para evitar una segunda pasada redundante del gate cuando solo cambia tracking.
+- foco activo actual: backlog Flux con fase web 44 `✅` cerrada y fase 45 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
