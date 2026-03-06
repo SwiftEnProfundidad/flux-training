@@ -357,4 +357,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - el flujo real de cierre documental sigue obligando a ejecutar `pumuki watch --scope=staged` una segunda vez para docs, aunque la revalidación funcional ya quedó trazada en el bloque de código.
   - impacto: añade fricción repetitiva en iteraciones atómicas de doble commit (código + docs) sin aportar nueva señal funcional.
   - propuesta Pumuki: ofrecer un modo `--reuse-last-evidence` o agrupar evidencia+docs dentro del mismo cierre para evitar una segunda pasada redundante del gate cuando solo cambia tracking.
-- foco activo actual: backlog Flux con fase web 44 `✅` cerrada y fase 45 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Revalidación iteración fase 45 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/LegalCompliancePanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/LegalCompliancePanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase45-legal-compliance-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `LegalCompliancePanel.tsx` y `LegalCompliancePanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5187/__qa?unlockQa=1&qa=1&domain=all` con login por email (`qa+legal-compliance@flux.app`), activacion de consentimientos y `Guardar consentimiento`, confirmando visibilidad de `web.legalCompliance.screen`, estado `Legal: success` y resumen `saved`.
+- Mejora detectada en fase 45:
+  - cuando un componente nuevo intenta reutilizar helpers visuales locales embebidos en `App.tsx`, el fallo real aparece tarde en `build/check` como import inexistente.
+  - impacto: añade una vuelta extra de validación y rompe el flujo fino de commits atómicos.
+  - propuesta Pumuki: añadir una regla DX opcional que detecte imports nuevos hacia módulos inexistentes de la misma carpeta antes del `build`, con mensaje corto y corrección sugerida.
+- foco activo actual: backlog Flux con fase web 45 `✅` cerrada y fase 46 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
