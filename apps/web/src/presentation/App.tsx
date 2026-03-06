@@ -120,6 +120,7 @@ import { BillingSupportPanel } from "./BillingSupportPanel";
 import { AIInsightsPanel } from "./AIInsightsPanel";
 import { NutritionOverviewPanel } from "./NutritionOverviewPanel";
 import { DailyLogReviewPanel } from "./DailyLogReviewPanel";
+import { DeviationAlertsPanel } from "./DeviationAlertsPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5490,77 +5491,37 @@ export function App() {
               filteredLogsLabel={translate("filteredLogsLabel")}
               filteredLogsValue={String(filteredNutritionLogs.length)}
             />
-              <div
-                className="history-list"
-                data-screen-id={deviationAlertsScreenModel.screenId}
-                data-route-id={deviationAlertsScreenModel.routeId}
-                data-status-id="web.deviationAlerts.status"
-              >
-                <p className="section-subtitle">{translate("deviationAlertsTitle")}</p>
-                <p className="runtime-state-copy">{translate("deviationAlertsSummary")}</p>
-                <div className="inline-inputs">
-                  <button
-                    className="button primary"
-                    onClick={handleLoadNutritionLogs}
-                    type="button"
-                    data-action-id={deviationAlertsScreenModel.actions.loadAlerts}
-                    disabled={deviationAlertsScreenModel.status === "loading"}
-                  >
-                    {translate("deviationAlertsLoadAction")}
-                  </button>
-                  <button
-                    className="button ghost"
-                    onClick={handleClearNutritionFilters}
-                    type="button"
-                    data-action-id={deviationAlertsScreenModel.actions.clearFilters}
-                  >
-                    {translate("deviationAlertsClearAction")}
-                  </button>
-                </div>
-                <StatLine
-                  label={translate("deviationAlertsHighRiskLabel")}
-                  value={String(
-                    nutritionDeviationAlerts.filter((alert) => alert.severity === "high").length
-                  )}
-                  language={language}
-                />
-                <StatLine
-                  label={translate("deviationAlertsModerateRiskLabel")}
-                  value={String(
-                    nutritionDeviationAlerts.filter((alert) => alert.severity === "medium").length
-                  )}
-                  language={language}
-                />
-                {nutritionDeviationAlerts.length === 0 ? (
-                  <p className="empty-state">{translate("deviationAlertsNoData")}</p>
-                ) : (
-                  <div className="history-list">
-                    {nutritionDeviationAlerts.map((alert) => (
-                      <article key={alert.id} className="history-item">
-                        <div className="history-item-head">
-                          <strong>{alert.date}</strong>
-                          <span
-                            className={`status-pill status-${toStatusClass(alert.severity)}`}
-                          >
-                            {alert.severity === "high"
-                              ? translate("deviationAlertsHighRiskLabel")
-                              : translate("deviationAlertsModerateRiskLabel")}
-                          </span>
-                        </div>
-                        <p className="runtime-state-copy">
-                          {alert.reason === "calories"
-                            ? translate("deviationAlertsReasonCalories")
-                            : translate("deviationAlertsReasonProtein")}
-                        </p>
-                        <div className="history-values">
-                          <span>{translate("caloriesPlaceholder")} {alert.calories}</span>
-                          <span>{translate("proteinPlaceholder")} {alert.proteinGrams}</span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
+              <DeviationAlertsPanel
+                screenId={deviationAlertsScreenModel.screenId}
+                routeId={deviationAlertsScreenModel.routeId}
+                statusId="web.deviationAlerts.status"
+                title={translate("deviationAlertsTitle")}
+                summary={translate("deviationAlertsSummary")}
+                loadActionLabel={translate("deviationAlertsLoadAction")}
+                loadActionId={deviationAlertsScreenModel.actions.loadAlerts}
+                onLoadAlerts={handleLoadNutritionLogs}
+                loadDisabled={deviationAlertsScreenModel.status === "loading"}
+                clearActionLabel={translate("deviationAlertsClearAction")}
+                clearActionId={deviationAlertsScreenModel.actions.clearFilters}
+                onClearFilters={handleClearNutritionFilters}
+                highRiskLabel={translate("deviationAlertsHighRiskLabel")}
+                highRiskValue={String(
+                  nutritionDeviationAlerts.filter((alert) => alert.severity === "high").length
                 )}
-              </div>
+                moderateRiskLabel={translate("deviationAlertsModerateRiskLabel")}
+                moderateRiskValue={String(
+                  nutritionDeviationAlerts.filter((alert) => alert.severity === "medium").length
+                )}
+                noDataLabel={translate("deviationAlertsNoData")}
+                alerts={nutritionDeviationAlerts}
+                caloriesLabel={translate("caloriesPlaceholder")}
+                proteinLabel={translate("proteinPlaceholder")}
+                reasonCaloriesLabel={translate("deviationAlertsReasonCalories")}
+                reasonProteinLabel={translate("deviationAlertsReasonProtein")}
+                highSeverityLabel={translate("deviationAlertsHighRiskLabel")}
+                moderateSeverityLabel={translate("deviationAlertsModerateRiskLabel")}
+                severityClassName={toStatusClass}
+              />
               <div
                 className="history-list"
                 data-screen-id={nutritionCoachViewScreenModel.screenId}
