@@ -143,8 +143,9 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 
 ## Estado activo Web
-- Task en construccion: **Fase 29 — Extraer panel de detalle de atleta a `AthleteDetailPanel`**
-- Siguiente task global documentada: **Fase 30 — Extraer panel comparativo de progreso a `CompareProgressPanel`**
+- 🚧 Task en construccion: **Fase 29 — Extraer panel de detalle de atleta a `AthleteDetailPanel`**
+- ⏳ Siguiente task global documentada: **Fase 30 — Extraer panel comparativo de progreso a `CompareProgressPanel`**
+- ✅ Bloques cerrados previos: **Fases 4.1 a 4.12 + fases 19 a 28**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
 - Ajuste UX producto (scope final de modulos): en modo productivo el dashboard queda limitado al set de usuario final (`onboarding`, `training`, `recommendations`, `nutrition`, `progress`, `settings`), retirando `offlineSync` y `legal` como bloques separados para evitar apariencia de consola interna.
