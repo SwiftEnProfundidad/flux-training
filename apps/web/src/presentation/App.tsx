@@ -122,6 +122,7 @@ import { NutritionOverviewPanel } from "./NutritionOverviewPanel";
 import { DailyLogReviewPanel } from "./DailyLogReviewPanel";
 import { DeviationAlertsPanel } from "./DeviationAlertsPanel";
 import { NutritionCoachPanel } from "./NutritionCoachPanel";
+import { NutritionLogDetailPanel } from "./NutritionLogDetailPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5576,79 +5577,39 @@ export function App() {
                 cohortAvgProteinLabel={translate("cohortNutritionAvgProteinLabel")}
               />
               {webLane === "secondary" ? (
-                <div
-                  className="history-list"
-                  data-screen-id={nutritionLogDetailScreenModel.screenId}
-                  data-route-id={nutritionLogDetailScreenModel.routeId}
-                  data-status-id="web.light.logDetail.status"
-                >
-                  <p className="section-subtitle">{translate("logDetailTitle")}</p>
-                  <p className="runtime-state-copy">{translate("logDetailSummary")}</p>
-                  <div className="inline-inputs">
-                    <button
-                      className="button primary"
-                      onClick={handleLoadNutritionLogs}
-                      type="button"
-                      data-action-id={nutritionLogDetailScreenModel.actions.loadDetail}
-                      disabled={nutritionLogDetailScreenModel.status === "loading"}
-                    >
-                      {translate("logDetailLoadAction")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      onClick={handleClearNutritionLogSelection}
-                      type="button"
-                      data-action-id={nutritionLogDetailScreenModel.actions.clearSelection}
-                    >
-                      {translate("logDetailClearAction")}
-                    </button>
-                    <button
-                      className="button ghost"
-                      onClick={handleOpenNutritionLogCoachView}
-                      type="button"
-                      data-action-id={nutritionLogDetailScreenModel.actions.openCoachView}
-                    >
-                      {translate("logDetailOpenCoachAction")}
-                    </button>
-                  </div>
-                  <label className="compact-label">
-                    {translate("logDetailSelectPlaceholder")}
-                    <select
-                      aria-label={translate("logDetailSelectPlaceholder")}
-                      value={selectedNutritionLogOption?.key ?? ""}
-                      onChange={(event) => handleSelectNutritionLogDetail(event.target.value)}
-                      data-action-id={nutritionLogDetailScreenModel.actions.selectLog}
-                    >
-                      {nutritionLogOptionRows.map((row) => (
-                        <option key={row.key} value={row.key}>
-                          {row.log.date} · {row.log.userId}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <StatLine
-                    label={translate("logDetailSelectedDateLabel")}
-                    value={selectedNutritionLog?.date ?? "-"}
-                    language={language}
-                  />
-                  <StatLine
-                    label={translate("logDetailSelectedAthleteLabel")}
-                    value={selectedNutritionLog?.userId ?? "-"}
-                    language={language}
-                  />
-                  {selectedNutritionLog === null ? (
-                    <p className="empty-state">{translate("logDetailNoSelection")}</p>
-                  ) : (
-                    <div className="history-values">
-                      <span>{translate("caloriesPlaceholder")} {selectedNutritionLog.calories}</span>
-                      <span>{translate("proteinPlaceholder")} {selectedNutritionLog.proteinGrams}</span>
-                      <span>{translate("carbsPlaceholder")} {selectedNutritionLog.carbsGrams}</span>
-                      <span>{translate("fatsPlaceholder")} {selectedNutritionLog.fatsGrams}</span>
-                    </div>
-                  )}
-                </div>
-              ) : null}
-              {filteredNutritionLogs.length === 0 ? (
+                <NutritionLogDetailPanel
+                  screenId={nutritionLogDetailScreenModel.screenId}
+                  routeId={nutritionLogDetailScreenModel.routeId}
+                  statusId="web.light.logDetail.status"
+                  title={translate("logDetailTitle")}
+                  summary={translate("logDetailSummary")}
+                  loadLabel={translate("logDetailLoadAction")}
+                  loadActionId={nutritionLogDetailScreenModel.actions.loadDetail}
+                  onLoad={handleLoadNutritionLogs}
+                  loadDisabled={nutritionLogDetailScreenModel.status === "loading"}
+                  clearLabel={translate("logDetailClearAction")}
+                  clearActionId={nutritionLogDetailScreenModel.actions.clearSelection}
+                  onClearSelection={handleClearNutritionLogSelection}
+                  openCoachLabel={translate("logDetailOpenCoachAction")}
+                  openCoachActionId={nutritionLogDetailScreenModel.actions.openCoachView}
+                  onOpenCoachView={handleOpenNutritionLogCoachView}
+                  selectLabel={translate("logDetailSelectPlaceholder")}
+                  selectActionId={nutritionLogDetailScreenModel.actions.selectLog}
+                  selectedOptionKey={selectedNutritionLogOption?.key ?? ""}
+                  onSelectLog={handleSelectNutritionLogDetail}
+                  optionRows={nutritionLogOptionRows}
+                  selectedDateLabel={translate("logDetailSelectedDateLabel")}
+                  selectedDateValue={selectedNutritionLog?.date ?? "-"}
+                  selectedAthleteLabel={translate("logDetailSelectedAthleteLabel")}
+                  selectedAthleteValue={selectedNutritionLog?.userId ?? "-"}
+                  noSelectionLabel={translate("logDetailNoSelection")}
+                  selectedLog={selectedNutritionLog}
+                  caloriesLabel={translate("caloriesPlaceholder")}
+                  proteinLabel={translate("proteinPlaceholder")}
+                  carbsLabel={translate("carbsPlaceholder")}
+                  fatsLabel={translate("fatsPlaceholder")}
+                />
+              ) : filteredNutritionLogs.length === 0 ? (
                 <p className="empty-state">{translate("noNutritionFilteredLogs")}</p>
               ) : (
                 <div className="history-list">
@@ -5661,16 +5622,6 @@ export function App() {
                         <span>{translate("carbsPlaceholder")} {row.log.carbsGrams}</span>
                         <span>{translate("fatsPlaceholder")} {row.log.fatsGrams}</span>
                       </div>
-                      {webLane === "secondary" ? (
-                        <button
-                          className="button ghost"
-                          type="button"
-                          onClick={() => handleSelectNutritionLogDetail(row.key)}
-                          data-action-id={nutritionLogDetailScreenModel.actions.selectLog}
-                        >
-                          {translate("logDetailSelectPlaceholder")}
-                        </button>
-                      ) : null}
                     </article>
                   ))}
                 </div>
