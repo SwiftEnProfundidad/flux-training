@@ -124,6 +124,7 @@ import { DeviationAlertsPanel } from "./DeviationAlertsPanel";
 import { NutritionCoachPanel } from "./NutritionCoachPanel";
 import { NutritionLogDetailPanel } from "./NutritionLogDetailPanel";
 import { ProgressTrendsPanel } from "./ProgressTrendsPanel";
+import { OfflineSyncPanel } from "./OfflineSyncPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5676,59 +5677,39 @@ export function App() {
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("offlineSync") ? (
-            <article className="module-card">
-            <SectionHeader
+            <OfflineSyncPanel
+              screenId="web.offlineSync.screen"
+              routeId="web.route.offlineSync"
+              statusId="web.offlineSync.status"
               title={translate("offlineSyncTitle")}
-              status={syncStatus}
+              status={toHumanStatus(syncStatus, language)}
               statusLabel={translate("syncStatusLabel")}
-              language={language}
+              summary=""
+              syncLabel={translate("syncQueue")}
+              syncActionId={systemStatusScreenModel.actions.syncQueue}
+              onSync={handleSyncOfflineQueue}
+              refreshLabel={translate("refreshQueue")}
+              refreshActionId="web.offlineSync.refreshQueue"
+              onRefresh={() => void refreshPendingQueue()}
+              pendingActionsLabel={translate("pendingActionsLabel")}
+              pendingActionsValue={String(pendingQueueCount)}
+              rejectedLastSyncLabel={translate("rejectedLastSyncLabel")}
+              rejectedLastSyncValue={String(lastSyncRejectedCount)}
+              idempotencyKeyLabel={translate("idempotencyKeyLabel")}
+              idempotencyKeyValue={lastSyncIdempotency?.key ?? "-"}
+              idempotencyReplayLabel={translate("idempotencyReplayLabel")}
+              idempotencyReplayValue={
+                lastSyncIdempotency === null
+                  ? "-"
+                  : lastSyncIdempotency.replayed
+                    ? translate("idempotencyReplayYes")
+                    : translate("idempotencyReplayNo")
+              }
+              idempotencyTtlLabel={translate("idempotencyTTLLabel")}
+              idempotencyTtlValue={
+                lastSyncIdempotency === null ? "-" : `${lastSyncIdempotency.ttlSeconds}s`
+              }
             />
-            <div className="form-grid">
-              <div className="inline-inputs">
-                <button className="button primary" onClick={handleSyncOfflineQueue} type="button">
-                  {translate("syncQueue")}
-                </button>
-                <button className="button ghost" onClick={() => void refreshPendingQueue()} type="button">
-                  {translate("refreshQueue")}
-                </button>
-              </div>
-              <StatLine
-                label={translate("pendingActionsLabel")}
-                value={String(pendingQueueCount)}
-                language={language}
-              />
-              <StatLine
-                label={translate("rejectedLastSyncLabel")}
-                value={String(lastSyncRejectedCount)}
-                language={language}
-              />
-              <StatLine
-                label={translate("idempotencyKeyLabel")}
-                value={lastSyncIdempotency?.key ?? "-"}
-                language={language}
-              />
-              <StatLine
-                label={translate("idempotencyReplayLabel")}
-                value={
-                  lastSyncIdempotency === null
-                    ? "-"
-                    : lastSyncIdempotency.replayed
-                      ? translate("idempotencyReplayYes")
-                      : translate("idempotencyReplayNo")
-                }
-                language={language}
-              />
-              <StatLine
-                label={translate("idempotencyTTLLabel")}
-                value={
-                  lastSyncIdempotency === null
-                    ? "-"
-                    : `${lastSyncIdempotency.ttlSeconds}s`
-                }
-                language={language}
-              />
-            </div>
-            </article>
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("settings") ? (
