@@ -223,3 +223,9 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con los tres ficheros del bloque.
   - mejora registrada: `PUM-016` por falta de recomendación útil cuando `--test-output` apunta a `/tmp`.
   - observación adicional de trazabilidad: al revalidar después el cierre documental del mismo bloque, `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` volvió a devolver `gateOutcome="ALLOW"` con `lastTick.changed=true` y `lastTick.evaluated=true`, pero `changedFiles=[]` y `evaluatedFiles=[]`; esto refuerza la necesidad de exponer un motivo explícito cuando el scope staged no aporta una superficie útil de archivos.
+- Revalidación iteración fase 30 parcial (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/CompareProgressPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/CompareProgressPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase30-compare-progress-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `CompareProgressPanel.tsx` y `CompareProgressPanel.spec.tsx`.
+  - sin nuevos bugs/mejoras de Pumuki detectados en esta iteración parcial; se mantiene pendiente el ajuste de trazabilidad de `scope=staged` documentado en `PUM-016`.
