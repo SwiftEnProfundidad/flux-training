@@ -125,6 +125,7 @@ import { NutritionCoachPanel } from "./NutritionCoachPanel";
 import { NutritionLogDetailPanel } from "./NutritionLogDetailPanel";
 import { ProgressTrendsPanel } from "./ProgressTrendsPanel";
 import { OfflineSyncPanel } from "./OfflineSyncPanel";
+import { SettingsPanel } from "./SettingsPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5713,43 +5714,26 @@ export function App() {
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("settings") ? (
-            <article className="module-card">
-            <SectionHeader
+            <SettingsPanel
+              screenId="web.settings.screen"
+              routeId="web.route.settings"
+              statusId="web.settings.status"
               title={translate("settingsTitle")}
-              status={settingsStatus}
+              status={toHumanStatus(settingsStatus, language)}
               statusLabel={translate("settingsStatusLabel")}
-              language={language}
+              notificationsEnabled={notificationsEnabled}
+              onNotificationsChange={setNotificationsEnabled}
+              notificationsLabel={translate("notificationsPreference")}
+              watchSyncEnabled={watchSyncEnabled}
+              onWatchSyncChange={setWatchSyncEnabled}
+              watchSyncLabel={translate("watchPreference")}
+              calendarSyncEnabled={calendarSyncEnabled}
+              onCalendarSyncChange={setCalendarSyncEnabled}
+              calendarSyncLabel={translate("calendarPreference")}
+              saveLabel={translate("saveSettings")}
+              saveActionId="web.settings.save"
+              onSave={handleSaveSettings}
             />
-            <div className="form-grid">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={notificationsEnabled}
-                  onChange={(event) => setNotificationsEnabled(event.target.checked)}
-                />
-                {translate("notificationsPreference")}
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={watchSyncEnabled}
-                  onChange={(event) => setWatchSyncEnabled(event.target.checked)}
-                />
-                {translate("watchPreference")}
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={calendarSyncEnabled}
-                  onChange={(event) => setCalendarSyncEnabled(event.target.checked)}
-                />
-                {translate("calendarPreference")}
-              </label>
-              <button className="button primary" onClick={handleSaveSettings} type="button">
-                {translate("saveSettings")}
-              </button>
-            </div>
-            </article>
           ) : null}
 
           {canRenderOperationalModules && isModuleVisibleForUI("legal") ? (
