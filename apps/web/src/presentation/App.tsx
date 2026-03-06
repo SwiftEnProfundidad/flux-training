@@ -117,6 +117,7 @@ import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
 import { createAthleteFiltersScreenModel } from "./athlete-filters-contract";
 import { createAthletesListScreenModel } from "./athletes-list-contract";
+import { readWebRuntimeMode as evaluateWebRuntimeMode } from "./web-runtime-mode";
 import { createAthleteDetailScreenModel } from "./athlete-detail-contract";
 import { createSessionHistoryScreenModel } from "./session-history-contract";
 import { createCompareProgressScreenModel } from "./compare-progress-contract";
@@ -526,7 +527,7 @@ export function App() {
   const hasAuthenticatedSession = activeUserId.length > 0;
   const isAuthLoading = authStatus === "loading";
   const [webLane, setWebLane] = useState<WebLane>("main");
-  const isQAMode = useMemo(() => readWebRuntimeMode() === "qa", []);
+  const isQAMode = useMemo(() => resolveWebRuntimeMode() === "qa", []);
   const showQATools = isQAMode && hasAuthenticatedSession;
   const [language, setLanguage] = useState<AppLanguage>(() =>
     resolveLanguage(readLanguagePreference())
@@ -4680,7 +4681,7 @@ export function App() {
                 statusLabel={translate("planTemplatesStatusLabel")}
                 statusClass={toStatusClass(planTemplatesScreenModel.status)}
                 statusValue={toHumanStatus(planTemplatesScreenModel.status, language)}
-                showStatus={readWebRuntimeMode() === "qa"}
+                showStatus={resolveWebRuntimeMode() === "qa"}
                 summary={translate("planTemplatesSummary")}
                 loadLabel={translate("planTemplatesLoadAction")}
                 loadActionId={planTemplatesScreenModel.actions.loadTemplates}
@@ -4716,7 +4717,7 @@ export function App() {
                 statusLabel={translate("publishReviewStatusLabel")}
                 statusClass={toStatusClass(publishReviewScreenModel.status)}
                 statusValue={toHumanStatus(publishReviewScreenModel.status, language)}
-                showStatus={readWebRuntimeMode() === "qa"}
+                showStatus={resolveWebRuntimeMode() === "qa"}
                 summary={translate("publishReviewSummary")}
                 previewLabel={translate("publishReviewPreviewAction")}
                 previewActionId={publishReviewScreenModel.actions.previewPlan}
@@ -4766,7 +4767,7 @@ export function App() {
                 statusLabel={translate("planAssignmentStatusLabel")}
                 statusClass={toStatusClass(planAssignmentScreenModel.status)}
                 statusValue={toHumanStatus(planAssignmentScreenModel.status, language)}
-                showStatus={readWebRuntimeMode() === "qa"}
+                showStatus={resolveWebRuntimeMode() === "qa"}
                 summary={translate("planAssignmentSummary")}
                 planLabel={translate("planAssignmentPlanLabel")}
                 planValue={selectedPlan?.name ?? "-"}
@@ -4837,7 +4838,7 @@ export function App() {
                 statusLabel={translate("videosStatusLabel")}
                 statusClass={toStatusClass(exerciseLibraryScreenModel.status)}
                 statusValue={toHumanStatus(exerciseLibraryScreenModel.status, language)}
-                showStatus={readWebRuntimeMode() === "qa"}
+                showStatus={resolveWebRuntimeMode() === "qa"}
                 exercisePickerLabel={translate("exercisePickerLabel")}
                 selectedExercise={selectedExerciseForVideos}
                 selectExerciseActionId={exerciseLibraryScreenModel.actions.selectExercise}
@@ -4864,7 +4865,7 @@ export function App() {
                 statusLabel={translate("exerciseDetailStatusLabel")}
                 statusClass={toStatusClass(exerciseDetailScreenModel.status)}
                 statusValue={toHumanStatus(exerciseDetailScreenModel.status, language)}
-                showStatus={readWebRuntimeMode() === "qa"}
+                showStatus={resolveWebRuntimeMode() === "qa"}
                 summary={translate("exerciseDetailSummary")}
                 loadActionLabel={translate("exerciseDetailLoadAction")}
                 loadActionId={exerciseDetailScreenModel.actions.loadDetail}
@@ -6708,7 +6709,7 @@ const SectionHeader = memo(function SectionHeader({
   language,
   showStatus
 }: SectionHeaderProps) {
-  const shouldShowStatus = showStatus ?? readWebRuntimeMode() === "qa";
+  const shouldShowStatus = showStatus ?? resolveWebRuntimeMode() === "qa";
 
   return (
     <header className="module-header">
@@ -6892,7 +6893,7 @@ function readDomainPreference(): DashboardDomain {
   }
   const persistedDomain = window.localStorage.getItem(dashboardDomainStorageKey);
   if (persistedDomain === null) {
-    return readWebRuntimeMode() === "qa" ? "all" : "onboarding";
+    return resolveWebRuntimeMode() === "qa" ? "all" : "onboarding";
   }
   return resolveDashboardDomain(persistedDomain);
 }
@@ -6931,44 +6932,20 @@ function clearDomainQueryParam(): void {
   }
 }
 
-function readWebRuntimeMode(): "qa" | "product" {
+function resolveWebRuntimeMode(): "qa" | "product" {
   const importMeta = import.meta as ImportMeta & {
     env?: Record<string, string | undefined>;
   };
-  const rawValue = String(importMeta.env?.VITE_WEB_RUNTIME_MODE ?? "product")
-    .trim()
-    .toLowerCase();
-  if (rawValue !== "qa") {
-    return "product";
-  }
-
-  const qaUIEnabled = String(importMeta.env?.VITE_WEB_QA_UI_ENABLED ?? "0").trim() === "1";
-  if (qaUIEnabled === false) {
-    return "product";
-  }
-
   if (typeof window === "undefined") {
     return "product";
   }
 
-  // QA UI is isolated to a dedicated route to avoid accidental exposure in product runtime.
-  const isQaRoute = window.location.pathname.startsWith("/__qa");
-  if (isQaRoute === false) {
-    return "product";
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  const qaUnlockStorageKey = "flux.web.qa.unlock";
-  const unlockParam = params.get("unlockQa");
-  if (unlockParam === "1") {
-    window.localStorage.setItem(qaUnlockStorageKey, "1");
-  } else if (unlockParam === "0") {
-    window.localStorage.removeItem(qaUnlockStorageKey);
-  }
-
-  const isQaUnlocked = window.localStorage.getItem(qaUnlockStorageKey) === "1";
-  if (isQaUnlocked === false) {
-    return "product";
-  }
-  return params.get("qa") === "1" ? "qa" : "product";
+  return evaluateWebRuntimeMode({
+    envMode: importMeta.env?.VITE_WEB_RUNTIME_MODE,
+    qaUIEnabled: importMeta.env?.VITE_WEB_QA_UI_ENABLED,
+    pathname: window.location.pathname,
+    search: window.location.search,
+    hostname: window.location.hostname,
+    storage: window.localStorage
+  });
 }
