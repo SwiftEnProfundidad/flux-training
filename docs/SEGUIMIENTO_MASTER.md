@@ -282,6 +282,7 @@ Planes activos:
 ## Regla de operacion
 - Solo una task en `🚧`.
 - Al cerrar task: marcar `✅` y mover la siguiente a `🚧`.
+- Cola web documentada tras fase 28 en `docs/PLAN_WEB_MVP_OPERATIVO.md`: fase 29 `AthleteDetailPanel` (`🚧`), seguida por fases 30-46 (`⏳`) para compare progress, coach notes, tabla de atletas, governance, audit, billing, IA, nutricion, progreso, sync, settings, legal y observabilidad.
 - Web modularizacion progresiva (fase 25): extraccion de `exercise-library` a `ExerciseLibraryPanel` para desacoplar selector de ejercicio/idioma, carga de videos y grid de resultados del contenedor `App.tsx`.
 - Evidencia de fase 25 (2026-03-05): `pnpm --filter @flux/web test -- src/presentation/App.tsx`, `pnpm --filter @flux/web build` y `pnpm --filter @flux/web check` en verde; smoke QA en `http://127.0.0.1:5176/__qa?unlockQa=1&qa=1` con accion real observable sobre acceso (campo `correo`: `"" -> "qa+exercise-library@flux.app"`) y consola limpia (`error=0`, `warning=0`).
 - Web modularizacion progresiva (fase 26): extraccion de `exercise-detail` a `ExerciseDetailPanel` para desacoplar selector/carga/apertura de video y métricas de detalle del contenedor `App.tsx`.

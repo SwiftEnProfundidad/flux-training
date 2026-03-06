@@ -143,8 +143,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 
 ## Estado activo Web
-- Task en construccion: **ninguna (55/55 en ✅)**
-- Siguiente task global: **ciclo MVP operativo cerrado en orquestacion**
+- Task en construccion: **Fase 29 — Extraer panel de detalle de atleta a `AthleteDetailPanel`**
+- Siguiente task global documentada: **Fase 30 — Extraer panel comparativo de progreso a `CompareProgressPanel`**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
 - Ajuste UX producto (scope final de modulos): en modo productivo el dashboard queda limitado al set de usuario final (`onboarding`, `training`, `recommendations`, `nutrition`, `progress`, `settings`), retirando `offlineSync` y `legal` como bloques separados para evitar apariencia de consola interna.
@@ -182,3 +182,26 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Evidencia de ajuste fase 27 (2026-03-05): `pnpm --filter @flux/web test -- src/presentation/App.tsx`, `pnpm --filter @flux/web build` y `pnpm --filter @flux/web check` en verde; smoke QA en `http://127.0.0.1:5176/__qa?unlockQa=1&qa=1` con accion real observable sobre acceso (campo `correo`: `"" -> "qa+athlete-toolbar@flux.app"`) y consola limpia (`error=0`, `warning=0`).
 - Ajuste de mantenibilidad web (post-cierre 55/55, fase 28): extraccion del panel de historial de sesiones a `SessionHistoryPanel` para desacoplar carga/seleccion/limpieza y listado de sesiones por atleta del contenedor `App.tsx` sin alterar contrato runtime (`web.sessionHistory.*`).
 - Evidencia de ajuste fase 28 (2026-03-05): `pnpm --filter @flux/web test -- src/presentation/App.tsx`, `pnpm --filter @flux/web build` y `pnpm --filter @flux/web check` en verde; smoke QA en `http://127.0.0.1:5176/__qa?unlockQa=1&qa=1` con accion real observable sobre acceso (campo `correo`: `"" -> "qa+session-history-panel@flux.app"`) y consola limpia (`error=0`, `warning=0`).
+
+## Cola documentada de modularizacion web posterior a fase 28
+
+| Fase | Task | Estado | Objetivo real |
+|---|---|---|---|
+| 29 | Extraer detalle de atleta a `AthleteDetailPanel` | 🚧 | Sacar de `App.tsx` el bloque `web.athleteDetail.*` con seleccion, resumen del atleta y CTAs operativos |
+| 30 | Extraer comparativa de progreso a `CompareProgressPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.compareProgress.*` con carga de resumen y delta vs cohorte |
+| 31 | Extraer notas de coach a `CoachNotesPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.coachNotes.*` con carga, guardado y listado de notas |
+| 32 | Extraer tabla principal de atletas a `AthletesOperationsTablePanel` | ⏳ | Sacar de `App.tsx` la tabla densa de atletas, seleccion masiva y paginacion visible |
+| 33 | Extraer gobernanza/RBAC a `AdminUsersPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.adminUsers.*` con filtros, asignacion de roles y cobertura |
+| 34 | Extraer auditoria a `AuditTrailPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.auditTrail.*` con filtros, export y tabla densa |
+| 35 | Extraer billing e incidencias a `BillingSupportPanel` | ⏳ | Sacar de `App.tsx` el bloque combinado `web.billingOverview.*` + `web.supportIncidents.*` |
+| 36 | Extraer recomendaciones IA a `AIInsightsPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.aiInsights.*` con señales y lista priorizada |
+| 37 | Extraer formulario/resumen de nutricion a `NutritionOverviewPanel` | ⏳ | Sacar de `App.tsx` el bloque principal `web.nutritionOverview.*` |
+| 38 | Extraer revision diaria de logs a `DailyLogReviewPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.dailyLogReview.*` con filtros y orden |
+| 39 | Extraer alertas de desviacion a `DeviationAlertsPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.deviationAlerts.*` |
+| 40 | Extraer vista coach/corte nutricional a `NutritionCoachPanel` | ⏳ | Sacar de `App.tsx` los bloques `web.nutritionCoachView.*` + `web.light.cohortNutrition.*` |
+| 41 | Extraer detalle de log nutricional a `NutritionLogDetailPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.light.logDetail.*` |
+| 42 | Extraer progreso a `ProgressTrendsPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.progressTrends.*` con metricas, filtros e historial |
+| 43 | Extraer sincronizacion offline a `OfflineSyncPanel` | ⏳ | Sacar de `App.tsx` el bloque de cola, idempotencia y refresco |
+| 44 | Extraer ajustes de usuario a `SettingsPanel` | ⏳ | Sacar de `App.tsx` el bloque de preferencias y guardado |
+| 45 | Extraer privacidad/cumplimiento a `LegalCompliancePanel` | ⏳ | Sacar de `App.tsx` el bloque `web.legalCompliance.*` |
+| 46 | Extraer observabilidad a `ObservabilityPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.analyticsOverview.*` con eventos, crash y resumen |

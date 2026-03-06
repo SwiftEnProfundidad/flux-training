@@ -203,3 +203,8 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`
   - resultado: `gateOutcome="ALLOW"`, `totalFindings=0`, `version.effective="6.3.47"`, con `changedFiles[]` y `evaluatedFiles[]` correctamente poblados para los dos archivos staged del bloque (`App.tsx`, `SessionHistoryPanel.tsx`).
   - sin nuevos bugs/mejoras detectados en Pumuki en esta iteración.
+- Iteración documental de planificación (2026-03-06):
+  - cambio: se documenta en el plan web la cola explícita de fases 29-46 antes de continuar implementación.
+  - evidencia: actualización de `docs/PLAN_WEB_MVP_OPERATIVO.md` y `docs/SEGUIMIENTO_MASTER.md`.
+  - impacto: evita huecos de trazabilidad y elimina tareas “mentales” no reflejadas en tracking.
+  - propuesta para Pumuki: incorporar una regla opcional de governance documental que avise cuando un plan marque “sin task en construcción” pero siga habiendo trabajo de continuación en el mismo ciclo.
