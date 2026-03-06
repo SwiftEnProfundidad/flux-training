@@ -114,6 +114,7 @@ import { SessionHistoryPanel } from "./SessionHistoryPanel";
 import { CompareProgressPanel } from "./CompareProgressPanel";
 import { CoachNotesPanel } from "./CoachNotesPanel";
 import { AthletesOperationsTablePanel } from "./AthletesOperationsTablePanel";
+import { AdminUsersPanel } from "./AdminUsersPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5085,172 +5086,66 @@ export function App() {
               statusLabel={translate("governanceStatusLabel")}
               language={language}
             />
-            <div className="form-grid">
-              {adminUsersScreenModel.status === "denied" ? (
-                <p className="empty-state">{translate("runtimeStateDeniedDescription")}</p>
-              ) : null}
-              <div className="inline-inputs">
-                <input
-                  aria-label={translate("governanceSearchPlaceholder")}
-                  placeholder={translate("governanceSearchPlaceholder")}
-                  value={governanceSearch}
-                  onChange={(event) => setGovernanceSearch(event.target.value)}
-                />
-                <label className="compact-label">
-                  {translate("governanceRoleFilterLabel")}
-                  <select
-                    aria-label={translate("governanceRoleFilterLabel")}
-                    value={governanceRoleFilter}
-                    onChange={(event) =>
-                      setGovernanceRoleFilter(event.target.value as GovernanceRoleFilter)
-                    }
-                  >
-                    <option value="all">{translate("governanceAllRoles")}</option>
-                    {roleOptions.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="inline-inputs">
-                <button
-                  className="button ghost"
-                  data-action-id={adminUsersScreenModel.actions.loadCapabilities}
-                  onClick={handleLoadGovernanceRoleCoverage}
-                  type="button"
-                >
-                  {translate("governanceLoadCapabilities")}
-                </button>
-                <button
-                  className="button primary"
-                  data-action-id={adminUsersScreenModel.actions.assignAthlete}
-                  onClick={() => void handleAssignGovernanceRole("athlete")}
-                  type="button"
-                >
-                  {translate("governanceAssignAthlete")}
-                </button>
-                <button
-                  className="button primary"
-                  data-action-id={adminUsersScreenModel.actions.assignCoach}
-                  onClick={() => void handleAssignGovernanceRole("coach")}
-                  type="button"
-                >
-                  {translate("governanceAssignCoach")}
-                </button>
-                <button
-                  className="button primary"
-                  data-action-id={adminUsersScreenModel.actions.assignAdmin}
-                  onClick={() => void handleAssignGovernanceRole("admin")}
-                  type="button"
-                >
-                  {translate("governanceAssignAdmin")}
-                </button>
-                <button
-                  className="button ghost"
-                  data-action-id={adminUsersScreenModel.actions.clearSelection}
-                  onClick={handleClearGovernanceSelection}
-                  type="button"
-                >
-                  {translate("governanceClearSelection")}
-                </button>
-              </div>
-              <StatLine
-                label={translate("governanceUsersLoadedLabel")}
-                value={String(governancePrincipals.length)}
-                language={language}
-              />
-              <StatLine
-                label={translate("governanceUsersSelectedLabel")}
-                value={String(governanceSelectedPrincipalIds.length)}
-                language={language}
-              />
-              {governancePrincipals.length === 0 ? (
-                <p className="empty-state">{translate("governanceNoUsers")}</p>
-              ) : (
-                <>
-                  <DenseRowsInfo
-                    visibleRows={visibleGovernanceRows.length}
-                    totalRows={governancePrincipals.length}
-                    language={language}
-                  />
-                  <div className="operations-table">
-                    <header className="operations-table-row operations-table-header">
-                      <span>{translate("governancePrincipalColumn")}</span>
-                      <span>{translate("governanceRoleColumn")}</span>
-                      <span>{translate("governanceSourceColumn")}</span>
-                      <span>{translate("governanceCountsColumn")}</span>
-                      <span>{translate("governanceAllowedDomainsLabel")}</span>
-                      <span>{translate("riskColumn")}</span>
-                    </header>
-                    {visibleGovernanceRows.map((principal) => (
-                      <label key={principal.userId} className="operations-table-row">
-                        <div className="operations-athlete-cell">
-                          <input
-                            type="checkbox"
-                            checked={selectedGovernancePrincipalIdSet.has(principal.userId)}
-                            onChange={() =>
-                              handleToggleGovernancePrincipalSelection(principal.userId)
-                            }
-                          />
-                          <strong>{principal.userId}</strong>
-                        </div>
-                        <span>{toHumanStatus(principal.assignedRole, language)}</span>
-                        <span>
-                          {principal.source === "operator"
-                            ? translate("governanceSourceOperator")
-                            : translate("governanceSourceActivity")}
-                        </span>
-                        <span>
-                          {principal.plansCount}/{principal.sessionsCount}/
-                          {principal.nutritionLogsCount}
-                        </span>
-                        <span>
-                          {(capabilitiesByRole[principal.assignedRole]?.allowedDomains.length ??
-                            0)}
-                        </span>
-                        <span
-                          className={`status-pill status-${toStatusClass(
-                            principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
-                              ? "medium"
-                              : "low"
-                          )}`}
-                        >
-                          {principal.sessionsCount === 0 || principal.nutritionLogsCount === 0
-                            ? translate("riskAttention")
-                            : translate("riskNormal")}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  {hasMoreGovernanceRows ? (
-                    <div className="dense-table-actions">
-                      <button className="button ghost" onClick={handleShowMoreGovernanceRows} type="button">
-                        {translate("loadMoreRows")}
-                      </button>
-                      <button className="button ghost" onClick={handleShowAllGovernanceRows} type="button">
-                        {translate("showAllRows")}
-                      </button>
-                    </div>
-                  ) : null}
-                </>
-              )}
-              <p className="section-subtitle">{translate("governanceCoverageTitle")}</p>
-              <div className="history-list">
-                {governanceRoleCoverage.map((coverage) => (
-                  <article key={coverage.role} className="history-item">
-                    <strong>{toHumanStatus(coverage.role, language)}</strong>
-                    <div className="history-values">
-                      <span>
-                        {translate("governanceAllowedDomainsLabel")} {coverage.allowedDomainsCount}
-                      </span>
-                      <span>{coverage.allowedDomains.length === 0 ? "-" : coverage.allowedDomains}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
+            <AdminUsersPanel
+              screenId={adminUsersScreenModel.screenId}
+              routeId={adminUsersScreenModel.routeId}
+              statusId="web.adminUsers.status"
+              title={translate("governanceTitle")}
+              deniedDescription={translate("runtimeStateDeniedDescription")}
+              isDenied={adminUsersScreenModel.status === "denied"}
+              searchPlaceholder={translate("governanceSearchPlaceholder")}
+              searchValue={governanceSearch}
+              onSearchChange={setGovernanceSearch}
+              roleFilterLabel={translate("governanceRoleFilterLabel")}
+              roleFilterValue={governanceRoleFilter}
+              roleOptions={[
+                { id: "all", label: translate("governanceAllRoles") },
+                ...roleOptions
+              ]}
+              onRoleFilterChange={(value) => setGovernanceRoleFilter(value as GovernanceRoleFilter)}
+              loadCapabilitiesLabel={translate("governanceLoadCapabilities")}
+              loadCapabilitiesActionId={adminUsersScreenModel.actions.loadCapabilities}
+              onLoadCapabilities={handleLoadGovernanceRoleCoverage}
+              assignAthleteLabel={translate("governanceAssignAthlete")}
+              assignAthleteActionId={adminUsersScreenModel.actions.assignAthlete}
+              onAssignAthlete={() => void handleAssignGovernanceRole("athlete")}
+              assignCoachLabel={translate("governanceAssignCoach")}
+              assignCoachActionId={adminUsersScreenModel.actions.assignCoach}
+              onAssignCoach={() => void handleAssignGovernanceRole("coach")}
+              assignAdminLabel={translate("governanceAssignAdmin")}
+              assignAdminActionId={adminUsersScreenModel.actions.assignAdmin}
+              onAssignAdmin={() => void handleAssignGovernanceRole("admin")}
+              clearSelectionLabel={translate("governanceClearSelection")}
+              clearSelectionActionId={adminUsersScreenModel.actions.clearSelection}
+              onClearSelection={handleClearGovernanceSelection}
+              usersLoadedLabel={translate("governanceUsersLoadedLabel")}
+              usersLoadedValue={String(governancePrincipals.length)}
+              usersSelectedLabel={translate("governanceUsersSelectedLabel")}
+              usersSelectedValue={String(governanceSelectedPrincipalIds.length)}
+              noUsersLabel={translate("governanceNoUsers")}
+              rowsInfoLabel={`${translate("rowsShownLabel")} ${visibleGovernanceRows.length}/${governancePrincipals.length}`}
+              principals={visibleGovernanceRows}
+              selectedPrincipalIds={selectedGovernancePrincipalIdSet}
+              onTogglePrincipalSelection={handleToggleGovernancePrincipalSelection}
+              principalColumnLabel={translate("governancePrincipalColumn")}
+              roleColumnLabel={translate("governanceRoleColumn")}
+              sourceColumnLabel={translate("governanceSourceColumn")}
+              countsColumnLabel={translate("governanceCountsColumn")}
+              allowedDomainsLabel={translate("governanceAllowedDomainsLabel")}
+              riskColumnLabel={translate("riskColumn")}
+              sourceOperatorLabel={translate("governanceSourceOperator")}
+              sourceActivityLabel={translate("governanceSourceActivity")}
+              riskNormalLabel={translate("riskNormal")}
+              riskAttentionLabel={translate("riskAttention")}
+              roleHumanizer={(role) => toHumanStatus(role, language)}
+              hasMoreRows={hasMoreGovernanceRows}
+              loadMoreRowsLabel={translate("loadMoreRows")}
+              onLoadMoreRows={handleShowMoreGovernanceRows}
+              showAllRowsLabel={translate("showAllRows")}
+              onShowAllRows={handleShowAllGovernanceRows}
+              coverageTitle={translate("governanceCoverageTitle")}
+              coverageRows={governanceRoleCoverage}
+            />
             </article>
           ) : null}
 
