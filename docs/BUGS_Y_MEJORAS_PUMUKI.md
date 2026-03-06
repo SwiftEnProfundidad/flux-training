@@ -307,4 +307,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - validación técnica en core:
     - `npx --yes tsx@4.21.0 --test integrations/sdd/__tests__/evidenceScaffold.test.ts integrations/lifecycle/__tests__/cli.test.ts`
     - resultado: `49 pass / 0 fail`.
-- foco activo actual: backlog Flux con fase web 39 `✅` cerrada y fase 40 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Revalidación iteración fase 40 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/NutritionCoachPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/NutritionCoachPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase40-nutrition-coach-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `NutritionCoachPanel.tsx` y `NutritionCoachPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5183/__qa?unlockQa=1&qa=1&domain=nutrition` con login por email (`qa+nutrition-coach@flux.app`), `Cargar registros`, lane `Secondary` y confirmacion simultanea de `web.nutritionCoachView.screen` + `web.light.cohortNutrition.screen`.
+- Mejora detectada en cierre documental fase 40:
+  - con `docs/PLAN_WEB_MVP_OPERATIVO.md`, `docs/SEGUIMIENTO_MASTER.md` y `docs/BUGS_Y_MEJORAS_PUMUKI.md` staged, `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` vuelve a responder `changed=true`, `evaluated=true`, `gateOutcome="ALLOW"`, pero con `changedFiles=[]` y `evaluatedFiles=[]`.
+  - impacto: la trazabilidad del gate en commits documentales queda vacia aunque habia staged files reales.
+  - propuesta: cuando `scope=staged`, si el index contiene archivos, el JSON debe reflejarlos siempre aunque el resultado sea `ALLOW`.
+- foco activo actual: backlog Flux con fase web 40 `✅` cerrada y fase 41 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
