@@ -143,9 +143,9 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 
 
 ## Estado activo Web
-- 🚧 Task en construccion: **Fase 32 — Extraer tabla principal de atletas a `AthletesOperationsTablePanel`**
-- ⏳ Siguiente task global documentada: **Fase 33 — Extraer gobernanza/RBAC a `AdminUsersPanel`**
-- ✅ Bloques cerrados previos: **Fases 4.1 a 4.12 + fases 19 a 31**
+- 🚧 Task en construccion: **Fase 33 — Extraer gobernanza/RBAC a `AdminUsersPanel`**
+- ⏳ Siguiente task global documentada: **Fase 34 — Extraer auditoria a `AuditTrailPanel`**
+- ✅ Bloques cerrados previos: **Fases 4.1 a 4.12 + fases 19 a 32**
 - Ajuste UX producto (post-55/55): en modo productivo se ocultaron metricas tecnicas de cabecera (`auth/queue/sync/runtime`) y los shortcuts internos (`role/domain/module chips/recoverDomain`) para dejar una vista enfocada en usuario final.
 - Ajuste UX producto (hard guard de operacion): los modulos operativos del dashboard ahora solo renderizan cuando hay sesion valida y estado operativo (`canRenderOperationalModules`), evitando exponer bloques internos cuando el acceso aun no esta autenticado.
 - Ajuste UX producto (scope final de modulos): en modo productivo el dashboard queda limitado al set de usuario final (`onboarding`, `training`, `recommendations`, `nutrition`, `progress`, `settings`), retirando `offlineSync` y `legal` como bloques separados para evitar apariencia de consola interna.
@@ -189,6 +189,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 - Evidencia de ajuste fase 30 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/web-runtime-mode.spec.ts src/presentation/CompareProgressPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/web-runtime-mode.spec.ts src/presentation/CompareProgressPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase30-runtime-qa-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5180/__qa?unlockQa=1&qa=1`, login por email, cambio a dominio `Operaciones` y visibilidad confirmada de `web.compareProgress.screen`.
 - Ajuste de mantenibilidad web (post-cierre 55/55, fase 31): extraccion del panel de notas de coach a `CoachNotesPanel` para desacoplar carga de notas, guardado de seguimiento y listado cronologico del contenedor `App.tsx` sin alterar contrato runtime (`web.coachNotes.*`).
 - Evidencia de ajuste fase 31 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/CoachNotesPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/CoachNotesPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase31-coach-notes-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5181/__qa?unlockQa=1&qa=1`, login por email (`qa+coach-notes@flux.app`), cambio a `Operaciones` y visibilidad confirmada de `web.coachNotes.screen` con empty state operativo.
+- Ajuste de mantenibilidad web (post-cierre 55/55, fase 32): extraccion de la tabla principal de atletas a `AthletesOperationsTablePanel` para desacoplar estado vacío, contador de filas visibles, tabla densa y acciones de paginacion del contenedor `App.tsx` sin alterar contrato runtime (`web.athletesList.*`).
+- Evidencia de ajuste fase 32 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/AthletesOperationsTablePanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/AthletesOperationsTablePanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase32-athletes-table-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde (`gateOutcome="ALLOW"`); smoke Playwright real en `http://127.0.0.1:5181/__qa?unlockQa=1&qa=1&domain=operations`, login por email (`qa+athletes-table@flux.app`), ejecucion de `Ejecutar acciones rapidas` y visibilidad confirmada de `web.athletesList.screen` con filas reales.
 
 ## Cola documentada de modularizacion web posterior a fase 28
 
@@ -197,8 +199,8 @@ Implementar y validar todas las pantallas Web de `flux.pen` con flujo real, dato
 | 29 | Extraer detalle de atleta a `AthleteDetailPanel` | ✅ | Sacar de `App.tsx` el bloque `web.athleteDetail.*` con seleccion, resumen del atleta y CTAs operativos |
 | 30 | Extraer comparativa de progreso a `CompareProgressPanel` | ✅ | Sacar de `App.tsx` el bloque `web.compareProgress.*` con carga de resumen y delta vs cohorte |
 | 31 | Extraer notas de coach a `CoachNotesPanel` | ✅ | Sacar de `App.tsx` el bloque `web.coachNotes.*` con carga, guardado y listado de notas |
-| 32 | Extraer tabla principal de atletas a `AthletesOperationsTablePanel` | 🚧 | Sacar de `App.tsx` la tabla densa de atletas, seleccion masiva y paginacion visible |
-| 33 | Extraer gobernanza/RBAC a `AdminUsersPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.adminUsers.*` con filtros, asignacion de roles y cobertura |
+| 32 | Extraer tabla principal de atletas a `AthletesOperationsTablePanel` | ✅ | Sacar de `App.tsx` la tabla densa de atletas, seleccion masiva y paginacion visible |
+| 33 | Extraer gobernanza/RBAC a `AdminUsersPanel` | 🚧 | Sacar de `App.tsx` el bloque `web.adminUsers.*` con filtros, asignacion de roles y cobertura |
 | 34 | Extraer auditoria a `AuditTrailPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.auditTrail.*` con filtros, export y tabla densa |
 | 35 | Extraer billing e incidencias a `BillingSupportPanel` | ⏳ | Sacar de `App.tsx` el bloque combinado `web.billingOverview.*` + `web.supportIncidents.*` |
 | 36 | Extraer recomendaciones IA a `AIInsightsPanel` | ⏳ | Sacar de `App.tsx` el bloque `web.aiInsights.*` con señales y lista priorizada |
