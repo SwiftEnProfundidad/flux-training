@@ -337,4 +337,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - `pnpm --filter @flux/web build` sigue reportando chunk principal `652.59 kB`.
   - impacto: el warning ya es recurrente y repetible, y señala que la modularización por componentes todavía no se traduce en partición real del bundle.
   - propuesta Pumuki: añadir una sugerencia de deuda técnica persistente cuando el mismo warning de bundling aparece en iteraciones consecutivas, para distinguir “warning nuevo” de “warning arrastrado”.
-- foco activo actual: backlog Flux con fase web 42 `✅` cerrada y fase 43 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
+- Revalidación iteración fase 43 (2026-03-06):
+  - tests: `pnpm --filter @flux/web test -- src/presentation/OfflineSyncPanel.spec.tsx src/presentation/App.tsx`
+  - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+  - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/OfflineSyncPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase43-offline-sync-test.log --json`
+  - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con `App.tsx`, `OfflineSyncPanel.tsx` y `OfflineSyncPanel.spec.tsx`.
+  - smoke adicional: QA local validada en `http://127.0.0.1:5186/__qa?unlockQa=1&qa=1&domain=operations` con login por email (`qa+offline-sync@flux.app`) y `Sincronizar cola`, confirmando visibilidad de `web.offlineSync.screen` y cambio de estado a `Sincronización: sincronizado`.
+- Mejora detectada en fase 43:
+  - el build sigue reportando chunk principal `653.89 kB` pese a la modularización incremental.
+  - impacto: el warning de bundling ya es claramente persistente y puede perder valor como señal puntual de regresión.
+  - propuesta Pumuki: distinguir en el reporte entre `warning_recurrente_conocido` y `warning_nuevo`, para no mezclar deuda heredada con regresiones frescas del bloque actual.
+- foco activo actual: backlog Flux con fase web 43 `✅` cerrada y fase 44 `🚧` activa en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
