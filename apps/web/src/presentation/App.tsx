@@ -117,6 +117,7 @@ import { AthletesOperationsTablePanel } from "./AthletesOperationsTablePanel";
 import { AdminUsersPanel } from "./AdminUsersPanel";
 import { AuditTrailPanel } from "./AuditTrailPanel";
 import { BillingSupportPanel } from "./BillingSupportPanel";
+import { AIInsightsPanel } from "./AIInsightsPanel";
 import { createAnalyticsOverviewScreenModel } from "./analytics-overview-contract";
 import { createProgressTrendsScreenModel } from "./progress-trends-contract";
 import { createCohortAnalysisScreenModel } from "./cohort-analysis-contract";
@@ -5387,71 +5388,31 @@ export function App() {
               statusLabel={translate("aiInsightsStatusLabel")}
               language={language}
             />
-            <div className="form-grid">
-              <p className="runtime-state-copy">{translate("aiInsightsSummary")}</p>
-              <div className="inline-inputs">
-                <button
-                  className="button primary"
-                  onClick={() => void handleLoadRecommendations()}
-                  type="button"
-                  data-action-id={aiInsightsScreenModel.actions.loadRecommendations}
-                >
-                  {translate("aiInsightsLoadAction")}
-                </button>
-                <button
-                  className="button ghost"
-                  onClick={() => void handleRefreshAIInsights()}
-                  type="button"
-                  data-action-id={aiInsightsScreenModel.actions.refreshSignals}
-                  disabled={aiInsightsScreenModel.status === "loading"}
-                >
-                  {translate("aiInsightsRefreshAction")}
-                </button>
-              </div>
-              <div className="inline-inputs">
-                <Metric
-                  title={translate("aiInsightsRecommendationsLabel")}
-                  value={String(recommendations.length)}
-                />
-                <Metric
-                  title={translate("aiInsightsHighPriorityLabel")}
-                  value={String(
-                    recommendations.filter((recommendation) => recommendation.priority === "high")
-                      .length
-                  )}
-                />
-                <Metric
-                  title={translate("aiInsightsSignalsLabel")}
-                  value={String(analyticsEvents.length + crashReports.length)}
-                />
-              </div>
-              {recommendations.length === 0 ? (
-                <p className="empty-state">{translate("aiInsightsNoData")}</p>
-              ) : (
-                <div className="recommendation-list">
-                  {recommendations.map((recommendation) => (
-                    <article key={recommendation.id} className="recommendation-item">
-                      <div className="recommendation-head">
-                        <strong>{recommendation.title}</strong>
-                        <span
-                          className={`status-pill status-${toStatusClass(
-                            recommendation.priority
-                          )}`}
-                        >
-                          {recommendation.priority}
-                        </span>
-                      </div>
-                      <p>{recommendation.rationale}</p>
-                      <div className="recommendation-meta">
-                        <span>{recommendation.category}</span>
-                        <span>{recommendation.expectedImpact}</span>
-                        <strong>{recommendation.actionLabel}</strong>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+            <AIInsightsPanel
+              screenId={aiInsightsScreenModel.screenId}
+              routeId={aiInsightsScreenModel.routeId}
+              statusId="web.aiInsights.status"
+              title={translate("aiInsightsTitle")}
+              summary={translate("aiInsightsSummary")}
+              loadActionLabel={translate("aiInsightsLoadAction")}
+              loadActionId={aiInsightsScreenModel.actions.loadRecommendations}
+              onLoadRecommendations={() => void handleLoadRecommendations()}
+              refreshActionLabel={translate("aiInsightsRefreshAction")}
+              refreshActionId={aiInsightsScreenModel.actions.refreshSignals}
+              onRefreshSignals={() => void handleRefreshAIInsights()}
+              refreshDisabled={aiInsightsScreenModel.status === "loading"}
+              recommendationsMetricLabel={translate("aiInsightsRecommendationsLabel")}
+              recommendationsMetricValue={String(recommendations.length)}
+              highPriorityMetricLabel={translate("aiInsightsHighPriorityLabel")}
+              highPriorityMetricValue={String(
+                recommendations.filter((recommendation) => recommendation.priority === "high").length
               )}
-            </div>
+              signalsMetricLabel={translate("aiInsightsSignalsLabel")}
+              signalsMetricValue={String(analyticsEvents.length + crashReports.length)}
+              emptyLabel={translate("aiInsightsNoData")}
+              recommendations={recommendations}
+              priorityClassName={toStatusClass}
+            />
             </article>
           ) : null}
 
