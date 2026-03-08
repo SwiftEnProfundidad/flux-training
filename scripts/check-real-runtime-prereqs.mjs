@@ -52,12 +52,18 @@ export function evaluateRealRuntimePrereqs({
 }) {
   const webEnvPath = path.join(rootDir, "apps/web/.env.local");
   const backendEnvPath = path.join(rootDir, "apps/backend/.env.local");
+  const iosEnvPath = path.join(rootDir, "apps/ios/.env.local");
   const webEnv = readEnvFile(webEnvPath);
   const backendEnv = readEnvFile(backendEnvPath);
+  const iosEnv = readEnvFile(iosEnvPath);
+  const resolvedIosEnvironment = {
+    ...iosEnv.values,
+    ...iosEnvironment,
+  };
 
   const webMissingKeys = webRequiredKeys.filter((key) => !keyStatus(webEnv.values, key));
-  const iosMissingKeys = iosRequiredKeys.filter((key) => !keyStatus(iosEnvironment, key));
-  const iosOptionalMissingKeys = iosOptionalKeys.filter((key) => !keyStatus(iosEnvironment, key));
+  const iosMissingKeys = iosRequiredKeys.filter((key) => !keyStatus(resolvedIosEnvironment, key));
+  const iosOptionalMissingKeys = iosOptionalKeys.filter((key) => !keyStatus(resolvedIosEnvironment, key));
 
   const blockers = [];
 
@@ -89,13 +95,15 @@ export function evaluateRealRuntimePrereqs({
         "Para MVP real cloud no hace falta apps/backend/.env.local; el backend HTTP local del repo sigue siendo demo.",
     },
     ios: {
+      envPath: iosEnvPath,
+      envFileExists: iosEnv.exists,
       required: iosRequiredKeys.map((key) => ({
         key,
-        present: keyStatus(iosEnvironment, key),
+        present: keyStatus(resolvedIosEnvironment, key),
       })),
       optional: iosOptionalKeys.map((key) => ({
         key,
-        present: keyStatus(iosEnvironment, key),
+        present: keyStatus(resolvedIosEnvironment, key),
       })),
       optionalMissingKeys: iosOptionalMissingKeys,
     },
@@ -115,6 +123,7 @@ function formatHumanReadable(result) {
   lines.push(`backend env: ${result.backend.exists ? "present" : "missing"} (${result.backend.envPath})`);
   lines.push(`  - note: ${result.backend.note}`);
   lines.push("");
+  lines.push(`ios env: ${result.ios.envFileExists ? "present" : "missing"} (${result.ios.envPath})`);
   lines.push("ios scheme/environment:");
   for (const item of result.ios.required) {
     lines.push(`  - ${item.key}: ${item.present ? "present" : "missing"}`);

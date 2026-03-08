@@ -53,3 +53,34 @@ test("reports ready when required web and ios values are present", () => {
   assert.equal(result.ios.required.every((item) => item.present), true);
   assert.equal(result.ios.optional[0].present, false);
 });
+
+test("uses apps/ios/.env.local as valid source for iOS runtime configuration", () => {
+  const rootDir = createWorkspaceFixture();
+  fs.writeFileSync(
+    path.join(rootDir, "apps/web/.env.local"),
+    [
+      "VITE_FIREBASE_API_KEY=test-key",
+      "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
+      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_API_TARGET=https://example.com",
+    ].join("\n"),
+  );
+  fs.mkdirSync(path.join(rootDir, "apps/ios"), { recursive: true });
+  fs.writeFileSync(
+    path.join(rootDir, "apps/ios/.env.local"),
+    [
+      "FLUX_BACKEND_BASE_URL=https://example.com",
+      "FLUX_FIREBASE_WEB_API_KEY=ios-key",
+      "FLUX_IOS_CLIENT_VERSION=0.1.0",
+    ].join("\n"),
+  );
+
+  const result = evaluateRealRuntimePrereqs({
+    rootDir,
+    iosEnvironment: {},
+  });
+
+  assert.equal(result.status, "ready");
+  assert.equal(result.ios.envFileExists, true);
+  assert.equal(result.ios.required.every((item) => item.present), true);
+});
