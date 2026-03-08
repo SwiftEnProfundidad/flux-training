@@ -497,3 +497,25 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada tras extender readiness a credenciales E2E:
   - Pumuki sigue sin modelar la diferencia entre “infraestructura local ya preparada” y “solo faltan secretos/credenciales reales de usuario”, por lo que todo cae en el mismo bucket genérico de prerequisito externo.
   - propuesta Pumuki: añadir subestados como `blocked-real-config` y `blocked-real-user-credentials`, o un resumen jerarquico de readiness por capas (`platform config`, `runtime wiring`, `test identity`).
+- Revalidacion smoke ejecutable de login cloud real (2026-03-08 19:46 CET):
+  - el repo ya incorpora:
+    - `pnpm smoke:real-login`
+    - `pnpm test:real-login-smoke`
+  - el smoke resuelve tres pasos reales:
+    - login email/password contra Firebase REST,
+    - `createAuthSession` contra backend cloud,
+    - `getProgressSummary` autenticado como verificacion minima post-login.
+  - validacion automatizada:
+    - `pnpm test:real-login-smoke` -> `3` tests OK
+  - ejecucion real actual:
+    - `pnpm smoke:real-login` -> `blocked-external-config`
+    - bloqueos exactos:
+      - `VITE_FIREBASE_API_KEY`
+      - `VITE_FIREBASE_AUTH_DOMAIN`
+      - `VITE_FIREBASE_PROJECT_ID`
+      - `FLUX_FIREBASE_WEB_API_KEY`
+      - `FLUX_E2E_EMAIL`
+      - `FLUX_E2E_PASSWORD`
+- Mejora detectada tras automatizar el smoke real:
+  - Pumuki no tiene hoy una categoria nativa de “smoke preparado pero bloqueado por secretos externos”; todo sigue cayendo en `ALLOW` si el helper es correcto.
+  - propuesta Pumuki: añadir un estado tipo `prepared-but-blocked-by-secrets` para tooling de release/readiness que ya es valido tecnicamente pero no ejecutable sin credenciales reales.

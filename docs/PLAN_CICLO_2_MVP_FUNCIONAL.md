@@ -175,6 +175,9 @@
 - Comando reproducible para preparar archivos locales sin secretos:
   - `pnpm bootstrap:real-runtime-prereqs`
   - `pnpm test:bootstrap-real-runtime-prereqs`
+- Smoke reproducible de login cloud real:
+  - `pnpm smoke:real-login`
+  - `pnpm test:real-login-smoke`
 - Conclusion operativa:
   - la task `Validar login email/password end-to-end` queda reabierta como `⛔`,
   - la unica task activa del ciclo pasa a ser `🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end`,
@@ -202,6 +205,7 @@
   - ya no falta estructura local,
   - ahora el bloqueo es solo de valores reales de Firebase/Auth y credenciales E2E.
   - iOS ya no depende solo del scheme para este ciclo: `FluxTrainingAppConfiguration` y `ExperienceHubView` leen tambien `apps/ios/.env.local` en local.
+  - el smoke real de login cloud ya esta automatizado y listo para ejecutarse en cuanto entren los valores efectivos: `pnpm smoke:real-login`.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.
