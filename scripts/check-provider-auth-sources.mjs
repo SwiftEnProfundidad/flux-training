@@ -1,4 +1,5 @@
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
+import os from "node:os";
 import process from "node:process";
 import { promisify } from "node:util";
 import { execFile as execFileCallback } from "node:child_process";
@@ -20,6 +21,19 @@ async function fileExists(filePath) {
   }
 }
 
+async function readJsonFile(filePath, readFileImpl) {
+  if (!filePath) {
+    return null;
+  }
+
+  try {
+    const raw = await readFileImpl(filePath, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 async function runCommand(command, args, execFileImpl) {
   try {
     const result = await execFileImpl(command, args);
@@ -38,16 +52,26 @@ async function runCommand(command, args, execFileImpl) {
   }
 }
 
+function resolveFirebaseToolsConfigPath(env) {
+  const homeDirectory = typeof env.HOME === "string" && env.HOME.trim().length > 0 ? env.HOME : os.homedir();
+  return path.join(homeDirectory, ".config", "configstore", "firebase-tools.json");
+}
+
 export async function checkProviderAuthSources({
   execFileImpl = execFile,
   env = process.env,
   now = () => new Date().toISOString(),
   fileExistsImpl = fileExists,
+  readFileImpl = readFile,
 } = {}) {
   const firebaseTokenPresent = typeof env.FIREBASE_TOKEN === "string" && env.FIREBASE_TOKEN.trim().length > 0;
   const googleApplicationCredentialsPath =
     typeof env.GOOGLE_APPLICATION_CREDENTIALS === "string" ? env.GOOGLE_APPLICATION_CREDENTIALS : "";
   const googleApplicationCredentialsPresent = await fileExistsImpl(googleApplicationCredentialsPath);
+  const firebaseToolsConfigPath = resolveFirebaseToolsConfigPath(env);
+  const firebaseToolsConfig = await readJsonFile(firebaseToolsConfigPath, readFileImpl);
+  const firebaseCliUserPresent =
+    typeof firebaseToolsConfig?.user?.email === "string" && firebaseToolsConfig.user.email.trim().length > 0;
 
   const gcloudWhich = await runCommand("which", ["gcloud"], execFileImpl);
   const gcloudInstalled = gcloudWhich.ok && gcloudWhich.stdout.trim().length > 0;
@@ -83,6 +107,9 @@ export async function checkProviderAuthSources({
   if (firebaseTokenPresent) {
     sources.push("firebase-token-env");
   }
+  if (firebaseCliUserPresent) {
+    sources.push("firebase-cli-login");
+  }
   if (googleApplicationCredentialsPresent) {
     sources.push("google-application-credentials");
   }
@@ -100,6 +127,8 @@ export async function checkProviderAuthSources({
     executedAt: now(),
     provider: "firebase-gcp",
     firebaseTokenPresent,
+    firebaseCliUserPresent,
+    firebaseToolsConfigPath,
     googleApplicationCredentialsPresent,
     gcloudInstalled,
     gcloudAccountsVisible,
@@ -115,6 +144,8 @@ function formatHumanReadable(result) {
     `executedAt: ${result.executedAt}`,
     `provider: ${result.provider}`,
     `firebaseTokenPresent: ${result.firebaseTokenPresent}`,
+    `firebaseCliUserPresent: ${result.firebaseCliUserPresent}`,
+    `firebaseToolsConfigPath: ${result.firebaseToolsConfigPath}`,
     `googleApplicationCredentialsPresent: ${result.googleApplicationCredentialsPresent}`,
     `gcloudInstalled: ${result.gcloudInstalled}`,
     `gcloudAccountsVisible: ${result.gcloudAccountsVisible}`,
