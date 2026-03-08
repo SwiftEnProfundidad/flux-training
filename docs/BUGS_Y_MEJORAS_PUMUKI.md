@@ -442,3 +442,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada tras crear helper local:
   - hemos tenido que construir un checker propio de readiness porque el gate de Pumuki no modela de forma nativa el estado “codigo listo pero entorno externo ausente”.
   - propuesta Pumuki: incorporar un comando nativo de `readiness` o una capa de prerequisitos externos declarativos para evitar que cada repo tenga que inventar su propia comprobacion.
+- Revalidacion helper readiness con plantilla iOS local (2026-03-08 18:22 CET):
+  - el checker ya soporta dos fuentes para iOS:
+    - variables del proceso/scheme,
+    - `apps/ios/.env.local` como archivo local no versionado.
+  - se versiona una plantilla segura: `apps/ios/.env.local.example`.
+  - validacion automatizada:
+    - `pnpm test:real-runtime-prereqs` -> `3` tests OK
+    - `pnpm check:real-runtime-prereqs` -> sigue en `blocked-external-config` por falta de valores reales
+- Mejora detectada tras extender soporte iOS:
+  - Pumuki tampoco modela prerequisitos multiplataforma dentro del mismo readiness check; todo sigue quedando fuera del gate nativo.
+  - propuesta Pumuki: permitir prerequisitos declarativos por plataforma (`web`, `ios`, `backend`) y generar un resumen único de readiness consolidado.

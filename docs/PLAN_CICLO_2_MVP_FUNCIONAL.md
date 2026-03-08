@@ -130,6 +130,7 @@
     - si faltan las tres variables Firebase, `firebase-auth-client.ts` cae en fallback local cuando corre en loopback.
 - iOS producto real:
   - entorno objetivo: variables del scheme de Xcode o del proceso al lanzar la app,
+  - ruta local soportada para preparar el entorno sin secretos versionados: `apps/ios/.env.local` (plantilla: `apps/ios/.env.local.example`),
   - variables minimas obligatorias para email/password:
     - `FLUX_BACKEND_BASE_URL=https://us-central1-flux-training.cloudfunctions.net/flux-training`,
     - `FLUX_FIREBASE_WEB_API_KEY=<firebase web api key real>`,
@@ -144,6 +145,7 @@
   - `FIREBASE_CONFIG` o `GOOGLE_APPLICATION_CREDENTIALS` solo son necesarios para desarrollo/ejecucion local del backend real, pero hoy ese camino no existe como servidor HTTP local productivo dentro del repo.
 - Comandos recomendados para la siguiente validacion:
   - Web: `pnpm dev:web:product`
+  - Pre-chequeo: `pnpm check:real-runtime-prereqs`
   - iOS: lanzar la app con el scheme configurado contra cloud real
 - Bloqueos que siguen vigentes aunque el entorno ya este definido:
   - sin credenciales Firebase web reales no puede cerrarse `Validar login email/password end-to-end`,
