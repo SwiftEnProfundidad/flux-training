@@ -429,3 +429,16 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada en bloqueo por prerrequisito externo:
   - Pumuki sigue aprobando el cambio documental, pero no promueve el bloqueo externo a un estado visible de release readiness.
   - propuesta Pumuki: anadir un resumen de `execution readiness` con estados como `ready`, `blocked-external-config`, `blocked-secret-missing`, para distinguir trabajo completado de trabajo imposible por entorno.
+- Revalidacion helper de readiness real (2026-03-08 18:18 CET):
+  - se anade un chequeo reproducible en el repo:
+    - `pnpm check:real-runtime-prereqs`
+    - `pnpm test:real-runtime-prereqs`
+  - salida real actual del checker:
+    - `readiness: blocked-external-config`
+    - `apps/web/.env.local` ausente
+    - `apps/backend/.env.local` ausente
+    - faltan claves reales de Web e iOS para salir del camino demo
+  - impacto: el repo ya no depende de inspeccion manual para detectar si el ciclo 2 puede avanzar a login cloud real.
+- Mejora detectada tras crear helper local:
+  - hemos tenido que construir un checker propio de readiness porque el gate de Pumuki no modela de forma nativa el estado “codigo listo pero entorno externo ausente”.
+  - propuesta Pumuki: incorporar un comando nativo de `readiness` o una capa de prerequisitos externos declarativos para evitar que cada repo tenga que inventar su propia comprobacion.

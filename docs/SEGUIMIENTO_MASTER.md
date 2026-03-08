@@ -16,6 +16,7 @@
 - Auditoria backend/runtime ya cerrada: el backend cloud es real, pero el unico backend HTTP local disponible hoy es demo; Web e iOS mantienen fallback local controlado para auth y iOS todavia mezcla persistencia local en onboarding/settings/legal.
 - Entorno minimo del ciclo 2 ya esta definido: para validar MVP real debemos usar backend cloud + Firebase web config real; sin esas credenciales no puede cerrarse el login E2E real.
 - Verificacion actual: `apps/web/.env.local` y `apps/backend/.env.local` no existen en este workspace local; el login E2E cloud queda bloqueado por prerrequisito externo real, no por codigo.
+- El repo ya dispone de chequeo reproducible de readiness real: `pnpm check:real-runtime-prereqs` + `pnpm test:real-runtime-prereqs`.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.

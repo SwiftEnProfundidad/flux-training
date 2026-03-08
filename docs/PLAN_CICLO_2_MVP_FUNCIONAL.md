@@ -155,6 +155,9 @@
 - `apps/backend/.env.local` no existe en este repo local.
 - `apps/web/.env.example` define las claves esperadas, pero los valores reales no estan cargados.
 - Sin `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN` y `VITE_FIREBASE_PROJECT_ID` reales, la web local no puede abandonar de forma verificable el camino demo/fallback en loopback.
+- Comando reproducible de readiness real:
+  - `pnpm check:real-runtime-prereqs`
+  - `pnpm test:real-runtime-prereqs`
 - Conclusion operativa:
   - la task `Validar login email/password end-to-end` queda reabierta como `⛔`,
   - la unica task activa del ciclo pasa a ser `🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end`,
