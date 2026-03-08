@@ -89,8 +89,23 @@ export function evaluateRealRuntimePrereqs({
     blockers.push(`faltan credenciales E2E reales: ${e2eMissingKeys.join(", ")}`);
   }
 
+  const platformConfigStatus =
+    webMissingKeys.length === 0 && iosMissingKeys.length === 0
+      ? "ready"
+      : "blocked-real-config";
+  const testIdentityStatus =
+    e2eMissingKeys.length === 0 ? "ready" : "blocked-real-user-credentials";
+  const status =
+    platformConfigStatus === "ready" && testIdentityStatus === "ready"
+      ? "ready"
+      : platformConfigStatus !== "ready"
+        ? "blocked-real-config"
+        : "blocked-real-user-credentials";
+
   return {
-    status: blockers.length === 0 ? "ready" : "blocked-external-config",
+    status,
+    platformConfigStatus,
+    testIdentityStatus,
     rootDir,
     web: {
       envPath: webEnvPath,
@@ -134,6 +149,8 @@ export function evaluateRealRuntimePrereqs({
 function formatHumanReadable(result) {
   const lines = [];
   lines.push(`readiness: ${result.status}`);
+  lines.push(`platformConfig: ${result.platformConfigStatus}`);
+  lines.push(`testIdentity: ${result.testIdentityStatus}`);
   lines.push("");
   lines.push(`web env: ${result.web.exists ? "present" : "missing"} (${result.web.envPath})`);
   for (const item of result.web.required) {

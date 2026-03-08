@@ -75,7 +75,7 @@ export async function runRealLoginSmoke({
 
   if (!webReady || !e2eReady) {
     return {
-      status: "blocked-external-config",
+      status: readiness.status,
       executedAt: now(),
       readiness,
       blockers: readiness.blockers,
@@ -239,7 +239,10 @@ export async function runRealLoginSmoke({
 function formatHumanReadable(result) {
   const lines = [`status: ${result.status}`, `executedAt: ${result.executedAt}`];
 
-  if (result.status === "blocked-external-config") {
+  if (
+    result.status === "blocked-real-config" ||
+    result.status === "blocked-real-user-credentials"
+  ) {
     lines.push("blockers:");
     for (const blocker of result.blockers) {
       lines.push(`  - ${blocker}`);

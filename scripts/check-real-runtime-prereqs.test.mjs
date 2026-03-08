@@ -22,7 +22,9 @@ test("reports blocked when web env file is missing", () => {
     iosEnvironment: {},
   });
 
-  assert.equal(result.status, "blocked-external-config");
+  assert.equal(result.status, "blocked-real-config");
+  assert.equal(result.platformConfigStatus, "blocked-real-config");
+  assert.equal(result.testIdentityStatus, "blocked-real-user-credentials");
   assert.equal(result.web.exists, false);
   assert.match(result.blockers.join("\n"), /apps\/web\/\.env\.local ausente/);
 });
@@ -53,6 +55,8 @@ test("reports ready when required web and ios values are present", () => {
   });
 
   assert.equal(result.status, "ready");
+  assert.equal(result.platformConfigStatus, "ready");
+  assert.equal(result.testIdentityStatus, "ready");
   assert.equal(result.blockers.length, 0);
   assert.equal(result.web.required.every((item) => item.present), true);
   assert.equal(result.ios.required.every((item) => item.present), true);
@@ -90,6 +94,8 @@ test("uses apps/ios/.env.local as valid source for iOS runtime configuration", (
   });
 
   assert.equal(result.status, "ready");
+  assert.equal(result.platformConfigStatus, "ready");
+  assert.equal(result.testIdentityStatus, "ready");
   assert.equal(result.ios.envFileExists, true);
   assert.equal(result.ios.required.every((item) => item.present), true);
 });
@@ -120,7 +126,9 @@ test("reports blocked when e2e credentials are missing", () => {
     e2eEnvironment: {},
   });
 
-  assert.equal(result.status, "blocked-external-config");
+  assert.equal(result.status, "blocked-real-user-credentials");
+  assert.equal(result.platformConfigStatus, "ready");
+  assert.equal(result.testIdentityStatus, "blocked-real-user-credentials");
   assert.match(result.blockers.join("\n"), /faltan credenciales E2E reales/);
   assert.equal(result.e2e.required.every((item) => item.present), false);
 });

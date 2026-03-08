@@ -26,8 +26,46 @@ test("reports blocked when real config is missing", async () => {
     now: () => "2026-03-08T19:05:00.000Z",
   });
 
-  assert.equal(result.status, "blocked-external-config");
+  assert.equal(result.status, "blocked-real-config");
+  assert.equal(result.readiness.platformConfigStatus, "blocked-real-config");
+  assert.equal(result.readiness.testIdentityStatus, "blocked-real-user-credentials");
   assert.match(result.blockers.join("\n"), /faltan claves web reales/);
+  assert.match(result.blockers.join("\n"), /faltan credenciales E2E reales/);
+});
+
+test("reports blocked by test identity when platform config is ready but e2e user is missing", async () => {
+  const rootDir = createWorkspaceFixture();
+  fs.writeFileSync(
+    path.join(rootDir, "apps/web/.env.local"),
+    [
+      "VITE_FIREBASE_API_KEY=test-key",
+      "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
+      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_API_TARGET=https://example.com",
+    ].join("\n"),
+  );
+  fs.writeFileSync(
+    path.join(rootDir, "apps/ios/.env.local"),
+    [
+      "FLUX_BACKEND_BASE_URL=https://example.com",
+      "FLUX_FIREBASE_WEB_API_KEY=ios-key",
+      "FLUX_IOS_CLIENT_VERSION=0.1.0",
+    ].join("\n"),
+  );
+
+  const result = await runRealLoginSmoke({
+    rootDir,
+    fetchImpl: async () => {
+      throw new Error("fetch should not execute");
+    },
+    iosEnvironment: {},
+    e2eEnvironment: {},
+    now: () => "2026-03-08T19:05:00.000Z",
+  });
+
+  assert.equal(result.status, "blocked-real-user-credentials");
+  assert.equal(result.readiness.platformConfigStatus, "ready");
+  assert.equal(result.readiness.testIdentityStatus, "blocked-real-user-credentials");
   assert.match(result.blockers.join("\n"), /faltan credenciales E2E reales/);
 });
 
