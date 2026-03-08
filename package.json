@@ -9,6 +9,8 @@
     "bootstrap:real-runtime-prereqs": "node scripts/bootstrap-real-runtime-prereqs.mjs",
     "test:bootstrap-real-runtime-prereqs": "node --test scripts/bootstrap-real-runtime-prereqs.test.mjs",
     "test:real-runtime-prereqs": "node --test scripts/check-real-runtime-prereqs.test.mjs",
+    "test:real-login-smoke": "node --test scripts/run-real-login-smoke.test.mjs",
+    "smoke:real-login": "node scripts/run-real-login-smoke.mjs",
     "test:critical": "pnpm --filter @flux/backend test -- src/application/critical-regression-suite.spec.ts && pnpm --filter @flux/web test -- src/application/critical-regression-suite.spec.ts && cd apps/ios && swift test --filter CriticalRegressionFlowTests",
     "test:happy-paths": "pnpm --filter @flux/backend test -- src/application/happy-path-e2e-suite.spec.ts && pnpm --filter @flux/web test -- src/application/happy-path-e2e-suite.spec.ts && cd apps/ios && swift test --filter HappyPathFlowTests",
     "test:edge-cases": "pnpm --filter @flux/backend test -- src/application/edge-case-e2e-suite.spec.ts && pnpm --filter @flux/web test -- src/application/edge-case-e2e-suite.spec.ts && cd apps/ios && swift test --filter EdgeCaseFlowTests",
