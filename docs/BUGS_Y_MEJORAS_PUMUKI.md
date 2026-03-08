@@ -519,3 +519,16 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada tras automatizar el smoke real:
   - Pumuki no tiene hoy una categoria nativa de “smoke preparado pero bloqueado por secretos externos”; todo sigue cayendo en `ALLOW` si el helper es correcto.
   - propuesta Pumuki: añadir un estado tipo `prepared-but-blocked-by-secrets` para tooling de release/readiness que ya es valido tecnicamente pero no ejecutable sin credenciales reales.
+- Revalidacion de estados por capas en readiness/smoke (2026-03-08 20:06 CET):
+  - el repo ya no usa un unico estado generico `blocked-external-config` para todo.
+  - ahora `pnpm check:real-runtime-prereqs` y `pnpm smoke:real-login` distinguen:
+    - `blocked-real-config`
+    - `blocked-real-user-credentials`
+  - validacion automatizada:
+    - `pnpm test:real-runtime-prereqs` -> OK
+    - `pnpm test:real-login-smoke` -> OK
+  - valor practico:
+    - permite saber si el siguiente paso real es cargar Firebase/Auth de plataforma o solo credenciales del usuario E2E.
+- Mejora detectada para Pumuki tras esta revalidacion:
+  - aunque el repo ya distinga capas de readiness, Pumuki sigue resumiendo el gate como `ALLOW` sin exponer un subestado semantico equivalente.
+  - propuesta Pumuki: soportar estados de readiness enriquecidos (`blocked-real-config`, `blocked-real-user-credentials`) para no obligar a cada repo a modelarlos en tooling propio.

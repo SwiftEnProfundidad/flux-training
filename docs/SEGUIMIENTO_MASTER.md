@@ -21,7 +21,7 @@
 - El repo ya dispone tambien de bootstrap local no destructivo: `pnpm bootstrap:real-runtime-prereqs`; desde ahora el bloqueo ya no es “faltan archivos” sino “faltan valores reales”.
 - El repo ya contempla tambien `.env.e2e.local` para credenciales de usuario real de smoke; el bloqueo restante ya incluye claves Firebase reales + credenciales E2E reales.
 - iOS ya consume `apps/ios/.env.local` de forma efectiva en runtime local; el bloqueo real restante ya no es de wiring sino solo de credenciales Firebase/Auth pendientes.
-- El repo ya dispone tambien de smoke reproducible para login cloud real (`pnpm smoke:real-login`); el bloqueo restante es exclusivamente de valores reales pendientes.
+- El repo ya dispone tambien de smoke reproducible para login cloud real (`pnpm smoke:real-login`); ahora distingue si el bloqueo restante es por config real de plataforma (`blocked-real-config`) o por credenciales E2E reales (`blocked-real-user-credentials`).
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
