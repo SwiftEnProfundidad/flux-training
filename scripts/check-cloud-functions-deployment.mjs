@@ -17,11 +17,6 @@ function inferProjectId() {
   return "flux-training-mvp";
 }
 
-function parseProjects(stdout) {
-  const payload = JSON.parse(stdout);
-  return Array.isArray(payload.result) ? payload.result : [];
-}
-
 async function runFirebase(args, execFileImpl) {
   try {
     const result = await execFileImpl("npx", ["--yes", "firebase-tools", ...args]);
@@ -39,57 +34,46 @@ async function runFirebase(args, execFileImpl) {
   }
 }
 
-export async function checkCloudProjectAccess({
+function parseFunctions(stdout) {
+  const payload = JSON.parse(stdout);
+  return Array.isArray(payload.result) ? payload.result : [];
+}
+
+export async function checkCloudFunctionsDeployment({
   projectId = inferProjectId(),
   execFileImpl = execFile,
   now = () => new Date().toISOString(),
 } = {}) {
-  const projectsList = await runFirebase(["projects:list", "--json"], execFileImpl);
-  const projectListOutput = `${projectsList.stdout}\n${projectsList.stderr}`.trim();
-
-  if (!projectsList.ok) {
-    return {
-      status: "blocked-provider-auth",
-      executedAt: now(),
-      projectId,
-      errorCode: "firebase_projects_list_failed",
-      output: projectListOutput,
-    };
-  }
-
-  const projects = parseProjects(projectsList.stdout);
-  const projectVisible = projects.some((project) => project.projectId === projectId);
-  if (!projectVisible) {
-    return {
-      status: "blocked-project-access",
-      executedAt: now(),
-      projectId,
-      visibleProjects: projects.map((project) => project.projectId),
-      errorCode: "project_not_visible",
-    };
-  }
-
   const functionsList = await runFirebase(["functions:list", "--project", projectId, "--json"], execFileImpl);
+  const output = `${functionsList.stdout}\n${functionsList.stderr}`.trim();
+
   if (!functionsList.ok) {
-    const output = `${functionsList.stdout}\n${functionsList.stderr}`.trim();
-    const denied = /403|Permission|denied/i.test(output);
-    const serviceDisabled = /SERVICE_DISABLED|Cloud Functions API has not been used|cloudfunctions\.googleapis\.com/i.test(
-      output
-    );
+    const providerAuthBlocked = /Failed to authenticate|firebase login/i.test(output);
+    const projectNotVisible = /Failed to get Firebase project|not found|404/i.test(output);
     return {
-      status: serviceDisabled
-        ? "blocked-cloud-functions-api-disabled"
-        : denied
-          ? "blocked-project-permissions"
+      status: providerAuthBlocked
+        ? "blocked-provider-auth"
+        : projectNotVisible
+          ? "blocked-project-access"
           : "failed",
       executedAt: now(),
       projectId,
-      errorCode: serviceDisabled
-        ? "cloud_functions_api_disabled"
-        : denied
-          ? "functions_access_denied"
+      errorCode: providerAuthBlocked
+        ? "firebase_login_required"
+        : projectNotVisible
+          ? "project_not_visible"
           : "functions_list_failed",
       output,
+    };
+  }
+
+  const functions = parseFunctions(functionsList.stdout);
+  if (functions.length === 0) {
+    return {
+      status: "blocked-no-functions-deployed",
+      executedAt: now(),
+      projectId,
+      functionsCount: 0,
     };
   }
 
@@ -97,7 +81,8 @@ export async function checkCloudProjectAccess({
     status: "ready",
     executedAt: now(),
     projectId,
-    visibleProjects: projects.map((project) => project.projectId),
+    functionsCount: functions.length,
+    functionNames: functions.map((item) => item.id ?? item.name).filter(Boolean),
   };
 }
 
@@ -108,8 +93,11 @@ function formatHumanReadable(result) {
     `projectId: ${result.projectId}`,
   ];
 
-  if (Array.isArray(result.visibleProjects)) {
-    lines.push(`visibleProjects: ${result.visibleProjects.join(",") || "-"}`);
+  if (typeof result.functionsCount === "number") {
+    lines.push(`functionsCount: ${result.functionsCount}`);
+  }
+  if (Array.isArray(result.functionNames)) {
+    lines.push(`functionNames: ${result.functionNames.join(",") || "-"}`);
   }
   if (typeof result.errorCode === "string") {
     lines.push(`errorCode: ${result.errorCode}`);
@@ -117,11 +105,12 @@ function formatHumanReadable(result) {
   if (typeof result.output === "string" && result.output.length > 0) {
     lines.push(`output: ${result.output}`);
   }
+
   return `${lines.join("\n")}\n`;
 }
 
 async function runCli() {
-  const result = await checkCloudProjectAccess();
+  const result = await checkCloudFunctionsDeployment();
   if (process.argv.includes("--json")) {
     console.log(JSON.stringify(result, null, 2));
     return;

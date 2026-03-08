@@ -10,6 +10,7 @@ test("reports blocked-provider-auth-sources when no provider auth sources exist"
     checkSourcesImpl: async () => ({ status: "no-provider-auth-sources" }),
     checkReadinessImpl: async () => ({ status: "blocked-provider-auth" }),
     checkProjectAccessImpl: async () => ({ status: "blocked-provider-auth" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "blocked-provider-auth" }),
     runCloudSmokeImpl: async () => ({ status: "blocked-remote-target", apiTarget: "https://example.com" }),
     runLoginSmokeImpl: async () => ({ status: "blocked-real-config" }),
   });
@@ -25,6 +26,7 @@ test("reports blocked-remote-target when provider auth is ready but cloud target
     checkSourcesImpl: async () => ({ status: "sources-detected" }),
     checkReadinessImpl: async () => ({ status: "ready" }),
     checkProjectAccessImpl: async () => ({ status: "ready" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "ready" }),
     runCloudSmokeImpl: async () => ({ status: "blocked-remote-target", apiTarget: "https://example.com" }),
     runLoginSmokeImpl: async () => ({ status: "blocked-real-user-credentials" }),
   });
@@ -41,11 +43,44 @@ test("reports blocked-project-access when provider auth is ready but authenticat
     checkSourcesImpl: async () => ({ status: "no-provider-auth-sources" }),
     checkReadinessImpl: async () => ({ status: "ready" }),
     checkProjectAccessImpl: async () => ({ status: "blocked-project-access" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "blocked-project-access" }),
     runCloudSmokeImpl: async () => ({ status: "blocked-remote-target", apiTarget: "https://example.com" }),
     runLoginSmokeImpl: async () => ({ status: "blocked-real-config" }),
   });
 
   assert.equal(result.status, "blocked-project-access");
+});
+
+test("reports blocked-cloud-functions-api-disabled when project is visible but functions api is disabled", async () => {
+  const result = await runRealRuntimeDoctor({
+    rootDir: "/tmp/flux",
+    now: () => "2026-03-08T20:45:00.000Z",
+    checkSourcesImpl: async () => ({ status: "sources-detected" }),
+    checkReadinessImpl: async () => ({ status: "ready" }),
+    checkProjectAccessImpl: async () => ({ status: "blocked-cloud-functions-api-disabled" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "blocked-cloud-functions-api-disabled" }),
+    runCloudSmokeImpl: async () => ({ status: "blocked-remote-target", apiTarget: "https://example.com" }),
+    runLoginSmokeImpl: async () => ({ status: "blocked-real-config" }),
+  });
+
+  assert.equal(result.status, "blocked-cloud-functions-api-disabled");
+  assert.match(result.nextSteps.join("\n"), /Cloud Functions API/);
+});
+
+test("reports blocked-no-functions-deployed when project is ready but backend is not deployed", async () => {
+  const result = await runRealRuntimeDoctor({
+    rootDir: "/tmp/flux",
+    now: () => "2026-03-08T20:45:00.000Z",
+    checkSourcesImpl: async () => ({ status: "sources-detected" }),
+    checkReadinessImpl: async () => ({ status: "ready" }),
+    checkProjectAccessImpl: async () => ({ status: "ready" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "blocked-no-functions-deployed" }),
+    runCloudSmokeImpl: async () => ({ status: "blocked-remote-target", apiTarget: "https://example.com" }),
+    runLoginSmokeImpl: async () => ({ status: "blocked-real-user-credentials" }),
+  });
+
+  assert.equal(result.status, "blocked-no-functions-deployed");
+  assert.match(result.nextSteps.join("\n"), /Desplegar las Cloud Functions reales del backend/);
 });
 
 test("reports ready when all checks are ready", async () => {
@@ -55,6 +90,7 @@ test("reports ready when all checks are ready", async () => {
     checkSourcesImpl: async () => ({ status: "sources-detected" }),
     checkReadinessImpl: async () => ({ status: "ready" }),
     checkProjectAccessImpl: async () => ({ status: "ready" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "ready" }),
     runCloudSmokeImpl: async () => ({ status: "ready", apiTarget: "https://example.com" }),
     runLoginSmokeImpl: async () => ({ status: "ready" }),
   });

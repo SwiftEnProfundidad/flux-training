@@ -5,6 +5,7 @@ import url from "node:url";
 import { checkProviderAuthSources } from "./check-provider-auth-sources.mjs";
 import { checkProviderAuthReadiness } from "./check-provider-auth-readiness.mjs";
 import { checkCloudProjectAccess } from "./check-cloud-project-access.mjs";
+import { checkCloudFunctionsDeployment } from "./check-cloud-functions-deployment.mjs";
 import { runRealCloudConnectivitySmoke } from "./run-real-cloud-connectivity-smoke.mjs";
 import { runRealLoginSmoke } from "./run-real-login-smoke.mjs";
 
@@ -14,6 +15,7 @@ export async function runRealRuntimeDoctor({
   checkSourcesImpl = checkProviderAuthSources,
   checkReadinessImpl = checkProviderAuthReadiness,
   checkProjectAccessImpl = checkCloudProjectAccess,
+  checkFunctionsDeploymentImpl = checkCloudFunctionsDeployment,
   runCloudSmokeImpl = runRealCloudConnectivitySmoke,
   runLoginSmokeImpl = runRealLoginSmoke,
 } = {}) {
@@ -21,6 +23,7 @@ export async function runRealRuntimeDoctor({
   const sources = await checkSourcesImpl();
   const providerAuth = await checkReadinessImpl();
   const projectAccess = await checkProjectAccessImpl();
+  const functionsDeployment = await checkFunctionsDeploymentImpl();
   const cloudTarget = await runCloudSmokeImpl({ rootDir });
   const login = await runLoginSmokeImpl({ rootDir });
 
@@ -36,6 +39,12 @@ export async function runRealRuntimeDoctor({
   }
   if (projectAccess.status === "blocked-project-permissions") {
     nextSteps.push("Solicitar permisos sobre el proyecto cloud real para listar functions/hosting.");
+  }
+  if (projectAccess.status === "blocked-cloud-functions-api-disabled") {
+    nextSteps.push("Activar Cloud Functions API en el proyecto Firebase real antes de validar connectivity/login.");
+  }
+  if (functionsDeployment.status === "blocked-no-functions-deployed") {
+    nextSteps.push("Desplegar las Cloud Functions reales del backend en flux-training-mvp antes de validar connectivity/login.");
   }
   if (cloudTarget.status !== "ready") {
     nextSteps.push("Confirmar la URL cloud real del backend antes de usar secrets E2E.");
@@ -56,11 +65,13 @@ export async function runRealRuntimeDoctor({
         ? providerAuth.status
         : projectAccess.status !== "ready"
           ? projectAccess.status
+          : functionsDeployment.status !== "ready"
+            ? functionsDeployment.status
           : sources.status === "no-provider-auth-sources"
-        ? "blocked-provider-auth-sources"
-        : cloudTarget.status === "blocked-remote-target"
-            ? "blocked-remote-target"
-            : login.status;
+            ? "blocked-provider-auth-sources"
+            : cloudTarget.status === "blocked-remote-target"
+              ? "blocked-remote-target"
+              : login.status;
 
   return {
     status: overallStatus,
@@ -69,6 +80,7 @@ export async function runRealRuntimeDoctor({
       providerSources: sources,
       providerAuth,
       projectAccess,
+      functionsDeployment,
       cloudTarget,
       realLogin: login,
     },
@@ -83,6 +95,7 @@ function formatDoctor(result) {
     `providerSources: ${result.checks.providerSources.status}`,
     `providerAuth: ${result.checks.providerAuth.status}`,
     `projectAccess: ${result.checks.projectAccess.status}`,
+    `functionsDeployment: ${result.checks.functionsDeployment.status}`,
     `cloudTarget: ${result.checks.cloudTarget.status}`,
     `realLogin: ${result.checks.realLogin.status}`,
   ];

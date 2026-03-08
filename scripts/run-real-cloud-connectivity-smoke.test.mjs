@@ -74,7 +74,7 @@ test("reports blocked-remote-target when cloud routes return 404 in every candid
   const rootDir = createWorkspaceFixture();
   fs.writeFileSync(
     path.join(rootDir, "apps/web/.env.local"),
-    "VITE_API_TARGET=https://us-central1-flux-training.cloudfunctions.net/flux-training\n",
+    "VITE_API_TARGET=https://us-central1-flux-training-mvp.cloudfunctions.net\n",
   );
 
   const calls = [];
@@ -92,10 +92,9 @@ test("reports blocked-remote-target when cloud routes return 404 in every candid
   assert.equal(result.stage, "backend-probe");
   assert.equal(result.statusCode, 404);
   assert.deepEqual(calls, [
-    "https://us-central1-flux-training.cloudfunctions.net/flux-training/createAuthSession",
-    "https://us-central1-flux-training.cloudfunctions.net/createAuthSession",
+    "https://us-central1-flux-training-mvp.cloudfunctions.net/createAuthSession",
   ]);
-  assert.equal(result.attempts.length, 2);
+  assert.equal(result.attempts.length, 1);
 });
 
 test("reports failed when backend probe errors before getting any valid HTTP response", async () => {

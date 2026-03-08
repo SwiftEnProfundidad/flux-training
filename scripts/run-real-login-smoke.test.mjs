@@ -40,7 +40,7 @@ test("reports blocked by test identity when platform config is ready but e2e use
     [
       "VITE_FIREBASE_API_KEY=test-key",
       "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
-      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_FIREBASE_PROJECT_ID=flux-training-mvp",
       "VITE_API_TARGET=https://example.com",
     ].join("\n"),
   );
@@ -76,7 +76,7 @@ test("reports ready when firebase auth, backend session and post-login probe suc
     [
       "VITE_FIREBASE_API_KEY=test-key",
       "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
-      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_FIREBASE_PROJECT_ID=flux-training-mvp",
       "VITE_API_TARGET=https://example.com",
     ].join("\n"),
   );
@@ -145,7 +145,7 @@ test("reports firebase auth failure without exposing password or full email", as
     [
       "VITE_FIREBASE_API_KEY=test-key",
       "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
-      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_FIREBASE_PROJECT_ID=flux-training-mvp",
       "VITE_API_TARGET=https://example.com",
     ].join("\n"),
   );

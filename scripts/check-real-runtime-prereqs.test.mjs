@@ -40,7 +40,7 @@ test("reports ready when required web and ios values are present", () => {
     [
       "VITE_FIREBASE_API_KEY=test-key",
       "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
-      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_FIREBASE_PROJECT_ID=flux-training-mvp",
       "VITE_API_TARGET=https://example.com",
     ].join("\n"),
   );
@@ -74,7 +74,7 @@ test("uses apps/ios/.env.local as valid source for iOS runtime configuration", (
     [
       "VITE_FIREBASE_API_KEY=test-key",
       "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
-      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_FIREBASE_PROJECT_ID=flux-training-mvp",
       "VITE_API_TARGET=https://example.com",
     ].join("\n"),
   );
@@ -107,7 +107,7 @@ test("reports blocked when e2e credentials are missing", () => {
     [
       "VITE_FIREBASE_API_KEY=test-key",
       "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
-      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_FIREBASE_PROJECT_ID=flux-training-mvp",
       "VITE_API_TARGET=https://example.com",
     ].join("\n"),
   );

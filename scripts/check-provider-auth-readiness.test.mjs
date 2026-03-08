@@ -8,7 +8,7 @@ test("reports ready when firebase projects list succeeds", async () => {
     execFileImpl: async () => ({
       stdout: JSON.stringify({
         status: "success",
-        result: [{ projectId: "flux-training" }],
+        result: [{ projectId: "flux-training-mvp" }],
       }),
       stderr: "",
     }),
