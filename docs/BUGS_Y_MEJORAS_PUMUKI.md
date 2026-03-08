@@ -579,3 +579,20 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
     - secretos de aplicacion ausentes,
     - target remoto desactualizado,
     - acceso operativo ausente al proveedor cloud.
+- Revalidacion del bloqueo de proveedor con checker dedicado (2026-03-08 19:28 CET):
+  - se añade:
+    - `pnpm check:provider-auth-readiness`
+    - `pnpm test:provider-auth-readiness`
+  - validacion automatizada:
+    - `pnpm test:provider-auth-readiness` -> `3` tests OK
+  - ejecucion real:
+    - `pnpm check:provider-auth-readiness` -> `blocked-provider-auth`
+    - `errorCode: firebase_login_required`
+    - salida real:
+      - `Failed to authenticate, have you run firebase login?`
+  - impacto:
+    - el repo ya puede distinguir si el siguiente paso real es autenticar el proveedor cloud o seguir depurando secretos/config,
+    - se evita depender de varios comandos manuales de Firebase CLI para llegar a la misma conclusion.
+- Mejora detectada para Pumuki tras este checker:
+  - aunque el repo ya encapsule el bloqueo en un comando unico y semantico, Pumuki sigue devolviendo `ALLOW` porque solo comprueba que el tooling exista y no eleva el estado operativo del prerequisito.
+  - propuesta Pumuki: permitir gates auxiliares de `provider-auth-readiness` que puedan marcar el turno como `BLOCKED` sin requerir que cada repo invente su propio puente documental.

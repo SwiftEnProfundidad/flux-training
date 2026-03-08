@@ -25,6 +25,7 @@
 - El repo ya dispone tambien de sonda de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) y ha detectado un hallazgo nuevo: el target base documentado hasta ahora devuelve `404` en `createAuthSession`, asi que la URL cloud real debe confirmarse antes de cerrar el login E2E.
 - La sonda cloud ya endurece ese caso como `blocked-remote-target` y confirma que hoy tanto `.../flux-training/createAuthSession` como `.../createAuthSession` devuelven `404`, asi que el siguiente paso correcto no es cargar secretos sino confirmar la URL cloud efectiva del backend.
 - El intento de confirmacion con Firebase CLI tambien queda bloqueado por infraestructura local: `projects:list`, `functions:list` y `hosting:sites:list` devuelven `Failed to authenticate, have you run firebase login?`, asi que hoy falta autenticacion Firebase/GCP para verificar el despliegue real.
+- El repo ya dispone de un checker unico para ese bloqueo: `pnpm check:provider-auth-readiness`, que hoy devuelve `blocked-provider-auth` con `firebase_login_required`.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.

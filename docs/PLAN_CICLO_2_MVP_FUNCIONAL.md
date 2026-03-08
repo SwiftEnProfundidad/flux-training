@@ -88,6 +88,7 @@
 - ⛔ Validar login email/password end-to-end.
 - ⛔ Confirmar URL base cloud real del backend.
 - 🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real.
+- ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
@@ -256,6 +257,20 @@
     - el repo local no tiene autenticacion Firebase/GCP activa para inspeccionar despliegues,
     - por tanto la URL cloud real no puede confirmarse solo con el codigo fuente y el tooling local actual,
     - el siguiente paso real del ciclo pasa a ser autenticar acceso Firebase/GCP antes de seguir con secretos o smoke E2E.
+- Checker reproducible de autenticacion del proveedor (2026-03-08):
+  - se añade:
+    - `pnpm check:provider-auth-readiness`
+    - `pnpm test:provider-auth-readiness`
+  - validacion automatizada:
+    - `pnpm test:provider-auth-readiness` -> `3` tests OK
+  - ejecucion real:
+    - `pnpm check:provider-auth-readiness` -> `blocked-provider-auth`
+    - `errorCode: firebase_login_required`
+    - salida real detectada:
+      - `Failed to authenticate, have you run firebase login?`
+  - conclusion operativa:
+    - el bloqueo ya queda versionado en un unico comando reproducible,
+    - el siguiente paso real del ciclo sigue siendo autenticar Firebase/GCP en esta maquina antes de continuar con la verificacion cloud.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.
