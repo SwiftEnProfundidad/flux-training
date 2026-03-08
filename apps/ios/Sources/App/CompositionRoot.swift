@@ -41,7 +41,7 @@ public enum CompositionRoot {
       deleteAccountViewModel: dependencies.deleteAccountViewModel,
       offlineSyncViewModel: dependencies.offlineSyncViewModel,
       observabilityViewModel: dependencies.observabilityViewModel,
-      loadRoleCapabilitiesHandler: dependencies.loadRoleCapabilitiesHandler,
+      loadRoleCapabilities: dependencies.loadRoleCapabilitiesHandler,
       displayMode: .product,
       userID: configuration.defaultUserID
     )

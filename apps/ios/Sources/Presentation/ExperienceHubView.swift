@@ -49,7 +49,7 @@ public struct ExperienceHubView: View {
 
   private let userID: String
   private let generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase
-  private let loadRoleCapabilitiesHandler: @Sendable (ExperienceRole) async -> Set<ExperienceDomain>?
+  private let loadRoleCapabilities: @Sendable (ExperienceRole) async -> Set<ExperienceDomain>?
   private let displayMode: ExperienceHubDisplayMode
 
   public init(
@@ -68,7 +68,7 @@ public struct ExperienceHubView: View {
     observabilityViewModel: ObservabilityViewModel,
     generateAIRecommendationsUseCase: GenerateAIRecommendationsUseCase =
       GenerateAIRecommendationsUseCase(),
-    loadRoleCapabilitiesHandler: @escaping @Sendable (ExperienceRole) async -> Set<ExperienceDomain>? = { _ in nil },
+    loadRoleCapabilities: (@Sendable (ExperienceRole) async -> Set<ExperienceDomain>?)? = nil,
     displayMode: ExperienceHubDisplayMode = .product,
     userID: String = "flux-user-local"
   ) {
@@ -86,7 +86,7 @@ public struct ExperienceHubView: View {
     _offlineSyncViewModel = State(initialValue: offlineSyncViewModel)
     _observabilityViewModel = State(initialValue: observabilityViewModel)
     self.generateAIRecommendationsUseCase = generateAIRecommendationsUseCase
-    self.loadRoleCapabilitiesHandler = loadRoleCapabilitiesHandler
+    self.loadRoleCapabilities = loadRoleCapabilities ?? Self.defaultLoadRoleCapabilities
     self.displayMode = displayMode
     self.userID = userID
   }
@@ -119,6 +119,12 @@ public struct ExperienceHubView: View {
     CompositionRoot.makeProductionExperienceHub(configuration: configuration)
   }
 
+  static func defaultLoadRoleCapabilities(
+    for _: ExperienceRole
+  ) async -> Set<ExperienceDomain>? {
+    nil
+  }
+
   private var readinessSnapshot: UXReadinessSnapshot {
     UXReadinessBuilder.make(
       authStatus: authViewModel.authStatus,
@@ -137,7 +143,7 @@ public struct ExperienceHubView: View {
   }
 
   private var allowsCatalogMode: Bool {
-    let environment = ProcessInfo.processInfo.environment
+    let environment = FluxLocalEnvironment.merged()
     return environment["FLUX_IOS_ALLOW_CATALOG"] == "1"
       && environment["FLUX_IOS_QA_UI_ENABLED"] == "1"
   }
@@ -220,7 +226,7 @@ public struct ExperienceHubView: View {
         }
         .onChange(of: sectionShell.activeDomain) { _, newValue in
           persistedDomainRawValue = newValue.rawValue
-          if !hasTrackedInitialDomainChange {
+          if hasTrackedInitialDomainChange == false {
             hasTrackedInitialDomainChange = true
             return
           }
@@ -1879,11 +1885,11 @@ public struct ExperienceHubView: View {
     if hasHydratedPersistedDomain && hasHydratedPersistedRole {
       return
     }
-    if !hasHydratedPersistedDomain {
+    if hasHydratedPersistedDomain == false {
       hasHydratedPersistedDomain = true
       sectionShell = ExperienceSectionShell(persistedDomainRawValue: persistedDomainRawValue)
     }
-    if !hasHydratedPersistedRole {
+    if hasHydratedPersistedRole == false {
       hasHydratedPersistedRole = true
       activeRole = ExperienceRole(rawValue: persistedRoleRawValue) ?? .athlete
     }
@@ -1927,7 +1933,7 @@ public struct ExperienceHubView: View {
 
   @MainActor
   private func recoverActiveDomainState() async {
-    if !canAccessActiveDomain(sectionShell.activeDomain) {
+    if canAccessActiveDomain(sectionShell.activeDomain) == false {
       runtimeStateStore.set(state: .denied, for: sectionShell.activeDomain)
       let correlationID = nextRuntimeCorrelationID(
         domain: sectionShell.activeDomain,
@@ -1973,7 +1979,7 @@ public struct ExperienceHubView: View {
     if domain == .all {
       return
     }
-    if !canAccessActiveDomain(domain) {
+    if canAccessActiveDomain(domain) == false {
       runtimeStateStore.set(state: .denied, for: domain)
       Task {
         let correlationID = nextRuntimeCorrelationID(domain: domain, trigger: "domain_select")
@@ -2000,7 +2006,7 @@ public struct ExperienceHubView: View {
     let currentState = runtimeStateStore.state(for: domain)
     if canAccessActiveDomain(domain), currentState == .denied {
       runtimeStateStore.reset(for: domain)
-    } else if !canAccessActiveDomain(domain), currentState != .denied {
+    } else if canAccessActiveDomain(domain) == false, currentState != .denied {
       runtimeStateStore.set(state: .denied, for: domain)
       Task {
         let correlationID = nextRuntimeCorrelationID(
@@ -2032,7 +2038,7 @@ public struct ExperienceHubView: View {
   @MainActor
   private func loadRoleCapabilities(for role: ExperienceRole) async {
     let fallbackDomains = activeRoleAllowedDomains.isEmpty ? Set([ExperienceDomain.all]) : activeRoleAllowedDomains
-    let loadedDomains = await loadRoleCapabilitiesHandler(role)
+    let loadedDomains = await loadRoleCapabilities(role)
     if let loadedDomains, loadedDomains.isEmpty == false {
       activeRoleAllowedDomains = loadedDomains
       reconcileRuntimeStateForRole()
