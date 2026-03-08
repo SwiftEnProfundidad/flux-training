@@ -18,7 +18,48 @@
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
 - ✅ Registrar gaps reales entre runtime y `flux.pen`.
-- 🚧 Confirmar criterio de cierre del MVP funcional.
+- ✅ Confirmar criterio de cierre del MVP funcional.
+
+## Criterio de cierre del MVP funcional
+- El MVP solo podra declararse `✅` cuando se cumplan a la vez estos cinco bloques:
+  - Web producto real:
+    - la entrada por defecto en `/` abre experiencia de producto y no una consola interna o shell QA,
+    - el usuario puede iniciar sesion por email/password y completar onboarding + consentimiento,
+    - entrenamiento, nutricion, progreso, ajustes y legal permiten una accion principal real y muestran un resultado observable,
+    - no queda copy tecnica visible al usuario (`screen`, `route`, `qa`, `ops`, `debug`, `idle`, `empty`, `success`, `runtime`, `lane`, `web.*`).
+  - iOS producto real:
+    - la app abre experiencia de producto y no catalogo tecnico,
+    - el usuario puede iniciar sesion y completar onboarding + consentimiento en simulador,
+    - entrenamiento, nutricion, progreso y ajustes permiten una accion principal real y muestran un resultado observable,
+    - no queda copy tecnica visible al usuario (`screen`, `route`, `ops`, `idle`, `loaded`, `success`, nombres de vistas internas).
+  - Backend real:
+    - queda demostrado por smoke real que auth, onboarding, training, nutrition, progress y legal operan sin fallback demo encubierto,
+    - cualquier fallback local/dev debe quedar limitado a entorno local controlado y nunca ser el camino por defecto de producto.
+  - Validacion automatizada:
+    - `pnpm check`,
+    - `pnpm test`,
+    - `pnpm test:critical`,
+    - `pnpm release:check`,
+    - `cd apps/ios && swift test`
+    deben pasar sin fallos en el estado de cierre.
+  - Paridad contra `flux.pen`:
+    - Web e iOS deben respetar la estructura, jerarquia y flujo principal definidos en `flux.pen`,
+    - cualquier pantalla que no replique la experiencia esperada se reabre aunque hoy aparezca como implementada.
+
+## Evidencia minima obligatoria para cerrar el ciclo
+- Web:
+  - pantalla visible en `localhost`,
+  - accion principal ejecutada,
+  - estado resultante observable,
+  - captura o smoke verificable localmente.
+- iOS:
+  - pantalla visible en simulador,
+  - accion principal ejecutada,
+  - estado resultante observable.
+- Backend:
+  - smoke de endpoint o caso de uso con respuesta valida.
+- Tracking:
+  - si el producto ejecutado contradice el tracking, prevalece el producto y se reabre la task.
 
 ## Baseline real detectado (2026-03-08)
 - Web runtime actual:
@@ -36,7 +77,7 @@
   - ⏳ Todavia no queda demostrado en este ciclo que Web+iOS esten operando contra backend MVP real sin fallback demo/local encubierto.
 
 ## Fase 2 — Backend y autenticacion real
-- ⏳ Auditar backend real vs fallback/demo.
+- 🚧 Auditar backend real vs fallback/demo.
 - ⏳ Validar login email/password end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.

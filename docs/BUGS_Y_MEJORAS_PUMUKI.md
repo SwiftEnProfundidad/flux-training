@@ -390,3 +390,11 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - alcance del cambio: actualización de dependencia sin cambios funcionales adicionales en código de producto.
   - validación operativa: la versión efectiva ya coincide con la usada por los últimos gates (`6.3.55`) y no introduce deriva entre `consumerInstalled` y `runtime`.
 - foco activo actual: backlog Flux con fase web 46 `✅` cerrada y backlog web modularizado completo; el siguiente ciclo debe documentarse antes de ejecutarse.
+- Revalidación documental ciclo 2 (2026-03-08 17:07 CET):
+  - se fija por escrito el criterio de cierre del MVP funcional en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
+  - el gate documental vuelve a ejecutarse con `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`.
+  - resultado esperado para cierre de esta iteracion: `ALLOW` sin findings bloqueantes.
+- Mejora detectada en iteracion documental ciclo 2:
+  - al formalizar criterios de cierre de producto, Pumuki no distingue entre `planificacion de release` y `documentacion menor`; ambas pasan por el mismo gate documental plano.
+  - impacto: cambios de alto valor de gobernanza/aceptacion quedan registrados igual que un simple ajuste menor de copy documental.
+  - propuesta Pumuki: introducir una clasificacion opcional de cambios documentales (`tracking`, `governance`, `release-criteria`, `minor-docs`) para que el reporte del gate ayude a priorizar mejor la relevancia del cambio.
