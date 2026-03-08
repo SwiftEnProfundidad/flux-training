@@ -15,7 +15,7 @@ final class RemoteAuthGatewayLocalFallbackTests: XCTestCase {
       loopbackURL = try XCTUnwrap(URL(string: "http://127.0.0.1:8787"))
       loopbackIPv6URL = try XCTUnwrap(URL(string: "http://[::1]:8787"))
       remoteURL = try XCTUnwrap(
-        URL(string: "https://us-central1-flux-training.cloudfunctions.net/flux-training")
+        URL(string: "https://us-central1-flux-training-mvp.cloudfunctions.net")
       )
     }
   }

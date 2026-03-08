@@ -65,7 +65,7 @@ enum FluxLocalEnvironment {
 
 public struct FluxTrainingAppConfiguration: Sendable, Equatable {
   private static let defaultBackendURLString =
-    "https://us-central1-flux-training.cloudfunctions.net/flux-training"
+    "https://us-central1-flux-training-mvp.cloudfunctions.net"
 
   public let defaultUserID: String
   public let backendConfiguration: FluxBackendConfiguration
