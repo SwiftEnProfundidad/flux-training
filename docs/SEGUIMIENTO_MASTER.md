@@ -14,13 +14,14 @@
 - Baseline real del ciclo 2 ya levantado: Web entra y autentica, pero tras login sigue mostrando panel operativo apilado no alineado con `flux.pen`; iOS entra en producto real, pero la pieza de acceso todavia no replica el board 1:1.
 - Criterio de cierre del ciclo 2 ya fijado por escrito: el MVP solo podra darse por cerrado con evidencia runtime real en Web+iOS+Backend y sin copy tecnica visible al usuario.
 - Auditoria backend/runtime ya cerrada: el backend cloud es real, pero el unico backend HTTP local disponible hoy es demo; Web e iOS mantienen fallback local controlado para auth y iOS todavia mezcla persistencia local en onboarding/settings/legal.
+- Entorno minimo del ciclo 2 ya esta definido: para validar MVP real debemos usar backend cloud + Firebase web config real; sin esas credenciales no puede cerrarse el login E2E real.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Preparar entorno minimo de auth/backend real**.
+- Task activa actual del ciclo 2: **🚧 Validar login email/password end-to-end**.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.

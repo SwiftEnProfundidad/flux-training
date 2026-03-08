@@ -407,3 +407,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - cuando el cambio es documental pero de alto impacto tecnico (por ejemplo, descubrir que el unico backend local es demo), Pumuki no ayuda a marcarlo como hallazgo de arquitectura o de riesgo de release.
   - impacto: la herramienta aprueba el gate, pero no ayuda a elevar la criticidad del descubrimiento dentro del flujo.
   - propuesta Pumuki: permitir anotar findings manuales estructurados de auditoria (`release-risk`, `runtime-gap`, `local-vs-cloud`) dentro del mismo reporte de iteracion para que queden visibles junto al resultado del gate.
+- Revalidación documental entorno minimo de auth/backend real (2026-03-08 17:31 CET):
+  - se deja por escrito el set minimo de variables y comandos para salir del camino demo:
+    - Web: `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_API_TARGET`.
+    - iOS: `FLUX_BACKEND_BASE_URL`, `FLUX_FIREBASE_WEB_API_KEY`, `FLUX_IOS_CLIENT_VERSION` y `FLUX_APPLE_PROVIDER_TOKEN` solo para Apple Sign In real.
+    - backend: la ruta recomendada para MVP real es cloud; el repo no ofrece hoy un servidor HTTP local productivo equivalente.
+  - gate documental ejecutado con `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`.
+  - resultado esperado de cierre: `ALLOW` sin findings bloqueantes.
+- Mejora detectada en preparacion de entorno real:
+  - Pumuki no distingue de forma explicita entre una task `lista para validar` y una task `bloqueada por secretos/config externa`.
+  - impacto: el gate puede quedar en verde mientras la siguiente tarea operativa sigue imposible de ejecutar por ausencia de credenciales reales, lo que obliga a documentarlo a mano fuera del reporte.
+  - propuesta Pumuki: añadir una categoria de hallazgo no bloqueante pero estructurada, por ejemplo `external-prerequisite-missing`, para reflejar dependencias externas pendientes sin mezclarlo con errores de codigo o de docs.

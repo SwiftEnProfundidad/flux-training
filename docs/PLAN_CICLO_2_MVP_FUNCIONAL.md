@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Confirmar criterio de cierre del MVP funcional.
+- Task activa actual: 🚧 Preparar entorno minimo de auth/backend real.
 
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
@@ -78,8 +78,8 @@
 
 ## Fase 2 — Backend y autenticacion real
 - ✅ Auditar backend real vs fallback/demo.
-- 🚧 Preparar entorno minimo de auth/backend real.
-- ⏳ Validar login email/password end-to-end.
+- ✅ Preparar entorno minimo de auth/backend real.
+- 🚧 Validar login email/password end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
 
@@ -111,6 +111,43 @@
     - `FLUX_BACKEND_BASE_URL`, `FLUX_APPLE_PROVIDER_TOKEN`,
     - `FIREBASE_CONFIG`, `GOOGLE_APPLICATION_CREDENTIALS`.
   - conclusion: la validacion real de auth/backend esta bloqueada hasta preparar entorno minimo.
+
+## Entorno minimo preparado para salir del camino demo (2026-03-08)
+- Ruta recomendada para este ciclo:
+  - backend real: usar el endpoint cloud ya existente `https://us-central1-flux-training.cloudfunctions.net/flux-training`,
+  - no usar `pnpm dev:backend:demo` para validar MVP real,
+  - no usar loopback sin config Firebase si lo que queremos validar es login/producto real.
+- Web producto real:
+  - archivo objetivo: `apps/web/.env.local`,
+  - variables minimas obligatorias:
+    - `VITE_FIREBASE_API_KEY`,
+    - `VITE_FIREBASE_AUTH_DOMAIN`,
+    - `VITE_FIREBASE_PROJECT_ID`,
+    - `VITE_API_TARGET=https://us-central1-flux-training.cloudfunctions.net/flux-training`,
+    - `VITE_APP_VERSION=0.1.0`.
+  - motivo:
+    - si faltan las tres variables Firebase, `firebase-auth-client.ts` cae en fallback local cuando corre en loopback.
+- iOS producto real:
+  - entorno objetivo: variables del scheme de Xcode o del proceso al lanzar la app,
+  - variables minimas obligatorias para email/password:
+    - `FLUX_BACKEND_BASE_URL=https://us-central1-flux-training.cloudfunctions.net/flux-training`,
+    - `FLUX_FIREBASE_WEB_API_KEY=<firebase web api key real>`,
+    - `FLUX_IOS_CLIENT_VERSION=0.1.0`.
+  - variables necesarias solo para Apple Sign In real:
+    - `FLUX_APPLE_PROVIDER_TOKEN`.
+  - motivo:
+    - si `FLUX_BACKEND_BASE_URL` apunta a loopback y falta config, `RemoteAuthGateway.swift` cae en fallback local,
+    - si falta `FLUX_FIREBASE_WEB_API_KEY`, el login email/password real no puede pedir `idToken` a Firebase.
+- Backend real:
+  - para consumir el backend cloud no hace falta levantar servidor local adicional,
+  - `FIREBASE_CONFIG` o `GOOGLE_APPLICATION_CREDENTIALS` solo son necesarios para desarrollo/ejecucion local del backend real, pero hoy ese camino no existe como servidor HTTP local productivo dentro del repo.
+- Comandos recomendados para la siguiente validacion:
+  - Web: `pnpm dev:web:product`
+  - iOS: lanzar la app con el scheme configurado contra cloud real
+- Bloqueos que siguen vigentes aunque el entorno ya este definido:
+  - sin credenciales Firebase web reales no puede cerrarse `Validar login email/password end-to-end`,
+  - sin `FLUX_APPLE_PROVIDER_TOKEN` no puede cerrarse Apple Sign In real,
+  - aunque auth real quede listo, iOS seguira sin ser backend real completo en onboarding/settings/legal/export/delete hasta migrar esos repositorios persistentes.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.
