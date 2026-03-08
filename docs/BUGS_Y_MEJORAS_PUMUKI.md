@@ -596,3 +596,22 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada para Pumuki tras este checker:
   - aunque el repo ya encapsule el bloqueo en un comando unico y semantico, Pumuki sigue devolviendo `ALLOW` porque solo comprueba que el tooling exista y no eleva el estado operativo del prerequisito.
   - propuesta Pumuki: permitir gates auxiliares de `provider-auth-readiness` que puedan marcar el turno como `BLOCKED` sin requerir que cada repo invente su propio puente documental.
+- Diagnostico reproducible de fuentes locales de auth cloud (2026-03-08 19:37 CET):
+  - se añade:
+    - `pnpm check:provider-auth-sources`
+    - `pnpm test:provider-auth-sources`
+  - validacion automatizada:
+    - `pnpm test:provider-auth-sources` -> `3` tests OK
+  - ejecucion real:
+    - `pnpm check:provider-auth-sources` -> `no-provider-auth-sources`
+    - resultado observado:
+      - `firebaseTokenPresent: false`
+      - `googleApplicationCredentialsPresent: false`
+      - `gcloudInstalled: false`
+      - `gcloudAccountsVisible: 0`
+      - `sources: -`
+  - impacto:
+    - el repo ya no solo sabe que falta `firebase login`; ahora tambien sabe que no existe ninguna via paralela lista (`FIREBASE_TOKEN`, `ADC`, `gcloud`) para desbloquear el acceso cloud sin intervencion externa.
+- Mejora detectada para Pumuki tras este diagnostico:
+  - Pumuki no expone hoy un subestado de “no hay ninguna fuente local de autenticacion de proveedor disponible”, aunque el repo ya lo mida de forma determinista.
+  - propuesta Pumuki: añadir un estado nativo tipo `no-provider-auth-sources` o `provider-auth-unavailable-locally` para que el gate pueda bloquear por infraestructura local ausente y no solo por findings de codigo.

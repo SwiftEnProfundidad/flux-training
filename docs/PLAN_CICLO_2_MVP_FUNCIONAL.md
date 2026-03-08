@@ -89,6 +89,7 @@
 - ⛔ Confirmar URL base cloud real del backend.
 - 🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real.
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
+- ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
 - ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
@@ -271,6 +272,23 @@
   - conclusion operativa:
     - el bloqueo ya queda versionado en un unico comando reproducible,
     - el siguiente paso real del ciclo sigue siendo autenticar Firebase/GCP en esta maquina antes de continuar con la verificacion cloud.
+- Diagnostico reproducible de fuentes locales de autenticacion cloud (2026-03-08):
+  - se añade:
+    - `pnpm check:provider-auth-sources`
+    - `pnpm test:provider-auth-sources`
+  - validacion automatizada:
+    - `pnpm test:provider-auth-sources` -> `3` tests OK
+  - ejecucion real:
+    - `pnpm check:provider-auth-sources` -> `no-provider-auth-sources`
+    - estado observado:
+      - `firebaseTokenPresent: false`
+      - `googleApplicationCredentialsPresent: false`
+      - `gcloudInstalled: false`
+      - `gcloudAccountsVisible: 0`
+      - `sources: -`
+  - conclusion operativa:
+    - esta maquina no tiene ninguna via alternativa ya preparada para inspeccionar el proyecto cloud,
+    - el desbloqueo real requiere autenticar Firebase/GCP o inyectar una fuente valida de credenciales del proveedor.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.
