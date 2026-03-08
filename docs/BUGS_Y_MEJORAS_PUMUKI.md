@@ -642,6 +642,31 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada para Pumuki tras esta revalidacion:
   - Pumuki no modela hoy la diferencia entre `provider-auth-ready` y `project-access-blocked`, aunque para release la distinción es clave.
   - propuesta Pumuki: añadir un estado nativo `blocked-project-access` o `project-not-visible-for-authenticated-account`.
+- Creacion del proyecto real de Flux y nuevo bloqueo operativo (2026-03-08 21:35 CET):
+  - proyecto Firebase creado correctamente:
+    - `projectId: flux-training-mvp`
+    - hosting site: `flux-training-mvp.web.app`
+  - app Web creada correctamente y config local ya sembrada en:
+    - `apps/web/.env.local`
+    - `apps/ios/.env.local`
+  - resultado real tras la creacion:
+    - `pnpm check:cloud-project-access` -> `ready`
+    - `pnpm doctor:real-runtime` -> `blocked-remote-target`
+  - diagnostico fino por infraestructura:
+    - `cloudfunctions.googleapis.com` se pudo activar correctamente,
+    - `run.googleapis.com` falla con `Billing account ... not found`,
+    - por tanto el bloqueo ya no es `project access`, sino `cloud billing / functions v2 deployment`.
+- Mejora detectada para Pumuki tras este cambio:
+  - hoy Pumuki no diferencia entre:
+    - proyecto cloud inexistente/no visible,
+    - proyecto visible pero sin APIs base activadas,
+    - proyecto visible con APIs base activables pero sin billing para Cloud Run / Artifact Registry.
+  - propuesta Pumuki:
+    - añadir estados nativos:
+      - `ready-project-created`
+      - `blocked-cloud-functions-api-disabled`
+      - `blocked-cloud-billing-required`
+    - y que el gate operativo los priorice por severidad real de despliegue.
 - Ajuste del doctor agregado tras login real de Firebase (2026-03-08 21:08 CET):
   - se corrige `pnpm doctor:real-runtime` para que no priorice `no-provider-auth-sources` cuando `providerAuth` ya esta en `ready` y el bloqueo verdadero es `blocked-project-access`.
   - valor practico:
@@ -672,3 +697,16 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
     - el bloqueo queda mejor acotado: no falta “seguir probando candidatos”, falta acceso al proyecto correcto o un `projectId` alternativo confirmado.
   - mejora propuesta para Pumuki:
     - cuando existe `blocked-project-access`, el framework podria sugerir un subpaso estructurado para explorar los proyectos visibles y marcar automaticamente el estado como `no-matching-visible-projects` si ninguno contiene endpoints candidatos.
+- Verificacion del proyecto Firebase real creado (2026-03-08 21:42 CET):
+  - se anaden:
+    - `pnpm check:cloud-functions-deployment`
+    - `pnpm test:cloud-functions-deployment`
+  - resultado real:
+    - `pnpm check:cloud-project-access` -> `ready`
+    - `pnpm check:cloud-functions-deployment` -> `blocked-no-functions-deployed`
+    - `pnpm doctor:real-runtime` -> `blocked-no-functions-deployed`
+  - impacto:
+    - el diagnostico deja de etiquetar como `blocked-remote-target` un proyecto cloud que existe pero no tiene backend publicado;
+    - la siguiente decision operativa queda limpia: desplegar Functions reales antes de probar login E2E.
+  - mejora propuesta para Pumuki:
+    - anadir un estado nativo `blocked-no-functions-deployed` y priorizarlo por encima de `blocked-remote-target` cuando el proyecto cloud ya es visible y accesible.

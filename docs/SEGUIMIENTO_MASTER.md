@@ -37,7 +37,20 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Confirmar acceso real al proyecto cloud y su URL base efectiva**.
+- Task activa actual del ciclo 2: **🚧 Desplegar las Cloud Functions reales del backend en `flux-training-mvp`**.
+- El proyecto Firebase real ya esta creado y visible:
+  - `projectId: flux-training-mvp`
+  - hosting site: `flux-training-mvp.web.app`
+- La app Web de Firebase ya existe y la configuracion local real ya esta sembrada en `apps/web/.env.local` y `apps/ios/.env.local`.
+- El bloqueo actual ya no es de acceso al proyecto:
+  - `pnpm check:cloud-project-access` -> `ready`
+  - `pnpm check:cloud-functions-deployment` -> `blocked-no-functions-deployed`
+  - `pnpm doctor:real-runtime` -> `blocked-no-functions-deployed`
+- Causa concreta del bloqueo actual:
+  - Cloud Functions API ya activada
+  - `functions:list` devuelve `[]`, asi que no hay backend cloud publicado todavia
+  - sin Functions desplegadas no puede cerrarse login cloud E2E
+  - el siguiente cuello de botella probable para desplegar sera billing/Cloud Run.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.

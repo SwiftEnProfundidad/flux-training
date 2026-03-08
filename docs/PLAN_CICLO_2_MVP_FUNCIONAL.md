@@ -13,13 +13,17 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Confirmar acceso real al proyecto cloud y su URL base efectiva.
+- Task activa actual: 🚧 Desplegar las Cloud Functions reales del backend en `flux-training-mvp`.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
   - ✅ El repo ya contempla tambien credenciales E2E locales no versionadas con `.env.e2e.local`.
   - ✅ iOS ya consume `apps/ios/.env.local` en runtime local, con precedencia correcta del environment del proceso.
-  - ⛔ Siguen faltando los valores reales de Firebase/Auth para cerrar login cloud E2E.
+  - ✅ El proyecto Firebase real ya existe: `flux-training-mvp`.
+  - ✅ La app Web real de Firebase ya existe y su config local ya esta sembrada en `apps/web/.env.local` y `apps/ios/.env.local`.
+  - ✅ El proyecto Firebase real ya es visible y accesible desde Firebase CLI.
+  - ⛔ El siguiente bloqueo real ya no es el proyecto ni el wiring local: no hay Cloud Functions desplegadas todavia en `flux-training-mvp`.
+  - ⏳ Causa probable del no-despliegue: habilitar billing/Cloud Run/Artifact Registry para poder publicar Functions v2.
 
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
@@ -87,7 +91,9 @@
 - ✅ Preparar entorno minimo de auth/backend real.
 - ⛔ Validar login email/password end-to-end.
 - ⛔ Confirmar URL base cloud real del backend.
-- 🚧 Confirmar acceso real al proyecto cloud y su URL base efectiva.
+- ✅ Confirmar acceso real al proyecto cloud y crear proyecto Firebase valido.
+- ✅ Verificar que el proyecto cloud existe pero aun no tiene Functions desplegadas.
+- 🚧 Desplegar las Cloud Functions reales del backend en `flux-training-mvp`.
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
 - ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
@@ -239,7 +245,31 @@
     - bloqueo por config real de plataforma (`blocked-real-config`),
     - bloqueo por credenciales reales E2E (`blocked-real-user-credentials`).
   - ademas, el repo ya dispone de una sonda separada de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) para detectar si la URL base del backend real sigue siendo valida antes de meter secretos reales.
-  - y ahora tambien dispone de un doctor agregado (`pnpm doctor:real-runtime`) para ver en un solo comando el estado de auth cloud, target remoto y login real.
+- y ahora tambien dispone de un doctor agregado (`pnpm doctor:real-runtime`) para ver en un solo comando el estado de auth cloud, target remoto y login real.
+
+## Estado real del proyecto Firebase (2026-03-08)
+- Proyecto creado correctamente:
+  - `projectId: flux-training-mvp`
+  - `displayName: Flux Training`
+  - `hostingSite: flux-training-mvp`
+- App Web creada correctamente:
+  - `appId: 1:536781037902:web:f64ff11fd5fbe754c23e1f`
+  - `authDomain: flux-training-mvp.firebaseapp.com`
+  - `projectId: flux-training-mvp`
+- Configuracion local ya sembrada:
+  - `apps/web/.env.local`
+  - `apps/ios/.env.local`
+- Resultado real tras crear el proyecto:
+  - `pnpm check:cloud-project-access` -> `ready`
+  - `pnpm check:cloud-functions-deployment` -> `blocked-no-functions-deployed`
+  - `pnpm doctor:real-runtime` deja de bloquear por acceso al proyecto y pasa a `blocked-no-functions-deployed`
+- Bloqueo operativo actual:
+  - `cloudfunctions.googleapis.com` ya se pudo activar
+  - `firebase-tools functions:list --project flux-training-mvp --json` devuelve `result: []`
+  - conclusion:
+    - el proyecto ya existe y es visible,
+    - pero no tiene backend cloud desplegado todavia,
+    - y el siguiente cuello de botella probable para desplegar sera billing/Cloud Run / Artifact Registry.
 
 ## Hallazgo de conectividad cloud real (2026-03-08)
 - Se ejecuta `pnpm smoke:real-cloud-connectivity` contra el target base actual del repo:
