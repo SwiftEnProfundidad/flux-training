@@ -10,6 +10,7 @@ function createWorkspaceFixture() {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "flux-real-runtime-"));
   fs.mkdirSync(path.join(rootDir, "apps/web"), { recursive: true });
   fs.mkdirSync(path.join(rootDir, "apps/backend"), { recursive: true });
+  fs.mkdirSync(path.join(rootDir, "apps/ios"), { recursive: true });
   return rootDir;
 }
 
@@ -28,6 +29,10 @@ test("reports blocked when web env file is missing", () => {
 
 test("reports ready when required web and ios values are present", () => {
   const rootDir = createWorkspaceFixture();
+  fs.writeFileSync(
+    path.join(rootDir, ".env.e2e.local"),
+    ["FLUX_E2E_EMAIL=qa@flux.app", "FLUX_E2E_PASSWORD=secret-pass"].join("\n"),
+  );
   fs.writeFileSync(
     path.join(rootDir, "apps/web/.env.local"),
     [
@@ -57,6 +62,10 @@ test("reports ready when required web and ios values are present", () => {
 test("uses apps/ios/.env.local as valid source for iOS runtime configuration", () => {
   const rootDir = createWorkspaceFixture();
   fs.writeFileSync(
+    path.join(rootDir, ".env.e2e.local"),
+    ["FLUX_E2E_EMAIL=qa@flux.app", "FLUX_E2E_PASSWORD=secret-pass"].join("\n"),
+  );
+  fs.writeFileSync(
     path.join(rootDir, "apps/web/.env.local"),
     [
       "VITE_FIREBASE_API_KEY=test-key",
@@ -83,4 +92,35 @@ test("uses apps/ios/.env.local as valid source for iOS runtime configuration", (
   assert.equal(result.status, "ready");
   assert.equal(result.ios.envFileExists, true);
   assert.equal(result.ios.required.every((item) => item.present), true);
+});
+
+test("reports blocked when e2e credentials are missing", () => {
+  const rootDir = createWorkspaceFixture();
+  fs.writeFileSync(
+    path.join(rootDir, "apps/web/.env.local"),
+    [
+      "VITE_FIREBASE_API_KEY=test-key",
+      "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com",
+      "VITE_FIREBASE_PROJECT_ID=flux-training",
+      "VITE_API_TARGET=https://example.com",
+    ].join("\n"),
+  );
+  fs.writeFileSync(
+    path.join(rootDir, "apps/ios/.env.local"),
+    [
+      "FLUX_BACKEND_BASE_URL=https://example.com",
+      "FLUX_FIREBASE_WEB_API_KEY=ios-key",
+      "FLUX_IOS_CLIENT_VERSION=0.1.0",
+    ].join("\n"),
+  );
+
+  const result = evaluateRealRuntimePrereqs({
+    rootDir,
+    iosEnvironment: {},
+    e2eEnvironment: {},
+  });
+
+  assert.equal(result.status, "blocked-external-config");
+  assert.match(result.blockers.join("\n"), /faltan credenciales E2E reales/);
+  assert.equal(result.e2e.required.every((item) => item.present), false);
 });

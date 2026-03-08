@@ -18,10 +18,13 @@ export function bootstrapRealRuntimePrereqs(rootDir) {
   const webTargetPath = path.join(rootDir, "apps/web/.env.local");
   const iosTemplatePath = path.join(rootDir, "apps/ios/.env.local.example");
   const iosTargetPath = path.join(rootDir, "apps/ios/.env.local");
+  const e2eTemplatePath = path.join(rootDir, ".env.e2e.local.example");
+  const e2eTargetPath = path.join(rootDir, ".env.e2e.local");
 
   const results = [
     ensureFile(webTargetPath, webTemplatePath),
     ensureFile(iosTargetPath, iosTemplatePath),
+    ensureFile(e2eTargetPath, e2eTemplatePath),
   ];
 
   return {

@@ -17,6 +17,7 @@ const iosRequiredKeys = [
 ];
 
 const iosOptionalKeys = ["FLUX_APPLE_PROVIDER_TOKEN"];
+const e2eRequiredKeys = ["FLUX_E2E_EMAIL", "FLUX_E2E_PASSWORD"];
 
 function parseEnvContent(content) {
   const values = {};
@@ -49,21 +50,29 @@ function keyStatus(source, key) {
 export function evaluateRealRuntimePrereqs({
   rootDir,
   iosEnvironment = process.env,
+  e2eEnvironment = process.env,
 }) {
   const webEnvPath = path.join(rootDir, "apps/web/.env.local");
   const backendEnvPath = path.join(rootDir, "apps/backend/.env.local");
   const iosEnvPath = path.join(rootDir, "apps/ios/.env.local");
+  const e2eEnvPath = path.join(rootDir, ".env.e2e.local");
   const webEnv = readEnvFile(webEnvPath);
   const backendEnv = readEnvFile(backendEnvPath);
   const iosEnv = readEnvFile(iosEnvPath);
+  const e2eEnv = readEnvFile(e2eEnvPath);
   const resolvedIosEnvironment = {
     ...iosEnv.values,
     ...iosEnvironment,
+  };
+  const resolvedE2EEnvironment = {
+    ...e2eEnv.values,
+    ...e2eEnvironment,
   };
 
   const webMissingKeys = webRequiredKeys.filter((key) => !keyStatus(webEnv.values, key));
   const iosMissingKeys = iosRequiredKeys.filter((key) => !keyStatus(resolvedIosEnvironment, key));
   const iosOptionalMissingKeys = iosOptionalKeys.filter((key) => !keyStatus(resolvedIosEnvironment, key));
+  const e2eMissingKeys = e2eRequiredKeys.filter((key) => !keyStatus(resolvedE2EEnvironment, key));
 
   const blockers = [];
 
@@ -75,6 +84,9 @@ export function evaluateRealRuntimePrereqs({
   }
   if (iosMissingKeys.length > 0) {
     blockers.push(`faltan variables iOS en entorno/scheme: ${iosMissingKeys.join(", ")}`);
+  }
+  if (e2eMissingKeys.length > 0) {
+    blockers.push(`faltan credenciales E2E reales: ${e2eMissingKeys.join(", ")}`);
   }
 
   return {
@@ -107,6 +119,14 @@ export function evaluateRealRuntimePrereqs({
       })),
       optionalMissingKeys: iosOptionalMissingKeys,
     },
+    e2e: {
+      envPath: e2eEnvPath,
+      envFileExists: e2eEnv.exists,
+      required: e2eRequiredKeys.map((key) => ({
+        key,
+        present: keyStatus(resolvedE2EEnvironment, key),
+      })),
+    },
     blockers,
   };
 }
@@ -130,6 +150,11 @@ function formatHumanReadable(result) {
   }
   for (const item of result.ios.optional) {
     lines.push(`  - ${item.key}: ${item.present ? "present" : "missing"} (optional)`);
+  }
+  lines.push("");
+  lines.push(`e2e env: ${result.e2e.envFileExists ? "present" : "missing"} (${result.e2e.envPath})`);
+  for (const item of result.e2e.required) {
+    lines.push(`  - ${item.key}: ${item.present ? "present" : "missing"}`);
   }
   lines.push("");
   if (result.blockers.length === 0) {
