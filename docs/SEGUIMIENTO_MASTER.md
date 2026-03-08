@@ -30,6 +30,7 @@
 - El repo ya dispone tambien de un doctor agregado para este bloqueo: `pnpm doctor:real-runtime`, que resume en un solo comando `provider auth`, `target cloud` y `login real`.
 - Tras autenticar Firebase en esta maquina, el diagnostico real ya no es `provider-auth` sino `blocked-project-access`: la cuenta actual no ve el proyecto `flux-training`.
 - El repo ya dispone tambien de un checker especifico de acceso al proyecto cloud: `pnpm check:cloud-project-access`, y hoy confirma `blocked-project-access` para `flux-training` con la cuenta autenticada actual.
+- Se han inspeccionado tambien los cuatro proyectos visibles para la cuenta actual y ninguno parece ser Flux: tres no tienen Functions y el cuarto (`mi-orange-25fab`) no deja listarlas, asi que el bloqueo ya no es “seguir probando candidatos visibles” sino confirmar el proyecto correcto.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.

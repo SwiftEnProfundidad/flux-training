@@ -662,3 +662,13 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada para Pumuki tras este ajuste:
   - cuando varios checks se agregan, el framework deberia ayudar a priorizar el bloqueo mas relevante segun precedencia semantica, no solo por orden de ejecucion.
   - propuesta Pumuki: soportar una politica declarativa de prioridad de estados en checks compuestos.
+- Exploracion de proyectos visibles tras login real (2026-03-08 21:18 CET):
+  - se prueba listar Functions y Hosting en los cuatro proyectos visibles para la cuenta autenticada actual.
+  - resultado:
+    - tres proyectos devuelven Functions vacias,
+    - uno (`mi-orange-25fab`) falla al listar Functions,
+    - ninguno se parece al despliegue de Flux.
+  - impacto:
+    - el bloqueo queda mejor acotado: no falta “seguir probando candidatos”, falta acceso al proyecto correcto o un `projectId` alternativo confirmado.
+  - mejora propuesta para Pumuki:
+    - cuando existe `blocked-project-access`, el framework podria sugerir un subpaso estructurado para explorar los proyectos visibles y marcar automaticamente el estado como `no-matching-visible-projects` si ninguno contiene endpoints candidatos.

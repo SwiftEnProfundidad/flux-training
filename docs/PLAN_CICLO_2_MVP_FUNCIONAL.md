@@ -268,6 +268,22 @@
   - el bloqueo real de la task activa pasa a ser doble:
     - faltan valores reales de Firebase/Auth y credenciales E2E,
     - falta confirmar la URL base real del backend cloud.
+- Exploracion de los proyectos visibles con la cuenta autenticada (2026-03-08):
+  - se ejecuta:
+    - `npx firebase-tools functions:list --project closedcaptioning-cfba8 --json`
+    - `npx firebase-tools functions:list --project mi-orange-25fab --json`
+    - `npx firebase-tools functions:list --project speechtranslator-videos --json`
+    - `npx firebase-tools functions:list --project videotranslate-93667 --json`
+    - `npx firebase-tools hosting:sites:list --project <project> --json`
+  - resultado real:
+    - `closedcaptioning-cfba8` -> functions `[]`
+    - `speechtranslator-videos` -> functions `[]`
+    - `videotranslate-93667` -> functions `[]`
+    - `mi-orange-25fab` -> `Failed to list functions for mi-orange-25fab`
+    - los cuatro exponen hosting propio no relacionado con Flux
+  - conclusion operativa:
+    - con la cuenta actual no aparece ningun proyecto visible que apunte de forma razonable al backend de Flux,
+    - el siguiente paso real ya no es explorar candidatos visibles sino conseguir acceso al proyecto correcto o confirmar un `projectId` alternativo real.
 - Revalidacion endurecida de target remoto (2026-03-08):
   - `pnpm smoke:real-cloud-connectivity` ya no devuelve un `failed` generico cuando el problema es una URL remota desactualizada o inexistente.
   - ahora devuelve `blocked-remote-target` y lista los intentos exactos.
