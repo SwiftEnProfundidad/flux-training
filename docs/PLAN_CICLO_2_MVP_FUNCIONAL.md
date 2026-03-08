@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end.
+- Task activa actual: 🚧 Confirmar URL base cloud real del backend.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -86,7 +86,8 @@
 - ✅ Auditar backend real vs fallback/demo.
 - ✅ Preparar entorno minimo de auth/backend real.
 - ⛔ Validar login email/password end-to-end.
-- 🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end.
+- 🚧 Confirmar URL base cloud real del backend.
+- ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
 
@@ -232,6 +233,17 @@
   - el bloqueo real de la task activa pasa a ser doble:
     - faltan valores reales de Firebase/Auth y credenciales E2E,
     - falta confirmar la URL base real del backend cloud.
+- Revalidacion endurecida de target remoto (2026-03-08):
+  - `pnpm smoke:real-cloud-connectivity` ya no devuelve un `failed` generico cuando el problema es una URL remota desactualizada o inexistente.
+  - ahora devuelve `blocked-remote-target` y lista los intentos exactos.
+  - ejecucion real:
+    - `status: blocked-remote-target`
+    - intentos probados:
+      - `https://us-central1-flux-training.cloudfunctions.net/flux-training/createAuthSession` -> `404`
+      - `https://us-central1-flux-training.cloudfunctions.net/createAuthSession` -> `404`
+  - conclusion operativa:
+    - hoy no hay evidencia local de una URL cloud valida para `createAuthSession`,
+    - la task correcta del ciclo deja de ser “meter secretos” y pasa a ser “confirmar la URL base cloud real”.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.

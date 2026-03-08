@@ -549,3 +549,18 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada para Pumuki tras esta sonda cloud:
   - Pumuki no diferencia entre “gate local correcto” y “target remoto invalido o desactualizado” salvo que el repo modele su propia sonda.
   - propuesta Pumuki: añadir una categoria nativa de `remote-target-verification` para que los ciclos de release puedan distinguir secretos ausentes de endpoints cloud rotos o movidos.
+- Revalidacion endurecida de target cloud (2026-03-08 19:13 CET):
+  - la sonda de conectividad cloud ya no devuelve `failed` generico cuando el problema es una URL remota desactualizada o inexistente.
+  - ahora clasifica ese caso como `blocked-remote-target` y lista todos los intentos probados.
+  - validacion automatizada:
+    - `pnpm test:real-cloud-connectivity-smoke` -> `5` tests OK
+  - ejecucion real:
+    - `pnpm smoke:real-cloud-connectivity` -> `blocked-remote-target`
+    - intentos:
+      - `https://us-central1-flux-training.cloudfunctions.net/flux-training/createAuthSession` -> `404`
+      - `https://us-central1-flux-training.cloudfunctions.net/createAuthSession` -> `404`
+  - impacto:
+    - el bloqueo del ciclo 2 queda mas preciso: ya no esta solo en secretos/config, sino en falta de URL cloud efectiva verificable.
+- Mejora detectada para Pumuki tras esta revalidacion:
+  - aunque el repo ya modele `blocked-remote-target`, Pumuki sigue resumiendo el gate como `ALLOW` porque solo evalua la salud del tooling y no el estado semantico del target remoto.
+  - propuesta Pumuki: añadir subestados nativos de readiness remota (`blocked-remote-target`, `remote-route-not-found`, `remote-host-not-found`) para integrarlos en la decision operativa del gate.
