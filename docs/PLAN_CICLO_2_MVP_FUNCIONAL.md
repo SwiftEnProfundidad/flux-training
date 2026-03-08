@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Confirmar URL base cloud real del backend.
+- Task activa actual: 🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -86,7 +86,8 @@
 - ✅ Auditar backend real vs fallback/demo.
 - ✅ Preparar entorno minimo de auth/backend real.
 - ⛔ Validar login email/password end-to-end.
-- 🚧 Confirmar URL base cloud real del backend.
+- ⛔ Confirmar URL base cloud real del backend.
+- 🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real.
 - ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
@@ -244,6 +245,17 @@
   - conclusion operativa:
     - hoy no hay evidencia local de una URL cloud valida para `createAuthSession`,
     - la task correcta del ciclo deja de ser “meter secretos” y pasa a ser “confirmar la URL base cloud real”.
+- Revalidacion por tooling oficial Firebase (2026-03-08):
+  - se intento confirmar el despliegue real con Firebase CLI:
+    - `npx firebase-tools projects:list --json`
+    - `npx firebase-tools functions:list --project flux-training --json`
+    - `npx firebase-tools hosting:sites:list --project flux-training --json`
+  - resultado real en los tres casos:
+    - `Failed to authenticate, have you run firebase login?`
+  - conclusion operativa:
+    - el repo local no tiene autenticacion Firebase/GCP activa para inspeccionar despliegues,
+    - por tanto la URL cloud real no puede confirmarse solo con el codigo fuente y el tooling local actual,
+    - el siguiente paso real del ciclo pasa a ser autenticar acceso Firebase/GCP antes de seguir con secretos o smoke E2E.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.

@@ -564,3 +564,18 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada para Pumuki tras esta revalidacion:
   - aunque el repo ya modele `blocked-remote-target`, Pumuki sigue resumiendo el gate como `ALLOW` porque solo evalua la salud del tooling y no el estado semantico del target remoto.
   - propuesta Pumuki: añadir subestados nativos de readiness remota (`blocked-remote-target`, `remote-route-not-found`, `remote-host-not-found`) para integrarlos en la decision operativa del gate.
+- Revalidacion de metadatos remotos con Firebase CLI (2026-03-08 19:21 CET):
+  - se intento confirmar el despliegue real por tooling oficial:
+    - `npx firebase-tools projects:list --json`
+    - `npx firebase-tools functions:list --project flux-training --json`
+    - `npx firebase-tools hosting:sites:list --project flux-training --json`
+  - resultado real en los tres comandos:
+    - `Failed to authenticate, have you run firebase login?`
+  - impacto:
+    - no solo falta confirmar la URL cloud; tambien falta acceso autenticado al proyecto para inspeccionar el despliegue real desde el repo local.
+- Mejora detectada para Pumuki tras esta revalidacion:
+  - Pumuki no modela un bloqueo de infraestructura remota por falta de autenticacion a proveedor (`firebase login`, `gcloud auth`, etc.) distinto de un simple prerequisito de secretos o de un target roto.
+  - propuesta Pumuki: añadir una categoria `blocked-provider-auth` para diferenciar:
+    - secretos de aplicacion ausentes,
+    - target remoto desactualizado,
+    - acceso operativo ausente al proveedor cloud.

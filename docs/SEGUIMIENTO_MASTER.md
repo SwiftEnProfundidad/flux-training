@@ -24,13 +24,14 @@
 - El repo ya dispone tambien de smoke reproducible para login cloud real (`pnpm smoke:real-login`); ahora distingue si el bloqueo restante es por config real de plataforma (`blocked-real-config`) o por credenciales E2E reales (`blocked-real-user-credentials`).
 - El repo ya dispone tambien de sonda de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) y ha detectado un hallazgo nuevo: el target base documentado hasta ahora devuelve `404` en `createAuthSession`, asi que la URL cloud real debe confirmarse antes de cerrar el login E2E.
 - La sonda cloud ya endurece ese caso como `blocked-remote-target` y confirma que hoy tanto `.../flux-training/createAuthSession` como `.../createAuthSession` devuelven `404`, asi que el siguiente paso correcto no es cargar secretos sino confirmar la URL cloud efectiva del backend.
+- El intento de confirmacion con Firebase CLI tambien queda bloqueado por infraestructura local: `projects:list`, `functions:list` y `hosting:sites:list` devuelven `Failed to authenticate, have you run firebase login?`, asi que hoy falta autenticacion Firebase/GCP para verificar el despliegue real.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Confirmar URL base cloud real del backend**.
+- Task activa actual del ciclo 2: **🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real**.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.
