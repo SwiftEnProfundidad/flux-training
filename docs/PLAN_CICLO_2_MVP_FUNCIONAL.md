@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Desplegar las Cloud Functions reales del backend en `flux-training-mvp`.
+- Task activa actual: 🚧 Habilitar plan Blaze/billing para permitir despliegue de Cloud Functions en `flux-training-mvp`.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -22,8 +22,9 @@
   - ✅ El proyecto Firebase real ya existe: `flux-training-mvp`.
   - ✅ La app Web real de Firebase ya existe y su config local ya esta sembrada en `apps/web/.env.local` y `apps/ios/.env.local`.
   - ✅ El proyecto Firebase real ya es visible y accesible desde Firebase CLI.
-  - ⛔ El siguiente bloqueo real ya no es el proyecto ni el wiring local: no hay Cloud Functions desplegadas todavia en `flux-training-mvp`.
-  - ⏳ Causa probable del no-despliegue: habilitar billing/Cloud Run/Artifact Registry para poder publicar Functions v2.
+  - ⛔ El siguiente bloqueo real ya no es el proyecto ni el wiring local: el despliegue de Cloud Functions falla porque el proyecto no esta en plan Blaze.
+  - ✅ El intento de deploy real ya se ejecuto y bloqueo en `artifactregistry.googleapis.com` por falta de upgrade de plan.
+  - 🚧 Siguiente desbloqueo externo: habilitar billing/plan Blaze para poder publicar Functions v2.
 
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
@@ -93,7 +94,8 @@
 - ⛔ Confirmar URL base cloud real del backend.
 - ✅ Confirmar acceso real al proyecto cloud y crear proyecto Firebase valido.
 - ✅ Verificar que el proyecto cloud existe pero aun no tiene Functions desplegadas.
-- 🚧 Desplegar las Cloud Functions reales del backend en `flux-training-mvp`.
+- ⛔ Desplegar las Cloud Functions reales del backend en `flux-training-mvp`.
+- 🚧 Habilitar plan Blaze/billing para permitir despliegue real de Cloud Functions.
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
 - ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
@@ -270,6 +272,29 @@
     - el proyecto ya existe y es visible,
     - pero no tiene backend cloud desplegado todavia,
     - y el siguiente cuello de botella probable para desplegar sera billing/Cloud Run / Artifact Registry.
+
+## Intento real de despliegue Functions (2026-03-08)
+- Configuracion de despliegue ya preparada en el repo:
+  - `firebase.json`
+  - `.firebaserc`
+  - `apps/backend/package.json` con `main=dist/index.js`, `engines.node=20` y build bundleado con `esbuild`
+  - comando reproducible:
+    - `pnpm test:firebase-deploy-config`
+    - `pnpm check:firebase-deploy-config`
+    - `pnpm deploy:functions:cloud`
+- Resultado real del intento de deploy:
+  - `pnpm test:firebase-deploy-config` -> OK
+  - `pnpm check:firebase-deploy-config` -> `ready`
+  - `pnpm deploy:functions:cloud` -> fallo remoto
+- Bloqueo exacto devuelto por Firebase:
+  - `Your project flux-training-mvp must be on the Blaze (pay-as-you-go) plan to complete this command.`
+  - `Required API artifactregistry.googleapis.com can't be enabled until the upgrade is complete.`
+  - URL de upgrade indicada por Firebase:
+    - `https://console.firebase.google.com/project/flux-training-mvp/usage/details`
+- Conclusion operativa:
+  - ya no queda duda sobre el siguiente paso,
+  - el repo esta listo para desplegar,
+  - el bloqueo actual es externo y de facturacion/plan, no de codigo ni de configuracion del repo.
 
 ## Hallazgo de conectividad cloud real (2026-03-08)
 - Se ejecuta `pnpm smoke:real-cloud-connectivity` contra el target base actual del repo:

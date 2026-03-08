@@ -710,3 +710,27 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
     - la siguiente decision operativa queda limpia: desplegar Functions reales antes de probar login E2E.
   - mejora propuesta para Pumuki:
     - anadir un estado nativo `blocked-no-functions-deployed` y priorizarlo por encima de `blocked-remote-target` cuando el proyecto cloud ya es visible y accesible.
+- Intento real de despliegue Cloud Functions (2026-03-08 22:08 CET):
+  - se añade wiring de despliegue real en repo:
+    - `firebase.json`
+    - `.firebaserc`
+    - bundle de backend con `esbuild`
+    - checker reproducible:
+      - `pnpm test:firebase-deploy-config`
+      - `pnpm check:firebase-deploy-config`
+      - `pnpm deploy:functions:cloud`
+  - resultado real:
+    - `pnpm test:firebase-deploy-config` -> OK
+    - `pnpm check:firebase-deploy-config` -> `ready`
+    - `pnpm deploy:functions:cloud` -> fallo remoto
+  - bloqueo exacto:
+    - `Your project flux-training-mvp must be on the Blaze (pay-as-you-go) plan to complete this command.`
+    - `Required API artifactregistry.googleapis.com can't be enabled until the upgrade is complete.`
+  - impacto:
+    - el repo ya no esta bloqueado por wiring de deploy;
+    - el siguiente paso depende solo de habilitar facturacion/plan Blaze.
+- Mejora detectada para Pumuki tras este intento:
+  - aunque el repo ya diferencia `blocked-no-functions-deployed`, el framework no tiene un estado nativo para el siguiente bloqueo proveedor-facturacion que aparece solo al intentar el deploy real.
+  - propuesta Pumuki:
+    - añadir un estado nativo `blocked-cloud-billing-required`
+    - y permitir que un gate de despliegue remoto degrade `ALLOW` a `BLOCKED` cuando la infraestructura exista pero el plan de facturacion impida publicar.
