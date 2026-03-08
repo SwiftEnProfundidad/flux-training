@@ -19,6 +19,7 @@
 - El repo ya dispone de chequeo reproducible de readiness real: `pnpm check:real-runtime-prereqs` + `pnpm test:real-runtime-prereqs`.
 - iOS ya dispone tambien de plantilla local no secreta para ese readiness: `apps/ios/.env.local.example`.
 - El repo ya dispone tambien de bootstrap local no destructivo: `pnpm bootstrap:real-runtime-prereqs`; desde ahora el bloqueo ya no es “faltan archivos” sino “faltan valores reales”.
+- El repo ya contempla tambien `.env.e2e.local` para credenciales de usuario real de smoke; el bloqueo restante ya incluye claves Firebase reales + credenciales E2E reales.
 - iOS ya consume `apps/ios/.env.local` de forma efectiva en runtime local; el bloqueo real restante ya no es de wiring sino solo de credenciales Firebase/Auth pendientes.
 
 ## Correccion de estado real (2026-03-04)

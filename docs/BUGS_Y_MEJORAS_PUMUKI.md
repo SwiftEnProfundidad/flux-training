@@ -480,3 +480,20 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada tras cerrar el wiring iOS:
   - Pumuki puede confirmar que existen archivos y variables esperadas, pero no ofrece una capa nativa para distinguir “archivo presente pero runtime aun no lo consume” frente a “archivo presente y wiring listo”.
   - propuesta Pumuki: añadir un estado o hint de `runtime-wiring-verified` para prerequisitos externos, diferenciando presencia de archivos de consumo efectivo por la aplicacion.
+- Revalidacion soporte E2E local para ciclo 2 (2026-03-08 18:34 CET):
+  - se amplian los helpers del repo para contemplar tambien credenciales reales de smoke de usuario:
+    - `FLUX_E2E_EMAIL`
+    - `FLUX_E2E_PASSWORD`
+  - se versiona plantilla segura: `.env.e2e.local.example`
+  - `pnpm bootstrap:real-runtime-prereqs` ya crea tambien `.env.e2e.local` si falta
+  - `pnpm check:real-runtime-prereqs` pasa a distinguir tres capas de bloqueo reales:
+    - claves Firebase web,
+    - clave Firebase iOS,
+    - credenciales E2E reales del usuario de smoke.
+  - validacion automatizada:
+    - `pnpm test:bootstrap-real-runtime-prereqs` -> `2` tests OK
+    - `pnpm test:real-runtime-prereqs` -> `4` tests OK
+    - `pnpm check:real-runtime-prereqs` -> `blocked-external-config` con `apps/web/.env.local`, `apps/ios/.env.local` y `.env.e2e.local` presentes pero valores reales aun ausentes.
+- Mejora detectada tras extender readiness a credenciales E2E:
+  - Pumuki sigue sin modelar la diferencia entre “infraestructura local ya preparada” y “solo faltan secretos/credenciales reales de usuario”, por lo que todo cae en el mismo bucket genérico de prerequisito externo.
+  - propuesta Pumuki: añadir subestados como `blocked-real-config` y `blocked-real-user-credentials`, o un resumen jerarquico de readiness por capas (`platform config`, `runtime wiring`, `test identity`).

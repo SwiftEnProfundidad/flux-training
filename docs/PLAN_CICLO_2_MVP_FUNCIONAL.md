@@ -17,6 +17,7 @@
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
+  - ✅ El repo ya contempla tambien credenciales E2E locales no versionadas con `.env.e2e.local`.
   - ✅ iOS ya consume `apps/ios/.env.local` en runtime local, con precedencia correcta del environment del proceso.
   - ⛔ Siguen faltando los valores reales de Firebase/Auth para cerrar login cloud E2E.
 
@@ -152,8 +153,14 @@
   - Web: `pnpm dev:web:product`
   - Pre-chequeo: `pnpm check:real-runtime-prereqs`
   - iOS: lanzar la app con el scheme configurado contra cloud real
+- Credenciales de usuario E2E:
+  - archivo local soportado: `.env.e2e.local` (plantilla: `.env.e2e.local.example`),
+  - variables minimas obligatorias para cerrar la smoke real de login:
+    - `FLUX_E2E_EMAIL`,
+    - `FLUX_E2E_PASSWORD`.
 - Bloqueos que siguen vigentes aunque el entorno ya este definido:
   - sin credenciales Firebase web reales no puede cerrarse `Validar login email/password end-to-end`,
+  - sin `FLUX_E2E_EMAIL` y `FLUX_E2E_PASSWORD` reales no puede cerrarse la smoke productiva de login cloud,
   - sin `FLUX_APPLE_PROVIDER_TOKEN` no puede cerrarse Apple Sign In real,
   - aunque auth real quede listo, iOS seguira sin ser backend real completo en onboarding/settings/legal/export/delete hasta migrar esos repositorios persistentes.
 
@@ -177,6 +184,7 @@
 - `pnpm bootstrap:real-runtime-prereqs` ya crea si faltan:
   - `apps/web/.env.local`
   - `apps/ios/.env.local`
+  - `.env.e2e.local`
 - Resultado real actual tras ejecutar el bootstrap:
   - Web:
     - archivo local presente,
@@ -187,9 +195,12 @@
     - `FLUX_BACKEND_BASE_URL` y `FLUX_IOS_CLIENT_VERSION` ya presentes,
     - sigue faltando `FLUX_FIREBASE_WEB_API_KEY`,
     - `FLUX_APPLE_PROVIDER_TOKEN` sigue siendo opcional mientras no se valide Apple Sign In real.
+  - E2E:
+    - archivo local presente,
+    - siguen faltando `FLUX_E2E_EMAIL` y `FLUX_E2E_PASSWORD`.
 - Conclusion operativa:
   - ya no falta estructura local,
-  - ahora el bloqueo es solo de valores reales de Firebase/Auth.
+  - ahora el bloqueo es solo de valores reales de Firebase/Auth y credenciales E2E.
   - iOS ya no depende solo del scheme para este ciclo: `FluxTrainingAppConfiguration` y `ExperienceHubView` leen tambien `apps/ios/.env.local` en local.
 
 ## Fase 3 — Web producto real
