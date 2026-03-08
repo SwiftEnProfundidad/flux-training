@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real.
+- Task activa actual: 🚧 Confirmar acceso real al proyecto cloud y su URL base efectiva.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -87,7 +87,7 @@
 - ✅ Preparar entorno minimo de auth/backend real.
 - ⛔ Validar login email/password end-to-end.
 - ⛔ Confirmar URL base cloud real del backend.
-- 🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real.
+- 🚧 Confirmar acceso real al proyecto cloud y su URL base efectiva.
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
 - ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
@@ -190,6 +190,23 @@
 - Smoke reproducible de conectividad cloud:
   - `pnpm smoke:real-cloud-connectivity`
   - `pnpm test:real-cloud-connectivity-smoke`
+- Doctor reproducible de readiness real:
+  - `pnpm doctor:real-runtime`
+  - `pnpm test:real-runtime-doctor`
+  - resume en una sola salida:
+    - `providerSources`
+    - `providerAuth`
+    - `projectAccess`
+    - `cloudTarget`
+    - `realLogin`
+- Checker reproducible de acceso al proyecto cloud:
+  - `pnpm check:cloud-project-access`
+  - `pnpm test:cloud-project-access`
+  - distingue entre:
+    - `blocked-provider-auth`
+    - `blocked-project-access`
+    - `blocked-project-permissions`
+    - `ready`
 - Conclusion operativa:
   - la task `Validar login email/password end-to-end` queda reabierta como `⛔`,
   - la unica task activa del ciclo pasa a ser `🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end`,
@@ -222,6 +239,7 @@
     - bloqueo por config real de plataforma (`blocked-real-config`),
     - bloqueo por credenciales reales E2E (`blocked-real-user-credentials`).
   - ademas, el repo ya dispone de una sonda separada de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) para detectar si la URL base del backend real sigue siendo valida antes de meter secretos reales.
+  - y ahora tambien dispone de un doctor agregado (`pnpm doctor:real-runtime`) para ver en un solo comando el estado de auth cloud, target remoto y login real.
 
 ## Hallazgo de conectividad cloud real (2026-03-08)
 - Se ejecuta `pnpm smoke:real-cloud-connectivity` contra el target base actual del repo:
@@ -233,6 +251,20 @@
 - Conclusion operativa:
   - hoy no esta demostrado que `https://us-central1-flux-training.cloudfunctions.net/flux-training` siga siendo la URL base correcta para el backend cloud.
   - antes de cargar credenciales reales para cerrar login E2E, hay que confirmar la URL base cloud efectiva.
+
+## Estado real del acceso al proyecto cloud (2026-03-08)
+- `pnpm check:cloud-project-access` ya confirma si el problema es de login, visibilidad o permisos del proyecto.
+- Resultado real actual:
+  - `status: blocked-project-access`
+  - `projectId: flux-training`
+  - proyectos visibles en la cuenta autenticada:
+    - `closedcaptioning-cfba8`
+    - `mi-orange-25fab`
+    - `speechtranslator-videos`
+    - `videotranslate-93667`
+- Conclusion operativa:
+  - la cuenta autenticada actual no ve el proyecto `flux-training`,
+  - por tanto no es honesto seguir con secrets ni con login E2E hasta confirmar el project id real o conseguir acceso a ese proyecto.
   - el bloqueo real de la task activa pasa a ser doble:
     - faltan valores reales de Firebase/Auth y credenciales E2E,
     - falta confirmar la URL base real del backend cloud.
@@ -277,18 +309,19 @@
     - `pnpm check:provider-auth-sources`
     - `pnpm test:provider-auth-sources`
   - validacion automatizada:
-    - `pnpm test:provider-auth-sources` -> `3` tests OK
+    - `pnpm test:provider-auth-sources` -> `4` tests OK
   - ejecucion real:
-    - `pnpm check:provider-auth-sources` -> `no-provider-auth-sources`
+    - `pnpm check:provider-auth-sources` -> `sources-detected`
     - estado observado:
       - `firebaseTokenPresent: false`
+      - `firebaseCliUserPresent: true`
       - `googleApplicationCredentialsPresent: false`
       - `gcloudInstalled: false`
       - `gcloudAccountsVisible: 0`
-      - `sources: -`
+      - `sources: firebase-cli-login`
   - conclusion operativa:
-    - esta maquina no tiene ninguna via alternativa ya preparada para inspeccionar el proyecto cloud,
-    - el desbloqueo real requiere autenticar Firebase/GCP o inyectar una fuente valida de credenciales del proveedor.
+    - esta maquina ya tiene una fuente local valida de auth cloud via Firebase CLI,
+    - el bloqueo real ya no es de autenticacion al proveedor sino de acceso al proyecto `flux-training`.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.

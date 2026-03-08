@@ -26,14 +26,17 @@
 - La sonda cloud ya endurece ese caso como `blocked-remote-target` y confirma que hoy tanto `.../flux-training/createAuthSession` como `.../createAuthSession` devuelven `404`, asi que el siguiente paso correcto no es cargar secretos sino confirmar la URL cloud efectiva del backend.
 - El intento de confirmacion con Firebase CLI tambien queda bloqueado por infraestructura local: `projects:list`, `functions:list` y `hosting:sites:list` devuelven `Failed to authenticate, have you run firebase login?`, asi que hoy falta autenticacion Firebase/GCP para verificar el despliegue real.
 - El repo ya dispone de un checker unico para ese bloqueo: `pnpm check:provider-auth-readiness`, que hoy devuelve `blocked-provider-auth` con `firebase_login_required`.
-- El repo ya dispone tambien de un diagnostico de fuentes locales de auth cloud: `pnpm check:provider-auth-sources`, y hoy confirma `no-provider-auth-sources` (`firebase token`, `ADC` y `gcloud` ausentes).
+- El repo ya dispone tambien de un diagnostico de fuentes locales de auth cloud: `pnpm check:provider-auth-sources`, y hoy confirma `sources-detected` por `firebase-cli-login` en esta maquina.
+- El repo ya dispone tambien de un doctor agregado para este bloqueo: `pnpm doctor:real-runtime`, que resume en un solo comando `provider auth`, `target cloud` y `login real`.
+- Tras autenticar Firebase en esta maquina, el diagnostico real ya no es `provider-auth` sino `blocked-project-access`: la cuenta actual no ve el proyecto `flux-training`.
+- El repo ya dispone tambien de un checker especifico de acceso al proyecto cloud: `pnpm check:cloud-project-access`, y hoy confirma `blocked-project-access` para `flux-training` con la cuenta autenticada actual.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Autenticar acceso Firebase/GCP para confirmar URL base cloud real**.
+- Task activa actual del ciclo 2: **🚧 Confirmar acceso real al proyecto cloud y su URL base efectiva**.
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.

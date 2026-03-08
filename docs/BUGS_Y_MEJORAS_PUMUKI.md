@@ -615,3 +615,50 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada para Pumuki tras este diagnostico:
   - Pumuki no expone hoy un subestado de “no hay ninguna fuente local de autenticacion de proveedor disponible”, aunque el repo ya lo mida de forma determinista.
   - propuesta Pumuki: añadir un estado nativo tipo `no-provider-auth-sources` o `provider-auth-unavailable-locally` para que el gate pueda bloquear por infraestructura local ausente y no solo por findings de codigo.
+- Revalidacion con doctor agregado de readiness real (2026-03-08 20:52 CET):
+  - se añade:
+    - `pnpm doctor:real-runtime`
+    - `pnpm test:real-runtime-doctor`
+  - valor practico:
+    - el repo ya no obliga a correlacionar manualmente `provider-auth-sources`, `provider-auth-readiness`, `smoke:real-cloud-connectivity` y `smoke:real-login`,
+    - una sola salida resume las cuatro capas del bloqueo real.
+- Mejora detectada para Pumuki tras este doctor:
+  - Pumuki sigue tratando estos chequeos como piezas sueltas y no ofrece una nocion nativa de `doctor pipeline` o `composed readiness`.
+  - propuesta Pumuki: soportar un agregador declarativo de checks semanticos que produzca un unico estado operativo para release/readiness.
+- Revalidacion de acceso al proyecto cloud autenticado (2026-03-08 21:02 CET):
+  - se añade:
+    - `pnpm check:cloud-project-access`
+    - `pnpm test:cloud-project-access`
+  - resultado real con la cuenta autenticada actual:
+    - `status: blocked-project-access`
+    - `projectId: flux-training`
+    - proyectos visibles:
+      - `closedcaptioning-cfba8`
+      - `mi-orange-25fab`
+      - `speechtranslator-videos`
+      - `videotranslate-93667`
+  - valor practico:
+    - el bloqueo ya no es “quizá el endpoint está mal”; ahora queda probado que el proyecto `flux-training` no está visible para la cuenta autenticada actual.
+- Mejora detectada para Pumuki tras esta revalidacion:
+  - Pumuki no modela hoy la diferencia entre `provider-auth-ready` y `project-access-blocked`, aunque para release la distinción es clave.
+  - propuesta Pumuki: añadir un estado nativo `blocked-project-access` o `project-not-visible-for-authenticated-account`.
+- Ajuste del doctor agregado tras login real de Firebase (2026-03-08 21:08 CET):
+  - se corrige `pnpm doctor:real-runtime` para que no priorice `no-provider-auth-sources` cuando `providerAuth` ya esta en `ready` y el bloqueo verdadero es `blocked-project-access`.
+  - valor practico:
+    - tras autenticar Firebase, el doctor deja de dar una conclusion engañosa y expone el bloqueo operativo real del ciclo.
+- Correccion del detector de fuentes cloud tras login real de Firebase (2026-03-08 21:12 CET):
+  - `pnpm check:provider-auth-sources` no estaba reconociendo la sesion valida de Firebase CLI ya activa en esta maquina.
+  - causa:
+    - el checker solo buscaba `FIREBASE_TOKEN`, ADC y `gcloud`, pero ignoraba `~/.config/configstore/firebase-tools.json`.
+  - correccion aplicada:
+    - se trata `firebase-tools.json` con `user.email` como fuente valida `firebase-cli-login`.
+  - resultado real tras la correccion:
+    - `pnpm check:provider-auth-sources` -> `sources-detected`
+    - `sources: firebase-cli-login`
+    - `pnpm doctor:real-runtime` mantiene como bloqueo principal `blocked-project-access`
+  - impacto:
+    - el diagnostico deja de mentir sobre la disponibilidad local de autenticacion cloud,
+    - la siguiente decision ya no se pierde en un falso `no-provider-auth-sources`.
+- Mejora detectada para Pumuki tras este ajuste:
+  - cuando varios checks se agregan, el framework deberia ayudar a priorizar el bloqueo mas relevante segun precedencia semantica, no solo por orden de ejecucion.
+  - propuesta Pumuki: soportar una politica declarativa de prioridad de estados en checks compuestos.
