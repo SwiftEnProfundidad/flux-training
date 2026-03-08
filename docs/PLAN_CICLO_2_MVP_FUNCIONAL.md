@@ -77,10 +77,40 @@
   - ⏳ Todavia no queda demostrado en este ciclo que Web+iOS esten operando contra backend MVP real sin fallback demo/local encubierto.
 
 ## Fase 2 — Backend y autenticacion real
-- 🚧 Auditar backend real vs fallback/demo.
+- ✅ Auditar backend real vs fallback/demo.
+- 🚧 Preparar entorno minimo de auth/backend real.
 - ⏳ Validar login email/password end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
+
+## Resultado de la auditoria backend/runtime real (2026-03-08)
+- Backend real:
+  - `apps/backend/src/presentation/http.ts` usa Firebase Functions + Firestore + `FirebaseAuthTokenVerifier`.
+  - `apps/backend/src/application/create-auth-session.ts` solo acepta sesiones reales si `FirebaseAuthTokenVerifier.verify(...)` valida el token.
+  - conclusion: el camino cloud es real; no hay fallback demo dentro del backend cloud.
+- Backend local:
+  - `package.json` raiz define `dev:backend` como compilacion (`pnpm --filter @flux/backend dev`) y `dev:backend:demo` como unico servidor HTTP local (`pnpm --filter @flux/backend start:demo`).
+  - `apps/backend/src/presentation/demo-http-server.ts` y `demo-api-runtime.ts` implementan un backend demo explicito.
+  - conclusion: hoy no existe un backend real local emulado; el backend HTTP local disponible es solo demo.
+- Web:
+  - `apps/web/vite.config.ts` apunta por defecto a `http://127.0.0.1:8787` cuando `VITE_API_TARGET` no esta definido.
+  - `apps/web/src/infrastructure/firebase-auth-client.ts` activa fallback de auth local si el target es loopback o si el host runtime es local sin config Firebase.
+  - ese fallback crea sesion backend con `apple-local-dev-token` o con el email normalizado como `providerToken`.
+  - conclusion: en local la web puede autenticarse por camino demo aunque la UI este en modo producto.
+- iOS:
+  - `apps/ios/Sources/App/FluxTrainingAppConfiguration.swift` apunta por defecto al backend cloud real.
+  - `apps/ios/Sources/Infrastructure/RemoteAuthGateway.swift` activa fallback local si `baseURL` es loopback y faltan tokens/config.
+  - `apps/ios/Sources/App/CompositionRoot.swift` mezcla repositorios remotos y persistencia local:
+    - remoto: training, workout sessions, nutrition, offline sync, observability, role capabilities,
+    - local persistido: onboarding/profile, settings, legal consent, export y delete account.
+  - conclusion: iOS no esta aun end-to-end contra backend real en todos los dominios del MVP.
+- Entorno actual del repo:
+  - no hay variables cargadas para auth/backend cloud real en esta sesion:
+    - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`,
+    - `FLUX_FIREBASE_WEB_API_KEY`, `FLUX_FIREBASE_API_KEY`,
+    - `FLUX_BACKEND_BASE_URL`, `FLUX_APPLE_PROVIDER_TOKEN`,
+    - `FIREBASE_CONFIG`, `GOOGLE_APPLICATION_CREDENTIALS`.
+  - conclusion: la validacion real de auth/backend esta bloqueada hasta preparar entorno minimo.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.

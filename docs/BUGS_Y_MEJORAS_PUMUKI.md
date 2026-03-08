@@ -398,3 +398,12 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - al formalizar criterios de cierre de producto, Pumuki no distingue entre `planificacion de release` y `documentacion menor`; ambas pasan por el mismo gate documental plano.
   - impacto: cambios de alto valor de gobernanza/aceptacion quedan registrados igual que un simple ajuste menor de copy documental.
   - propuesta Pumuki: introducir una clasificacion opcional de cambios documentales (`tracking`, `governance`, `release-criteria`, `minor-docs`) para que el reporte del gate ayude a priorizar mejor la relevancia del cambio.
+- Revalidación documental auditoria backend/runtime (2026-03-08 17:07 CET):
+  - se documenta que el backend cloud usa Functions + Firestore + Firebase Auth real, mientras que el unico servidor HTTP local del repo sigue siendo `start:demo`.
+  - se documenta tambien que Web e iOS conservan fallback local controlado de autenticacion para loopback y que iOS mantiene persistencia local en varios dominios de producto.
+  - el gate documental vuelve a ejecutarse con `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`.
+  - resultado real observado otra vez: `gateOutcome="ALLOW"` pero `changed=false`, `evaluated=true`, `changedFiles=[]`, `evaluatedFiles=[]` aun con tres docs staged.
+- Mejora detectada en auditoria backend/runtime:
+  - cuando el cambio es documental pero de alto impacto tecnico (por ejemplo, descubrir que el unico backend local es demo), Pumuki no ayuda a marcarlo como hallazgo de arquitectura o de riesgo de release.
+  - impacto: la herramienta aprueba el gate, pero no ayuda a elevar la criticidad del descubrimiento dentro del flujo.
+  - propuesta Pumuki: permitir anotar findings manuales estructurados de auditoria (`release-risk`, `runtime-gap`, `local-vs-cloud`) dentro del mismo reporte de iteracion para que queden visibles junto al resultado del gate.
