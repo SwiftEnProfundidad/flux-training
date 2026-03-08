@@ -121,7 +121,7 @@
 
 ## Entorno minimo preparado para salir del camino demo (2026-03-08)
 - Ruta recomendada para este ciclo:
-  - backend real: usar el endpoint cloud ya existente `https://us-central1-flux-training.cloudfunctions.net/flux-training`,
+  - backend real: confirmar la URL base cloud efectiva antes de cerrar auth E2E; el target documentado hasta ahora (`https://us-central1-flux-training.cloudfunctions.net/flux-training`) ya no puede darse por valido sin smoke de ruta,
   - no usar `pnpm dev:backend:demo` para validar MVP real,
   - no usar loopback sin config Firebase si lo que queremos validar es login/producto real.
 - Web producto real:
@@ -183,6 +183,9 @@
     - `blocked-real-user-credentials`
     - `failed`
     - `ready`
+- Smoke reproducible de conectividad cloud:
+  - `pnpm smoke:real-cloud-connectivity`
+  - `pnpm test:real-cloud-connectivity-smoke`
 - Conclusion operativa:
   - la task `Validar login email/password end-to-end` queda reabierta como `⛔`,
   - la unica task activa del ciclo pasa a ser `🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end`,
@@ -214,6 +217,21 @@
   - el smoke distingue ya entre:
     - bloqueo por config real de plataforma (`blocked-real-config`),
     - bloqueo por credenciales reales E2E (`blocked-real-user-credentials`).
+  - ademas, el repo ya dispone de una sonda separada de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) para detectar si la URL base del backend real sigue siendo valida antes de meter secretos reales.
+
+## Hallazgo de conectividad cloud real (2026-03-08)
+- Se ejecuta `pnpm smoke:real-cloud-connectivity` contra el target base actual del repo:
+  - `https://us-central1-flux-training.cloudfunctions.net/flux-training/createAuthSession`
+- Resultado real:
+  - `status: failed`
+  - `stage: backend-probe`
+  - `statusCode: 404`
+- Conclusion operativa:
+  - hoy no esta demostrado que `https://us-central1-flux-training.cloudfunctions.net/flux-training` siga siendo la URL base correcta para el backend cloud.
+  - antes de cargar credenciales reales para cerrar login E2E, hay que confirmar la URL base cloud efectiva.
+  - el bloqueo real de la task activa pasa a ser doble:
+    - faltan valores reales de Firebase/Auth y credenciales E2E,
+    - falta confirmar la URL base real del backend cloud.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.

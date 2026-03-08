@@ -532,3 +532,20 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada para Pumuki tras esta revalidacion:
   - aunque el repo ya distinga capas de readiness, Pumuki sigue resumiendo el gate como `ALLOW` sin exponer un subestado semantico equivalente.
   - propuesta Pumuki: soportar estados de readiness enriquecidos (`blocked-real-config`, `blocked-real-user-credentials`) para no obligar a cada repo a modelarlos en tooling propio.
+- Revalidacion de conectividad cloud real (2026-03-08 19:04 CET):
+  - se añade:
+    - `pnpm smoke:real-cloud-connectivity`
+    - `pnpm test:real-cloud-connectivity-smoke`
+  - la sonda ya no usa `/health`, que habia resultado una suposicion fragil; ahora prueba una ruta real del producto (`createAuthSession`) con payload invalido controlado.
+  - validacion automatizada:
+    - `pnpm test:real-cloud-connectivity-smoke` -> `4` tests OK
+  - ejecucion real:
+    - `pnpm smoke:real-cloud-connectivity` -> `failed`
+    - `stage: backend-probe`
+    - `statusCode: 404`
+    - target probado: `https://us-central1-flux-training.cloudfunctions.net/flux-training/createAuthSession`
+  - impacto:
+    - el bloqueo del ciclo 2 ya no es solo de secretos/config; tambien hay una duda real sobre la URL base cloud que se esta usando en el repo.
+- Mejora detectada para Pumuki tras esta sonda cloud:
+  - Pumuki no diferencia entre “gate local correcto” y “target remoto invalido o desactualizado” salvo que el repo modele su propia sonda.
+  - propuesta Pumuki: añadir una categoria nativa de `remote-target-verification` para que los ciclos de release puedan distinguir secretos ausentes de endpoints cloud rotos o movidos.

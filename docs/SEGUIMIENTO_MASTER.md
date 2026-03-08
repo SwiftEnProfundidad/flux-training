@@ -22,6 +22,7 @@
 - El repo ya contempla tambien `.env.e2e.local` para credenciales de usuario real de smoke; el bloqueo restante ya incluye claves Firebase reales + credenciales E2E reales.
 - iOS ya consume `apps/ios/.env.local` de forma efectiva en runtime local; el bloqueo real restante ya no es de wiring sino solo de credenciales Firebase/Auth pendientes.
 - El repo ya dispone tambien de smoke reproducible para login cloud real (`pnpm smoke:real-login`); ahora distingue si el bloqueo restante es por config real de plataforma (`blocked-real-config`) o por credenciales E2E reales (`blocked-real-user-credentials`).
+- El repo ya dispone tambien de sonda de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) y ha detectado un hallazgo nuevo: el target base documentado hasta ahora devuelve `404` en `createAuthSession`, asi que la URL cloud real debe confirmarse antes de cerrar el login E2E.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
