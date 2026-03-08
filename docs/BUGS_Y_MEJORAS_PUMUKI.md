@@ -734,3 +734,18 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - propuesta Pumuki:
     - añadir un estado nativo `blocked-cloud-billing-required`
     - y permitir que un gate de despliegue remoto degrade `ALLOW` a `BLOCKED` cuando la infraestructura exista pero el plan de facturacion impida publicar.
+- Verificacion reproducible del bloqueo Blaze (2026-03-08 22:21 CET):
+  - se añade checker dedicado:
+    - `pnpm test:cloud-billing-readiness`
+    - `pnpm check:cloud-billing-readiness`
+  - resultado real:
+    - `pnpm check:cloud-billing-readiness` -> `blocked-cloud-billing-required`
+    - `pnpm doctor:real-runtime` -> `blocked-cloud-billing-required`
+  - impacto:
+    - el repo deja de depender del recuerdo manual del error de deploy;
+    - el doctor prioriza ya el cuello de botella verdadero antes que `blocked-no-functions-deployed`.
+- Mejora detectada para Pumuki tras este ajuste:
+  - hoy Pumuki deja pasar estos commits documentales/diagnosticos en `ALLOW`, pero el framework no sabe que la ejecucion real esta detenida por billing externo.
+  - propuesta Pumuki:
+    - permitir un subtipo de estado de infraestructura `blocked-cloud-billing-required` con severidad operativa superior,
+    - y mostrar el enlace de upgrade como remediation estructurada del gate.

@@ -45,7 +45,8 @@
 - El bloqueo actual ya no es de acceso al proyecto:
   - `pnpm check:cloud-project-access` -> `ready`
   - `pnpm check:cloud-functions-deployment` -> `blocked-no-functions-deployed`
-  - `pnpm doctor:real-runtime` -> `blocked-no-functions-deployed`
+  - `pnpm check:cloud-billing-readiness` -> `blocked-cloud-billing-required`
+  - `pnpm doctor:real-runtime` -> `blocked-cloud-billing-required`
 - Causa concreta del bloqueo actual:
   - Cloud Functions API ya activada
   - `functions:list` devuelve `[]`, asi que no hay backend cloud publicado todavia

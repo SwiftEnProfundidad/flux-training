@@ -24,6 +24,8 @@
   - ✅ El proyecto Firebase real ya es visible y accesible desde Firebase CLI.
   - ⛔ El siguiente bloqueo real ya no es el proyecto ni el wiring local: el despliegue de Cloud Functions falla porque el proyecto no esta en plan Blaze.
   - ✅ El intento de deploy real ya se ejecuto y bloqueo en `artifactregistry.googleapis.com` por falta de upgrade de plan.
+  - ✅ El repo ya dispone de checker reproducible para ese bloqueo: `pnpm check:cloud-billing-readiness`.
+  - ✅ El doctor agregado ya prioriza ese cuello de botella como estado principal: `pnpm doctor:real-runtime -> blocked-cloud-billing-required`.
   - 🚧 Siguiente desbloqueo externo: habilitar billing/plan Blaze para poder publicar Functions v2.
 
 ## Fase 1 — Reapertura y baseline real
@@ -295,6 +297,19 @@
   - ya no queda duda sobre el siguiente paso,
   - el repo esta listo para desplegar,
   - el bloqueo actual es externo y de facturacion/plan, no de codigo ni de configuracion del repo.
+- Verificacion reproducible del bloqueo Blaze (2026-03-08):
+  - comandos añadidos:
+    - `pnpm test:cloud-billing-readiness`
+    - `pnpm check:cloud-billing-readiness`
+  - resultado real:
+    - `pnpm check:cloud-billing-readiness` -> `blocked-cloud-billing-required`
+    - `pnpm doctor:real-runtime` -> `blocked-cloud-billing-required`
+  - bloqueo exacto confirmado:
+    - `Your project flux-training-mvp must be on the Blaze (pay-as-you-go) plan to complete this command.`
+    - `artifactregistry.googleapis.com can't be enabled until the upgrade is complete.`
+  - conclusion operativa:
+    - ya no hace falta reintentar el deploy manualmente para recordar el problema,
+    - el siguiente paso sigue siendo externo: activar Blaze en `https://console.firebase.google.com/project/flux-training-mvp/usage/details`.
 
 ## Hallazgo de conectividad cloud real (2026-03-08)
 - Se ejecuta `pnpm smoke:real-cloud-connectivity` contra el target base actual del repo:
