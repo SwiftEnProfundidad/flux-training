@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Preparar entorno minimo de auth/backend real.
+- Task activa actual: 🚧 Validar login email/password end-to-end.
 
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
