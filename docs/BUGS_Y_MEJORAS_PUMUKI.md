@@ -468,3 +468,15 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada tras el bootstrap:
   - Pumuki sigue sin distinguir entre “bloqueo total” y “bloqueo parcial ya encapsulado por tooling del repo”.
   - propuesta Pumuki: añadir severidad de readiness incremental, por ejemplo `partial-ready`, para reflejar que los archivos locales ya existen y solo faltan valores finales.
+
+- Revalidacion wiring iOS `.env.local` (2026-03-08 18:07 CET):
+  - `FluxTrainingAppConfiguration` ya fusiona el environment del proceso con `apps/ios/.env.local` en local.
+  - `ExperienceHubView` usa ahora la misma fuente fusionada para flags locales como `FLUX_IOS_ALLOW_CATALOG` y `FLUX_IOS_QA_UI_ENABLED`.
+  - validacion automatizada:
+    - `cd apps/ios && swift test --filter FluxTrainingAppConfigurationTests` -> `3` tests OK
+    - `cd apps/ios && swift test --filter RemoteAuthGatewayLocalFallbackTests` -> `2` tests OK
+    - `pnpm test:real-runtime-prereqs` -> `3` tests OK
+    - `pnpm check:real-runtime-prereqs` -> sigue en `blocked-external-config`, pero ya no por wiring de iOS sino solo por falta de `FLUX_FIREBASE_WEB_API_KEY` y claves web reales.
+- Mejora detectada tras cerrar el wiring iOS:
+  - Pumuki puede confirmar que existen archivos y variables esperadas, pero no ofrece una capa nativa para distinguir “archivo presente pero runtime aun no lo consume” frente a “archivo presente y wiring listo”.
+  - propuesta Pumuki: añadir un estado o hint de `runtime-wiring-verified` para prerequisitos externos, diferenciando presencia de archivos de consumo efectivo por la aplicacion.

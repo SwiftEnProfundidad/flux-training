@@ -14,6 +14,11 @@
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
 - Task activa actual: 🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end.
+- Progreso real del desbloqueo:
+  - ✅ Web e iOS ya tienen checker de readiness reproducible.
+  - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
+  - ✅ iOS ya consume `apps/ios/.env.local` en runtime local, con precedencia correcta del environment del proceso.
+  - ⛔ Siguen faltando los valores reales de Firebase/Auth para cerrar login cloud E2E.
 
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
@@ -185,6 +190,7 @@
 - Conclusion operativa:
   - ya no falta estructura local,
   - ahora el bloqueo es solo de valores reales de Firebase/Auth.
+  - iOS ya no depende solo del scheme para este ciclo: `FluxTrainingAppConfiguration` y `ExperienceHubView` leen tambien `apps/ios/.env.local` en local.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.
