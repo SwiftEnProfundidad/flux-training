@@ -222,6 +222,10 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - cambio: creación del plan simple `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md` e indexación en `docs/README.md` y `docs/SEGUIMIENTO_MASTER.md`.
   - validación: la iteración no detecta nuevos bloqueos de Pumuki; se mantiene el uso del log actual como registro operativo único del framework.
   - mejora pendiente vigente: seguir vigilando el ruido del gate en cierres solo documentales para que no simule evaluación útil cuando no hay superficie funcional.
+- Revalidación baseline real del ciclo 2 (2026-03-08):
+  - cambio: comparación manual entre runtime real (`localhost:5173` + simulador iOS) y `flux.pen` para abrir el backlog honesto del nuevo ciclo.
+  - validación: no aparecen nuevos bloqueos de Pumuki en esta iteración; el framework no interfiere en la fase de auditoría baseline.
+  - mejora pendiente vigente: sigue siendo útil diferenciar en el gate documental entre "iteración auditada" y "iteración implementada" para no mezclar cierres solo de análisis con avances funcionales.
   - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/AthleteDetailPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase29-athlete-detail-test.log --json`
   - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con los tres ficheros del bloque.
   - mejora registrada: `PUM-016` por falta de recomendación útil cuando `--test-output` apunta a `/tmp`.

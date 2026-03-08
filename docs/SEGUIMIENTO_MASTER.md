@@ -11,6 +11,7 @@
 - Objetivo actual: MVP web+iOS usable end-to-end, sin fallback demo, con paridad funcional contra `flux.pen`.
 - El plan activo esta en formato pantalla a pantalla (121 subtasks trazables).
 - Plan activo simple del siguiente ciclo: `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
+- Baseline real del ciclo 2 ya levantado: Web entra y autentica, pero tras login sigue mostrando panel operativo apilado no alineado con `flux.pen`; iOS entra en producto real, pero la pieza de acceso todavia no replica el board 1:1.
 
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
