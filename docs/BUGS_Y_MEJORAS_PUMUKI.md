@@ -218,6 +218,10 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Revalidación iteración fase 29 (2026-03-06):
   - tests: `pnpm --filter @flux/web test -- src/presentation/AthleteDetailPanel.spec.tsx src/presentation/App.tsx`
   - build/check: `pnpm --filter @flux/web build` + `pnpm --filter @flux/web check`
+- Revalidación documental de arranque de ciclo 2 (2026-03-08):
+  - cambio: creación del plan simple `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md` e indexación en `docs/README.md` y `docs/SEGUIMIENTO_MASTER.md`.
+  - validación: la iteración no detecta nuevos bloqueos de Pumuki; se mantiene el uso del log actual como registro operativo único del framework.
+  - mejora pendiente vigente: seguir vigilando el ruido del gate en cierres solo documentales para que no simule evaluación útil cuando no hay superficie funcional.
   - evidencia TDD: `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/AthleteDetailPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase29-athlete-detail-test.log --json`
   - gate: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` -> `gateOutcome="ALLOW"`, `totalFindings=0`, `changedFiles[]` y `evaluatedFiles[]` con los tres ficheros del bloque.
   - mejora registrada: `PUM-016` por falta de recomendación útil cuando `--test-output` apunta a `/tmp`.
