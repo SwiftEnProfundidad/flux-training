@@ -453,3 +453,18 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - Mejora detectada tras extender soporte iOS:
   - Pumuki tampoco modela prerequisitos multiplataforma dentro del mismo readiness check; todo sigue quedando fuera del gate nativo.
   - propuesta Pumuki: permitir prerequisitos declarativos por plataforma (`web`, `ios`, `backend`) y generar un resumen único de readiness consolidado.
+- Revalidacion bootstrap local de runtime real (2026-03-08 18:31 CET):
+  - se añade bootstrap no destructivo:
+    - `pnpm bootstrap:real-runtime-prereqs`
+    - `pnpm test:bootstrap-real-runtime-prereqs`
+  - resultado real:
+    - crea `apps/web/.env.local` desde `apps/web/.env.example`,
+    - crea `apps/ios/.env.local` desde `apps/ios/.env.local.example`,
+    - no sobreescribe archivos existentes.
+  - readiness resultante tras bootstrap:
+    - Web: queda pendiente solo completar `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`,
+    - iOS: queda pendiente solo completar `FLUX_FIREBASE_WEB_API_KEY`,
+    - Apple Sign In real sigue pendiente de `FLUX_APPLE_PROVIDER_TOKEN` como opcional.
+- Mejora detectada tras el bootstrap:
+  - Pumuki sigue sin distinguir entre “bloqueo total” y “bloqueo parcial ya encapsulado por tooling del repo”.
+  - propuesta Pumuki: añadir severidad de readiness incremental, por ejemplo `partial-ready`, para reflejar que los archivos locales ya existen y solo faltan valores finales.

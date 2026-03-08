@@ -160,10 +160,31 @@
 - Comando reproducible de readiness real:
   - `pnpm check:real-runtime-prereqs`
   - `pnpm test:real-runtime-prereqs`
+- Comando reproducible para preparar archivos locales sin secretos:
+  - `pnpm bootstrap:real-runtime-prereqs`
+  - `pnpm test:bootstrap-real-runtime-prereqs`
 - Conclusion operativa:
   - la task `Validar login email/password end-to-end` queda reabierta como `⛔`,
   - la unica task activa del ciclo pasa a ser `🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end`,
   - no es honesto seguir con onboarding/training/legal reales hasta resolver este prerequisito externo.
+
+## Estado del bootstrap local de runtime real (2026-03-08)
+- `pnpm bootstrap:real-runtime-prereqs` ya crea si faltan:
+  - `apps/web/.env.local`
+  - `apps/ios/.env.local`
+- Resultado real actual tras ejecutar el bootstrap:
+  - Web:
+    - archivo local presente,
+    - `VITE_API_TARGET` ya presente,
+    - siguen faltando `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`.
+  - iOS:
+    - archivo local presente,
+    - `FLUX_BACKEND_BASE_URL` y `FLUX_IOS_CLIENT_VERSION` ya presentes,
+    - sigue faltando `FLUX_FIREBASE_WEB_API_KEY`,
+    - `FLUX_APPLE_PROVIDER_TOKEN` sigue siendo opcional mientras no se valide Apple Sign In real.
+- Conclusion operativa:
+  - ya no falta estructura local,
+  - ahora el bloqueo es solo de valores reales de Firebase/Auth.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.
