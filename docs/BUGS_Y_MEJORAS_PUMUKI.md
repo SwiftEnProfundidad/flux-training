@@ -749,3 +749,12 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - propuesta Pumuki:
     - permitir un subtipo de estado de infraestructura `blocked-cloud-billing-required` con severidad operativa superior,
     - y mostrar el enlace de upgrade como remediation estructurada del gate.
+
+- Mejora detectada por bucle de bloqueo externo (2026-03-08 22:39 CET):
+  - cuando un gate externo ya esta identificado y revalidado varias veces sin cambio, Pumuki no ofrece un modo de `cooldown` o `next-human-action-only`; obliga a reejecutar checks y deja al agente sin una remediation estructurada compacta.
+  - impacto:
+    - se desperdician iteraciones repitiendo el mismo diagnostico,
+    - aumenta el riesgo de ruido documental y de sensacion de falso progreso.
+  - propuesta Pumuki:
+    - añadir estado nativo `blocked-external-action-pending`,
+    - con checklist de salida persistente y politica de no revalidacion hasta que cambie una precondicion externa declarada.

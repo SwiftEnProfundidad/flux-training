@@ -28,6 +28,21 @@
   - ✅ El doctor agregado ya prioriza ese cuello de botella como estado principal: `pnpm doctor:real-runtime -> blocked-cloud-billing-required`.
   - 🚧 Siguiente desbloqueo externo: habilitar billing/plan Blaze para poder publicar Functions v2.
 
+## Checklist de desbloqueo Blaze (obligatorio antes de seguir)
+- Paso 1: abrir `https://console.firebase.google.com/project/flux-training-mvp/usage/details`.
+- Paso 2: activar plan Blaze/pay-as-you-go para `flux-training-mvp`.
+- Paso 3: esperar a que Firebase termine de habilitar billing y APIs base (`cloudbuild`, `artifactregistry`).
+- Paso 4: revalidar en este orden exacto:
+  - `pnpm check:cloud-billing-readiness`
+  - `pnpm deploy:functions:cloud`
+  - `pnpm check:cloud-functions-deployment`
+  - `pnpm smoke:real-cloud-connectivity`
+  - `pnpm smoke:real-login`
+- Criterio de salida de este bloqueo:
+  - `pnpm check:cloud-billing-readiness -> ready`
+  - `pnpm check:cloud-functions-deployment -> ready`
+- Si Blaze no esta activado, ninguna task posterior del ciclo 2 puede marcarse `✅`.
+
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
 - ✅ Registrar gaps reales entre runtime y `flux.pen`.

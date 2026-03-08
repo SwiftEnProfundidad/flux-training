@@ -53,6 +53,12 @@
   - el intento de deploy real ya se ejecuto y fallo por plan/facturacion
   - Firebase exige upgrade a Blaze para habilitar `artifactregistry.googleapis.com`
   - sin eso no puede desplegarse backend cloud ni cerrarse login cloud E2E
+- Checklist operativo de salida del bloqueo:
+  - abrir `https://console.firebase.google.com/project/flux-training-mvp/usage/details`
+  - activar Blaze
+  - reejecutar `pnpm check:cloud-billing-readiness`
+  - desplegar con `pnpm deploy:functions:cloud`
+  - validar `pnpm check:cloud-functions-deployment`, `pnpm smoke:real-cloud-connectivity` y `pnpm smoke:real-login`
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.
