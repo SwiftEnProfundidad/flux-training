@@ -27,6 +27,26 @@ function normalizeApiTarget(rawTarget) {
   return rawTarget.trim().replace(/\/$/, "");
 }
 
+function buildProbeCandidates(apiTarget) {
+  const normalizedTarget = normalizeApiTarget(apiTarget);
+  const candidates = [`${normalizedTarget}/createAuthSession`];
+
+  try {
+    const parsed = new URL(normalizedTarget);
+    const directFunctionPath = `${parsed.origin}/createAuthSession`;
+    if (candidates.includes(directFunctionPath) === false) {
+      candidates.push(directFunctionPath);
+    }
+  } catch {
+    // Keep only the normalized target candidate when URL parsing fails.
+  }
+
+  return {
+    apiTarget: normalizedTarget,
+    probeUrls: candidates,
+  };
+}
+
 export async function runRealCloudConnectivitySmoke({
   rootDir,
   fetchImpl = fetch,
@@ -46,49 +66,76 @@ export async function runRealCloudConnectivitySmoke({
     };
   }
 
-  const normalizedTarget = normalizeApiTarget(apiTarget);
-  const probeUrl = `${normalizedTarget}/createAuthSession`;
+  const { apiTarget: normalizedTarget, probeUrls } = buildProbeCandidates(apiTarget);
+  const attempts = [];
+  let lastFailure = null;
 
-  try {
-    const response = await fetchImpl(probeUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({}),
-    });
+  for (const probeUrl of probeUrls) {
+    try {
+      const response = await fetchImpl(probeUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({}),
+      });
 
-    if (response.status === 404) {
-      return {
-        status: "failed",
+      attempts.push({
+        probeUrl,
+        statusCode: response.status,
+      });
+
+      if (response.status !== 404) {
+        const payload = await response.json().catch(() => null);
+        return {
+          status: "ready",
+          executedAt: now(),
+          apiTarget: normalizedTarget,
+          probeUrl,
+          statusCode: response.status,
+          payload,
+          attempts,
+        };
+      }
+
+      lastFailure = {
+        status: "blocked-remote-target",
         stage: "backend-probe",
         executedAt: now(),
         apiTarget: normalizedTarget,
         probeUrl,
         statusCode: response.status,
+        attempts,
+      };
+    } catch (error) {
+      attempts.push({
+        probeUrl,
+        errorCode: error instanceof Error ? error.message : "unknown_error",
+      });
+      lastFailure = {
+        status: "failed",
+        stage: "backend-probe",
+        executedAt: now(),
+        apiTarget: normalizedTarget,
+        probeUrl,
+        errorCode: error instanceof Error ? error.message : "unknown_error",
+        attempts,
       };
     }
+  }
 
-    const payload = await response.json().catch(() => null);
-    return {
-      status: "ready",
-      executedAt: now(),
-      apiTarget: normalizedTarget,
-      probeUrl,
-      statusCode: response.status,
-      payload,
-    };
-  } catch (error) {
-    return {
+  return (
+    lastFailure ?? {
       status: "failed",
       stage: "backend-probe",
       executedAt: now(),
       apiTarget: normalizedTarget,
-      probeUrl,
-      errorCode: error instanceof Error ? error.message : "unknown_error",
-    };
-  }
+      probeUrl: probeUrls[0],
+      errorCode: "unknown_probe_failure",
+      attempts,
+    }
+  );
 }
 
 function formatHumanReadable(result) {
@@ -102,7 +149,7 @@ function formatHumanReadable(result) {
     return `${lines.join("\n")}\n`;
   }
 
-  if (result.status === "failed") {
+  if (result.status === "failed" || result.status === "blocked-remote-target") {
     lines.push(`stage: ${result.stage}`);
     lines.push(`apiTarget: ${result.apiTarget}`);
     lines.push(`probeUrl: ${result.probeUrl}`);
@@ -111,6 +158,16 @@ function formatHumanReadable(result) {
     }
     if (typeof result.errorCode === "string") {
       lines.push(`errorCode: ${result.errorCode}`);
+    }
+    if (Array.isArray(result.attempts) && result.attempts.length > 0) {
+      lines.push("attempts:");
+      for (const attempt of result.attempts) {
+        const suffix =
+          typeof attempt.statusCode === "number"
+            ? `statusCode=${attempt.statusCode}`
+            : `errorCode=${attempt.errorCode}`;
+        lines.push(`  - ${attempt.probeUrl} -> ${suffix}`);
+      }
     }
     return `${lines.join("\n")}\n`;
   }
