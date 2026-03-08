@@ -418,3 +418,14 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - Pumuki no distingue de forma explicita entre una task `lista para validar` y una task `bloqueada por secretos/config externa`.
   - impacto: el gate puede quedar en verde mientras la siguiente tarea operativa sigue imposible de ejecutar por ausencia de credenciales reales, lo que obliga a documentarlo a mano fuera del reporte.
   - propuesta Pumuki: añadir una categoria de hallazgo no bloqueante pero estructurada, por ejemplo `external-prerequisite-missing`, para reflejar dependencias externas pendientes sin mezclarlo con errores de codigo o de docs.
+
+- Revalidacion bloqueo real de login E2E cloud (2026-03-08 18:05 CET):
+  - comprobacion local sin exponer secretos:
+    - `apps/web/.env.local`: ausente,
+    - `apps/backend/.env.local`: ausente,
+    - `apps/web/.env.example`: contiene placeholders para `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_API_TARGET`,
+    - `apps/backend/.env.example`: no aporta credenciales reales de auth para cerrar el camino cloud local.
+  - impacto: el gate puede seguir en `ALLOW` porque no hay fallo de codigo, pero la siguiente task funcional queda materialmente imposible de ejecutar en modo producto real.
+- Mejora detectada en bloqueo por prerrequisito externo:
+  - Pumuki sigue aprobando el cambio documental, pero no promueve el bloqueo externo a un estado visible de release readiness.
+  - propuesta Pumuki: anadir un resumen de `execution readiness` con estados como `ready`, `blocked-external-config`, `blocked-secret-missing`, para distinguir trabajo completado de trabajo imposible por entorno.

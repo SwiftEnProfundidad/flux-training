@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Validar login email/password end-to-end.
+- Task activa actual: 🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end.
 
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
@@ -79,7 +79,8 @@
 ## Fase 2 — Backend y autenticacion real
 - ✅ Auditar backend real vs fallback/demo.
 - ✅ Preparar entorno minimo de auth/backend real.
-- 🚧 Validar login email/password end-to-end.
+- ⛔ Validar login email/password end-to-end.
+- 🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
 
@@ -148,6 +149,16 @@
   - sin credenciales Firebase web reales no puede cerrarse `Validar login email/password end-to-end`,
   - sin `FLUX_APPLE_PROVIDER_TOKEN` no puede cerrarse Apple Sign In real,
   - aunque auth real quede listo, iOS seguira sin ser backend real completo en onboarding/settings/legal/export/delete hasta migrar esos repositorios persistentes.
+
+## Bloqueo real de login E2E cloud (2026-03-08)
+- `apps/web/.env.local` no existe en este repo local.
+- `apps/backend/.env.local` no existe en este repo local.
+- `apps/web/.env.example` define las claves esperadas, pero los valores reales no estan cargados.
+- Sin `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN` y `VITE_FIREBASE_PROJECT_ID` reales, la web local no puede abandonar de forma verificable el camino demo/fallback en loopback.
+- Conclusion operativa:
+  - la task `Validar login email/password end-to-end` queda reabierta como `⛔`,
+  - la unica task activa del ciclo pasa a ser `🚧 Cargar configuracion real de Firebase/Auth para validar login end-to-end`,
+  - no es honesto seguir con onboarding/training/legal reales hasta resolver este prerequisito externo.
 
 ## Fase 3 — Web producto real
 - ⏳ Corregir entrada web para modo producto real.
