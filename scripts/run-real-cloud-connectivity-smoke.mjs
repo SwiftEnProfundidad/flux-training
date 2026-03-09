@@ -51,12 +51,18 @@ export async function runRealCloudConnectivitySmoke({
   rootDir,
   fetchImpl = fetch,
   now = () => new Date().toISOString(),
+  runtimeEnvironment = process.env,
 }) {
   const webEnvValues = readEnvFile(path.join(rootDir, "apps/web/.env.local"));
   const iosEnvValues = readEnvFile(path.join(rootDir, "apps/ios/.env.local"));
+  const resolvedEnvironment = {
+    ...iosEnvValues,
+    ...webEnvValues,
+    ...runtimeEnvironment,
+  };
   const apiTarget =
-    String(webEnvValues.VITE_API_TARGET ?? "").trim() ||
-    String(iosEnvValues.FLUX_BACKEND_BASE_URL ?? "").trim();
+    String(resolvedEnvironment.VITE_API_TARGET ?? "").trim() ||
+    String(resolvedEnvironment.FLUX_BACKEND_BASE_URL ?? "").trim();
 
   if (apiTarget.length === 0) {
     return {

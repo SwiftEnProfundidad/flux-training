@@ -49,6 +49,28 @@ test("uses VITE_API_TARGET and reports ready when auth probe resolves without 40
   assert.equal(result.attempts.length, 1);
 });
 
+test("allows runtime environment to override local api target", async () => {
+  const rootDir = createWorkspaceFixture();
+  fs.writeFileSync(path.join(rootDir, "apps/web/.env.local"), "VITE_API_TARGET=https://stale.example.com\n");
+
+  const result = await runRealCloudConnectivitySmoke({
+    rootDir,
+    runtimeEnvironment: {
+      VITE_API_TARGET: "https://preview.example.app/api",
+    },
+    fetchImpl: async (input, init = {}) => {
+      assert.equal(String(input), "https://preview.example.app/api/createAuthSession");
+      assert.equal(init.method, "POST");
+      return Response.json({ error: "invalid_provider_token" }, { status: 400 });
+    },
+    now: () => "2026-03-09T15:20:00.000Z",
+  });
+
+  assert.equal(result.status, "ready");
+  assert.equal(result.apiTarget, "https://preview.example.app/api");
+  assert.equal(result.statusCode, 400);
+});
+
 test("falls back to FLUX_BACKEND_BASE_URL and reports backend probe failure on 404", async () => {
   const rootDir = createWorkspaceFixture();
   fs.writeFileSync(
