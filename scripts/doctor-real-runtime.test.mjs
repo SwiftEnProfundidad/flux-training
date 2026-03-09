@@ -29,6 +29,7 @@ test("reports blocked-remote-target when provider auth is ready but cloud target
     checkProjectAccessImpl: async () => ({ status: "ready" }),
     checkFunctionsDeploymentImpl: async () => ({ status: "ready" }),
     checkBillingReadinessImpl: async () => ({ status: "ready" }),
+    checkFirebaseAuthReadinessImpl: async () => ({ status: "ready" }),
     runCloudSmokeImpl: async () => ({ status: "blocked-remote-target", apiTarget: "https://example.com" }),
     runLoginSmokeImpl: async () => ({ status: "blocked-real-user-credentials" }),
   });
@@ -121,4 +122,43 @@ test("reports blocked-cloud-billing-required before blocked-no-functions-deploye
   assert.equal(result.status, "blocked-cloud-billing-required");
   assert.match(result.nextSteps.join("\n"), /Blaze/);
   assert.doesNotMatch(result.nextSteps.join("\n"), /Desplegar las Cloud Functions reales del backend/);
+});
+
+
+test("doctor prioritizes firebase auth configuration before login credentials", async () => {
+  const result = await runRealRuntimeDoctor({
+    rootDir: "/tmp/flux",
+    now: () => "2026-03-09T16:15:00.000Z",
+    checkSourcesImpl: async () => ({ status: "sources-detected" }),
+    checkReadinessImpl: async () => ({ status: "ready" }),
+    checkProjectAccessImpl: async () => ({ status: "ready" }),
+    checkBillingReadinessImpl: async () => ({ status: "ready" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "ready" }),
+    checkFirebaseAuthReadinessImpl: async () => ({ status: "blocked-firebase-auth-configuration" }),
+    runCloudSmokeImpl: async () => ({ status: "ready" }),
+    runLoginSmokeImpl: async () => ({ status: "blocked-real-user-credentials" }),
+  });
+
+  assert.equal(result.status, "blocked-firebase-auth-configuration");
+  assert.match(result.nextSteps.join("\n"), /Activar Firebase Auth/);
+});
+
+test("doctor ignores firebase billing blocker when alternative cloud target is already ready", async () => {
+  const result = await runRealRuntimeDoctor({
+    rootDir: "/tmp/flux",
+    now: () => "2026-03-09T16:30:00.000Z",
+    checkSourcesImpl: async () => ({ status: "sources-detected" }),
+    checkReadinessImpl: async () => ({ status: "ready" }),
+    checkProjectAccessImpl: async () => ({ status: "ready" }),
+    checkBillingReadinessImpl: async () => ({ status: "blocked-cloud-billing-required" }),
+    checkFunctionsDeploymentImpl: async () => ({ status: "blocked-no-functions-deployed" }),
+    checkFirebaseAuthReadinessImpl: async () => ({ status: "blocked-firebase-auth-configuration" }),
+    runCloudSmokeImpl: async () => ({ status: "ready", apiTarget: "https://example.com/api" }),
+    runLoginSmokeImpl: async () => ({ status: "blocked-real-user-credentials" }),
+  });
+
+  assert.equal(result.status, "blocked-firebase-auth-configuration");
+  assert.match(result.nextSteps.join("\n"), /Activar Firebase Auth/);
+  assert.doesNotMatch(result.nextSteps.join("\n"), /Blaze/);
+  assert.doesNotMatch(result.nextSteps.join("\n"), /Cloud Functions reales del backend/);
 });

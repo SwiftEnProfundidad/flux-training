@@ -7,6 +7,7 @@ import { checkProviderAuthReadiness } from "./check-provider-auth-readiness.mjs"
 import { checkCloudProjectAccess } from "./check-cloud-project-access.mjs";
 import { checkCloudFunctionsDeployment } from "./check-cloud-functions-deployment.mjs";
 import { checkCloudBillingReadiness } from "./check-cloud-billing-readiness.mjs";
+import { checkFirebaseAuthReadiness } from "./check-firebase-auth-readiness.mjs";
 import { runRealCloudConnectivitySmoke } from "./run-real-cloud-connectivity-smoke.mjs";
 import { runRealLoginSmoke } from "./run-real-login-smoke.mjs";
 
@@ -18,6 +19,7 @@ export async function runRealRuntimeDoctor({
   checkProjectAccessImpl = checkCloudProjectAccess,
   checkFunctionsDeploymentImpl = checkCloudFunctionsDeployment,
   checkBillingReadinessImpl = checkCloudBillingReadiness,
+  checkFirebaseAuthReadinessImpl = checkFirebaseAuthReadiness,
   runCloudSmokeImpl = runRealCloudConnectivitySmoke,
   runLoginSmokeImpl = runRealLoginSmoke,
 } = {}) {
@@ -27,8 +29,10 @@ export async function runRealRuntimeDoctor({
   const projectAccess = await checkProjectAccessImpl();
   const functionsDeployment = await checkFunctionsDeploymentImpl();
   const billingReadiness = await checkBillingReadinessImpl();
+  const firebaseAuth = await checkFirebaseAuthReadinessImpl({ rootDir });
   const cloudTarget = await runCloudSmokeImpl({ rootDir });
   const login = await runLoginSmokeImpl({ rootDir });
+  const alternativeCloudReady = cloudTarget.status === "ready";
 
   const nextSteps = [];
   if (providerAuth.status !== "ready" && sources.status !== "sources-detected") {
@@ -46,14 +50,18 @@ export async function runRealRuntimeDoctor({
   if (projectAccess.status === "blocked-cloud-functions-api-disabled") {
     nextSteps.push("Activar Cloud Functions API en el proyecto Firebase real antes de validar connectivity/login.");
   }
-  if (billingReadiness.status === "blocked-cloud-billing-required") {
+  if (!alternativeCloudReady && billingReadiness.status === "blocked-cloud-billing-required") {
     nextSteps.push("Habilitar plan Blaze/facturacion en flux-training-mvp antes de reintentar el deploy de Cloud Functions.");
   }
   if (
+    !alternativeCloudReady &&
     functionsDeployment.status === "blocked-no-functions-deployed" &&
     billingReadiness.status !== "blocked-cloud-billing-required"
   ) {
     nextSteps.push("Desplegar las Cloud Functions reales del backend en flux-training-mvp antes de validar connectivity/login.");
+  }
+  if (firebaseAuth.status === "blocked-firebase-auth-configuration") {
+    nextSteps.push("Activar Firebase Auth y el proveedor Email/Password en flux-training-mvp antes de intentar el login E2E.");
   }
   if (cloudTarget.status !== "ready") {
     nextSteps.push("Confirmar la URL cloud real del backend antes de usar secrets E2E.");
@@ -74,10 +82,12 @@ export async function runRealRuntimeDoctor({
         ? providerAuth.status
         : projectAccess.status !== "ready"
           ? projectAccess.status
-          : billingReadiness.status !== "ready"
+          : !alternativeCloudReady && billingReadiness.status !== "ready"
             ? billingReadiness.status
-          : functionsDeployment.status !== "ready"
+          : !alternativeCloudReady && functionsDeployment.status !== "ready"
             ? functionsDeployment.status
+          : firebaseAuth.status !== "ready"
+            ? firebaseAuth.status
           : sources.status === "no-provider-auth-sources"
             ? "blocked-provider-auth-sources"
             : cloudTarget.status === "blocked-remote-target"
@@ -93,6 +103,7 @@ export async function runRealRuntimeDoctor({
       projectAccess,
       billingReadiness,
       functionsDeployment,
+      firebaseAuth,
       cloudTarget,
       realLogin: login,
     },
@@ -109,6 +120,7 @@ function formatDoctor(result) {
     `projectAccess: ${result.checks.projectAccess.status}`,
     `billingReadiness: ${result.checks.billingReadiness.status}`,
     `functionsDeployment: ${result.checks.functionsDeployment.status}`,
+    `firebaseAuth: ${result.checks.firebaseAuth.status}`,
     `cloudTarget: ${result.checks.cloudTarget.status}`,
     `realLogin: ${result.checks.realLogin.status}`,
   ];

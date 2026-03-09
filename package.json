@@ -43,7 +43,9 @@
     "dev:web:product": "VITE_API_TARGET=${VITE_API_TARGET:-https://us-central1-flux-training-mvp.cloudfunctions.net} VITE_WEB_RUNTIME_MODE=product VITE_WEB_QA_UI_ENABLED=0 pnpm --filter @flux/web dev",
     "dev:web:qa": "pnpm --filter @flux/web dev:qa",
     "dev:backend": "pnpm --filter @flux/backend dev",
-    "dev:backend:demo": "pnpm --filter @flux/backend start:demo"
+    "dev:backend:demo": "pnpm --filter @flux/backend start:demo",
+    "test:firebase-auth-readiness": "node --test scripts/check-firebase-auth-readiness.test.mjs",
+    "check:firebase-auth-readiness": "node scripts/check-firebase-auth-readiness.mjs"
   },
   "devDependencies": {
     "@fission-ai/openspec": "1.2.0",
