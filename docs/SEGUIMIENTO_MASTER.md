@@ -64,6 +64,7 @@
   - esto significa que la Web app y el proyecto existen, pero Firebase Auth no esta operativo todavia para Email/Password.
 - Checklist operativo de salida del bloqueo actual:
   - apuntar Web e iOS al host Vercel para backend HTTP
+  - confirmado: `firebase-tools` no expone un comando oficial para activar proveedores de Authentication; este paso es manual en Firebase Console
   - activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`
   - despues cargar credenciales E2E reales
   - revalidar `pnpm smoke:real-login`

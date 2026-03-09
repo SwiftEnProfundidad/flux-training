@@ -110,6 +110,15 @@
   - ⏳ Todavia no queda demostrado en este ciclo que Web+iOS esten operando contra backend MVP real sin fallback demo/local encubierto.
 
 ## Fase 2 — Backend y autenticacion real
+### Hallazgo operativo confirmado
+- Firebase CLI no ofrece comando oficial para activar `Authentication > Email/Password`.
+- Evidencia real:
+  - `firebase --help` no expone comandos de configuracion de proveedores de Auth.
+  - `firebase help auth` devuelve `auth is not a valid command`.
+- Conclusion:
+  - este desbloqueo no se puede automatizar desde el repo con `firebase-tools`;
+  - debe hacerse manualmente desde Firebase Console.
+
 - ✅ Auditar backend real vs fallback/demo.
 - ✅ Preparar entorno minimo de auth/backend real.
 - ⛔ Validar login email/password end-to-end.
