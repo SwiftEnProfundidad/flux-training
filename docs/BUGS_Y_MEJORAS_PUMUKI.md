@@ -780,3 +780,12 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - propuesta Pumuki:
     - soportar un estado nativo `ready-on-alternative-provider`,
     - y sugerir la reubicacion de la task activa cuando una ruta secundaria ya tiene evidencia runtime valida.
+
+- Mejora detectada tras reducir el bloqueo a solo credenciales E2E (2026-03-09 16:05 CET):
+  - una vez que `platformConfig` ya esta en `ready` y la conectividad cloud alternativa ya esta validada, Pumuki no rebaja automaticamente la remediation al ultimo cuello de botella humano (`FLUX_E2E_EMAIL` y `FLUX_E2E_PASSWORD`).
+  - impacto:
+    - el plan puede seguir mostrando un bloqueo demasiado amplio (`config/Auth`) aunque tecnicamente ya solo falte identidad de prueba;
+    - obliga a reescribir a mano el tracking para no mezclar config de plataforma con credenciales de smoke.
+  - propuesta Pumuki:
+    - soportar un estado nativo `blocked-real-user-credentials-only`,
+    - y priorizarlo cuando `platformConfig=ready` y `cloudConnectivity=ready`.

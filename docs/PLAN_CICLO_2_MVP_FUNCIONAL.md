@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Cargar configuracion Firebase/Auth real y credenciales E2E para validar login sobre backend Vercel.
+- Task activa actual: 🚧 Cargar credenciales E2E reales para validar login sobre backend Vercel.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -29,7 +29,7 @@
   - ✅ Preview/host inicial en Vercel Hobby ya desplegado con exito.
   - ✅ `/api/health` ya responde `200` en preview Vercel.
   - ✅ La sonda `pnpm smoke:real-cloud-connectivity` ya responde `ready` contra la preview Vercel.
-  - 🚧 Siguiente desbloqueo real: cargar configuracion Firebase/Auth real y credenciales E2E para validar login sobre ese backend Vercel.
+  - 🚧 Siguiente desbloqueo real: cargar credenciales E2E reales para validar login sobre ese backend Vercel.
 
 ## Checklist de salida Vercel Hobby (obligatorio antes de seguir)
 - Paso 1: mantener Firebase Auth + Firestore en `flux-training-mvp`.
@@ -120,7 +120,7 @@
 - ✅ Validar conectividad cloud real sobre preview Vercel.
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
-- 🚧 Cargar configuracion real de Firebase/Auth y credenciales E2E para validar login end-to-end sobre Vercel.
+- 🚧 Cargar credenciales E2E reales para validar login end-to-end sobre Vercel.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
 
@@ -262,7 +262,7 @@
     - siguen faltando `FLUX_E2E_EMAIL` y `FLUX_E2E_PASSWORD`.
 - Conclusion operativa:
   - ya no falta estructura local,
-  - ahora el bloqueo es solo de valores reales de Firebase/Auth y credenciales E2E.
+  - ahora el bloqueo es solo de credenciales E2E reales.
   - iOS ya no depende solo del scheme para este ciclo: `FluxTrainingAppConfiguration` y `ExperienceHubView` leen tambien `apps/ios/.env.local` en local.
   - el smoke real de login cloud ya esta automatizado y listo para ejecutarse en cuanto entren los valores efectivos: `pnpm smoke:real-login`.
   - el smoke distingue ya entre:
@@ -356,7 +356,7 @@
   - la cuenta autenticada actual no ve el proyecto `flux-training`,
   - por tanto no es honesto seguir con secrets ni con login E2E hasta confirmar el project id real o conseguir acceso a ese proyecto.
   - el bloqueo real de la task activa pasa a ser doble:
-    - faltan valores reales de Firebase/Auth y credenciales E2E,
+    - faltan credenciales E2E reales,
     - falta confirmar la URL base real del backend cloud.
 - Exploracion de los proyectos visibles con la cuenta autenticada (2026-03-08):
   - se ejecuta:

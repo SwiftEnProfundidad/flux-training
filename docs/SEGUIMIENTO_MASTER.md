@@ -37,7 +37,7 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Cargar configuracion Firebase/Auth real y credenciales E2E para validar login sobre Vercel**.
+- Task activa actual del ciclo 2: **🚧 Cargar credenciales E2E reales para validar login sobre Vercel**.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`
@@ -60,7 +60,7 @@
     - `VITE_API_TARGET=https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app/api pnpm smoke:real-cloud-connectivity -> ready`
 - Checklist operativo de salida del bloqueo actual:
   - apuntar Web e iOS al host Vercel para backend HTTP
-  - cargar configuracion Firebase/Auth real y credenciales E2E
+  - cargar credenciales E2E reales
   - revalidar `pnpm smoke:real-login`
 
 ## Trazabilidad consolidada (resumen humano)
