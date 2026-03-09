@@ -758,3 +758,25 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - propuesta Pumuki:
     - añadir estado nativo `blocked-external-action-pending`,
     - con checklist de salida persistente y politica de no revalidacion hasta que cambie una precondicion externa declarada.
+- Mejora detectada al pivotar de Firebase Functions a Vercel Hobby (2026-03-09 14:40 CET):
+  - cuando un camino de infraestructura queda descartado por coste estructural, Pumuki no propone una rama alternativa de hosting y mantiene el foco del gate en el proveedor bloqueado.
+  - impacto:
+    - el agente puede quedar atrapado en un bucle alrededor de Blaze/billing aunque ya exista una alternativa tecnica viable,
+    - cuesta converger a una ruta de MVP sin coste inicial.
+  - propuesta Pumuki:
+    - soportar una remediacion estructurada de `provider-pivot`,
+    - permitiendo cerrar formalmente un camino bloqueado y abrir otro (`vercel-hobby`, `cloudflare-workers`, etc.) como task activa del plan.
+- Revalidacion tras pivot efectivo a Vercel (2026-03-09 15:16 CET):
+  - no aparece un bug nuevo de Pumuki en esta iteracion.
+  - el gate sigue en `ALLOW` y el hallazgo operativo real viene del helper de despliegue claimable de Vercel, no de Pumuki.
+  - impacto:
+    - confirma que el bloqueo Blaze ya no es la ruta activa del MVP inicial;
+    - evita registrar ruido falso en Pumuki cuando el problema pertenece a otro subsistema.
+- Mejora detectada tras validar la preview Vercel (2026-03-09 15:58 CET):
+  - el pivot a un proveedor alternativo ya esta validado con preview operativa y smoke `ready`, pero Pumuki no ayuda a promover automaticamente ese nuevo camino como ruta principal del plan.
+  - impacto:
+    - aunque el bloqueo original quede tecnicamente superado por otra via, el framework no ofrece una transicion guiada de `blocked-provider-path` a `ready-on-alternative-provider`;
+    - el agente tiene que reescribir manualmente tracking y criterio de salida.
+  - propuesta Pumuki:
+    - soportar un estado nativo `ready-on-alternative-provider`,
+    - y sugerir la reubicacion de la task activa cuando una ruta secundaria ya tiene evidencia runtime valida.

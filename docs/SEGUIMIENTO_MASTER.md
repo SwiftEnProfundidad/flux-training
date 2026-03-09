@@ -37,28 +37,31 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Habilitar plan Blaze/billing para permitir despliegue de Cloud Functions en `flux-training-mvp`**.
+- Task activa actual del ciclo 2: **🚧 Cargar configuracion Firebase/Auth real y credenciales E2E para validar login sobre Vercel**.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`
 - La app Web de Firebase ya existe y la configuracion local real ya esta sembrada en `apps/web/.env.local` y `apps/ios/.env.local`.
-- El bloqueo actual ya no es de acceso al proyecto:
+- El acceso al proyecto cloud ya esta resuelto:
   - `pnpm check:cloud-project-access` -> `ready`
-  - `pnpm check:cloud-functions-deployment` -> `blocked-no-functions-deployed`
+- Firebase Functions queda aparcado para una fase futura por coste:
   - `pnpm check:cloud-billing-readiness` -> `blocked-cloud-billing-required`
-  - `pnpm doctor:real-runtime` -> `blocked-cloud-billing-required`
-- Causa concreta del bloqueo actual:
-  - Cloud Functions API ya activada
-  - `functions:list` devuelve `[]`, asi que no hay backend cloud publicado todavia
-  - el intento de deploy real ya se ejecuto y fallo por plan/facturacion
-  - Firebase exige upgrade a Blaze para habilitar `artifactregistry.googleapis.com`
-  - sin eso no puede desplegarse backend cloud ni cerrarse login cloud E2E
-- Checklist operativo de salida del bloqueo:
-  - abrir `https://console.firebase.google.com/project/flux-training-mvp/usage/details`
-  - activar Blaze
-  - reejecutar `pnpm check:cloud-billing-readiness`
-  - desplegar con `pnpm deploy:functions:cloud`
-  - validar `pnpm check:cloud-functions-deployment`, `pnpm smoke:real-cloud-connectivity` y `pnpm smoke:real-login`
+  - no se toma como ruta activa del MVP inicial
+- Ruta activa actual:
+  - Firebase Auth + Firestore en `flux-training-mvp`
+  - backend HTTP expuesto por `/api/[endpoint]` sobre Vercel Hobby
+  - adapter local ya verificado con:
+    - `pnpm test:vercel-backend-adapter`
+    - `pnpm test:vercel-api-route`
+    - `pnpm --filter @flux/web build`
+  - preview Vercel ya desplegada y verificada:
+    - `https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app`
+    - `GET /api/health -> 200 {"status":"ok"}`
+    - `VITE_API_TARGET=https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app/api pnpm smoke:real-cloud-connectivity -> ready`
+- Checklist operativo de salida del bloqueo actual:
+  - apuntar Web e iOS al host Vercel para backend HTTP
+  - cargar configuracion Firebase/Auth real y credenciales E2E
+  - revalidar `pnpm smoke:real-login`
 
 ## Trazabilidad consolidada (resumen humano)
 - Se detectaron cierres de tareas que no representan funcionamiento real en producto.

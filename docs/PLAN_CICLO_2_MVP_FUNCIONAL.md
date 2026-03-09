@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Habilitar plan Blaze/billing para permitir despliegue de Cloud Functions en `flux-training-mvp`.
+- Task activa actual: 🚧 Cargar configuracion Firebase/Auth real y credenciales E2E para validar login sobre backend Vercel.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -22,26 +22,30 @@
   - ✅ El proyecto Firebase real ya existe: `flux-training-mvp`.
   - ✅ La app Web real de Firebase ya existe y su config local ya esta sembrada en `apps/web/.env.local` y `apps/ios/.env.local`.
   - ✅ El proyecto Firebase real ya es visible y accesible desde Firebase CLI.
-  - ⛔ El siguiente bloqueo real ya no es el proyecto ni el wiring local: el despliegue de Cloud Functions falla porque el proyecto no esta en plan Blaze.
-  - ✅ El intento de deploy real ya se ejecuto y bloqueo en `artifactregistry.googleapis.com` por falta de upgrade de plan.
-  - ✅ El repo ya dispone de checker reproducible para ese bloqueo: `pnpm check:cloud-billing-readiness`.
-  - ✅ El doctor agregado ya prioriza ese cuello de botella como estado principal: `pnpm doctor:real-runtime -> blocked-cloud-billing-required`.
-  - 🚧 Siguiente desbloqueo externo: habilitar billing/plan Blaze para poder publicar Functions v2.
+  - ⛔ El camino Firebase Functions queda descartado para esta primera version porque exige Blaze.
+  - ✅ Firebase Auth + Firestore siguen siendo la base cloud gratis del producto.
+  - ✅ El repo ya tiene adapter real para exponer el backend por `/api` en Vercel.
+  - ✅ El adapter local ya esta validado con `pnpm test:vercel-backend-adapter`, `pnpm test:vercel-api-route` y `pnpm --filter @flux/web build`.
+  - ✅ Preview/host inicial en Vercel Hobby ya desplegado con exito.
+  - ✅ `/api/health` ya responde `200` en preview Vercel.
+  - ✅ La sonda `pnpm smoke:real-cloud-connectivity` ya responde `ready` contra la preview Vercel.
+  - 🚧 Siguiente desbloqueo real: cargar configuracion Firebase/Auth real y credenciales E2E para validar login sobre ese backend Vercel.
 
-## Checklist de desbloqueo Blaze (obligatorio antes de seguir)
-- Paso 1: abrir `https://console.firebase.google.com/project/flux-training-mvp/usage/details`.
-- Paso 2: activar plan Blaze/pay-as-you-go para `flux-training-mvp`.
-- Paso 3: esperar a que Firebase termine de habilitar billing y APIs base (`cloudbuild`, `artifactregistry`).
-- Paso 4: revalidar en este orden exacto:
-  - `pnpm check:cloud-billing-readiness`
-  - `pnpm deploy:functions:cloud`
-  - `pnpm check:cloud-functions-deployment`
+## Checklist de salida Vercel Hobby (obligatorio antes de seguir)
+- Paso 1: mantener Firebase Auth + Firestore en `flux-training-mvp`.
+- Paso 2: desplegar preview/host del repo en Vercel Hobby con `/api/[endpoint]` activo.
+- Paso 3: confirmar `health` remoto por `/api/health`.
+- Paso 4: apuntar Web e iOS al host real de Vercel para el backend HTTP.
+- Paso 5: revalidar en este orden exacto:
+  - `pnpm test:vercel-backend-adapter`
+  - `pnpm test:vercel-api-route`
   - `pnpm smoke:real-cloud-connectivity`
   - `pnpm smoke:real-login`
 - Criterio de salida de este bloqueo:
-  - `pnpm check:cloud-billing-readiness -> ready`
-  - `pnpm check:cloud-functions-deployment -> ready`
-- Si Blaze no esta activado, ninguna task posterior del ciclo 2 puede marcarse `✅`.
+  - preview/host Vercel operativo,
+  - `/api/health` responde `200`,
+  - `pnpm smoke:real-cloud-connectivity` responde `ready`,
+  - login real puede empezar a probarse sin Blaze.
 
 ## Fase 1 — Reapertura y baseline real
 - ✅ Reabrir ciclo 2 en tracking maestro.
@@ -111,11 +115,12 @@
 - ⛔ Confirmar URL base cloud real del backend.
 - ✅ Confirmar acceso real al proyecto cloud y crear proyecto Firebase valido.
 - ✅ Verificar que el proyecto cloud existe pero aun no tiene Functions desplegadas.
-- ⛔ Desplegar las Cloud Functions reales del backend en `flux-training-mvp`.
-- 🚧 Habilitar plan Blaze/billing para permitir despliegue real de Cloud Functions.
+- ⛔ Desplegar las Cloud Functions reales del backend en `flux-training-mvp` (descartado para MVP inicial por coste).
+- ✅ Preparar backend cloud sin Blaze en Vercel Hobby.
+- ✅ Validar conectividad cloud real sobre preview Vercel.
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
-- ⏳ Cargar configuracion real de Firebase/Auth para validar login end-to-end.
+- 🚧 Cargar configuracion real de Firebase/Auth y credenciales E2E para validar login end-to-end sobre Vercel.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
 
