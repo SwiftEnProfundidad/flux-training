@@ -1,0 +1,23 @@
+{
+  "functions": [
+    {
+      "source": "apps/backend",
+      "codebase": "backend",
+      "runtime": "nodejs20",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "src/**/*.spec.ts",
+        "vitest.config.ts",
+        "tsconfig.json",
+        ".env*"
+      ],
+      "predeploy": [
+        "pnpm --filter @flux/contracts build",
+        "pnpm --filter @flux/backend build"
+      ]
+    }
+  ]
+}

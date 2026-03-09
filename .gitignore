@@ -11,6 +11,7 @@ coverage/
 .vscode/
 .env
 .env.local
+.env.e2e.local
 *.xcuserstate
 DerivedData/
 .swiftpm/
@@ -26,3 +27,6 @@ output/
 *.bak
 *.orig
 *.rej
+.ai_evidence.json
+.AI_EVIDENCE.json
+.pumuki/

@@ -9,7 +9,7 @@ final class CreateAnalyticsEventUseCaseTests: XCTestCase {
     let event = try await useCase.execute(
       event: AnalyticsEvent(
         userID: "user-1",
-        name: "screen_view",
+        name: "dashboard_interaction",
         source: .ios,
         occurredAt: makeDate("2026-02-27T10:00:00Z"),
         attributes: ["screen": "dashboard"]
@@ -17,8 +17,28 @@ final class CreateAnalyticsEventUseCaseTests: XCTestCase {
     )
     let savedCount = try await repository.listByUserID("user-1").count
 
-    XCTAssertEqual(event.name, "screen_view")
+    XCTAssertEqual(event.name, "dashboard_interaction")
+    XCTAssertEqual(event.attributes["canonicalEventName"], "dashboard_interaction")
+    XCTAssertEqual(event.attributes["runtimeEventIndex"], "0")
+    XCTAssertNotNil(event.attributes["correlationId"])
     XCTAssertEqual(savedCount, 1)
+  }
+
+  func test_execute_marksUnknownEventNameAsCustomCanonical() async throws {
+    let repository = InMemoryAnalyticsEventRepository()
+    let useCase = CreateAnalyticsEventUseCase(repository: repository)
+
+    let event = try await useCase.execute(
+      event: AnalyticsEvent(
+        userID: "user-1",
+        name: "screen_view",
+        source: .ios,
+        occurredAt: makeDate("2026-02-27T10:00:00Z"),
+        attributes: [:]
+      )
+    )
+
+    XCTAssertEqual(event.attributes["canonicalEventName"], "custom")
   }
 
   func test_execute_throwsWhenUserIDIsEmpty() async {

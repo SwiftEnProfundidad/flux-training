@@ -1,15 +1,20 @@
-# Documentation
+# Documentación oficial — Flux Training
 
-## Structure
-- `REFRACTOR_PROGRESS.md`: source of truth for execution status.
-- `FLUX_UIUX_EXECUTION_TRACKING.md`: seguimiento operativo del rediseño Pencil (iOS+web).
-- `RELEASE_CHECKLIST_V1.md`: checklist operativo GO/NO-GO para la v1.
-- `ROADMAP_V1_1.md`: plan de producto/técnico post-release.
-- `PENCIL_UIUX_PROMPT.md`: prompt maestro para generar UI/UX profesional (web+iOS) con Pencil MCP.
-- `validation/`: BDD features and validation evidence.
+## Si solo vas a abrir un documento
+- Empieza por `SEGUIMIENTO_MASTER.md`.
 
-## Current QA
-- Fase activa de continuidad: QA visual y checklist de demo.
-- Fase activa de rediseño Pencil: ver `FLUX_UIUX_EXECUTION_TRACKING.md` (solo 1 task en construccion).
-- Evidencia visual local (Playwright): `output/playwright/`.
-- Evidencia iOS host simulador: `output/ios/`.
+## Documentos canónicos
+- `SEGUIMIENTO_MASTER.md`: estado global, foco actual y resumen ejecutivo del proyecto.
+- `PLAN_CICLO_2_MVP_FUNCIONAL.md`: plan activo simple del nuevo ciclo de producto real.
+- `PLAN_IOS_MVP_OPERATIVO.md`: seguimiento pantalla a pantalla de iOS.
+- `PLAN_WEB_MVP_OPERATIVO.md`: seguimiento pantalla a pantalla de Web.
+- `BUGS_Y_MEJORAS_PUMUKI.md`: registro de bugs, fricciones y mejoras detectadas al usar Pumuki en este repo.
+- `validation/README.md`: paquete de validación vigente y política de conservación.
+
+## Artefactos de producto
+- `../flux.pen`: diseño canónico de Pencil para iOS y Web.
+
+## Política de esta carpeta
+- Aquí solo vive documentación que aporta valor real al producto o a su operación.
+- Los planes históricos invalidados y los reportes generados de validación ya no se conservan en `docs/`.
+- Si un documento no es fuente de verdad, no debe quedarse en esta carpeta.

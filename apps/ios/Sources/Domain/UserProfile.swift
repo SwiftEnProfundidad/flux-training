@@ -75,5 +75,5 @@ public struct OnboardingResult: Sendable, Equatable {
 
 public protocol UserProfileRepository: Sendable {
   func save(profile: UserProfile) async throws
+  func load(userID: String) async throws -> UserProfile?
 }
-

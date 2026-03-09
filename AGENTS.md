@@ -53,6 +53,7 @@
 - Decidir skills aplicables y ejecutar sus instrucciones si corresponde.
 - Los checks legacy de gate/evidencia estan deprecados y no bloquean trabajo.
 - Actualizar el tracking real de refactor/estabilidad al cerrar cada tarea.
+- Registrar en `docs/BUGS_Y_MEJORAS_PUMUKI.md` cada bug/fallo/mejora detectado de Pumuki en la iteracion (con evidencia, impacto y propuesta).
 
 ### Contrato hard de skills
 - Las skills activas son contrato hard no negociable.
@@ -94,11 +95,41 @@
 - Verificar rama alineada con GitFlow y naming.
 - Si no se puede garantizar gate, no editar codigo.
 
+### Gate hard de ejecucion real (anti "falso DONE")
+- Prohibido marcar cualquier task/subtask en `✅` sin evidencia ejecutable real.
+- Evidencia minima obligatoria por plataforma:
+- Web: pantalla visible en `localhost` + accion principal ejecutada + estado resultante observable.
+- iOS: pantalla visible en simulador + accion principal ejecutada + estado resultante observable.
+- Backend: smoke de endpoint/caso de uso principal con respuesta valida.
+- Prohibido cerrar como "funcional" algo que sea solo shell/listado interno/debug UI.
+- Si una pantalla existe pero no permite la accion de usuario esperada E2E, estado obligatorio: `⛔ Bloqueado` o `⏳ Pendiente` (nunca `✅`).
+
+### Gate hard de worktree limpio y commits atomicos
+- Si `git status --short` supera 80 entradas, detener implementacion y ejecutar ciclo de limpieza/commits antes de continuar.
+- Objetivo operativo: cerrar cada iteracion con worktree limpio (`git status` sin cambios) salvo instruccion explicita del usuario.
+- Cada commit debe ser atomico (un solo objetivo funcional claro).
+- Tamano recomendado por commit: maximo 25 archivos tocados del mismo ambito.
+- Prohibido mezclar en un mismo commit cambios de iOS + Web + Backend + Docs sin relacion directa.
+- Antes de pasar una task a `✅`, debe existir commit local del bloque correspondiente.
+- Prohibido avanzar a la siguiente task con trabajo local sin commitear del bloque anterior.
+
+### Gate hard de tracking y veracidad
+- Solo puede existir una task en `🚧` por plan activo.
+- Al cerrar una task:
+- actualizar tracking,
+- adjuntar evidencia (comandos/test/smoke),
+- referenciar el commit hash local que contiene el cierre.
+- Prohibido mover tasks a `✅` por "suposicion" o por codigo parcial sin validacion.
+- Si hay discrepancia entre tracking y producto ejecutado, prevalece el producto ejecutado y se reabre la task inmediatamente.
+
 ### Prohibiciones explicitas
 - Prohibido implementar si se incumple cualquier regla hard de skill.
 - Prohibido cerrar tarea con violaciones conocidas de skills.
 - Prohibido asumir permiso implicito para saltar reglas.
 - Prohibido ejecutar `merge`, `rebase`, `cherry-pick` o `push --force` sin instruccion explicita.
+- Prohibido trabajar en un workspace/ruta distinta al repo activo validado por `pwd` + `git rev-parse --show-toplevel`.
+- Prohibido reportar capturas o evidencias no verificables localmente.
+- Prohibido mantener artefactos temporales fuera de control (`tmp`, capturas sueltas, logs, backups ad-hoc).
 
 ### Contrato hard de higiene documental y artefactos
 - Mantener repositorio limpio, trazable y sin basura operativa.
@@ -136,6 +167,8 @@
 - `FILES CHANGED`
 - `COMMANDS RUN`
 - `NEXT instruction`
+- `EVIDENCIA RUNTIME` (web/iOS/backend segun aplique)
+- `COMMIT` (hash local del bloque cerrado)
 
 ### Plantilla obligatoria de trazabilidad por turno
 - Incluir en cada entrega final una matriz:

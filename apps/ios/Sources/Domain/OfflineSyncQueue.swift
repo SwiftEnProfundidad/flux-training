@@ -49,10 +49,28 @@ public struct OfflineSyncRejectedItem: Sendable, Equatable {
 public struct OfflineSyncResult: Sendable, Equatable {
   public let acceptedIDs: [String]
   public let rejected: [OfflineSyncRejectedItem]
+  public let idempotency: OfflineSyncIdempotencyMetadata?
 
-  public init(acceptedIDs: [String], rejected: [OfflineSyncRejectedItem]) {
+  public init(
+    acceptedIDs: [String],
+    rejected: [OfflineSyncRejectedItem],
+    idempotency: OfflineSyncIdempotencyMetadata? = nil
+  ) {
     self.acceptedIDs = acceptedIDs
     self.rejected = rejected
+    self.idempotency = idempotency
+  }
+}
+
+public struct OfflineSyncIdempotencyMetadata: Sendable, Equatable {
+  public let key: String
+  public let replayed: Bool
+  public let ttlSeconds: Int
+
+  public init(key: String, replayed: Bool, ttlSeconds: Int) {
+    self.key = key
+    self.replayed = replayed
+    self.ttlSeconds = ttlSeconds
   }
 }
 

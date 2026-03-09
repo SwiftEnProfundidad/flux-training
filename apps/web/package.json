@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:qa": "VITE_WEB_RUNTIME_MODE=qa VITE_WEB_QA_UI_ENABLED=1 vite --open /__qa?unlockQa=1\\&qa=1",
     "build": "vite build",
     "test": "vitest run",
     "check": "tsc --noEmit -p tsconfig.json"

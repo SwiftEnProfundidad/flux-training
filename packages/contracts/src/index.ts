@@ -62,10 +62,22 @@ export const legalConsentSubmissionSchema = z.object({
   acceptedAt: z.string().datetime(),
   privacyPolicyAccepted: z.boolean(),
   termsAccepted: z.boolean(),
-  medicalDisclaimerAccepted: z.boolean()
+  medicalDisclaimerAccepted: z.boolean(),
+  policyVersion: z.string().min(1).default("v1.0"),
+  locale: z.string().regex(/^[a-z]{2}-[A-Z]{2}$/).default("es-ES"),
+  source: z.enum(["web", "ios", "backend"]).default("web")
 });
 
 export const legalConsentSchema = legalConsentSubmissionSchema;
+export const legalConsentAuditSchema = z.object({
+  auditId: z.string().min(1),
+  userId: z.string().min(1),
+  acceptedAt: z.string().datetime(),
+  policyVersion: z.string().min(1),
+  locale: z.string().regex(/^[a-z]{2}-[A-Z]{2}$/),
+  source: z.enum(["web", "ios", "backend"]),
+  capturedAt: z.string().datetime()
+});
 
 export const dataDeletionRequestStatusSchema = z.enum([
   "pending",
@@ -77,7 +89,48 @@ export const dataDeletionRequestSchema = z.object({
   userId: z.string().min(1),
   requestedAt: z.string().datetime(),
   reason: z.string().min(1).optional(),
-  status: dataDeletionRequestStatusSchema.default("pending")
+  status: dataDeletionRequestStatusSchema.default("pending"),
+  exportRequested: z.boolean().default(true),
+  exportFormat: z.enum(["json", "csv"]).default("json"),
+  retentionUntil: z.string().datetime().optional(),
+  retentionReason: z.string().min(1).optional()
+});
+
+export const dataExportRequestInputSchema = z.object({
+  userId: z.string().min(1),
+  requestedAt: z.string().datetime().optional(),
+  format: z.enum(["json", "csv"]).default("json")
+});
+
+export const dataExportRequestStatusSchema = z.enum([
+  "pending",
+  "completed",
+  "expired"
+]);
+
+export const dataExportRequestSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  requestedAt: z.string().datetime(),
+  format: z.enum(["json", "csv"]),
+  status: dataExportRequestStatusSchema,
+  downloadUrl: z.string().url(),
+  expiresAt: z.string().datetime()
+});
+
+export const dataRetentionDomainSchema = z.enum([
+  "auth",
+  "training",
+  "nutrition",
+  "legal",
+  "observability"
+]);
+
+export const dataRetentionPolicySchema = z.object({
+  domain: dataRetentionDomainSchema,
+  retentionDays: z.number().int().positive(),
+  legalBasis: z.string().min(1),
+  effectiveFrom: z.string().datetime()
 });
 
 export const setLogSchema = z.object({
@@ -181,14 +234,161 @@ export const authIdentitySchema = z.object({
   displayName: z.string().min(1).optional()
 });
 
+export const authSessionPolicySchema = z.object({
+  maxIdleSeconds: z.number().int().positive(),
+  rotationIntervalSeconds: z.number().int().positive(),
+  absoluteTtlSeconds: z.number().int().positive()
+});
+
 export const authSessionSchema = z.object({
   userId: z.string().min(1),
+  sessionId: z.string().min(1),
   token: z.string().min(1),
+  issuedAt: z.string().datetime(),
   expiresAt: z.string().datetime(),
+  rotationRequiredAt: z.string().datetime(),
+  absoluteExpiresAt: z.string().datetime(),
+  sessionPolicy: authSessionPolicySchema,
   identity: authIdentitySchema
 });
 
+export const authRecoveryChannelSchema = z.enum(["email", "sms"]);
+
+export const authRecoveryRequestSchema = z.object({
+  channel: authRecoveryChannelSchema,
+  identifier: z.string().min(3)
+});
+
+export const authRecoveryStatusSchema = z.enum([
+  "recovery_sent_email",
+  "recovery_sent_sms"
+]);
+
+export const authRecoveryResultSchema = z.object({
+  channel: authRecoveryChannelSchema,
+  identifier: z.string().min(3),
+  status: authRecoveryStatusSchema,
+  ticketId: z.string().min(1),
+  requestedAt: z.string().datetime()
+});
+
+export const dashboardDomainSchema = z.enum([
+  "all",
+  "onboarding",
+  "training",
+  "nutrition",
+  "progress",
+  "operations"
+]);
+
+export const accessRoleSchema = z.enum(["athlete", "coach", "admin"]);
+
+export const accessActionSchema = z.enum([
+  "view",
+  "create",
+  "update",
+  "delete",
+  "approve",
+  "export",
+  "assign"
+]);
+
+export const roleResourceConditionSchema = z.object({
+  requiresOwnership: z.boolean().default(false),
+  requiresMedicalConsent: z.boolean().default(false)
+});
+
+export const roleResourcePermissionSchema = z.object({
+  domain: dashboardDomainSchema,
+  actions: z.array(accessActionSchema).min(1),
+  conditions: roleResourceConditionSchema.default({
+    requiresOwnership: false,
+    requiresMedicalConsent: false
+  })
+});
+
+export const roleCapabilitiesSchema = z.object({
+  role: accessRoleSchema,
+  allowedDomains: z.array(dashboardDomainSchema).min(1),
+  permissions: z.array(roleResourcePermissionSchema).min(1),
+  issuedAt: z.string().datetime()
+});
+
+export const accessDecisionInputSchema = z.object({
+  role: accessRoleSchema,
+  domain: dashboardDomainSchema,
+  action: accessActionSchema,
+  context: z
+    .object({
+      isOwner: z.boolean().default(false),
+      medicalDisclaimerAccepted: z.boolean().default(true)
+    })
+    .default({})
+});
+
+export const accessDecisionReasonSchema = z.enum([
+  "allowed",
+  "domain_denied",
+  "action_denied",
+  "ownership_required",
+  "medical_consent_required"
+]);
+
+export const accessDecisionResultSchema = z.object({
+  role: accessRoleSchema,
+  domain: dashboardDomainSchema,
+  action: accessActionSchema,
+  allowed: z.boolean(),
+  reason: accessDecisionReasonSchema,
+  evaluatedAt: z.string().datetime()
+});
+
+export const deniedAccessTriggerSchema = z.enum([
+  "domain_select",
+  "runtime_state_change",
+  "recover",
+  "role_capabilities_sync",
+  "governance_action"
+]);
+
+export const deniedAccessReasonSchema = z.enum([
+  "domain_denied",
+  "action_denied",
+  "ownership_required",
+  "medical_consent_required"
+]);
+
+export const deniedAccessAuditInputSchema = z.object({
+  userId: z.string().min(1),
+  role: accessRoleSchema,
+  domain: dashboardDomainSchema,
+  action: accessActionSchema,
+  reason: deniedAccessReasonSchema,
+  trigger: deniedAccessTriggerSchema,
+  correlationId: z.string().min(1)
+});
+
+export const deniedAccessAuditSchema = deniedAccessAuditInputSchema.extend({
+  id: z.string().min(1),
+  occurredAt: z.string().datetime()
+});
+
 export const observabilitySourceSchema = z.enum(["web", "ios", "backend"]);
+
+export const canonicalAnalyticsEventNameSchema = z.enum([
+  "dashboard_interaction",
+  "dashboard_domain_changed",
+  "dashboard_role_changed",
+  "dashboard_domain_access_denied",
+  "dashboard_action_blocked",
+  "governance_bulk_role_assignment_saved",
+  "billing_support_incidents_resolved",
+  "audit_timeline_exported",
+  "critical_regression_passed",
+  "happy_path_completed",
+  "recovery_path_completed",
+  "custom"
+]);
 
 export const analyticsEventSchema = z.object({
   userId: z.string().min(1),
@@ -200,6 +400,187 @@ export const analyticsEventSchema = z.object({
     .default({})
 });
 
+export const observabilitySummarySchema = z.object({
+  userId: z.string().min(1),
+  generatedAt: z.string().datetime(),
+  totalAnalyticsEvents: z.number().int().nonnegative(),
+  totalCrashReports: z.number().int().nonnegative(),
+  blockedActions: z.number().int().nonnegative(),
+  deniedAccessEvents: z.number().int().nonnegative(),
+  fatalCrashReports: z.number().int().nonnegative(),
+  uniqueCorrelationIds: z.number().int().nonnegative(),
+  sourceBreakdown: z.object({
+    web: z.number().int().nonnegative(),
+    ios: z.number().int().nonnegative(),
+    backend: z.number().int().nonnegative()
+  }),
+  canonicalCoverage: z.object({
+    trackedCanonicalEvents: z.number().int().nonnegative(),
+    customEvents: z.number().int().nonnegative()
+  }),
+  latestAnalyticsAt: z.string().datetime().nullable(),
+  latestCrashAt: z.string().datetime().nullable()
+});
+
+export const operationalAlertCodeSchema = z.enum([
+  "fatal_crash_slo_breach",
+  "denied_access_spike",
+  "blocked_action_spike",
+  "canonical_coverage_drop",
+  "high_incident_backlog"
+]);
+
+export const operationalAlertSeveritySchema = z.enum([
+  "critical",
+  "high",
+  "medium"
+]);
+
+export const operationalAlertStateSchema = z.enum([
+  "open",
+  "acknowledged",
+  "resolved"
+]);
+
+export const operationalAlertSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  code: operationalAlertCodeSchema,
+  severity: operationalAlertSeveritySchema,
+  state: operationalAlertStateSchema,
+  source: observabilitySourceSchema,
+  summary: z.string().min(1),
+  correlationId: z.string().min(1),
+  runbookId: z.string().min(1),
+  ownerOnCall: z.string().min(1),
+  serviceLevelObjective: z.string().min(1),
+  currentValue: z.number().nonnegative(),
+  thresholdValue: z.number().nonnegative(),
+  triggeredAt: z.string().datetime(),
+  lastEvaluatedAt: z.string().datetime()
+});
+
+export const operationalRunbookStepSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  ownerRole: z.string().min(1),
+  slaMinutes: z.number().int().positive(),
+  outcome: z.string().min(1)
+});
+
+export const operationalRunbookSchema = z.object({
+  id: z.string().min(1),
+  alertCode: operationalAlertCodeSchema,
+  title: z.string().min(1),
+  objective: z.string().min(1),
+  ownerOnCall: z.string().min(1),
+  steps: z.array(operationalRunbookStepSchema).min(1),
+  updatedAt: z.string().datetime()
+});
+
+export const structuredLogLevelSchema = z.enum([
+  "info",
+  "warning",
+  "error",
+  "critical"
+]);
+
+export const structuredLogCategorySchema = z.enum([
+  "analytics",
+  "crash",
+  "access",
+  "compliance",
+  "operations"
+]);
+
+export const structuredLogSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  occurredAt: z.string().datetime(),
+  source: observabilitySourceSchema,
+  level: structuredLogLevelSchema,
+  category: structuredLogCategorySchema,
+  eventName: z.string().min(1),
+  domain: z.string().min(1),
+  correlationId: z.string().min(1),
+  summary: z.string().min(1),
+  attributes: z
+    .record(z.union([z.string(), z.number(), z.boolean()]))
+    .default({})
+});
+
+export const activityActorRoleSchema = z.enum([
+  "athlete",
+  "coach",
+  "admin",
+  "system"
+]);
+
+export const activityLogActionSchema = z.enum([
+  "role_changed",
+  "domain_changed",
+  "access_denied",
+  "action_blocked",
+  "incident_opened",
+  "forensic_exported",
+  "consent_recorded",
+  "data_export_requested",
+  "data_deletion_requested",
+  "crash_reported"
+]);
+
+export const activityLogOutcomeSchema = z.enum([
+  "success",
+  "denied",
+  "error"
+]);
+
+export const activityLogEntrySchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  occurredAt: z.string().datetime(),
+  actorRole: activityActorRoleSchema,
+  action: activityLogActionSchema,
+  resource: z.string().min(1),
+  domain: z.string().min(1),
+  source: observabilitySourceSchema,
+  outcome: activityLogOutcomeSchema,
+  correlationId: z.string().min(1),
+  summary: z.string().min(1)
+});
+
+export const forensicAuditExportFormatSchema = z.enum([
+  "csv",
+  "json"
+]);
+
+export const forensicAuditExportRequestSchema = z.object({
+  userId: z.string().min(1),
+  format: forensicAuditExportFormatSchema.default("csv"),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+  includeStructuredLogs: z.boolean().default(true),
+  includeActivityLog: z.boolean().default(true),
+  limit: z.number().int().positive().max(5000).optional()
+});
+
+export const forensicAuditExportStatusSchema = z.enum([
+  "completed"
+]);
+
+export const forensicAuditExportSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  format: forensicAuditExportFormatSchema,
+  status: forensicAuditExportStatusSchema,
+  generatedAt: z.string().datetime(),
+  rowCount: z.number().int().nonnegative(),
+  checksum: z.string().min(8),
+  downloadUrl: z.string().url(),
+  fromDate: z.string().datetime().nullable(),
+  toDate: z.string().datetime().nullable()
+});
+
 export const crashSeveritySchema = z.enum(["warning", "fatal"]);
 
 export const crashReportSchema = z.object({
@@ -207,8 +588,58 @@ export const crashReportSchema = z.object({
   source: observabilitySourceSchema,
   message: z.string().min(1),
   stackTrace: z.string().optional(),
+  correlationId: z.string().min(1).optional(),
   severity: crashSeveritySchema,
   occurredAt: z.string().datetime()
+});
+
+export const billingInvoiceStatusSchema = z.enum([
+  "draft",
+  "open",
+  "paid",
+  "overdue"
+]);
+
+export const billingInvoiceSourceSchema = z.enum(["auto", "manual"]);
+
+export const billingInvoiceSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  period: z.string().regex(/^\d{4}-\d{2}$/),
+  amountEUR: z.number().nonnegative(),
+  status: billingInvoiceStatusSchema,
+  source: billingInvoiceSourceSchema,
+  issuedAt: z.string().datetime()
+});
+
+export const supportIncidentSeveritySchema = z.enum([
+  "low",
+  "medium",
+  "high"
+]);
+
+export const supportIncidentStateSchema = z.enum([
+  "open",
+  "in_progress",
+  "resolved"
+]);
+
+export const supportIncidentSourceSchema = z.enum([
+  "analytics",
+  "crash",
+  "operator"
+]);
+
+export const supportIncidentSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  openedAt: z.string().datetime(),
+  domain: z.string().min(1),
+  severity: supportIncidentSeveritySchema,
+  state: supportIncidentStateSchema,
+  source: supportIncidentSourceSchema,
+  summary: z.string().min(1),
+  correlationId: z.string().min(1)
 });
 
 export const aiRecommendationPrioritySchema = z.enum([
@@ -291,8 +722,14 @@ export type OnboardingSubmissionInput = z.infer<typeof onboardingSubmissionInput
 export type OnboardingResult = z.infer<typeof onboardingResultSchema>;
 export type LegalConsentSubmission = z.infer<typeof legalConsentSubmissionSchema>;
 export type LegalConsent = z.infer<typeof legalConsentSchema>;
+export type LegalConsentAudit = z.infer<typeof legalConsentAuditSchema>;
 export type DataDeletionRequestStatus = z.infer<typeof dataDeletionRequestStatusSchema>;
 export type DataDeletionRequest = z.infer<typeof dataDeletionRequestSchema>;
+export type DataExportRequestInput = z.infer<typeof dataExportRequestInputSchema>;
+export type DataExportRequestStatus = z.infer<typeof dataExportRequestStatusSchema>;
+export type DataExportRequest = z.infer<typeof dataExportRequestSchema>;
+export type DataRetentionDomain = z.infer<typeof dataRetentionDomainSchema>;
+export type DataRetentionPolicy = z.infer<typeof dataRetentionPolicySchema>;
 export type SetLog = z.infer<typeof setLogSchema>;
 export type TrainingExercise = z.infer<typeof trainingExerciseSchema>;
 export type ExerciseVideoDifficulty = z.infer<typeof exerciseVideoDifficultySchema>;
@@ -306,11 +743,55 @@ export type ProgressHistoryEntry = z.infer<typeof progressHistoryEntrySchema>;
 export type ProgressSummary = z.infer<typeof progressSummarySchema>;
 export type AuthProvider = z.infer<typeof authProviderSchema>;
 export type AuthIdentity = z.infer<typeof authIdentitySchema>;
+export type AuthSessionPolicy = z.infer<typeof authSessionPolicySchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
+export type AuthRecoveryChannel = z.infer<typeof authRecoveryChannelSchema>;
+export type AuthRecoveryRequest = z.infer<typeof authRecoveryRequestSchema>;
+export type AuthRecoveryStatus = z.infer<typeof authRecoveryStatusSchema>;
+export type AuthRecoveryResult = z.infer<typeof authRecoveryResultSchema>;
+export type DashboardDomain = z.infer<typeof dashboardDomainSchema>;
+export type AccessRole = z.infer<typeof accessRoleSchema>;
+export type AccessAction = z.infer<typeof accessActionSchema>;
+export type RoleResourceCondition = z.infer<typeof roleResourceConditionSchema>;
+export type RoleResourcePermission = z.infer<typeof roleResourcePermissionSchema>;
+export type RoleCapabilities = z.infer<typeof roleCapabilitiesSchema>;
+export type AccessDecisionInput = z.infer<typeof accessDecisionInputSchema>;
+export type AccessDecisionReason = z.infer<typeof accessDecisionReasonSchema>;
+export type AccessDecisionResult = z.infer<typeof accessDecisionResultSchema>;
+export type DeniedAccessTrigger = z.infer<typeof deniedAccessTriggerSchema>;
+export type DeniedAccessReason = z.infer<typeof deniedAccessReasonSchema>;
+export type DeniedAccessAuditInput = z.infer<typeof deniedAccessAuditInputSchema>;
+export type DeniedAccessAudit = z.infer<typeof deniedAccessAuditSchema>;
 export type ObservabilitySource = z.infer<typeof observabilitySourceSchema>;
+export type CanonicalAnalyticsEventName = z.infer<typeof canonicalAnalyticsEventNameSchema>;
 export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
+export type ObservabilitySummary = z.infer<typeof observabilitySummarySchema>;
+export type OperationalAlertCode = z.infer<typeof operationalAlertCodeSchema>;
+export type OperationalAlertSeverity = z.infer<typeof operationalAlertSeveritySchema>;
+export type OperationalAlertState = z.infer<typeof operationalAlertStateSchema>;
+export type OperationalAlert = z.infer<typeof operationalAlertSchema>;
+export type OperationalRunbookStep = z.infer<typeof operationalRunbookStepSchema>;
+export type OperationalRunbook = z.infer<typeof operationalRunbookSchema>;
+export type StructuredLogLevel = z.infer<typeof structuredLogLevelSchema>;
+export type StructuredLogCategory = z.infer<typeof structuredLogCategorySchema>;
+export type StructuredLog = z.infer<typeof structuredLogSchema>;
+export type ActivityActorRole = z.infer<typeof activityActorRoleSchema>;
+export type ActivityLogAction = z.infer<typeof activityLogActionSchema>;
+export type ActivityLogOutcome = z.infer<typeof activityLogOutcomeSchema>;
+export type ActivityLogEntry = z.infer<typeof activityLogEntrySchema>;
+export type ForensicAuditExportFormat = z.infer<typeof forensicAuditExportFormatSchema>;
+export type ForensicAuditExportRequest = z.infer<typeof forensicAuditExportRequestSchema>;
+export type ForensicAuditExportStatus = z.infer<typeof forensicAuditExportStatusSchema>;
+export type ForensicAuditExport = z.infer<typeof forensicAuditExportSchema>;
 export type CrashSeverity = z.infer<typeof crashSeveritySchema>;
 export type CrashReport = z.infer<typeof crashReportSchema>;
+export type BillingInvoiceStatus = z.infer<typeof billingInvoiceStatusSchema>;
+export type BillingInvoiceSource = z.infer<typeof billingInvoiceSourceSchema>;
+export type BillingInvoice = z.infer<typeof billingInvoiceSchema>;
+export type SupportIncidentSeverity = z.infer<typeof supportIncidentSeveritySchema>;
+export type SupportIncidentState = z.infer<typeof supportIncidentStateSchema>;
+export type SupportIncidentSource = z.infer<typeof supportIncidentSourceSchema>;
+export type SupportIncident = z.infer<typeof supportIncidentSchema>;
 export type AIRecommendationPriority = z.infer<typeof aiRecommendationPrioritySchema>;
 export type AIRecommendationCategory = z.infer<typeof aiRecommendationCategorySchema>;
 export type AIRecommendationImpact = z.infer<typeof aiRecommendationImpactSchema>;

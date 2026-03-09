@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import {
   type Auth,
   OAuthProvider,
+  createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
   signInWithPopup
@@ -12,11 +13,59 @@ import { assertApiResponse, createApiHeaders } from "./api-client";
 
 let cachedAuth: Auth | null = null;
 
+function isLocalHostname(candidate: string): boolean {
+  const normalized = candidate.trim().toLowerCase();
+  return (
+    normalized === "127.0.0.1" ||
+    normalized === "localhost" ||
+    normalized === "::1" ||
+    normalized === "[::1]" ||
+    normalized === "::ffff:127.0.0.1"
+  );
+}
+
 function hasFirebaseWebConfig(): boolean {
   const apiKey = String(import.meta.env.VITE_FIREBASE_API_KEY ?? "");
   const authDomain = String(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "");
   const projectId = String(import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "");
   return apiKey.length > 0 && authDomain.length > 0 && projectId.length > 0;
+}
+
+export function isLocalDemoApiTarget(rawTarget: string): boolean {
+  const candidate = rawTarget.trim();
+  if (candidate.length === 0) {
+    return false;
+  }
+  try {
+    const url = new URL(candidate);
+    return isLocalHostname(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function shouldUseLocalDemoAuthFallbackFromContext(
+  rawTarget: string,
+  locationHostname: string
+): boolean {
+  const normalizedTarget = rawTarget.trim();
+  if (normalizedTarget.length > 0) {
+    return isLocalDemoApiTarget(normalizedTarget);
+  }
+  return isLocalHostname(locationHostname.trim().toLowerCase());
+}
+
+function resolveLocationHostname(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+  const candidate = window.location?.hostname;
+  return typeof candidate === "string" ? candidate : "";
+}
+
+function shouldUseLocalDemoAuthFallback(): boolean {
+  const rawTarget = String(import.meta.env.VITE_API_TARGET ?? "");
+  return shouldUseLocalDemoAuthFallbackFromContext(rawTarget, resolveLocationHostname());
 }
 
 function getClientAuth(): Auth {
@@ -57,7 +106,10 @@ async function createBackendSession(providerToken: string): Promise<AuthSession>
 class FirebaseAuthGateway implements AuthGateway {
   async signInWithApple(): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
-      return createBackendSession("apple-demo-token");
+      if (shouldUseLocalDemoAuthFallback()) {
+        return createBackendSession("apple-local-dev-token");
+      }
+      throw new Error("missing_firebase_web_config");
     }
 
     const auth = getClientAuth();
@@ -69,18 +121,46 @@ class FirebaseAuthGateway implements AuthGateway {
 
   async signInWithEmail(email: string, password: string): Promise<AuthSession> {
     if (hasFirebaseWebConfig() === false) {
-      const normalizedEmail = email.trim();
-      if (normalizedEmail.length === 0 || password.trim().length === 0) {
-        throw new Error("invalid_credentials");
+      if (shouldUseLocalDemoAuthFallback()) {
+        const fallbackToken = email.trim().toLowerCase();
+        if (fallbackToken.length === 0) {
+          throw new Error("missing_email_for_local_demo_auth");
+        }
+        return createBackendSession(fallbackToken);
       }
-      return createBackendSession(normalizedEmail);
+      throw new Error("missing_firebase_web_config");
     }
 
     const auth = getClientAuth();
-    const credential = await signInWithEmailAndPassword(auth, email, password);
+    const credential = await signInOrCreateWithEmail(auth, email, password);
     const providerToken = await credential.user.getIdToken();
     return createBackendSession(providerToken);
   }
+}
+
+async function signInOrCreateWithEmail(
+  auth: Auth,
+  email: string,
+  password: string
+) {
+  try {
+    return await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    if (shouldAutoCreateAccount(error) === false) {
+      throw error;
+    }
+
+    try {
+      return await createUserWithEmailAndPassword(auth, email, password);
+    } catch {
+      throw error;
+    }
+  }
+}
+
+function shouldAutoCreateAccount(error: unknown): boolean {
+  const code = (error as { code?: string } | null)?.code;
+  return code === "auth/user-not-found" || code === "auth/invalid-credential";
 }
 
 export const firebaseAuthGateway: AuthGateway = new FirebaseAuthGateway();

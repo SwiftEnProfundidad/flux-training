@@ -66,6 +66,54 @@ public struct CrashReport: Sendable, Equatable, Identifiable {
   }
 }
 
+public enum SupportIncidentSource: String, Sendable, Equatable {
+  case analytics
+  case crash
+}
+
+public enum SupportIncidentSeverity: String, Sendable, Equatable {
+  case high
+  case medium
+  case low
+}
+
+public enum SupportIncidentState: String, Sendable, Equatable {
+  case open
+  case inProgress = "in_progress"
+  case resolved
+}
+
+public struct SupportIncident: Sendable, Equatable, Identifiable {
+  public let id: String
+  public let openedAt: Date
+  public let domain: String
+  public let severity: SupportIncidentSeverity
+  public let state: SupportIncidentState
+  public let summary: String
+  public let source: SupportIncidentSource
+  public let correlationID: String
+
+  public init(
+    id: String,
+    openedAt: Date,
+    domain: String,
+    severity: SupportIncidentSeverity,
+    state: SupportIncidentState,
+    summary: String,
+    source: SupportIncidentSource,
+    correlationID: String
+  ) {
+    self.id = id
+    self.openedAt = openedAt
+    self.domain = domain
+    self.severity = severity
+    self.state = state
+    self.summary = summary
+    self.source = source
+    self.correlationID = correlationID
+  }
+}
+
 public protocol AnalyticsEventRepository: Sendable {
   func save(event: AnalyticsEvent) async throws
   func listByUserID(_ userID: String) async throws -> [AnalyticsEvent]

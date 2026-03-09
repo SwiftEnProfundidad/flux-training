@@ -1,11 +1,25 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import {
+  accessDecisionInputSchema,
+  accessRoleSchema,
+  activityLogActionSchema,
+  activityLogEntrySchema,
+  activityLogOutcomeSchema,
   analyticsEventSchema,
+  authRecoveryRequestSchema,
   crashReportSchema,
+  dataExportRequestInputSchema,
   dataDeletionRequestSchema,
+  deniedAccessAuditInputSchema,
+  forensicAuditExportRequestSchema,
   goalSchema,
   legalConsentSubmissionSchema,
+  operationalAlertSchema,
+  operationalRunbookSchema,
   nutritionLogSchema,
+  structuredLogCategorySchema,
+  structuredLogLevelSchema,
+  structuredLogSchema,
   syncQueueProcessInputSchema,
   trainingPlanSchema,
   workoutSessionInputSchema,
@@ -38,8 +52,18 @@ type RouteResult = {
   payload: JsonPayload;
 };
 
+type IdempotencyCacheEntry = {
+  statusCode: number;
+  payload: JsonPayload;
+  expiresAt: number;
+};
+
+const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000;
+
 const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/createAuthSession": "POST",
+  "/api/requestAuthRecovery": "POST",
+  "/api/createHealthScreening": "POST",
   "/api/completeOnboarding": "POST",
   "/api/createTrainingPlan": "POST",
   "/api/listTrainingPlans": "GET",
@@ -53,10 +77,25 @@ const routeMethodMap: Record<string, "GET" | "POST"> = {
   "/api/listAnalyticsEvents": "GET",
   "/api/createCrashReport": "POST",
   "/api/listCrashReports": "GET",
+  "/api/listObservabilitySummary": "GET",
+  "/api/listRuntimeProfiles": "GET",
+  "/api/listOperationalAlerts": "GET",
+  "/api/listOperationalRunbooks": "GET",
+  "/api/listStructuredLogs": "GET",
+  "/api/listActivityLog": "GET",
+  "/api/exportForensicAudit": "POST",
   "/api/recordLegalConsent": "POST",
+  "/api/requestDataExport": "POST",
   "/api/requestDataDeletion": "POST",
+  "/api/listDataRetentionPolicies": "GET",
   "/api/listExerciseVideos": "GET",
-  "/api/listAIRecommendations": "GET"
+  "/api/listAIRecommendations": "GET",
+  "/api/listRoleCapabilities": "GET",
+  "/api/evaluateAccessDecision": "POST",
+  "/api/recordDeniedAccessAudit": "POST",
+  "/api/listDeniedAccessAudits": "GET",
+  "/api/listBillingInvoices": "GET",
+  "/api/listSupportIncidents": "GET"
 };
 
 function mapDomainError(error: unknown, fallbackCode: string): string {
@@ -76,15 +115,107 @@ function normalizeHeaderValue(value: string | string[] | undefined): string {
   return "";
 }
 
-function sendJson(response: ServerResponse, statusCode: number, payload: JsonPayload): void {
+function createCorrelationIdSeed(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function resolveCorrelationId(request: IncomingMessage): string {
+  const requestedCorrelationId = normalizeHeaderValue(request.headers["x-correlation-id"]).trim();
+  if (requestedCorrelationId.length > 0) {
+    return requestedCorrelationId;
+  }
+  return `flux-${createCorrelationIdSeed()}`;
+}
+
+function resolveIdempotencyKey(
+  request: IncomingMessage,
+  method: string,
+  pathname: string
+): string | undefined {
+  if (method !== "POST") {
+    return undefined;
+  }
+  const rawValue = normalizeHeaderValue(request.headers["x-idempotency-key"]).trim();
+  if (rawValue.length === 0) {
+    return undefined;
+  }
+  return `${method}:${pathname}:${rawValue}`;
+}
+
+function withIdempotencyMetadata(
+  payload: JsonPayload,
+  idempotencyKey: string | undefined,
+  replayed: boolean
+): JsonPayload {
+  if (idempotencyKey === undefined) {
+    return payload;
+  }
+  return {
+    ...payload,
+    idempotency: {
+      key: idempotencyKey,
+      replayed,
+      ttlSeconds: Math.floor(IDEMPOTENCY_TTL_MS / 1000)
+    }
+  };
+}
+
+function readIdempotencyCacheEntry(
+  cache: Map<string, IdempotencyCacheEntry>,
+  idempotencyKey: string
+): IdempotencyCacheEntry | undefined {
+  const cachedEntry = cache.get(idempotencyKey);
+  if (cachedEntry === undefined) {
+    return undefined;
+  }
+  if (cachedEntry.expiresAt < Date.now()) {
+    cache.delete(idempotencyKey);
+    return undefined;
+  }
+  return cachedEntry;
+}
+
+function normalizeErrorPayload(
+  request: IncomingMessage,
+  statusCode: number,
+  payload: JsonPayload
+): JsonPayload {
+  if (typeof payload.error !== "string") {
+    return payload;
+  }
+  const correlationId =
+    typeof payload.correlationId === "string" && payload.correlationId.trim().length > 0
+      ? payload.correlationId
+      : resolveCorrelationId(request);
+  const retryable =
+    typeof payload.retryable === "boolean" ? payload.retryable : statusCode >= 500;
+  return {
+    ...payload,
+    correlationId,
+    retryable
+  };
+}
+
+function sendJson(
+  request: IncomingMessage,
+  response: ServerResponse,
+  statusCode: number,
+  payload: JsonPayload
+): void {
+  const normalizedPayload = normalizeErrorPayload(request, statusCode, payload);
+  const correlationIdHeader =
+    typeof normalizedPayload.correlationId === "string"
+      ? { "x-correlation-id": normalizedPayload.correlationId }
+      : {};
   response.writeHead(statusCode, {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
-      "Content-Type,x-flux-client-platform,x-flux-client-version",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
+      "Content-Type,x-flux-client-platform,x-flux-client-version,x-correlation-id,x-idempotency-key",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    ...correlationIdHeader
   });
-  response.end(JSON.stringify(payload));
+  response.end(JSON.stringify(normalizedPayload));
 }
 
 async function readJsonBody(request: IncomingMessage): Promise<unknown> {
@@ -111,6 +242,44 @@ function parseNumberQuery(value: string | null): number {
     throw new Error("invalid_number_query");
   }
   return numeric;
+}
+
+function parseOptionalPositiveIntegerQuery(value: string | null): number | undefined {
+  if (value === null || value.trim().length === 0) {
+    return undefined;
+  }
+  const numeric = Number.parseInt(value, 10);
+  if (Number.isNaN(numeric) || numeric <= 0) {
+    throw new Error("invalid_limit_query");
+  }
+  return numeric;
+}
+
+function parseOptionalDateQuery(value: string | null): string | undefined {
+  if (value === null || value.trim().length === 0) {
+    return undefined;
+  }
+  const normalized = value.trim();
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(normalized);
+  const isDateTime = Number.isNaN(Date.parse(normalized)) === false;
+  if (isDateOnly || isDateTime) {
+    return normalized;
+  }
+  throw new Error("invalid_date_query");
+}
+
+function parseOptionalEnumQuery<T extends string>(
+  value: string | null,
+  validValues: readonly T[]
+): T | undefined {
+  if (value === null || value.trim().length === 0) {
+    return undefined;
+  }
+  const normalized = value.trim() as T;
+  if (validValues.includes(normalized)) {
+    return normalized;
+  }
+  throw new Error("invalid_enum_query");
 }
 
 function parseGoal(value: string | null): Goal {
@@ -151,39 +320,66 @@ export async function startDemoHttpServer(
 ): Promise<DemoHttpServer> {
   const runtime = createDemoApiRuntime();
   const guardUnsupportedClientVersion = createUnsupportedClientVersionGuard(options);
+  const idempotencyCache = new Map<string, IdempotencyCacheEntry>();
   const host = options.host ?? "127.0.0.1";
   const requestedPort = options.port ?? Number(process.env.FLUX_DEMO_API_PORT ?? "8787");
 
   const server = createServer(async (request, response) => {
     if (request.method === "OPTIONS") {
-      sendJson(response, 204, {});
+      sendJson(request, response, 204, {});
       return;
     }
 
     const method = request.method ?? "GET";
     const url = new URL(request.url ?? "/", "http://localhost");
+    const idempotencyKey = resolveIdempotencyKey(request, method, url.pathname);
 
     if (url.pathname === "/api/health") {
-      sendJson(response, 200, { status: "ok" });
+      sendJson(request, response, 200, { status: "ok" });
       return;
     }
 
     if (url.pathname.startsWith("/api/") === false) {
-      sendJson(response, 404, { error: "route_not_found" });
+      sendJson(request, response, 404, { error: "route_not_found" });
       return;
     }
 
     const unsupportedClientResult = guardUnsupportedClientVersion(request);
     if (unsupportedClientResult !== null) {
-      sendJson(response, unsupportedClientResult.statusCode, unsupportedClientResult.payload);
+      sendJson(request, response, unsupportedClientResult.statusCode, unsupportedClientResult.payload);
       return;
+    }
+
+    if (idempotencyKey !== undefined) {
+      const cachedEntry = readIdempotencyCacheEntry(idempotencyCache, idempotencyKey);
+      if (cachedEntry !== undefined) {
+        sendJson(
+          request,
+          response,
+          cachedEntry.statusCode,
+          withIdempotencyMetadata(cachedEntry.payload, idempotencyKey, true)
+        );
+        return;
+      }
     }
 
     try {
       const result = await routeApiRequest(method, url, request, runtime);
-      sendJson(response, result.statusCode, result.payload);
+      if (idempotencyKey !== undefined && result.statusCode < 500) {
+        idempotencyCache.set(idempotencyKey, {
+          statusCode: result.statusCode,
+          payload: result.payload,
+          expiresAt: Date.now() + IDEMPOTENCY_TTL_MS
+        });
+      }
+      sendJson(
+        request,
+        response,
+        result.statusCode,
+        withIdempotencyMetadata(result.payload, idempotencyKey, false)
+      );
     } catch {
-      sendJson(response, 500, { error: "internal_error" });
+      sendJson(request, response, 500, { error: "internal_error" });
     }
   });
 
@@ -245,6 +441,45 @@ async function routeApiRequest(
     }
   }
 
+  if (method === "POST" && url.pathname === "/api/requestAuthRecovery") {
+    try {
+      const payload = authRecoveryRequestSchema.parse(await readJsonBody(request));
+      const result = await runtime.requestAuthRecovery(payload);
+      return { statusCode: 201, payload: { recovery: result } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_auth_recovery_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/createHealthScreening") {
+    try {
+      const body = (await readJsonBody(request)) as {
+        userId?: unknown;
+        onboardingProfile?: unknown;
+        responses?: unknown;
+      };
+      const screening = await runtime.createHealthScreening({
+        userId: String(body.userId ?? ""),
+        onboardingProfile: body.onboardingProfile as {
+          displayName: string;
+          age: number;
+          heightCm: number;
+          weightKg: number;
+          availableDaysPerWeek: number;
+          equipment: string[];
+          injuries: string[];
+        },
+        responses: body.responses as Array<{ questionId: string; answer: boolean }>
+      });
+      return { statusCode: 201, payload: { screening } };
+    } catch {
+      return { statusCode: 400, payload: { error: "invalid_health_screening_payload" } };
+    }
+  }
+
   if (method === "POST" && url.pathname === "/api/completeOnboarding") {
     try {
       const result = await runtime.completeOnboarding(await readJsonBody(request));
@@ -293,7 +528,11 @@ async function routeApiRequest(
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
       const rawPlanId = url.searchParams.get("planId");
-      const sessions = await runtime.listWorkoutSessions(userId, rawPlanId ?? undefined);
+      const sessions = await runtime.listWorkoutSessions(userId, rawPlanId ?? undefined, {
+        fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+        toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+        limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"))
+      });
       return { statusCode: 200, payload: { sessions } };
     } catch (error) {
       return {
@@ -316,7 +555,11 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/listNutritionLogs") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
-      const logs = await runtime.listNutritionLogs(userId);
+      const logs = await runtime.listNutritionLogs(userId, {
+        fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+        toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+        limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"))
+      });
       return { statusCode: 200, payload: { logs } };
     } catch (error) {
       return {
@@ -329,7 +572,10 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/getProgressSummary") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
-      const summary = await runtime.getProgressSummary(userId);
+      const summary = await runtime.getProgressSummary(
+        userId,
+        parseOptionalDateQuery(url.searchParams.get("generatedAt"))
+      );
       return { statusCode: 200, payload: { summary } };
     } catch (error) {
       return {
@@ -354,8 +600,19 @@ async function routeApiRequest(
 
   if (method === "POST" && url.pathname === "/api/createAnalyticsEvent") {
     try {
-      const event = analyticsEventSchema.parse(await readJsonBody(request));
-      const createdEvent = await runtime.createAnalyticsEvent(event);
+      const baseEvent = analyticsEventSchema.parse(await readJsonBody(request));
+      const requestCorrelationId = resolveCorrelationId(request);
+      const createdEvent = await runtime.createAnalyticsEvent({
+        ...baseEvent,
+        attributes: {
+          ...baseEvent.attributes,
+          correlationId:
+            typeof baseEvent.attributes.correlationId === "string" &&
+            baseEvent.attributes.correlationId.trim().length > 0
+              ? baseEvent.attributes.correlationId
+              : requestCorrelationId
+        }
+      });
       return { statusCode: 201, payload: { event: createdEvent } };
     } catch {
       return { statusCode: 400, payload: { error: "invalid_analytics_event_payload" } };
@@ -365,8 +622,39 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/listAnalyticsEvents") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
+      const sourceFilter = parseOptionalEnumQuery(
+        url.searchParams.get("source"),
+        ["web", "ios", "backend"] as const
+      );
+      const domainFilter = url.searchParams.get("domain")?.trim().toLowerCase() ?? "";
+      const queryFilter = url.searchParams.get("query")?.trim().toLowerCase() ?? "";
+      const limit = parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"));
       const events = await runtime.listAnalyticsEvents(userId);
-      return { statusCode: 200, payload: { events } };
+      const eventsFilteredBySource =
+        sourceFilter === undefined
+          ? events
+          : events.filter((event) => event.source === sourceFilter);
+      const eventsFilteredByDomain =
+        domainFilter.length === 0
+          ? eventsFilteredBySource
+          : eventsFilteredBySource.filter((event) =>
+              String(event.attributes.domain ?? "").toLowerCase().includes(domainFilter)
+            );
+      const eventsFilteredByQuery =
+        queryFilter.length === 0
+          ? eventsFilteredByDomain
+          : eventsFilteredByDomain.filter((event) => {
+              const reason = String(event.attributes.reason ?? "").toLowerCase();
+              const correlationId = String(event.attributes.correlationId ?? "").toLowerCase();
+              return (
+                event.name.toLowerCase().includes(queryFilter) ||
+                reason.includes(queryFilter) ||
+                correlationId.includes(queryFilter)
+              );
+            });
+      const payloadEvents =
+        limit === undefined ? eventsFilteredByQuery : eventsFilteredByQuery.slice(0, limit);
+      return { statusCode: 200, payload: { events: payloadEvents } };
     } catch (error) {
       return {
         statusCode: 400,
@@ -377,7 +665,14 @@ async function routeApiRequest(
 
   if (method === "POST" && url.pathname === "/api/createCrashReport") {
     try {
-      const report = crashReportSchema.parse(await readJsonBody(request));
+      const parsedInput = crashReportSchema.parse(await readJsonBody(request));
+      const report = {
+        ...parsedInput,
+        correlationId:
+          typeof parsedInput.correlationId === "string" && parsedInput.correlationId.trim().length > 0
+            ? parsedInput.correlationId
+            : resolveCorrelationId(request)
+      };
       const createdReport = await runtime.createCrashReport(report);
       return { statusCode: 201, payload: { report: createdReport } };
     } catch {
@@ -388,12 +683,175 @@ async function routeApiRequest(
   if (method === "GET" && url.pathname === "/api/listCrashReports") {
     try {
       const userId = String(url.searchParams.get("userId") ?? "");
+      const sourceFilter = parseOptionalEnumQuery(
+        url.searchParams.get("source"),
+        ["web", "ios", "backend"] as const
+      );
+      const severityFilter = parseOptionalEnumQuery(
+        url.searchParams.get("severity"),
+        ["warning", "fatal"] as const
+      );
+      const queryFilter = url.searchParams.get("query")?.trim().toLowerCase() ?? "";
+      const limit = parseOptionalPositiveIntegerQuery(url.searchParams.get("limit"));
       const reports = await runtime.listCrashReports(userId);
-      return { statusCode: 200, payload: { reports } };
+      const reportsFilteredBySource =
+        sourceFilter === undefined
+          ? reports
+          : reports.filter((report) => report.source === sourceFilter);
+      const reportsFilteredBySeverity =
+        severityFilter === undefined
+          ? reportsFilteredBySource
+          : reportsFilteredBySource.filter((report) => report.severity === severityFilter);
+      const reportsFilteredByQuery =
+        queryFilter.length === 0
+          ? reportsFilteredBySeverity
+          : reportsFilteredBySeverity.filter((report) => {
+              const stackTrace = (report.stackTrace ?? "").toLowerCase();
+              const correlationId = (report.correlationId ?? "").toLowerCase();
+              return (
+                report.message.toLowerCase().includes(queryFilter) ||
+                stackTrace.includes(queryFilter) ||
+                correlationId.includes(queryFilter)
+              );
+            });
+      const payloadReports =
+        limit === undefined ? reportsFilteredByQuery : reportsFilteredByQuery.slice(0, limit);
+      return { statusCode: 200, payload: { reports: payloadReports } };
     } catch (error) {
       return {
         statusCode: 400,
         payload: { error: mapDomainError(error, "invalid_list_crash_reports_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listObservabilitySummary") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const summary = await runtime.listObservabilitySummary(userId);
+      return { statusCode: 200, payload: { summary } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_observability_summary_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listRuntimeProfiles") {
+    try {
+      const profiles = runtime.listRuntimeProfiles();
+      return { statusCode: 200, payload: { profiles } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_runtime_profiles_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listOperationalAlerts") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const alerts = operationalAlertSchema
+        .array()
+        .parse(await runtime.listOperationalAlerts(userId));
+      return { statusCode: 200, payload: { alerts } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_operational_alerts_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listOperationalRunbooks") {
+    try {
+      const runbooks = operationalRunbookSchema
+        .array()
+        .parse(await runtime.listOperationalRunbooks());
+      return { statusCode: 200, payload: { runbooks } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_operational_runbooks_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listStructuredLogs") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const logs = structuredLogSchema.array().parse(
+        await runtime.listStructuredLogs(userId, {
+          fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+          toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+          limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit")),
+          level: parseOptionalEnumQuery(
+            url.searchParams.get("level"),
+            structuredLogLevelSchema.options
+          ),
+          category: parseOptionalEnumQuery(
+            url.searchParams.get("category"),
+            structuredLogCategorySchema.options
+          ),
+          source: parseOptionalEnumQuery(
+            url.searchParams.get("source"),
+            ["web", "ios", "backend"] as const
+          ),
+          query: url.searchParams.get("query") ?? undefined
+        })
+      );
+      return { statusCode: 200, payload: { logs } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_structured_logs_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listActivityLog") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const entries = activityLogEntrySchema.array().parse(
+        await runtime.listActivityLog(userId, {
+          fromDate: parseOptionalDateQuery(url.searchParams.get("fromDate")),
+          toDate: parseOptionalDateQuery(url.searchParams.get("toDate")),
+          limit: parseOptionalPositiveIntegerQuery(url.searchParams.get("limit")),
+          action: parseOptionalEnumQuery(
+            url.searchParams.get("action"),
+            activityLogActionSchema.options
+          ),
+          outcome: parseOptionalEnumQuery(
+            url.searchParams.get("outcome"),
+            activityLogOutcomeSchema.options
+          ),
+          source: parseOptionalEnumQuery(
+            url.searchParams.get("source"),
+            ["web", "ios", "backend"] as const
+          ),
+          query: url.searchParams.get("query") ?? undefined
+        })
+      );
+      return { statusCode: 200, payload: { activityLog: entries } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_activity_log_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/exportForensicAudit") {
+    try {
+      const payload = forensicAuditExportRequestSchema.parse(await readJsonBody(request));
+      const exportResult = await runtime.exportForensicAudit(payload);
+      return { statusCode: 201, payload: { exportResult } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_export_forensic_audit_payload") }
       };
     }
   }
@@ -420,6 +878,33 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: "invalid_data_deletion_request_payload" }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/requestDataExport") {
+    try {
+      const exportRequestInput = dataExportRequestInputSchema.parse(
+        await readJsonBody(request)
+      );
+      const exportRequest = await runtime.requestDataExport(exportRequestInput);
+      return { statusCode: 201, payload: { request: exportRequest } };
+    } catch {
+      return {
+        statusCode: 400,
+        payload: { error: "invalid_data_export_request_payload" }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listDataRetentionPolicies") {
+    try {
+      const policies = await runtime.listDataRetentionPolicies();
+      return { statusCode: 200, payload: { policies } };
+    } catch {
+      return {
+        statusCode: 400,
+        payload: { error: "invalid_list_data_retention_policies_payload" }
       };
     }
   }
@@ -455,6 +940,87 @@ async function routeApiRequest(
       return {
         statusCode: 400,
         payload: { error: "invalid_list_ai_recommendations_payload" }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listRoleCapabilities") {
+    try {
+      const role = accessRoleSchema.parse(String(url.searchParams.get("role") ?? "athlete"));
+      const capabilities = await runtime.listRoleCapabilities(role);
+      return { statusCode: 200, payload: { capabilities } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_role_capabilities_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/evaluateAccessDecision") {
+    try {
+      const input = accessDecisionInputSchema.parse(await readJsonBody(request));
+      const decision = await runtime.evaluateAccessDecision(input);
+      return { statusCode: 200, payload: { decision } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_evaluate_access_decision_payload") }
+      };
+    }
+  }
+
+  if (method === "POST" && url.pathname === "/api/recordDeniedAccessAudit") {
+    try {
+      const input = deniedAccessAuditInputSchema.parse(await readJsonBody(request));
+      const audit = await runtime.recordDeniedAccessAudit(input);
+      return { statusCode: 201, payload: { audit } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_denied_access_audit_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listDeniedAccessAudits") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "").trim();
+      if (userId.length === 0) {
+        throw new Error("missing_user_id");
+      }
+      const audits = await runtime.listDeniedAccessAudits(userId);
+      return { statusCode: 200, payload: { audits } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_denied_access_audits_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listBillingInvoices") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const invoices = await runtime.listBillingInvoices(userId);
+      return { statusCode: 200, payload: { invoices } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_billing_invoices_payload") }
+      };
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/listSupportIncidents") {
+    try {
+      const userId = String(url.searchParams.get("userId") ?? "");
+      const incidents = await runtime.listSupportIncidents(userId);
+      return { statusCode: 200, payload: { incidents } };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        payload: { error: mapDomainError(error, "invalid_list_support_incidents_payload") }
       };
     }
   }

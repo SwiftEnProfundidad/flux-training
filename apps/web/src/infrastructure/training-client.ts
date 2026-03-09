@@ -1,6 +1,6 @@
 import type { ExerciseVideo, TrainingPlan, WorkoutSessionInput } from "@flux/contracts";
 import type { TrainingGateway } from "../application/manage-training";
-import { assertApiResponse, createApiHeaders } from "./api-client";
+import { assertApiResponse, createApiHeaders, getApiAuthUserId } from "./api-client";
 
 class ApiTrainingGateway implements TrainingGateway {
   async createTrainingPlan(input: Omit<TrainingPlan, "createdAt">): Promise<TrainingPlan> {
@@ -50,8 +50,12 @@ class ApiTrainingGateway implements TrainingGateway {
   }
 
   async listExerciseVideos(exerciseId: string, locale: string): Promise<ExerciseVideo[]> {
+    const authenticatedUserId = getApiAuthUserId();
+    if (authenticatedUserId === undefined) {
+      throw new Error("missing_auth_session");
+    }
     const query = new URLSearchParams({
-      userId: "demo-user",
+      userId: authenticatedUserId,
       exerciseId,
       locale
     });

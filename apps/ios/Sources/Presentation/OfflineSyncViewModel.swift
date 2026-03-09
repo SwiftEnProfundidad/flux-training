@@ -7,6 +7,9 @@ public final class OfflineSyncViewModel {
   public private(set) var pendingCount: Int = 0
   public private(set) var syncStatus: String = "idle"
   public private(set) var lastRejectedCount: Int = 0
+  public private(set) var lastIdempotencyKey: String = "-"
+  public private(set) var lastIdempotencyReplay: Bool = false
+  public private(set) var lastIdempotencyTTLSeconds: Int = 0
 
   private let queueOfflineActionUseCase: QueueOfflineActionUseCase
   private let syncOfflineQueueUseCase: SyncOfflineQueueUseCase
@@ -32,10 +35,16 @@ public final class OfflineSyncViewModel {
     do {
       let result = try await syncOfflineQueueUseCase.execute(userID: userID)
       lastRejectedCount = result.rejected.count
+      lastIdempotencyKey = result.idempotency?.key ?? "-"
+      lastIdempotencyReplay = result.idempotency?.replayed ?? false
+      lastIdempotencyTTLSeconds = result.idempotency?.ttlSeconds ?? 0
       syncStatus = "synced"
       let pendingItems = try await queueOfflineActionUseCase.list(userID: userID)
       pendingCount = pendingItems.count
     } catch {
+      lastIdempotencyKey = "-"
+      lastIdempotencyReplay = false
+      lastIdempotencyTTLSeconds = 0
       syncStatus = "error"
     }
   }
