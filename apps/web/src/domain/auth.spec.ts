@@ -6,8 +6,17 @@ class InMemoryAuthGateway implements AuthGateway {
   async signInWithApple() {
     return {
       userId: "apple-user",
+      sessionId: "web-session-apple",
       token: "apple-token",
+      issuedAt: "2026-02-25T12:30:00.000Z",
       expiresAt: "2026-02-25T13:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T12:40:00.000Z",
+      absoluteExpiresAt: "2026-02-26T00:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 1800,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
       identity: {
         provider: "apple" as const,
         providerUserId: "apple-user"
@@ -18,8 +27,17 @@ class InMemoryAuthGateway implements AuthGateway {
   async signInWithEmail(email: string) {
     return {
       userId: email,
+      sessionId: "web-session-email",
       token: "email-token",
+      issuedAt: "2026-02-25T12:30:00.000Z",
       expiresAt: "2026-02-25T13:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T12:40:00.000Z",
+      absoluteExpiresAt: "2026-02-26T00:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 1800,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
       identity: {
         provider: "email" as const,
         providerUserId: email,
@@ -47,4 +65,3 @@ describe("CreateAuthSessionUseCase", () => {
     expect(session.userId).toBe("user@example.com");
   });
 });
-

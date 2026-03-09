@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
 import type {
+  ActivityLogEntry,
   AIRecommendation,
   AnalyticsEvent,
   CrashReport,
   ExerciseVideo,
+  ForensicAuditExport,
+  ForensicAuditExportRequest,
   NutritionLog,
+  ObservabilitySummary,
+  OperationalAlert,
+  OperationalRunbook,
   ProgressSummary,
+  StructuredLog,
   SyncQueueItem,
   SyncQueueProcessInput,
   SyncQueueProcessResult,
@@ -175,6 +182,119 @@ class InMemoryPlatformGateway
     return this.crashReports.filter((report) => report.userId === userId);
   }
 
+  async listObservabilitySummary(userId: string): Promise<ObservabilitySummary> {
+    const events = this.analyticsEvents.filter((event) => event.userId === userId);
+    const reports = this.crashReports.filter((report) => report.userId === userId);
+    return {
+      userId,
+      generatedAt: "2026-03-01T10:30:00.000Z",
+      totalAnalyticsEvents: events.length,
+      totalCrashReports: reports.length,
+      blockedActions: events.filter((event) => event.name === "dashboard_action_blocked").length,
+      deniedAccessEvents: events.filter((event) => event.name === "dashboard_domain_access_denied").length,
+      fatalCrashReports: reports.filter((report) => report.severity === "fatal").length,
+      uniqueCorrelationIds: new Set(
+        events
+          .map((event) => event.attributes.correlationId)
+          .filter((value): value is string => typeof value === "string" && value.length > 0)
+      ).size,
+      sourceBreakdown: {
+        web: events.filter((event) => event.source === "web").length,
+        ios: events.filter((event) => event.source === "ios").length,
+        backend: events.filter((event) => event.source === "backend").length
+      },
+      canonicalCoverage: {
+        trackedCanonicalEvents: events.filter(
+          (event) => String(event.attributes.canonicalEventName ?? "custom") !== "custom"
+        ).length,
+        customEvents: events.filter(
+          (event) => String(event.attributes.canonicalEventName ?? "custom") === "custom"
+        ).length
+      },
+      latestAnalyticsAt:
+        events.length === 0
+          ? null
+          : [...events].sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))[0]
+              ?.occurredAt ?? null,
+      latestCrashAt:
+        reports.length === 0
+          ? null
+          : [...reports].sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))[0]
+              ?.occurredAt ?? null
+    };
+  }
+
+  async listOperationalAlerts(userId: string): Promise<OperationalAlert[]> {
+    const summary = await this.listObservabilitySummary(userId);
+    if (summary.fatalCrashReports === 0) {
+      return [];
+    }
+    return [
+      {
+        id: "ALT-critical-fatal",
+        userId,
+        code: "fatal_crash_slo_breach",
+        severity: "critical",
+        state: "open",
+        source: "backend",
+        summary: "Fatal crash SLO breached.",
+        correlationId: "corr-critical-ops",
+        runbookId: "RB-fatal-crash",
+        ownerOnCall: "backend_oncall",
+        serviceLevelObjective: "fatal_crash_reports <= 0",
+        currentValue: summary.fatalCrashReports,
+        thresholdValue: 0,
+        triggeredAt: summary.latestCrashAt ?? summary.generatedAt,
+        lastEvaluatedAt: summary.generatedAt
+      }
+    ];
+  }
+
+  async listOperationalRunbooks(): Promise<OperationalRunbook[]> {
+    return [
+      {
+        id: "RB-fatal-crash",
+        alertCode: "fatal_crash_slo_breach",
+        title: "Fatal crash response",
+        objective: "Restore runtime stability.",
+        ownerOnCall: "backend_oncall",
+        steps: [
+          {
+            id: "rb-critical-step-1",
+            title: "Acknowledge incident",
+            ownerRole: "on_call_engineer",
+            slaMinutes: 5,
+            outcome: "Incident acknowledged."
+          }
+        ],
+        updatedAt: "2026-03-01T10:31:00.000Z"
+      }
+    ];
+  }
+
+  async listStructuredLogs(_: string): Promise<StructuredLog[]> {
+    return [];
+  }
+
+  async listActivityLog(_: string): Promise<ActivityLogEntry[]> {
+    return [];
+  }
+
+  async exportForensicAudit(payload: ForensicAuditExportRequest): Promise<ForensicAuditExport> {
+    return {
+      id: "forensic-critical-1",
+      userId: payload.userId,
+      format: payload.format,
+      status: "completed",
+      generatedAt: "2026-03-01T10:35:00.000Z",
+      rowCount: 0,
+      checksum: "forensiccritical1",
+      downloadUrl: "https://cdn.flux.training/forensics/forensic-critical-1.csv",
+      fromDate: payload.fromDate ?? null,
+      toDate: payload.toDate ?? null
+    };
+  }
+
   async process(input: SyncQueueProcessInput): Promise<SyncQueueProcessResult> {
     const acceptedIds: string[] = [];
     const rejected: SyncQueueProcessResult["rejected"] = [];
@@ -287,6 +407,9 @@ describe("CriticalRegressionSuite", () => {
 
     const analytics = await observabilityUseCase.listAnalyticsEvents("user-1");
     const crashes = await observabilityUseCase.listCrashReports("user-1");
+    const summary = await observabilityUseCase.listObservabilitySummary("user-1");
+    const alerts = await observabilityUseCase.listOperationalAlerts("user-1");
+    const runbooks = await observabilityUseCase.listOperationalRunbooks();
 
     expect(pendingBeforeSync).toHaveLength(1);
     expect(syncResult.acceptedIds).toEqual(["queue-1"]);
@@ -297,5 +420,8 @@ describe("CriticalRegressionSuite", () => {
     expect(recommendations).toHaveLength(1);
     expect(analytics).toHaveLength(1);
     expect(crashes).toHaveLength(1);
+    expect(summary.totalCrashReports).toBe(1);
+    expect(alerts).toHaveLength(0);
+    expect(runbooks.length).toBeGreaterThan(0);
   });
 });

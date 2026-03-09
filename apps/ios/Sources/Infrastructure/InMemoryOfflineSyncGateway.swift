@@ -46,6 +46,15 @@ public actor InMemoryOfflineSyncGateway: OfflineSyncGateway {
       }
     }
 
-    return OfflineSyncResult(acceptedIDs: acceptedIDs, rejected: rejected)
+    let sortedIDs = items.map(\.id).sorted().joined(separator: ",")
+    return OfflineSyncResult(
+      acceptedIDs: acceptedIDs,
+      rejected: rejected,
+      idempotency: OfflineSyncIdempotencyMetadata(
+        key: "ios-local-sync:\(userID):\(sortedIDs)",
+        replayed: false,
+        ttlSeconds: 300
+      )
+    )
   }
 }

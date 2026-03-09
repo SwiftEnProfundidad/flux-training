@@ -1,18 +1,39 @@
 import { describe, expect, it } from "vitest";
 import {
+  accessDecisionInputSchema,
+  accessDecisionResultSchema,
   aiRecommendationSchema,
   analyticsEventSchema,
+  canonicalAnalyticsEventNameSchema,
+  authRecoveryRequestSchema,
+  authRecoveryResultSchema,
   authSessionSchema,
+  billingInvoiceSchema,
   crashReportSchema,
+  dataExportRequestInputSchema,
+  dataExportRequestSchema,
   dataDeletionRequestSchema,
+  dataRetentionPolicySchema,
+  deniedAccessAuditInputSchema,
+  deniedAccessAuditSchema,
   exerciseVideoSchema,
+  legalConsentAuditSchema,
   legalConsentSchema,
   legalConsentSubmissionSchema,
+  activityLogEntrySchema,
+  forensicAuditExportRequestSchema,
+  forensicAuditExportSchema,
   onboardingProfileInputSchema,
+  structuredLogSchema,
   onboardingResultSchema,
   onboardingSubmissionInputSchema,
+  operationalAlertSchema,
+  operationalRunbookSchema,
   nutritionLogSchema,
   progressSummarySchema,
+  roleCapabilitiesSchema,
+  observabilitySummarySchema,
+  supportIncidentSchema,
   syncQueueProcessInputSchema,
   syncQueueProcessResultSchema,
   trainingPlanSchema,
@@ -130,6 +151,24 @@ describe("analyticsEventSchema", () => {
   });
 });
 
+describe("canonicalAnalyticsEventNameSchema", () => {
+  it("accepts canonical event names and custom fallback", () => {
+    const canonicalParsed = canonicalAnalyticsEventNameSchema.safeParse(
+      "dashboard_action_blocked"
+    );
+    const customParsed = canonicalAnalyticsEventNameSchema.safeParse("custom");
+
+    expect(canonicalParsed.success).toBe(true);
+    expect(customParsed.success).toBe(true);
+  });
+
+  it("rejects unknown canonical event name", () => {
+    const parsed = canonicalAnalyticsEventNameSchema.safeParse("unknown_event");
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
 describe("crashReportSchema", () => {
   it("accepts crash report payload", () => {
     const parsed = crashReportSchema.safeParse({
@@ -137,8 +176,210 @@ describe("crashReportSchema", () => {
       source: "ios",
       message: "Unexpected nil value",
       stackTrace: "MainViewModel.swift:42",
+      correlationId: "corr-123",
       severity: "fatal",
       occurredAt: "2026-02-27T10:05:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects empty correlation identifier", () => {
+    const parsed = crashReportSchema.safeParse({
+      userId: "user-1",
+      source: "ios",
+      message: "Unexpected nil value",
+      severity: "warning",
+      correlationId: "",
+      occurredAt: "2026-02-27T10:05:00.000Z"
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
+describe("observabilitySummarySchema", () => {
+  it("accepts observability summary payload", () => {
+    const parsed = observabilitySummarySchema.safeParse({
+      userId: "user-1",
+      generatedAt: "2026-03-03T09:00:00.000Z",
+      totalAnalyticsEvents: 24,
+      totalCrashReports: 3,
+      blockedActions: 5,
+      deniedAccessEvents: 4,
+      fatalCrashReports: 1,
+      uniqueCorrelationIds: 12,
+      sourceBreakdown: {
+        web: 10,
+        ios: 8,
+        backend: 6
+      },
+      canonicalCoverage: {
+        trackedCanonicalEvents: 11,
+        customEvents: 2
+      },
+      latestAnalyticsAt: "2026-03-03T08:59:00.000Z",
+      latestCrashAt: "2026-03-03T08:58:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("structuredLogSchema", () => {
+  it("accepts structured log payload", () => {
+    const parsed = structuredLogSchema.safeParse({
+      id: "LOG-0001",
+      userId: "user-1",
+      occurredAt: "2026-03-03T09:01:00.000Z",
+      source: "backend",
+      level: "warning",
+      category: "operations",
+      eventName: "dashboard_action_blocked",
+      domain: "operations",
+      correlationId: "corr-log-1",
+      summary: "Blocked action requires manual recovery.",
+      attributes: {
+        ownerOnCall: "operations_oncall",
+        blockedActions: 5
+      }
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("activityLogEntrySchema", () => {
+  it("accepts activity log payload", () => {
+    const parsed = activityLogEntrySchema.safeParse({
+      id: "ACT-0001",
+      userId: "user-1",
+      occurredAt: "2026-03-03T09:02:00.000Z",
+      actorRole: "system",
+      action: "forensic_exported",
+      resource: "audit_bundle",
+      domain: "operations",
+      source: "backend",
+      outcome: "success",
+      correlationId: "corr-activity-1",
+      summary: "Forensic bundle generated for incident review."
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("forensicAuditExportSchemas", () => {
+  it("accepts forensic export request and response payloads", () => {
+    const requestParsed = forensicAuditExportRequestSchema.safeParse({
+      userId: "user-1",
+      format: "csv",
+      fromDate: "2026-03-03T08:00:00.000Z",
+      toDate: "2026-03-03T09:00:00.000Z",
+      includeStructuredLogs: true,
+      includeActivityLog: true
+    });
+    const responseParsed = forensicAuditExportSchema.safeParse({
+      id: "forensic-user-1-1700000000",
+      userId: "user-1",
+      format: "csv",
+      status: "completed",
+      generatedAt: "2026-03-03T09:03:00.000Z",
+      rowCount: 42,
+      checksum: "abc123456789",
+      downloadUrl: "https://forensics.flux.training/exports/forensic-user-1-1700000000.csv",
+      fromDate: "2026-03-03T08:00:00.000Z",
+      toDate: "2026-03-03T09:00:00.000Z"
+    });
+
+    expect(requestParsed.success).toBe(true);
+    expect(responseParsed.success).toBe(true);
+  });
+});
+
+describe("operationalAlertSchema", () => {
+  it("accepts operational alert payload", () => {
+    const parsed = operationalAlertSchema.safeParse({
+      id: "ALT-0001",
+      userId: "user-1",
+      code: "fatal_crash_slo_breach",
+      severity: "critical",
+      state: "open",
+      source: "backend",
+      summary: "Fatal crashes exceeded configured SLO threshold.",
+      correlationId: "corr-ops-1",
+      runbookId: "RB-fatal-crash",
+      ownerOnCall: "backend_oncall",
+      serviceLevelObjective: "fatal_crash_reports <= 0",
+      currentValue: 2,
+      thresholdValue: 0,
+      triggeredAt: "2026-03-03T09:01:00.000Z",
+      lastEvaluatedAt: "2026-03-03T09:02:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("operationalRunbookSchema", () => {
+  it("accepts operational runbook payload", () => {
+    const parsed = operationalRunbookSchema.safeParse({
+      id: "RB-fatal-crash",
+      alertCode: "fatal_crash_slo_breach",
+      title: "Fatal crash response",
+      objective: "Restore service and stop fatal crash growth.",
+      ownerOnCall: "backend_oncall",
+      steps: [
+        {
+          id: "step-1",
+          title: "Acknowledge page",
+          ownerRole: "on_call_engineer",
+          slaMinutes: 5,
+          outcome: "Incident acknowledged in on-call channel."
+        },
+        {
+          id: "step-2",
+          title: "Mitigate and rollback",
+          ownerRole: "incident_commander",
+          slaMinutes: 15,
+          outcome: "Traffic stabilized and rollback validated."
+        }
+      ],
+      updatedAt: "2026-03-03T09:03:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("billingInvoiceSchema", () => {
+  it("accepts billing invoice payload", () => {
+    const parsed = billingInvoiceSchema.safeParse({
+      id: "INV-0001",
+      userId: "user-1",
+      period: "2026-03",
+      amountEUR: 49,
+      status: "open",
+      source: "auto",
+      issuedAt: "2026-03-02T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("supportIncidentSchema", () => {
+  it("accepts support incident payload", () => {
+    const parsed = supportIncidentSchema.safeParse({
+      id: "INC-0001",
+      userId: "user-1",
+      openedAt: "2026-03-02T10:10:00.000Z",
+      domain: "operations",
+      severity: "high",
+      state: "open",
+      source: "analytics",
+      summary: "dashboard_action_blocked · domain_denied",
+      correlationId: "corr-1"
     });
 
     expect(parsed.success).toBe(true);
@@ -192,14 +433,178 @@ describe("authSessionSchema", () => {
   it("accepts a valid auth session", () => {
     const parsed = authSessionSchema.safeParse({
       userId: "user-1",
+      sessionId: "session-1",
       token: "jwt-token",
+      issuedAt: "2026-02-25T11:30:00.000Z",
       expiresAt: "2026-02-25T12:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T11:40:00.000Z",
+      absoluteExpiresAt: "2026-02-25T23:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 1800,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
       identity: {
         provider: "apple",
         providerUserId: "apple-user-123",
         email: "user@example.com",
         displayName: "User One"
       }
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects invalid session policy values", () => {
+    const parsed = authSessionSchema.safeParse({
+      userId: "user-1",
+      sessionId: "session-1",
+      token: "jwt-token",
+      issuedAt: "2026-02-25T11:30:00.000Z",
+      expiresAt: "2026-02-25T12:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T11:40:00.000Z",
+      absoluteExpiresAt: "2026-02-25T23:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 0,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
+      identity: {
+        provider: "apple",
+        providerUserId: "apple-user-123",
+        email: "user@example.com",
+        displayName: "User One"
+      }
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
+describe("authRecoveryRequestSchema", () => {
+  it("accepts auth recovery request payload", () => {
+    const parsed = authRecoveryRequestSchema.safeParse({
+      channel: "email",
+      identifier: "user@example.com"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("authRecoveryResultSchema", () => {
+  it("accepts auth recovery result payload", () => {
+    const parsed = authRecoveryResultSchema.safeParse({
+      channel: "sms",
+      identifier: "+34123456789",
+      status: "recovery_sent_sms",
+      ticketId: "rec-sms-1",
+      requestedAt: "2026-03-02T12:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("roleCapabilitiesSchema", () => {
+  it("accepts valid role capabilities payload", () => {
+    const parsed = roleCapabilitiesSchema.safeParse({
+      role: "coach",
+      allowedDomains: ["all", "training", "nutrition", "progress", "operations"],
+      permissions: [
+        {
+          domain: "training",
+          actions: ["view", "create", "update", "approve"],
+          conditions: {
+            requiresOwnership: false,
+            requiresMedicalConsent: false
+          }
+        }
+      ],
+      issuedAt: "2026-03-01T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects role capabilities without allowed domains", () => {
+    const parsed = roleCapabilitiesSchema.safeParse({
+      role: "athlete",
+      allowedDomains: [],
+      permissions: [
+        {
+          domain: "training",
+          actions: ["view"],
+          conditions: {
+            requiresOwnership: true,
+            requiresMedicalConsent: true
+          }
+        }
+      ],
+      issuedAt: "2026-03-01T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
+describe("accessDecisionInputSchema", () => {
+  it("accepts access decision input payload", () => {
+    const parsed = accessDecisionInputSchema.safeParse({
+      role: "athlete",
+      domain: "training",
+      action: "view",
+      context: {
+        isOwner: true,
+        medicalDisclaimerAccepted: true
+      }
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("accessDecisionResultSchema", () => {
+  it("accepts access decision result payload", () => {
+    const parsed = accessDecisionResultSchema.safeParse({
+      role: "coach",
+      domain: "onboarding",
+      action: "view",
+      allowed: false,
+      reason: "domain_denied",
+      evaluatedAt: "2026-03-02T20:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("deniedAccessAuditSchemas", () => {
+  it("accepts denied access audit input payload", () => {
+    const parsed = deniedAccessAuditInputSchema.safeParse({
+      userId: "demo-user",
+      role: "coach",
+      domain: "onboarding",
+      action: "view",
+      reason: "domain_denied",
+      trigger: "domain_select",
+      correlationId: "corr-1"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("accepts denied access audit payload", () => {
+    const parsed = deniedAccessAuditSchema.safeParse({
+      id: "daa-1",
+      userId: "demo-user",
+      role: "coach",
+      domain: "onboarding",
+      action: "view",
+      reason: "domain_denied",
+      trigger: "domain_select",
+      correlationId: "corr-1",
+      occurredAt: "2026-03-02T20:05:00.000Z"
     });
 
     expect(parsed.success).toBe(true);
@@ -281,6 +686,22 @@ describe("legalConsentSubmissionSchema", () => {
   });
 });
 
+describe("legalConsentAuditSchema", () => {
+  it("accepts a legal consent audit entry", () => {
+    const parsed = legalConsentAuditSchema.safeParse({
+      auditId: "audit-1",
+      userId: "user-1",
+      acceptedAt: "2026-02-26T10:00:00.000Z",
+      policyVersion: "v1.0",
+      locale: "es-ES",
+      source: "web",
+      capturedAt: "2026-02-26T10:00:01.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
 describe("legalConsentSchema", () => {
   it("accepts a persisted legal consent payload", () => {
     const parsed = legalConsentSchema.safeParse({
@@ -302,6 +723,46 @@ describe("dataDeletionRequestSchema", () => {
       requestedAt: "2026-02-26T10:00:00.000Z",
       reason: "user_request",
       status: "pending"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("dataExportRequestInputSchema", () => {
+  it("accepts a valid data export request input", () => {
+    const parsed = dataExportRequestInputSchema.safeParse({
+      userId: "user-1",
+      format: "json"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("dataExportRequestSchema", () => {
+  it("accepts a completed export request payload", () => {
+    const parsed = dataExportRequestSchema.safeParse({
+      id: "exp-1",
+      userId: "user-1",
+      requestedAt: "2026-02-26T10:00:00.000Z",
+      format: "csv",
+      status: "completed",
+      downloadUrl: "https://cdn.flux.training/exports/exp-1.csv",
+      expiresAt: "2026-02-27T10:00:00.000Z"
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+});
+
+describe("dataRetentionPolicySchema", () => {
+  it("accepts a retention policy payload", () => {
+    const parsed = dataRetentionPolicySchema.safeParse({
+      domain: "legal",
+      retentionDays: 365,
+      legalBasis: "gdpr_art_6_1_c",
+      effectiveFrom: "2026-03-02T00:00:00.000Z"
     });
 
     expect(parsed.success).toBe(true);

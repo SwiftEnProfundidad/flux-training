@@ -12,18 +12,28 @@ class InMemoryDataDeletionRequestRepository implements DataDeletionRequestReposi
 }
 
 describe("RequestDataDeletionUseCase", () => {
-  it("saves a valid data deletion request", async () => {
+  it("saves a valid data deletion request with retention metadata", async () => {
     const repository = new InMemoryDataDeletionRequestRepository();
-    const useCase = new RequestDataDeletionUseCase(repository);
+    const useCase = new RequestDataDeletionUseCase(
+      repository,
+      () => new Date("2026-03-02T10:00:00.000Z"),
+      30
+    );
 
     const request = await useCase.execute({
       userId: "demo-user",
       requestedAt: "2026-02-26T11:00:00.000Z",
       reason: "user_request",
-      status: "pending"
+      status: "pending",
+      exportRequested: true,
+      exportFormat: "json"
     });
 
     expect(request.userId).toBe("demo-user");
+    expect(request.exportRequested).toBe(true);
+    expect(request.exportFormat).toBe("json");
+    expect(request.retentionReason).toBe("gdpr_art_17_verification_window");
+    expect(request.retentionUntil).toBe("2026-04-01T10:00:00.000Z");
     expect(repository.records).toHaveLength(1);
   });
 
@@ -36,7 +46,9 @@ describe("RequestDataDeletionUseCase", () => {
         userId: "",
         requestedAt: "2026-02-26T11:00:00.000Z",
         reason: "user_request",
-        status: "pending"
+        status: "pending",
+        exportRequested: true,
+        exportFormat: "json"
       })
     ).rejects.toThrow();
   });

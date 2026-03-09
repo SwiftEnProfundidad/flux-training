@@ -16,7 +16,28 @@ class InMemoryAnalyticsEventRepository implements AnalyticsEventRepository {
 }
 
 describe("CreateAnalyticsEventUseCase", () => {
-  it("stores analytics event", async () => {
+  it("stores analytics event with canonical metadata and correlation context", async () => {
+    const repository = new InMemoryAnalyticsEventRepository();
+    const useCase = new CreateAnalyticsEventUseCase(repository);
+
+    await useCase.execute({
+      userId: "user-1",
+      name: "dashboard_interaction",
+      source: "web",
+      occurredAt: "2026-02-27T10:00:00.000Z",
+      attributes: { screen: "dashboard" }
+    });
+
+    expect(repository.records).toHaveLength(1);
+    expect(repository.records[0]?.name).toBe("dashboard_interaction");
+    expect(repository.records[0]?.attributes.canonicalEventName).toBe(
+      "dashboard_interaction"
+    );
+    expect(repository.records[0]?.attributes.correlationId).toBeTypeOf("string");
+    expect(repository.records[0]?.attributes.runtimeEventIndex).toBe("0");
+  });
+
+  it("marks unknown analytics event names as custom canonical event", async () => {
     const repository = new InMemoryAnalyticsEventRepository();
     const useCase = new CreateAnalyticsEventUseCase(repository);
 
@@ -25,10 +46,9 @@ describe("CreateAnalyticsEventUseCase", () => {
       name: "screen_view",
       source: "web",
       occurredAt: "2026-02-27T10:00:00.000Z",
-      attributes: { screen: "dashboard" }
+      attributes: {}
     });
 
-    expect(repository.records).toHaveLength(1);
-    expect(repository.records[0]?.name).toBe("screen_view");
+    expect(repository.records[0]?.attributes.canonicalEventName).toBe("custom");
   });
 });

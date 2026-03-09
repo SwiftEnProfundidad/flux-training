@@ -1,0 +1,6 @@
+{
+  "framework": "vite",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter @flux/contracts build && pnpm --filter @flux/backend build && pnpm --filter @flux/web build",
+  "outputDirectory": "apps/web/dist"
+}

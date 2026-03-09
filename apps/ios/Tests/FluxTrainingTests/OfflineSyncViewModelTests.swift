@@ -41,5 +41,8 @@ final class OfflineSyncViewModelTests: XCTestCase {
     XCTAssertEqual(viewModel.pendingCount, 0)
     XCTAssertEqual(viewModel.lastRejectedCount, 0)
     XCTAssertEqual(viewModel.syncStatus, "synced")
+    XCTAssertEqual(viewModel.lastIdempotencyReplay, false)
+    XCTAssertEqual(viewModel.lastIdempotencyTTLSeconds, 300)
+    XCTAssertTrue(viewModel.lastIdempotencyKey.hasPrefix("ios-local-sync:user-1:"))
   }
 }
