@@ -109,6 +109,18 @@
 - Backend/runtime real:
   - ⏳ Todavia no queda demostrado en este ciclo que Web+iOS esten operando contra backend MVP real sin fallback demo/local encubierto.
 
+
+## Hallazgo runtime (2026-03-09)
+- La API oficial `identityPlatform:initializeAuth` responde `FAILED_PRECONDITION` con `BILLING_NOT_ENABLED`.
+- Eso significa que el bloqueo real no es solo la pantalla de `Authentication`, sino que Firebase Auth/Identity Platform no puede inicializarse sin billing habilitado en el proyecto.
+- Consecuencia operativa: antes de `Get started` o de activar `Email/Password`, hay que habilitar billing en `flux-training-mvp`.
+- Secuencia correcta tras desbloqueo:
+  1. habilitar billing
+  2. inicializar Auth
+  3. activar `Email/Password`
+  4. reintentar `pnpm check:firebase-auth-readiness`
+  5. ejecutar `pnpm smoke:real-login`
+
 ## Fase 2 — Backend y autenticacion real
 ### Hallazgo operativo confirmado
 - Firebase CLI no ofrece comando oficial para activar `Authentication > Email/Password`.
