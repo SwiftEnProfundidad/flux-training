@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "tsc -w -p tsconfig.json",
     "start:demo": "tsx src/presentation/demo-http-server.ts",
-    "build": "rm -rf dist && esbuild src/index.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/index.js --external:firebase-admin --external:firebase-functions",
+    "build": "rm -rf dist && esbuild src/index.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/index.js --external:firebase-admin --external:firebase-functions && esbuild src/presentation/vercel-endpoint-handler.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/vercel-endpoint-handler.js --external:firebase-admin --external:firebase-functions",
     "test": "vitest run",
     "check": "tsc --noEmit -p tsconfig.json"
   },
