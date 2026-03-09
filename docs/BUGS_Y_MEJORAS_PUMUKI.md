@@ -789,3 +789,12 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - propuesta Pumuki:
     - soportar un estado nativo `blocked-real-user-credentials-only`,
     - y priorizarlo cuando `platformConfig=ready` y `cloudConnectivity=ready`.
+
+- Mejora detectada al validar Firebase Auth real del proyecto (2026-03-09 17:17 CET):
+  - al pasar de `platformConfig: ready` y `cloudConnectivity: ready` a una verificacion real contra Identity Toolkit, el bloqueo ya no era de credenciales E2E sino de configuracion del proveedor (`CONFIGURATION_NOT_FOUND`).
+  - impacto:
+    - el framework no distingue de forma nativa entre “faltan credenciales de prueba” y “Firebase Auth no esta activado/configurado”, aunque operativamente son bloqueos muy distintos;
+    - sin esa distincion, el tracking puede empujar a pedir usuarios/password antes de que el proveedor soporte siquiera Email/Password.
+  - propuesta Pumuki:
+    - soportar un estado nativo `blocked-firebase-auth-configuration`,
+    - y priorizarlo por encima de `blocked-real-user-credentials` cuando el backend alternativo y la config de plataforma ya estan listos.

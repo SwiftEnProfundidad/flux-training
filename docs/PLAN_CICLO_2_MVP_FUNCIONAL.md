@@ -13,7 +13,7 @@
 - Web: backlog anterior cerrado, pendiente validacion real de producto.
 - iOS: backlog anterior cerrado, pendiente validacion real de producto.
 - Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Cargar credenciales E2E reales para validar login sobre backend Vercel.
+- Task activa actual: 🚧 Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -29,7 +29,8 @@
   - ✅ Preview/host inicial en Vercel Hobby ya desplegado con exito.
   - ✅ `/api/health` ya responde `200` en preview Vercel.
   - ✅ La sonda `pnpm smoke:real-cloud-connectivity` ya responde `ready` contra la preview Vercel.
-  - 🚧 Siguiente desbloqueo real: cargar credenciales E2E reales para validar login sobre ese backend Vercel.
+  - ⛔ Firebase Auth del proyecto sigue sin configuracion operativa para email/password (`CONFIGURATION_NOT_FOUND`).
+  - 🚧 Siguiente desbloqueo real: activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
 
 ## Checklist de salida Vercel Hobby (obligatorio antes de seguir)
 - Paso 1: mantener Firebase Auth + Firestore en `flux-training-mvp`.
@@ -120,7 +121,8 @@
 - ✅ Validar conectividad cloud real sobre preview Vercel.
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
-- 🚧 Cargar credenciales E2E reales para validar login end-to-end sobre Vercel.
+- ✅ Confirmar que el bloqueo actual ya no es billing sino Firebase Auth sin configurar.
+- 🚧 Activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
 
@@ -262,12 +264,14 @@
     - siguen faltando `FLUX_E2E_EMAIL` y `FLUX_E2E_PASSWORD`.
 - Conclusion operativa:
   - ya no falta estructura local,
-  - ahora el bloqueo es solo de credenciales E2E reales.
+  - el bloqueo principal ya no es estructural ni de proveedor cloud alternativo.
+  - ahora el bloqueo principal es que Firebase Auth del proyecto sigue devolviendo `CONFIGURATION_NOT_FOUND` para Email/Password.
   - iOS ya no depende solo del scheme para este ciclo: `FluxTrainingAppConfiguration` y `ExperienceHubView` leen tambien `apps/ios/.env.local` en local.
-  - el smoke real de login cloud ya esta automatizado y listo para ejecutarse en cuanto entren los valores efectivos: `pnpm smoke:real-login`.
+  - el smoke real de login cloud ya esta automatizado y listo para ejecutarse en cuanto Firebase Auth quede operativo y existan credenciales E2E reales: `pnpm smoke:real-login`.
   - el smoke distingue ya entre:
     - bloqueo por config real de plataforma (`blocked-real-config`),
-    - bloqueo por credenciales reales E2E (`blocked-real-user-credentials`).
+    - bloqueo por credenciales reales E2E (`blocked-real-user-credentials`),
+    - y ahora tambien bloqueo por configuracion del proveedor (`blocked-firebase-auth-configuration`).
   - ademas, el repo ya dispone de una sonda separada de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) para detectar si la URL base del backend real sigue siendo valida antes de meter secretos reales.
 - y ahora tambien dispone de un doctor agregado (`pnpm doctor:real-runtime`) para ver en un solo comando el estado de auth cloud, target remoto y login real.
 

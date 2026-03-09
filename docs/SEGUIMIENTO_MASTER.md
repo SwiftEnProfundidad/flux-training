@@ -19,9 +19,9 @@
 - El repo ya dispone de chequeo reproducible de readiness real: `pnpm check:real-runtime-prereqs` + `pnpm test:real-runtime-prereqs`.
 - iOS ya dispone tambien de plantilla local no secreta para ese readiness: `apps/ios/.env.local.example`.
 - El repo ya dispone tambien de bootstrap local no destructivo: `pnpm bootstrap:real-runtime-prereqs`; desde ahora el bloqueo ya no es “faltan archivos” sino “faltan valores reales”.
-- El repo ya contempla tambien `.env.e2e.local` para credenciales de usuario real de smoke; el bloqueo restante ya incluye claves Firebase reales + credenciales E2E reales.
+- El repo ya contempla tambien `.env.e2e.local` para credenciales de usuario real de smoke; ese requisito sigue vigente, pero ya no es el bloqueo principal del login E2E.
 - iOS ya consume `apps/ios/.env.local` de forma efectiva en runtime local; el bloqueo real restante ya no es de wiring sino solo de credenciales Firebase/Auth pendientes.
-- El repo ya dispone tambien de smoke reproducible para login cloud real (`pnpm smoke:real-login`); ahora distingue si el bloqueo restante es por config real de plataforma (`blocked-real-config`) o por credenciales E2E reales (`blocked-real-user-credentials`).
+- El repo ya dispone tambien de smoke reproducible para login cloud real (`pnpm smoke:real-login`); ahora distingue si el bloqueo restante es por config real de plataforma (`blocked-real-config`), por credenciales E2E reales (`blocked-real-user-credentials`) o por Firebase Auth no configurado (`blocked-firebase-auth-configuration`).
 - El repo ya dispone tambien de sonda de conectividad cloud (`pnpm smoke:real-cloud-connectivity`) y ha detectado un hallazgo nuevo: el target base documentado hasta ahora devuelve `404` en `createAuthSession`, asi que la URL cloud real debe confirmarse antes de cerrar el login E2E.
 - La sonda cloud ya endurece ese caso como `blocked-remote-target` y confirma que hoy tanto `.../flux-training/createAuthSession` como `.../createAuthSession` devuelven `404`, asi que el siguiente paso correcto no es cargar secretos sino confirmar la URL cloud efectiva del backend.
 - El intento de confirmacion con Firebase CLI tambien queda bloqueado por infraestructura local: `projects:list`, `functions:list` y `hosting:sites:list` devuelven `Failed to authenticate, have you run firebase login?`, asi que hoy falta autenticacion Firebase/GCP para verificar el despliegue real.
@@ -37,7 +37,7 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Cargar credenciales E2E reales para validar login sobre Vercel**.
+- Task activa actual del ciclo 2: **🚧 Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real**.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`
@@ -58,9 +58,14 @@
     - `https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app`
     - `GET /api/health -> 200 {"status":"ok"}`
     - `VITE_API_TARGET=https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app/api pnpm smoke:real-cloud-connectivity -> ready`
+- Bloqueo real actual tras revalidar el login cloud:
+  - `pnpm check:firebase-auth-readiness -> blocked-firebase-auth-configuration`
+  - `errorCode: CONFIGURATION_NOT_FOUND`
+  - esto significa que la Web app y el proyecto existen, pero Firebase Auth no esta operativo todavia para Email/Password.
 - Checklist operativo de salida del bloqueo actual:
   - apuntar Web e iOS al host Vercel para backend HTTP
-  - cargar credenciales E2E reales
+  - activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`
+  - despues cargar credenciales E2E reales
   - revalidar `pnpm smoke:real-login`
 
 ## Trazabilidad consolidada (resumen humano)
