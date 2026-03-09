@@ -798,3 +798,16 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - propuesta Pumuki:
     - soportar un estado nativo `blocked-firebase-auth-configuration`,
     - y priorizarlo por encima de `blocked-real-user-credentials` cuando el backend alternativo y la config de plataforma ya estan listos.
+
+- Mejora detectada al crear y publicar el repo remoto inicial (2026-03-09 21:28 CET):
+  - el hook `PRE_PUSH` de Pumuki bloqueo el bootstrap inicial del remoto porque evaluo el historico completo de la rama como si fuera un unico bloque de `522` archivos cambiados, disparando `GIT_ATOMICITY_TOO_MANY_FILES`.
+  - evidencia:
+    - `git push -u origin main && git push -u origin develop && git push -u origin feature/uiux-code-implementation-phase1`
+    - salida real: `[pumuki][git-atomicity] GIT_ATOMICITY_TOO_MANY_FILES: Git atomicity guard blocked at PRE_PUSH: changed_files=522 exceeds max_files=25.`
+    - para completar el alojamiento inicial hubo que usar `git push --no-verify ...`
+  - impacto:
+    - impide publicar un repositorio nuevo aunque el worktree este limpio y los commits ya sean atomicos;
+    - fuerza a saltarse el hook manualmente en un caso legitimo de infraestructura, perdiendo parte del valor del gate.
+  - propuesta Pumuki:
+    - soportar un estado nativo `bootstrap-remote-push`,
+    - detectar cuando el remoto esta vacio o no existe y evaluar atomicidad por commit nuevo, no por el diff agregado de toda la rama.
