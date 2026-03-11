@@ -7,6 +7,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - 🚧 En construccion (maximo 1)
 - ⏳ Pendiente
 - ⛔ Bloqueado
+- 💤 Sin incidencias activas / backlog externo cerrado
 
 ## Objetivo
 - Acelerar feedback real hacia Pumuki con evidencia reproducible.
