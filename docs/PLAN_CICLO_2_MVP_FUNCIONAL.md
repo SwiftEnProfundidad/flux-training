@@ -160,6 +160,7 @@
 - ✅ 2026-03-13: tras login en modo producto ya no persiste la hero editorial; la web colapsa a cabecera compacta + tabs de dominio (`Onboarding`, `Entrenamiento`, `Nutricion`, `Progreso`) para acercarse a `WEB-020_DASHBOARD_HOME`.
 - ✅ 2026-03-13: la shell productizada ya conmuta `Panel / Resumen` -> `Panel / Acciones rápidas` dentro del mismo rail lateral; `WEB-030_QUICK_ACTIONS` replica el breadcrumb de Pencil, el grid 3x2 de acciones y conecta al menos una CTA real (`Añadir atleta` -> `Onboarding`).
 - ✅ 2026-03-13: la shell productizada ya abre `WEB-040_ALERT_CENTER` desde la badge del topbar y desde el CTA del overview; el centro de alertas replica la jerarquía del board Pencil con título, chips de estado, lista priorizada y CTA real (`Abrir progreso → Progreso`).
+- ✅ 2026-03-13: `WEB-050_SYSTEM_STATUS` ya vive dentro de la misma shell productizada y se abre desde `Ajustes` en el rail secundario; la vista replica la composición compacta de Pencil con título, pill de estado, 4 cards de health y eventos recientes del sistema.
 - ✅ Validacion local de esta iteracion:
   - `pnpm --filter @flux/web test -- src/presentation/HeroAuthPanel.spec.tsx src/presentation/OnboardingCard.spec.tsx src/presentation/LegalCompliancePanel.spec.tsx src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/SettingsPanel.spec.tsx src/presentation/dashboard-domains.spec.ts src/infrastructure/firebase-auth-client.spec.ts`
   - `pnpm --filter @flux/web check`
@@ -175,6 +176,11 @@
   - `pnpm --filter @flux/web check`
   - `pnpm --filter @flux/web build`
   - `pnpm -r test`
+- ✅ Validacion local `WEB-050_SYSTEM_STATUS`:
+  - `pnpm --filter @flux/web test -- src/presentation/ProductSystemStatusPanel.spec.tsx src/presentation/i18n.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
 - ✅ Evidencia visual local de esta iteracion:
   - `flux.pen` revisado contra `WEB-000_ACCESS_GATE`, `WEB-010_SIGN_IN` y `WEB-020_DASHBOARD_HOME`
   - runtime web capturado en localhost antes y despues del ajuste visual
@@ -186,8 +192,12 @@
   - referencia `flux.pen`: `WEB-040_ALERT_CENTER` (`WmuDh`)
   - runtime web capturado en `output/playwright/web-040-product-alert-center-v1.png`
   - smoke real validando `Continuar con cuenta Google` -> badge de alertas -> `Centro de alertas` -> `Abrir progreso → Progreso`
-- ✅ La shell autenticada base (`WEB-020_DASHBOARD_HOME`) y sus dos extensiones inmediatas (`WEB-030_QUICK_ACTIONS`, `WEB-040_ALERT_CENTER`) ya quedan alineadas visualmente en la misma experiencia productizada.
-- ⏳ Atacar la siguiente pantalla visible del bloque inicial de dashboard: `WEB-050_SYSTEM_STATUS`.
+- ✅ Evidencia visual local `WEB-050_SYSTEM_STATUS`:
+  - referencia `flux.pen`: `WEB-050_SYSTEM_STATUS` (`7tRaG`)
+  - runtime web capturado en `output/playwright/web-050-product-system-status-v1.png`
+  - smoke real validando `Continuar con cuenta Google` -> `Ajustes` -> `Estado del sistema`
+- ✅ La shell autenticada base (`WEB-020_DASHBOARD_HOME`) y sus tres extensiones inmediatas (`WEB-030_QUICK_ACTIONS`, `WEB-040_ALERT_CENTER`, `WEB-050_SYSTEM_STATUS`) ya quedan alineadas visualmente en la misma experiencia productizada.
+- ⏳ Atacar la siguiente pantalla visible del bloque de dashboard extendido: `WEB-200_DASHBOARD_KPIS`.
 - ⏳ Ejecutar el mismo smoke visual apuntando a `VITE_API_TARGET` de Vercel para eliminar los `404` locales de analytics durante la navegacion de producto.
 - ⏳ Trasladar los mismos criterios de limpieza de UX a iOS si quedan huecos visibles.
 

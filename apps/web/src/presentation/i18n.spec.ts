@@ -18,6 +18,7 @@ describe("i18n", () => {
     expect(translate("productOverviewBreadcrumb")).toBe("Resumen");
     expect(translate("productQuickActionsBreadcrumb")).toBe("Acciones rápidas");
     expect(translate("productAlertCenterBreadcrumb")).toBe("Centro de alertas");
+    expect(translate("productSystemStatusBreadcrumb")).toBe("Estado del sistema");
     expect(translate("productSidebarQuickAi")).toBe("Preparación IA");
     expect(translate("productSidebarQuickSettings")).toBe("Ajustes");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist listo · señales al día");
@@ -28,6 +29,8 @@ describe("i18n", () => {
     expect(translate("productQuickActionReviewAlertsMeta")).toBe("siguen abiertas");
     expect(translate("productAlertCenterTitle")).toBe("Centro de alertas");
     expect(translate("productAlertCenterOpenProgressAction")).toBe("Abrir progreso →");
+    expect(translate("productSystemStatusTitle")).toBe("Estado del sistema");
+    expect(translate("productSystemStatusDegradedStatus")).toBe("Degradado");
   });
 
   it("supports english language", () => {
@@ -51,6 +54,7 @@ describe("i18n", () => {
     expect(translate("productOverviewBreadcrumb")).toBe("Overview");
     expect(translate("productQuickActionsBreadcrumb")).toBe("Quick actions");
     expect(translate("productAlertCenterBreadcrumb")).toBe("Alert center");
+    expect(translate("productSystemStatusBreadcrumb")).toBe("System status");
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
@@ -64,6 +68,8 @@ describe("i18n", () => {
     expect(translate("productQuickActionMessageMeta")).toBe("Resume follow-up from onboarding");
     expect(translate("productAlertCenterTitle")).toBe("Alert center");
     expect(translate("productAlertCenterFooterTitle")).toBe("Runbooks ready to act");
+    expect(translate("productSystemStatusTitle")).toBe("System status");
+    expect(translate("productSystemStatusQueuePendingPlural")).toBe("pending operations");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");

@@ -98,6 +98,7 @@ import { HeroStatusPanel } from "./HeroStatusPanel";
 import { ProductOverviewPanel } from "./ProductOverviewPanel";
 import { ProductQuickActionsPanel } from "./ProductQuickActionsPanel";
 import { ProductAlertCenterPanel } from "./ProductAlertCenterPanel";
+import { ProductSystemStatusPanel } from "./ProductSystemStatusPanel";
 import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
@@ -283,7 +284,7 @@ type SyncIdempotencyMetadata = {
 };
 type NutritionDeviationSeverity = "high" | "medium";
 type NutritionDeviationReason = "calories" | "protein";
-type ProductPanelView = "overview" | "quick_actions" | "alert_center";
+type ProductPanelView = "overview" | "quick_actions" | "alert_center" | "system_status";
 type NutritionDeviationAlert = {
   id: string;
   userId: string;
@@ -4213,6 +4214,8 @@ export function App() {
         ? translate("productQuickActionsBreadcrumb")
         : productPanelView === "alert_center"
           ? translate("productAlertCenterBreadcrumb")
+          : productPanelView === "system_status"
+            ? translate("productSystemStatusBreadcrumb")
           : translate("productOverviewBreadcrumb")
       : productWorkspaceTitle;
   const showCompactOverviewTopbar = activeDomainForUI === "all";
@@ -4233,9 +4236,28 @@ export function App() {
       .map((value) => value[0]?.toUpperCase() ?? "")
       .join("") || "FX";
   const productSidebarSecondaryNav = [
-    { label: translate("productSidebarQuickAi"), icon: "✦" },
-    { label: translate("productSidebarQuickSettings"), icon: "⚙" },
-    { label: translate("productSidebarQuickSupport"), icon: "?" }
+    { id: "ai", label: translate("productSidebarQuickAi"), icon: "✦" },
+    {
+      id: "system_status",
+      label: translate("productSidebarQuickSettings"),
+      icon: "⚙",
+      active: activeDomainForUI === "all" && productPanelView === "system_status",
+      onPress: () => {
+        handleDomainSelection("all");
+        setProductPanelView("system_status");
+      }
+    },
+    {
+      id: "alert_center",
+      label: translate("productSidebarQuickSupport"),
+      icon: "?",
+      active: activeDomainForUI === "all" && productPanelView === "alert_center",
+      onPress: () => {
+        handleDomainSelection("all");
+        setProductPanelView("alert_center");
+        void handleRefreshAlertCenter();
+      }
+    }
   ];
   const showProductOverviewPanel =
     showProductDashboardExperience &&
@@ -4249,6 +4271,10 @@ export function App() {
     showProductDashboardExperience &&
     isProductOverviewDomain &&
     productPanelView === "alert_center";
+  const showProductSystemStatusPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "system_status";
   const overviewLocale = language === "es" ? "es-ES" : "en-US";
   const criticalOperationalAlertsCount = openOperationalAlerts.filter(
     (alert) => alert.severity === "critical"
@@ -4731,6 +4757,107 @@ export function App() {
       value: String(operationalRunbooks.length)
     }
   ] as const;
+  const productSystemStatusCards = [
+    {
+      id: "runtime",
+      label: translate("systemStatusRuntimeLabel"),
+      status:
+        activeDomainRuntimeState === "success"
+          ? toHumanStatus("success", language)
+          : toHumanStatus(activeDomainRuntimeState, language),
+      detail: translate("productSystemStatusRuntimeDetail"),
+      tone: activeDomainRuntimeState === "success" ? "positive" : "warning"
+    },
+    {
+      id: "permissions",
+      label: translate("productSystemStatusPermissionsLabel"),
+      status:
+        roleCapabilitiesStatus === "loaded"
+          ? toHumanStatus("success", language)
+          : toHumanStatus(roleCapabilitiesStatus, language),
+      detail: translate("productSystemStatusPermissionsDetail"),
+      tone: roleCapabilitiesStatus === "loaded" ? "positive" : "warning"
+    },
+    {
+      id: "sync",
+      label: translate("productSystemStatusSyncLabel"),
+      status:
+        syncStatus === "error"
+          ? translate("productSystemStatusDegradedStatus")
+          : toHumanStatus("success", language),
+      detail: translate("productSystemStatusSyncDetail"),
+      tone: syncStatus === "error" ? "warning" : "positive"
+    },
+    {
+      id: "queue",
+      label: translate("systemStatusQueueLabel"),
+      status:
+        pendingQueueCount > 0
+          ? translate("productSystemStatusDegradedStatus")
+          : toHumanStatus("success", language),
+      detail:
+        pendingQueueCount > 0
+          ? `${pendingQueueCount} ${
+              pendingQueueCount === 1
+                ? translate("productSystemStatusQueuePendingSingular")
+                : translate("productSystemStatusQueuePendingPlural")
+            }`
+          : translate("productSystemStatusQueueClearDetail"),
+      tone: pendingQueueCount > 0 ? "warning" : "positive"
+    }
+  ] as const;
+  const productSystemStatusEvents = [
+    {
+      id: "permissions-event",
+      occurredAt:
+        structuredLogs[0]?.occurredAt ??
+        recentActivityRows[0]?.occurredAt ??
+        new Date().toISOString(),
+      summary: `${translate("productSystemStatusPermissionsLabel")} · ${
+        roleCapabilitiesStatus === "loaded"
+          ? toHumanStatus("success", language)
+          : toHumanStatus(roleCapabilitiesStatus, language)
+      }`
+    },
+    {
+      id: "sync-event",
+      occurredAt:
+        latestRecentActivityRow?.occurredAt ??
+        openOperationalAlerts[0]?.lastEvaluatedAt ??
+        new Date().toISOString(),
+      summary: `${translate("productSystemStatusSyncLabel")} · ${
+        pendingQueueCount > 0
+          ? `${pendingQueueCount} ${
+              pendingQueueCount === 1
+                ? translate("productSystemStatusQueuePendingSingular")
+                : translate("productSystemStatusQueuePendingPlural")
+            }`
+          : translate("productSystemStatusQueueClearDetail")
+      }`
+    },
+    {
+      id: "release-event",
+      occurredAt:
+        openOperationalAlerts[0]?.triggeredAt ??
+        structuredLogs[0]?.occurredAt ??
+        new Date().toISOString(),
+      summary: `${translate("systemStatusReleaseLabel")} · ${
+        releaseCompatibilityStatus === "compatible"
+          ? toHumanStatus("success", language)
+          : translate("productSystemStatusDegradedStatus")
+      }`
+    }
+  ] as const;
+  const productSystemStatusChips = [
+    {
+      id: "status",
+      label: translate("productSystemStatusSummaryLabel"),
+      value:
+        pendingQueueCount > 0 || releaseCompatibilityStatus !== "compatible"
+          ? translate("productSystemStatusSummaryAttention")
+          : translate("productSystemStatusSummaryHealthy")
+    }
+  ] as const;
   const productQuickActions = [
     {
       id: "add-athlete",
@@ -5027,12 +5154,26 @@ export function App() {
             <div className="product-sidebar-divider" aria-hidden="true" />
             <div className="product-sidebar-secondary-nav" aria-label={translate("appName")}>
               {productSidebarSecondaryNav.map((item) => (
-                <span key={item.label} className="product-sidebar-secondary-link">
-                  <span className="product-sidebar-secondary-icon" aria-hidden="true">
-                    {item.icon}
+                item.onPress !== undefined ? (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`product-sidebar-secondary-link interactive ${item.active ? "active" : ""}`}
+                    onClick={item.onPress}
+                  >
+                    <span className="product-sidebar-secondary-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </button>
+                ) : (
+                  <span key={item.id} className="product-sidebar-secondary-link">
+                    <span className="product-sidebar-secondary-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    {item.label}
                   </span>
-                  {item.label}
-                </span>
+                )
               ))}
             </div>
             <div className="product-sidebar-spacer" aria-hidden="true" />
@@ -5057,6 +5198,18 @@ export function App() {
                     <strong>{translate("productAlertCenterTitle")}</strong>
                     <div className="product-panel-chip-row" aria-label={translate("productAlertCenterTitle")}>
                       {productAlertCenterChips.map((chip) => (
+                        <span key={chip.id} className="product-panel-chip">
+                          <span>{chip.label}</span>
+                          <strong>{chip.value}</strong>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : productPanelView === "system_status" ? (
+                  <div className="product-panel-headline">
+                    <strong>{translate("productSystemStatusTitle")}</strong>
+                    <div className="product-panel-chip-row" aria-label={translate("productSystemStatusTitle")}>
+                      {productSystemStatusChips.map((chip) => (
                         <span key={chip.id} className="product-panel-chip">
                           <span>{chip.label}</span>
                           <strong>{chip.value}</strong>
@@ -5153,6 +5306,23 @@ export function App() {
             emptyLabel={translate("productAlertCenterEmpty")}
             footerTitle={translate("productAlertCenterFooterTitle")}
             footerMeta={`${operationalRunbooks.length} ${translate("productAlertCenterFooterRunbooksMeta")} · ${recentActivityRows.length} ${translate("productAlertCenterFooterActivityMeta")}`}
+          />
+        ) : null}
+
+        {showProductSystemStatusPanel ? (
+          <ProductSystemStatusPanel
+            screenId={systemStatusScreenModel.screenId}
+            routeId={systemStatusScreenModel.routeId}
+            status={systemStatusScreenModel.status}
+            cards={productSystemStatusCards}
+            eventsTitle={translate("productSystemStatusEventsTitle")}
+            events={productSystemStatusEvents.map((event) => ({
+              ...event,
+              occurredAt: new Date(event.occurredAt).toLocaleTimeString(overviewLocale, {
+                hour: "2-digit",
+                minute: "2-digit"
+              })
+            }))}
           />
         ) : null}
 

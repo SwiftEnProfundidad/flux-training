@@ -23,6 +23,7 @@ type AppTranslations = {
   productOverviewBreadcrumb: string;
   productQuickActionsBreadcrumb: string;
   productAlertCenterBreadcrumb: string;
+  productSystemStatusBreadcrumb: string;
   productSidebarQuickAi: string;
   productSidebarQuickSettings: string;
   productSidebarQuickSupport: string;
@@ -75,6 +76,20 @@ type AppTranslations = {
   productAlertCenterFooterTitle: string;
   productAlertCenterFooterRunbooksMeta: string;
   productAlertCenterFooterActivityMeta: string;
+  productSystemStatusTitle: string;
+  productSystemStatusSummaryLabel: string;
+  productSystemStatusSummaryHealthy: string;
+  productSystemStatusSummaryAttention: string;
+  productSystemStatusPermissionsLabel: string;
+  productSystemStatusSyncLabel: string;
+  productSystemStatusRuntimeDetail: string;
+  productSystemStatusPermissionsDetail: string;
+  productSystemStatusSyncDetail: string;
+  productSystemStatusQueueClearDetail: string;
+  productSystemStatusQueuePendingSingular: string;
+  productSystemStatusQueuePendingPlural: string;
+  productSystemStatusDegradedStatus: string;
+  productSystemStatusEventsTitle: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -605,6 +620,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewBreadcrumb: "Resumen",
     productQuickActionsBreadcrumb: "Acciones rápidas",
     productAlertCenterBreadcrumb: "Centro de alertas",
+    productSystemStatusBreadcrumb: "Estado del sistema",
     productSidebarQuickAi: "Preparación IA",
     productSidebarQuickSettings: "Ajustes",
     productSidebarQuickSupport: "Soporte",
@@ -657,6 +673,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productAlertCenterFooterTitle: "Runbooks listos para actuar",
     productAlertCenterFooterRunbooksMeta: "flujos activos",
     productAlertCenterFooterActivityMeta: "seguimientos recientes",
+    productSystemStatusTitle: "Estado del sistema",
+    productSystemStatusSummaryLabel: "Estado",
+    productSystemStatusSummaryHealthy: "Operativo",
+    productSystemStatusSummaryAttention: "Atención",
+    productSystemStatusPermissionsLabel: "Permisos",
+    productSystemStatusSyncLabel: "Sincronización offline",
+    productSystemStatusRuntimeDetail: "dominio estable",
+    productSystemStatusPermissionsDetail: "cobertura RBAC vigente",
+    productSystemStatusSyncDetail: "pipeline lista para recuperar",
+    productSystemStatusQueueClearDetail: "sin operaciones pendientes",
+    productSystemStatusQueuePendingSingular: "operación pendiente",
+    productSystemStatusQueuePendingPlural: "operaciones pendientes",
+    productSystemStatusDegradedStatus: "Degradado",
+    productSystemStatusEventsTitle: "Eventos recientes del sistema",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1197,6 +1227,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewBreadcrumb: "Overview",
     productQuickActionsBreadcrumb: "Quick actions",
     productAlertCenterBreadcrumb: "Alert center",
+    productSystemStatusBreadcrumb: "System status",
     productSidebarQuickAi: "AI readiness",
     productSidebarQuickSettings: "Settings",
     productSidebarQuickSupport: "Support",
@@ -1249,6 +1280,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productAlertCenterFooterTitle: "Runbooks ready to act",
     productAlertCenterFooterRunbooksMeta: "active flows",
     productAlertCenterFooterActivityMeta: "recent follow-ups",
+    productSystemStatusTitle: "System status",
+    productSystemStatusSummaryLabel: "Status",
+    productSystemStatusSummaryHealthy: "Operational",
+    productSystemStatusSummaryAttention: "Attention",
+    productSystemStatusPermissionsLabel: "Permissions",
+    productSystemStatusSyncLabel: "Offline sync",
+    productSystemStatusRuntimeDetail: "domain stable",
+    productSystemStatusPermissionsDetail: "RBAC coverage available",
+    productSystemStatusSyncDetail: "pipeline ready to recover",
+    productSystemStatusQueueClearDetail: "no pending operations",
+    productSystemStatusQueuePendingSingular: "pending operation",
+    productSystemStatusQueuePendingPlural: "pending operations",
+    productSystemStatusDegradedStatus: "Degraded",
+    productSystemStatusEventsTitle: "Recent system events",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",
