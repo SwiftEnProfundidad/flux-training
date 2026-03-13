@@ -17,6 +17,9 @@ type AppTranslations = {
   productAccessFooter: string;
   productWorkspaceSummary: string;
   productWorkspaceSignedIn: string;
+  productDashboardNavOverview: string;
+  productDashboardSearchPlaceholder: string;
+  productDashboardAlertsAction: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -541,6 +544,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productWorkspaceSummary:
       "Entrada de producto alineada con onboarding, entrenamiento, nutricion y progreso.",
     productWorkspaceSignedIn: "Sesion activa",
+    productDashboardNavOverview: "Panel",
+    productDashboardSearchPlaceholder: "Buscar atleta o plan...",
+    productDashboardAlertsAction: "Ver todas las alertas →",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1075,6 +1081,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productWorkspaceSummary:
       "Product entry aligned with onboarding, training, nutrition and progress.",
     productWorkspaceSignedIn: "Active session",
+    productDashboardNavOverview: "Panel",
+    productDashboardSearchPlaceholder: "Search athlete or plan...",
+    productDashboardAlertsAction: "View all alerts →",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",

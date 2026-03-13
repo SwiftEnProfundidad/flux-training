@@ -487,7 +487,8 @@
     - el bloqueo real ya no es de autenticacion al proveedor sino de acceso al proyecto `flux-training`.
 
 ## Fase 3 — Web producto real
-- ⏳ Corregir entrada web para modo producto real.
+- ✅ Entrada web producto ya alineada en tres pasos: `WEB-000_ACCESS_GATE` -> `WEB-010_SIGN_IN` -> `Panel` autenticado estilo `WEB-020_DASHBOARD_HOME`.
+- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` (`rail`, densidad de cards y métricas reales).
 - ⏳ Validar auth + onboarding + consentimiento.
 - ⏳ Validar training end-to-end.
 - ⏳ Validar nutrition + progress + IA.

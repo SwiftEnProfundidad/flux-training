@@ -87,6 +87,7 @@ import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { resolveAuthHeroStatus } from "./auth-feedback";
 import { HeroAuthPanel } from "./HeroAuthPanel";
 import { HeroStatusPanel } from "./HeroStatusPanel";
+import { ProductOverviewPanel } from "./ProductOverviewPanel";
 import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
@@ -631,6 +632,7 @@ export function App() {
         ? domainTabs
         : domainTabs.filter(
             (tab) =>
+              tab.id === "all" ||
               tab.id === "onboarding" ||
               tab.id === "training" ||
               tab.id === "nutrition" ||
@@ -1898,10 +1900,7 @@ export function App() {
     if (dashboardHomeRuntimeStateOverride !== null) {
       setDashboardHomeRuntimeStateOverride(null);
     }
-    if (
-      (activeDomain === "operations" || activeDomain === "all") &&
-      activeDomain !== productLandingDomain
-    ) {
+    if (activeDomain === "operations" && activeDomain !== productLandingDomain) {
       setActiveDomain(productLandingDomain);
     }
     setDomainRuntimeStates(createInitialDomainRuntimeStates());
@@ -4115,9 +4114,18 @@ export function App() {
     authStatus === "auth_error" ||
     authStatus === "recovery_sent_email" ||
     authStatus === "recovery_sent_sms";
+  const productDashboardNav = [
+    { id: "all" as DashboardDomain, label: translate("productDashboardNavOverview") },
+    { id: "onboarding" as DashboardDomain, label: translate("domainOnboarding") },
+    { id: "training" as DashboardDomain, label: translate("domainTraining") },
+    { id: "nutrition" as DashboardDomain, label: translate("domainNutrition") },
+    { id: "progress" as DashboardDomain, label: translate("domainProgress") }
+  ];
   const productWorkspaceTitle =
-    domainTabsForUI.find((tab) => tab.id === activeDomainForUI)?.label ??
+    productDashboardNav.find((tab) => tab.id === activeDomainForUI)?.label ??
     translate("dashboardHomeTitle");
+  const productWorkspaceBreadcrumb =
+    activeDomainForUI === "all" ? translate("dashboardHomeTitle") : productWorkspaceTitle;
   const activeSessionIdentity = activeSession?.identity ?? null;
   const productUserLabel =
     activeSessionIdentity?.displayName?.trim() ||
@@ -4134,6 +4142,105 @@ export function App() {
       .slice(0, 2)
       .map((value) => value[0]?.toUpperCase() ?? "")
       .join("") || "FX";
+  const productSidebarSecondaryNav = [
+    translate("aiInsightsTitle"),
+    translate("governanceTitle"),
+    translate("billingSupportTitle")
+  ];
+  const criticalOperationalAlertsCount = openOperationalAlerts.filter(
+    (alert) => alert.severity === "critical"
+  ).length;
+  const productOverviewMetrics = [
+    {
+      id: "athletes",
+      label: translate("athletesLoadedLabel"),
+      value: String(athleteOperationRowsBase.length),
+      detail: `${translate("onboardingStatusLabel")}: ${toHumanStatus(onboardingStatus, language)}`,
+      tone: onboardingStatus === "saved" ? "positive" : "neutral"
+    },
+    {
+      id: "plans",
+      label: translate("planStatusLabel"),
+      value: String(plans.length),
+      detail: `${translate("legalStatusLabel")}: ${toHumanStatus(legalStatus, language)}`,
+      tone: plans.length > 0 ? "positive" : "neutral"
+    },
+    {
+      id: "sessions",
+      label: translate("sessionStatusLabel"),
+      value: String(sessions.length),
+      detail: `${translate("dashboardHomeActiveDomainLabel")}: ${productWorkspaceTitle}`,
+      tone: sessions.length > 0 ? "positive" : "neutral"
+    },
+    {
+      id: "alerts",
+      label: translate("alertCenterOpenCountLabel"),
+      value: String(openOperationalAlerts.length),
+      detail: `${translate("alertCenterHighSeverityLabel")}: ${criticalOperationalAlertsCount}`,
+      tone: openOperationalAlerts.length > 0 ? "critical" : "neutral"
+    }
+  ] as const;
+  const productOverviewBars = [
+    {
+      id: "onboarding",
+      label: translate("domainOnboarding"),
+      value: `${onboardingStatus === "saved" ? 84 : 42}%`,
+      height: onboardingStatus === "saved" ? 84 : 42,
+      tone: onboardingStatus === "saved" ? "positive" : "neutral"
+    },
+    {
+      id: "training",
+      label: translate("domainTraining"),
+      value: `${plans.length > 0 ? Math.min(90, 48 + plans.length * 10) : 32}%`,
+      height: plans.length > 0 ? Math.min(90, 48 + plans.length * 10) : 32,
+      tone: plans.length > 0 ? "positive" : "neutral"
+    },
+    {
+      id: "sessions",
+      label: translate("sessionStatusLabel"),
+      value: `${sessions.length > 0 ? Math.min(92, 44 + sessions.length * 9) : 28}%`,
+      height: sessions.length > 0 ? Math.min(92, 44 + sessions.length * 9) : 28,
+      tone: sessions.length > 0 ? "positive" : "neutral"
+    },
+    {
+      id: "nutrition",
+      label: translate("domainNutrition"),
+      value: `${nutritionLogs.length > 0 ? Math.min(88, 40 + nutritionLogs.length * 14) : 26}%`,
+      height: nutritionLogs.length > 0 ? Math.min(88, 40 + nutritionLogs.length * 14) : 26,
+      tone: nutritionLogs.length > 0 ? "positive" : "neutral"
+    },
+    {
+      id: "progress",
+      label: translate("domainProgress"),
+      value: `${recommendations.length > 0 ? Math.min(86, 38 + recommendations.length * 12) : 30}%`,
+      height: recommendations.length > 0 ? Math.min(86, 38 + recommendations.length * 12) : 30,
+      tone: recommendations.length > 0 ? "positive" : "neutral"
+    },
+    {
+      id: "alerts",
+      label: translate("alertCenterTitle"),
+      value: `${openOperationalAlerts.length > 0 ? Math.min(82, 24 + openOperationalAlerts.length * 14) : 18}%`,
+      height: openOperationalAlerts.length > 0 ? Math.min(82, 24 + openOperationalAlerts.length * 14) : 18,
+      tone: openOperationalAlerts.length > 0 ? "critical" : "neutral"
+    }
+  ] as const;
+  const productOverviewAlerts: Array<{
+    id: string;
+    title: string;
+    meta: string;
+    tone: "critical" | "neutral";
+  }> = openOperationalAlerts.slice(0, 3).map((alert) => ({
+    id: alert.id,
+    title: alert.summary,
+    meta: `${new Date(alert.triggeredAt).toLocaleTimeString(
+      language === "es" ? "es-ES" : "en-US",
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    )} · ${toHumanStatus(alert.severity, language)}`,
+    tone: alert.severity === "critical" ? "critical" : "neutral"
+  }));
 
   return (
     <div
@@ -4339,14 +4446,71 @@ export function App() {
         ) : null}
 
         {showProductDashboardExperience ? (
-          <section className="product-toolbar">
-            <div className="product-toolbar-copyblock">
-              <p className="eyebrow">{translate("appName")}</p>
-              <h1>{productWorkspaceTitle}</h1>
-              <p className="product-toolbar-copy">{translate("productWorkspaceSummary")}</p>
+          <aside className="product-sidebar">
+            <div className="product-sidebar-brand" aria-label={translate("appName")}>
+              <span className="product-brand-mark">FLUX</span>
+              <span className="product-sidebar-brand-copy">{translate("domainTraining")}</span>
             </div>
-            <div className="product-toolbar-meta">
-              <div className="product-language-toggle" role="group" aria-label={translate("languageLabel")}>
+            <nav className="product-sidebar-nav" aria-label={translate("domainFilterLabel")}>
+              {productDashboardNav.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  className={`button ghost product-sidebar-link ${activeDomainForUI === tab.id ? "active" : ""}`}
+                  onClick={() => {
+                    handleDomainSelection(tab.id);
+                  }}
+                >
+                  <span className="product-sidebar-link-bullet" aria-hidden="true" />
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+            <div className="product-sidebar-divider" aria-hidden="true" />
+            <div className="product-sidebar-secondary-nav" aria-label={translate("appName")}>
+              {productSidebarSecondaryNav.map((label) => (
+                <span key={label} className="product-sidebar-secondary-link">
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div className="product-sidebar-user">
+              <span className="product-user-avatar" aria-hidden="true">
+                {productUserInitials}
+              </span>
+              <div className="product-user-copy">
+                <strong>{productUserLabel}</strong>
+                <span>{productUserMeta}</span>
+              </div>
+            </div>
+          </aside>
+        ) : null}
+
+        {showProductDashboardExperience ? (
+          <section className="product-topbar">
+            <div className="product-topbar-copyblock">
+              <p className="product-shell-breadcrumb">
+                <span>{translate("productDashboardNavOverview")}</span>
+                <span aria-hidden="true">/</span>
+                <strong>{productWorkspaceBreadcrumb}</strong>
+              </p>
+              <h1>{productWorkspaceTitle}</h1>
+            </div>
+            <label className="product-topbar-search" aria-label={translate("productDashboardSearchPlaceholder")}>
+              <span aria-hidden="true">⌕</span>
+              <input
+                type="search"
+                placeholder={translate("productDashboardSearchPlaceholder")}
+                readOnly
+              />
+            </label>
+            <div className="product-topbar-meta">
+              <span className="product-topbar-badge">{openOperationalAlerts.length}</span>
+              <div
+                className="product-language-toggle"
+                role="group"
+                aria-label={translate("languageLabel")}
+              >
                 <button
                   className={`button ghost language-button ${language === "es" ? "active" : ""}`}
                   onClick={() => setLanguage("es")}
@@ -4362,15 +4526,9 @@ export function App() {
                   EN
                 </button>
               </div>
-              <div className="product-user-pill">
-                <span className="product-user-avatar" aria-hidden="true">
-                  {productUserInitials}
-                </span>
-                <div className="product-user-copy">
-                  <strong>{productUserLabel}</strong>
-                  <span>{productUserMeta}</span>
-                </div>
-              </div>
+              <span className="product-topbar-avatar" aria-hidden="true">
+                {productUserInitials}
+              </span>
             </div>
           </section>
         ) : null}
@@ -4380,6 +4538,22 @@ export function App() {
             <strong>{translate("updateRequiredTitle")}</strong>
             <p>{translate("updateRequiredCopy")}</p>
           </section>
+        ) : null}
+
+        {showProductDashboardExperience ? (
+          <ProductOverviewPanel
+            title={translate("dashboardHomeTitle")}
+            summary={translate("productWorkspaceSummary")}
+            metrics={[...productOverviewMetrics]}
+            bars={[...productOverviewBars]}
+            alertsTitle={translate("alertCenterTitle")}
+            alerts={productOverviewAlerts}
+            emptyAlertsLabel={translate("alertCenterNoAlerts")}
+            viewAllAlertsLabel={translate("productDashboardAlertsAction")}
+            onViewAllAlerts={() => {
+              handleDomainSelection("all");
+            }}
+          />
         ) : null}
 
         {showQATools ? (
@@ -4424,7 +4598,15 @@ export function App() {
           />
         ) : null}
 
-        {hasAuthenticatedSession && !showQATools ? (
+        {showProductDashboardExperience ? (
+          <section className="product-workspace-header">
+            <div>
+              <p className="eyebrow">{translate("dashboardHomeTitle")}</p>
+              <h2>{productWorkspaceTitle}</h2>
+              <p>{translate("productWorkspaceSummary")}</p>
+            </div>
+          </section>
+        ) : hasAuthenticatedSession && !showQATools ? (
           <section
             className="dashboard-section-card"
             data-screen-id="web.productDomainTabs.screen"
@@ -4452,7 +4634,7 @@ export function App() {
 
         <section
           id="dashboard-grid"
-          className="dashboard-grid"
+          className={`dashboard-grid ${showProductDashboardExperience ? "product-workspace-grid" : ""}`}
           data-screen-id={hasAuthenticatedSession ? dashboardHomeScreenModel.screenId : undefined}
           data-route-id={hasAuthenticatedSession ? dashboardHomeScreenModel.routeId : undefined}
           data-screen-state={hasAuthenticatedSession ? dashboardHomeScreenModel.status : undefined}

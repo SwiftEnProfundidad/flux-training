@@ -387,3 +387,5 @@ Planes activos:
 
 
 - Hallazgo real 2026-03-09: `identityPlatform:initializeAuth` falla con `BILLING_NOT_ENABLED`; el bloqueo correcto es billing para inicializar Firebase Auth, no solo activar `Email/Password`.
+- Ajuste web 2026-03-13: la shell autenticada de producto ya entra en `Panel` y deja de forzar `onboarding/training` como home. La composición visible pasa a `rail lateral + topbar compacta + overview KPI/alertas + workspace`, acercándose a `WEB-020_DASHBOARD_HOME` de `flux.pen`.
+- Evidencia web 2026-03-13: `pnpm --filter @flux/web check`, `pnpm --filter @flux/web build`, `pnpm -r test` y smoke Playwright en `http://127.0.0.1:4174/` con login Google local y captura `output/playwright/web-020-product-shell-panel.png`.

@@ -100,7 +100,7 @@ export function resolveDashboardRole(value: string | null | undefined): Dashboar
 }
 
 export function resolvePostSignInDomain(isQAMode: boolean): DashboardDomain {
-  return isQAMode ? "operations" : "onboarding";
+  return isQAMode ? "operations" : "all";
 }
 
 export function normalizeDomainForRuntimeMode(
@@ -112,7 +112,13 @@ export function normalizeDomainForRuntimeMode(
     return domain;
   }
 
-  if (domain === "onboarding" || domain === "training" || domain === "nutrition" || domain === "progress") {
+  if (
+    domain === "all" ||
+    domain === "onboarding" ||
+    domain === "training" ||
+    domain === "nutrition" ||
+    domain === "progress"
+  ) {
     return domain;
   }
 

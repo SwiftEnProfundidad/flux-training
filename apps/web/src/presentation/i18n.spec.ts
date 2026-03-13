@@ -13,6 +13,8 @@ describe("i18n", () => {
     expect(translate("offlineSyncTitle")).toBe("Sin conexión + Sincronización");
     expect(translate("syncStatusLabel")).toBe("Sincronización");
     expect(translate("rejectedLastSyncLabel")).toBe("Rechazadas en última sincronización");
+    expect(translate("productDashboardNavOverview")).toBe("Panel");
+    expect(translate("productDashboardSearchPlaceholder")).toBe("Buscar atleta o plan...");
   });
 
   it("supports english language", () => {
@@ -30,6 +32,9 @@ describe("i18n", () => {
     expect(translate("productAccessTitle")).toBe("Welcome back");
     expect(translate("productContinueLabel")).toBe("Continue");
     expect(translate("continueWithGoogle")).toBe("Continue with Google account");
+    expect(translate("productDashboardNavOverview")).toBe("Panel");
+    expect(translate("productDashboardSearchPlaceholder")).toBe("Search athlete or plan...");
+    expect(translate("productDashboardAlertsAction")).toBe("View all alerts →");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");

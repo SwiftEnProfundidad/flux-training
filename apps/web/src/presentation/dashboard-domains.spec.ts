@@ -53,20 +53,20 @@ describe("dashboard domain navigation", () => {
   });
 
 
-  it("lands on onboarding after sign-in in product mode", () => {
-    expect(resolvePostSignInDomain(false)).toBe("onboarding");
+  it("lands on panel after sign-in in product mode", () => {
+    expect(resolvePostSignInDomain(false)).toBe("all");
     expect(resolvePostSignInDomain(true)).toBe("operations");
   });
 
   it("normalizes operations away in product runtime mode", () => {
     expect(normalizeDomainForRuntimeMode("operations", false)).toBe("onboarding");
-    expect(normalizeDomainForRuntimeMode("all", false)).toBe("onboarding");
+    expect(normalizeDomainForRuntimeMode("all", false)).toBe("all");
     expect(normalizeDomainForRuntimeMode("progress", false)).toBe("progress");
     expect(normalizeDomainForRuntimeMode("operations", true)).toBe("operations");
   });
 
-  it("can normalize product mode to a custom landing domain", () => {
-    expect(normalizeDomainForRuntimeMode("all", false, "training")).toBe("training");
+  it("can normalize product mode to a custom landing domain for operations", () => {
+    expect(normalizeDomainForRuntimeMode("all", false, "training")).toBe("all");
     expect(normalizeDomainForRuntimeMode("operations", false, "training")).toBe("training");
   });
 
