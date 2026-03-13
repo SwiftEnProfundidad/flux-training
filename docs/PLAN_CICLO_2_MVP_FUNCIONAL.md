@@ -492,7 +492,8 @@
 - ✅ La navegación lateral de producto en preview local ya no dispara `500` de `/api/createAnalyticsEvent`; observabilidad usa fallback web local cuando la sesión es `local-preview`.
 - ✅ `Panel` ya reserva el overview solo para la home autenticada; `Onboarding` y el resto de dominios laterales vuelven a entrar con workspace limpio, sin arrastrar KPI ni gráfico sobre la vista detallada.
 - ✅ El copy fino de `Panel` ya se acerca más al board: breadcrumb `Panel / Resumen`, KPI menos técnicos y alertas con nombre de atleta + acción concreta.
-- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en detalle visual de topbar, rail lateral y densidad final de cards.
+- ✅ La shell autenticada web ya compacta la topbar a una sola línea en `Panel`, aplana cards y reduce el peso visual del rail para acercarse mejor a `WEB-020_DASHBOARD_HOME`.
+- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en contraste fino, espaciado final y microdetalles del rail/topbar.
 - ⏳ Validar auth + onboarding + consentimiento.
 - ⏳ Validar training end-to-end.
 - ⏳ Validar nutrition + progress + IA.

@@ -4204,6 +4204,7 @@ export function App() {
     translate("dashboardHomeTitle");
   const productWorkspaceBreadcrumb =
     activeDomainForUI === "all" ? translate("productOverviewBreadcrumb") : productWorkspaceTitle;
+  const showCompactOverviewTopbar = activeDomainForUI === "all";
   const activeSessionIdentity = activeSession?.identity ?? null;
   const productUserLabel =
     activeSessionIdentity?.displayName?.trim() ||
@@ -4811,12 +4812,22 @@ export function App() {
         {showProductDashboardExperience ? (
           <section className="product-topbar">
             <div className="product-topbar-copyblock">
-              <p className="product-shell-breadcrumb">
-                <span>{translate("productDashboardNavOverview")}</span>
-                <span aria-hidden="true">/</span>
-                <strong>{productWorkspaceBreadcrumb}</strong>
-              </p>
-              <h1>{productWorkspaceTitle}</h1>
+              {showCompactOverviewTopbar ? (
+                <p className="product-shell-breadcrumb overview-inline">
+                  <strong>{productWorkspaceTitle}</strong>
+                  <span aria-hidden="true">/</span>
+                  <span>{productWorkspaceBreadcrumb}</span>
+                </p>
+              ) : (
+                <>
+                  <p className="product-shell-breadcrumb">
+                    <span>{translate("productDashboardNavOverview")}</span>
+                    <span aria-hidden="true">/</span>
+                    <strong>{productWorkspaceBreadcrumb}</strong>
+                  </p>
+                  <h1>{productWorkspaceTitle}</h1>
+                </>
+              )}
             </div>
             <label className="product-topbar-search" aria-label={translate("productDashboardSearchPlaceholder")}>
               <span aria-hidden="true">⌕</span>
