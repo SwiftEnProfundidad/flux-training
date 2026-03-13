@@ -283,6 +283,7 @@ type NutritionDeviationSeverity = "high" | "medium";
 type NutritionDeviationReason = "calories" | "protein";
 type NutritionDeviationAlert = {
   id: string;
+  userId: string;
   date: string;
   severity: NutritionDeviationSeverity;
   reason: NutritionDeviationReason;
@@ -1613,6 +1614,7 @@ export function App() {
           if (log.calories >= 2800 || log.calories <= 1300) {
             alerts.push({
               id: `${log.userId}-${log.date}-calories`,
+              userId: log.userId,
               date: log.date,
               severity: log.calories >= 3000 || log.calories <= 1200 ? "high" : "medium",
               reason: "calories",
@@ -1624,6 +1626,7 @@ export function App() {
           if (log.proteinGrams <= 80) {
             alerts.push({
               id: `${log.userId}-${log.date}-protein`,
+              userId: log.userId,
               date: log.date,
               severity: log.proteinGrams <= 60 ? "high" : "medium",
               reason: "protein",
@@ -2355,6 +2358,7 @@ export function App() {
     setAuthStatus("loading");
     try {
       const session = await createAuthSessionUseCase.executeWithApple();
+      setApiAuthSession(session);
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
       setDashboardHomeRuntimeStateOverride(null);
@@ -2364,6 +2368,7 @@ export function App() {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setApiAuthSession(null);
       setActiveSession(null);
       setAuthStatus("auth_error");
       markDomainFailure("onboarding", error);
@@ -2374,6 +2379,7 @@ export function App() {
     setAuthStatus("loading");
     try {
       const session = await createAuthSessionUseCase.executeWithGoogle();
+      setApiAuthSession(session);
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
       setDashboardHomeRuntimeStateOverride(null);
@@ -2383,6 +2389,7 @@ export function App() {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setApiAuthSession(null);
       setActiveSession(null);
       setAuthStatus("auth_error");
       markDomainFailure("onboarding", error);
@@ -2414,6 +2421,7 @@ export function App() {
     }
     try {
       const session = await createAuthSessionUseCase.executeWithEmail(email, password);
+      setApiAuthSession(session);
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
       setDashboardHomeRuntimeStateOverride(null);
@@ -2423,6 +2431,7 @@ export function App() {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setApiAuthSession(null);
       setActiveSession(null);
       setAuthStatus("auth_error");
       markDomainFailure("onboarding", error);
@@ -4194,7 +4203,7 @@ export function App() {
     productDashboardNav.find((tab) => tab.id === activeDomainForUI)?.label ??
     translate("dashboardHomeTitle");
   const productWorkspaceBreadcrumb =
-    activeDomainForUI === "all" ? translate("dashboardHomeTitle") : productWorkspaceTitle;
+    activeDomainForUI === "all" ? translate("productOverviewBreadcrumb") : productWorkspaceTitle;
   const activeSessionIdentity = activeSession?.identity ?? null;
   const productUserLabel =
     activeSessionIdentity?.displayName?.trim() ||
@@ -4356,28 +4365,31 @@ export function App() {
       id: "athletes",
       label: translate("productOverviewActiveAthletesLabel"),
       value: String(athleteOperationRowsBase.length),
-      detail: `${translate("cohortAnalysisNormalLabel")}: ${cohortNormalCount} · ${translate("cohortAnalysisAttentionLabel")}: ${cohortAttentionCount}`,
+      detail: `${cohortNormalCount} ${translate("productOverviewNormalCohortLabel")} · ${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
       tone: athleteOperationRowsBase.length > 0 ? "positive" : "neutral"
     },
     {
       id: "readiness",
       label: translate("productOverviewReadinessAverageLabel"),
       value: `${averageReadinessScore}%`,
-      detail: `${translate("onboardingStatusLabel")}: ${toHumanStatus(onboardingStatus, language)} · ${translate("legalStatusLabel")}: ${toHumanStatus(legalStatus, language)}`,
+      detail:
+        averageReadinessScore >= 70
+          ? translate("productOverviewReadinessPositiveDetail")
+          : translate("productOverviewReadinessAttentionDetail"),
       tone: averageReadinessScore >= 70 ? "positive" : averageReadinessScore < 50 ? "critical" : "neutral"
     },
     {
       id: "today-sessions",
       label: translate("productOverviewSessionsTodayLabel"),
       value: `${completedSessionsForOverviewDay} / ${plannedSessionsForOverviewDay}`,
-      detail: `${sessionCompletionRate}% · ${translate("sessionStatusLabel")}: ${toHumanStatus(sessionStatus, language)}`,
+      detail: `${completedSessionsForOverviewDay} ${translate("productOverviewSessionsCompletedLabel")} · ${Math.max(plannedSessionsForOverviewDay - completedSessionsForOverviewDay, 0)} ${translate("productOverviewSessionsRemainingLabel")}`,
       tone: sessionCompletionRate >= 70 ? "positive" : sessionCompletionRate < 35 ? "critical" : "neutral"
     },
     {
       id: "alerts",
       label: translate("productOverviewActiveAlertsLabel"),
       value: String(productPrioritySignalsCount),
-      detail: `${translate("alertCenterHighSeverityLabel")}: ${criticalOperationalAlertsCount} · ${translate("alertCenterTitle")}: ${openOperationalAlerts.length}`,
+      detail: `${criticalOperationalAlertsCount} ${translate("productOverviewCriticalSignalsLabel")} · ${Math.max(productPrioritySignalsCount - criticalOperationalAlertsCount, 0)} ${translate("productOverviewMonitoringSignalsLabel")}`,
       tone: productPrioritySignalsCount > 0 ? "critical" : "neutral"
     }
   ] as const;
@@ -4461,31 +4473,40 @@ export function App() {
     }> = [];
 
     if (cohortAttentionCount > 0) {
+      const focusAthleteLabel = formatProductAthleteLabel(
+        atRiskAthleteRows[0]?.athleteId,
+        activeSessionIdentity?.displayName ?? null
+      );
       nextAlerts.push({
         id: "follow-up",
-        title: translate("productOverviewFollowUpAlertTitle"),
-        meta: `${cohortAttentionCount} · ${translate("cohortAnalysisAttentionLabel").toLowerCase()} · ${translate("sessionStatusLabel").toLowerCase()} / ${translate("domainNutrition").toLowerCase()}`,
+        title: `${focusAthleteLabel} · ${translate("productOverviewFollowUpAlertTitle")}`,
+        meta: `${translate("productOverviewFollowUpAlertMeta")} · ${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
         tone: cohortAttentionCount > 1 ? "critical" : "neutral"
       });
     }
 
     nutritionDeviationAlerts.slice(0, 2).forEach((alert) => {
+      const nutritionAlertAthleteLabel = formatProductAthleteLabel(
+        alert.userId,
+        activeSessionIdentity?.displayName ?? null
+      );
       nextAlerts.push({
         id: alert.id,
-        title:
+        title: `${nutritionAlertAthleteLabel} · ${
           alert.reason === "protein"
             ? translate("productOverviewProteinAlertTitle")
-            : translate("productOverviewCaloriesAlertTitle"),
+            : translate("productOverviewCaloriesAlertTitle")
+        }`,
         meta:
           alert.reason === "protein"
             ? `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
                 day: "2-digit",
                 month: "short"
-              })} · ${alert.proteinGrams} g`
+              })} · ${alert.proteinGrams} g · ${translate("productOverviewProteinAlertMeta")}`
             : `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
                 day: "2-digit",
                 month: "short"
-              })} · ${alert.calories} kcal`,
+              })} · ${alert.calories} kcal · ${translate("productOverviewCaloriesAlertMeta")}`,
         tone: alert.severity === "high" ? "critical" : "neutral"
       });
     });
@@ -4533,6 +4554,8 @@ export function App() {
     cohortAttentionCount,
     language,
     latestRecentActivityRow,
+    activeSessionIdentity?.displayName,
+    atRiskAthleteRows,
     nutritionDeviationAlerts,
     openOperationalAlerts,
     overviewLocale,
@@ -6645,6 +6668,59 @@ function toHumanStatus(status: string, language: AppLanguage): string {
 
 function clampNumber(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
+}
+
+function formatProductAthleteLabel(
+  athleteId: string | undefined,
+  activeDisplayName: string | null
+): string {
+  if (athleteId === undefined || athleteId.trim().length === 0) {
+    return activeDisplayName?.trim().length ? activeDisplayName.trim() : "Athlete";
+  }
+
+  const normalizedAthleteId = athleteId.trim().toLowerCase();
+  if (
+    normalizedAthleteId.startsWith("local-preview-session-") ||
+    normalizedAthleteId.startsWith("preview-google-") ||
+    normalizedAthleteId.startsWith("preview-apple-")
+  ) {
+    return activeDisplayName?.trim().length ? activeDisplayName.trim() : "Preview Athlete";
+  }
+
+  const previewLabelBySlug: Record<string, string> = {
+    pablo: "Pablo M.",
+    laura: "Laura R.",
+    marta: "Marta R."
+  };
+  const previewSlug = normalizedAthleteId.replace(/^preview-athlete-/, "");
+  if (previewLabelBySlug[previewSlug] !== undefined) {
+    return previewLabelBySlug[previewSlug] as string;
+  }
+
+  const emailLocalPart = normalizedAthleteId.includes("@")
+    ? normalizedAthleteId.split("@")[0] ?? normalizedAthleteId
+    : normalizedAthleteId;
+  const normalizedNameSource = emailLocalPart
+    .replace(/^preview-/, "")
+    .replace(/^athlete-/, "")
+    .replace(/^user-/, "")
+    .replace(/[._]+/g, "-");
+  const fragments = normalizedNameSource
+    .split("-")
+    .filter((fragment) => fragment.length > 0 && /^[a-z0-9]+$/.test(fragment));
+
+  if (fragments.length === 0) {
+    return athleteId;
+  }
+
+  return fragments
+    .slice(0, 2)
+    .map((fragment, index) =>
+      index === 0
+        ? `${fragment.charAt(0).toUpperCase()}${fragment.slice(1)}`
+        : `${fragment.charAt(0).toUpperCase()}.`
+    )
+    .join(" ");
 }
 
 function isLocalPreviewAuthSession(session: AuthSession): boolean {

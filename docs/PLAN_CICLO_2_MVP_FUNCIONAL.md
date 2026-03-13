@@ -491,7 +491,8 @@
 - ✅ `Panel` web ya muestra KPI y alertas con semántica de producto (`Atletas activos`, `Preparación promedio`, `Sesiones hoy`, `Alertas activas`) y fallback local preview para no caer a cero en desarrollo.
 - ✅ La navegación lateral de producto en preview local ya no dispara `500` de `/api/createAnalyticsEvent`; observabilidad usa fallback web local cuando la sesión es `local-preview`.
 - ✅ `Panel` ya reserva el overview solo para la home autenticada; `Onboarding` y el resto de dominios laterales vuelven a entrar con workspace limpio, sin arrastrar KPI ni gráfico sobre la vista detallada.
-- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en microcopy fino, utilidades del rail lateral y detalle visual de la topbar.
+- ✅ El copy fino de `Panel` ya se acerca más al board: breadcrumb `Panel / Resumen`, KPI menos técnicos y alertas con nombre de atleta + acción concreta.
+- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en detalle visual de topbar, rail lateral y densidad final de cards.
 - ⏳ Validar auth + onboarding + consentimiento.
 - ⏳ Validar training end-to-end.
 - ⏳ Validar nutrition + progress + IA.

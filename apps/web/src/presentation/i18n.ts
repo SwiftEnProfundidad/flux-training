@@ -20,6 +20,7 @@ type AppTranslations = {
   productDashboardNavOverview: string;
   productDashboardSearchPlaceholder: string;
   productDashboardAlertsAction: string;
+  productOverviewBreadcrumb: string;
   productSidebarQuickAi: string;
   productSidebarQuickSettings: string;
   productSidebarQuickSupport: string;
@@ -31,8 +32,19 @@ type AppTranslations = {
   productOverviewActiveAlertsLabel: string;
   productOverviewAlertsTitle: string;
   productOverviewFollowUpAlertTitle: string;
+  productOverviewFollowUpAlertMeta: string;
   productOverviewCaloriesAlertTitle: string;
+  productOverviewCaloriesAlertMeta: string;
   productOverviewProteinAlertTitle: string;
+  productOverviewProteinAlertMeta: string;
+  productOverviewNormalCohortLabel: string;
+  productOverviewAttentionCohortLabel: string;
+  productOverviewReadinessPositiveDetail: string;
+  productOverviewReadinessAttentionDetail: string;
+  productOverviewSessionsCompletedLabel: string;
+  productOverviewSessionsRemainingLabel: string;
+  productOverviewCriticalSignalsLabel: string;
+  productOverviewMonitoringSignalsLabel: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -560,6 +572,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardNavOverview: "Panel",
     productDashboardSearchPlaceholder: "Buscar atleta o plan...",
     productDashboardAlertsAction: "Ver todas las alertas →",
+    productOverviewBreadcrumb: "Resumen",
     productSidebarQuickAi: "Preparación IA",
     productSidebarQuickSettings: "Ajustes",
     productSidebarQuickSupport: "Soporte",
@@ -570,9 +583,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewSessionsTodayLabel: "Sesiones hoy",
     productOverviewActiveAlertsLabel: "Alertas activas",
     productOverviewAlertsTitle: "Alertas recientes",
-    productOverviewFollowUpAlertTitle: "Seguimiento prioritario",
-    productOverviewCaloriesAlertTitle: "Desvío de calorías",
-    productOverviewProteinAlertTitle: "Proteína por debajo del objetivo",
+    productOverviewFollowUpAlertTitle: "seguimiento pendiente",
+    productOverviewFollowUpAlertMeta: "revisar onboarding y nutrición hoy",
+    productOverviewCaloriesAlertTitle: "calorías altas",
+    productOverviewCaloriesAlertMeta: "por encima del objetivo",
+    productOverviewProteinAlertTitle: "proteína baja",
+    productOverviewProteinAlertMeta: "por debajo del objetivo",
+    productOverviewNormalCohortLabel: "en ritmo",
+    productOverviewAttentionCohortLabel: "con seguimiento",
+    productOverviewReadinessPositiveDetail: "checklist completo y señales al día",
+    productOverviewReadinessAttentionDetail: "hay señales abiertas para revisar hoy",
+    productOverviewSessionsCompletedLabel: "completadas",
+    productOverviewSessionsRemainingLabel: "por completar",
+    productOverviewCriticalSignalsLabel: "críticas",
+    productOverviewMonitoringSignalsLabel: "en seguimiento",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1110,6 +1134,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardNavOverview: "Panel",
     productDashboardSearchPlaceholder: "Search athlete or plan...",
     productDashboardAlertsAction: "View all alerts →",
+    productOverviewBreadcrumb: "Overview",
     productSidebarQuickAi: "AI readiness",
     productSidebarQuickSettings: "Settings",
     productSidebarQuickSupport: "Support",
@@ -1120,9 +1145,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewSessionsTodayLabel: "Sessions today",
     productOverviewActiveAlertsLabel: "Active alerts",
     productOverviewAlertsTitle: "Recent alerts",
-    productOverviewFollowUpAlertTitle: "Priority follow-up",
-    productOverviewCaloriesAlertTitle: "Calorie deviation",
-    productOverviewProteinAlertTitle: "Protein below target",
+    productOverviewFollowUpAlertTitle: "needs follow-up",
+    productOverviewFollowUpAlertMeta: "review onboarding and nutrition today",
+    productOverviewCaloriesAlertTitle: "high calories",
+    productOverviewCaloriesAlertMeta: "above target",
+    productOverviewProteinAlertTitle: "low protein",
+    productOverviewProteinAlertMeta: "below target",
+    productOverviewNormalCohortLabel: "on track",
+    productOverviewAttentionCohortLabel: "needing follow-up",
+    productOverviewReadinessPositiveDetail: "checklist complete and signals on track",
+    productOverviewReadinessAttentionDetail: "open signals need review today",
+    productOverviewSessionsCompletedLabel: "completed",
+    productOverviewSessionsRemainingLabel: "remaining",
+    productOverviewCriticalSignalsLabel: "critical",
+    productOverviewMonitoringSignalsLabel: "monitoring",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",

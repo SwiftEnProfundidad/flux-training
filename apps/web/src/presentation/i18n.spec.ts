@@ -15,6 +15,7 @@ describe("i18n", () => {
     expect(translate("rejectedLastSyncLabel")).toBe("Rechazadas en última sincronización");
     expect(translate("productDashboardNavOverview")).toBe("Panel");
     expect(translate("productDashboardSearchPlaceholder")).toBe("Buscar atleta o plan...");
+    expect(translate("productOverviewBreadcrumb")).toBe("Resumen");
     expect(translate("productSidebarQuickAi")).toBe("Preparación IA");
     expect(translate("productSidebarQuickSettings")).toBe("Ajustes");
     expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
@@ -39,6 +40,7 @@ describe("i18n", () => {
     expect(translate("productDashboardNavOverview")).toBe("Panel");
     expect(translate("productDashboardSearchPlaceholder")).toBe("Search athlete or plan...");
     expect(translate("productDashboardAlertsAction")).toBe("View all alerts →");
+    expect(translate("productOverviewBreadcrumb")).toBe("Overview");
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
     expect(translate("productOverviewTitle")).toBe("Team readiness");
@@ -281,6 +283,8 @@ describe("i18n", () => {
     expect(translate("recoverByEmail")).toBe("Recuperar por email");
     expect(translate("recoverBySMS")).toBe("Recuperar por SMS");
     expect(translate("productSidebarQuickSupport")).toBe("Soporte");
+    expect(translate("productOverviewCaloriesAlertTitle")).toBe("calorías altas");
+    expect(translate("productOverviewProteinAlertMeta")).toBe("por debajo del objetivo");
     expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
     expect(translate("productOverviewSummary")).toBe(
       "Últimos 7 días · sesiones, nutrición y señales priorizadas."
