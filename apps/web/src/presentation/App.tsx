@@ -4193,11 +4193,11 @@ export function App() {
     authStatus === "recovery_sent_email" ||
     authStatus === "recovery_sent_sms";
   const productDashboardNav = [
-    { id: "all" as DashboardDomain, label: translate("productDashboardNavOverview") },
-    { id: "onboarding" as DashboardDomain, label: translate("domainOnboarding") },
-    { id: "training" as DashboardDomain, label: translate("domainTraining") },
-    { id: "nutrition" as DashboardDomain, label: translate("domainNutrition") },
-    { id: "progress" as DashboardDomain, label: translate("domainProgress") }
+    { id: "all" as DashboardDomain, label: translate("productDashboardNavOverview"), icon: "◈" },
+    { id: "onboarding" as DashboardDomain, label: translate("domainOnboarding"), icon: "◆" },
+    { id: "training" as DashboardDomain, label: translate("domainTraining"), icon: "▤" },
+    { id: "nutrition" as DashboardDomain, label: translate("domainNutrition"), icon: "○" },
+    { id: "progress" as DashboardDomain, label: translate("domainProgress"), icon: "↑" }
   ];
   const productWorkspaceTitle =
     productDashboardNav.find((tab) => tab.id === activeDomainForUI)?.label ??
@@ -4222,9 +4222,9 @@ export function App() {
       .map((value) => value[0]?.toUpperCase() ?? "")
       .join("") || "FX";
   const productSidebarSecondaryNav = [
-    translate("productSidebarQuickAi"),
-    translate("productSidebarQuickSettings"),
-    translate("productSidebarQuickSupport")
+    { label: translate("productSidebarQuickAi"), icon: "✦" },
+    { label: translate("productSidebarQuickSettings"), icon: "⚙" },
+    { label: translate("productSidebarQuickSupport"), icon: "?" }
   ];
   const showProductOverviewPanel = showProductDashboardExperience && isProductOverviewDomain;
   const overviewLocale = language === "es" ? "es-ES" : "en-US";
@@ -4783,16 +4783,21 @@ export function App() {
                     handleDomainSelection(tab.id);
                   }}
                 >
-                  <span className="product-sidebar-link-bullet" aria-hidden="true" />
+                  <span className="product-sidebar-link-icon" aria-hidden="true">
+                    {tab.icon}
+                  </span>
                   <span>{tab.label}</span>
                 </button>
               ))}
             </nav>
             <div className="product-sidebar-divider" aria-hidden="true" />
             <div className="product-sidebar-secondary-nav" aria-label={translate("appName")}>
-              {productSidebarSecondaryNav.map((label) => (
-                <span key={label} className="product-sidebar-secondary-link">
-                  {label}
+              {productSidebarSecondaryNav.map((item) => (
+                <span key={item.label} className="product-sidebar-secondary-link">
+                  <span className="product-sidebar-secondary-icon" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                  {item.label}
                 </span>
               ))}
             </div>

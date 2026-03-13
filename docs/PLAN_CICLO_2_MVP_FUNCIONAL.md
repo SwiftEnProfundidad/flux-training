@@ -494,7 +494,8 @@
 - ✅ El copy fino de `Panel` ya se acerca más al board: breadcrumb `Panel / Resumen`, KPI menos técnicos y alertas con nombre de atleta + acción concreta.
 - ✅ La shell autenticada web ya compacta la topbar a una sola línea en `Panel`, aplana cards y reduce el peso visual del rail para acercarse mejor a `WEB-020_DASHBOARD_HOME`.
 - ✅ El topbar autenticado ya elimina el selector visible de idioma en modo producto para acercarse mejor a la referencia Pencil y dejar solo búsqueda, alertas y avatar en cabecera.
-- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en contraste fino, espaciado final y microdetalles del rail/cards.
+- ✅ El rail lateral ya incorpora iconografía sutil y una jerarquía visual más cercana al board `WEB-020`, manteniendo los dominios reales de producto.
+- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en contraste fino, espaciado final y microdetalles residuales de cards.
 - ⏳ Validar auth + onboarding + consentimiento.
 - ⏳ Validar training end-to-end.
 - ⏳ Validar nutrition + progress + IA.
