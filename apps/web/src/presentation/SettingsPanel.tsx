@@ -7,6 +7,7 @@ type SettingsPanelProps = {
   title: string;
   status: string;
   statusLabel: string;
+  showStatus?: boolean;
   notificationsEnabled: boolean;
   onNotificationsChange: (value: boolean) => void;
   notificationsLabel: string;
@@ -28,6 +29,7 @@ export const SettingsPanel = memo(function SettingsPanel({
   title,
   status,
   statusLabel,
+  showStatus = true,
   notificationsEnabled,
   onNotificationsChange,
   notificationsLabel,
@@ -50,9 +52,11 @@ export const SettingsPanel = memo(function SettingsPanel({
     >
       <header className="module-header">
         <h2>{title}</h2>
-        <p>
-          {statusLabel}: <span className="status-pill">{status}</span>
-        </p>
+        {showStatus ? (
+          <p>
+            {statusLabel}: <span className="status-pill">{status}</span>
+          </p>
+        ) : null}
       </header>
       <div className="form-grid">
         <label>

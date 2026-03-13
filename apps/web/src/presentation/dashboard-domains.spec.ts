@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   applyDashboardDomainToURL,
+  getProductVisibleModules,
   getVisibleModules,
   isModuleVisible,
+  normalizeDomainForRuntimeMode,
   readDashboardDomainFromURL,
   resolveDashboardRole,
-  resolveDashboardDomain
+  resolveDashboardDomain,
+  resolvePostSignInDomain
 } from "./dashboard-domains";
 
 describe("dashboard domain navigation", () => {
@@ -32,6 +35,39 @@ describe("dashboard domain navigation", () => {
     expect(isModuleVisible("training", "training")).toBe(true);
     expect(isModuleVisible("onboarding", "training")).toBe(false);
     expect(isModuleVisible("nutrition", "training")).toBe(false);
+  });
+
+
+
+  it("maps product mode to domain-specific modules", () => {
+    expect(getProductVisibleModules("onboarding")).toEqual(["onboarding", "legal"]);
+    expect(getProductVisibleModules("training")).toEqual(["training"]);
+    expect(getProductVisibleModules("nutrition")).toEqual(["nutrition"]);
+    expect(getProductVisibleModules("progress")).toEqual(["progress", "recommendations"]);
+    expect(getProductVisibleModules("operations")).toEqual([
+      "onboarding",
+      "training",
+      "nutrition",
+      "progress"
+    ]);
+  });
+
+
+  it("lands on onboarding after sign-in in product mode", () => {
+    expect(resolvePostSignInDomain(false)).toBe("onboarding");
+    expect(resolvePostSignInDomain(true)).toBe("operations");
+  });
+
+  it("normalizes operations away in product runtime mode", () => {
+    expect(normalizeDomainForRuntimeMode("operations", false)).toBe("onboarding");
+    expect(normalizeDomainForRuntimeMode("all", false)).toBe("onboarding");
+    expect(normalizeDomainForRuntimeMode("progress", false)).toBe("progress");
+    expect(normalizeDomainForRuntimeMode("operations", true)).toBe("operations");
+  });
+
+  it("can normalize product mode to a custom landing domain", () => {
+    expect(normalizeDomainForRuntimeMode("all", false, "training")).toBe("training");
+    expect(normalizeDomainForRuntimeMode("operations", false, "training")).toBe("training");
   });
 
   it("shows only operations modules", () => {

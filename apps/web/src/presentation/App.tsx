@@ -59,10 +59,13 @@ import {
 import {
   applyDashboardDomainToURL,
   dashboardRoles,
+  getProductVisibleModules,
   getVisibleModules,
+  normalizeDomainForRuntimeMode,
   readDashboardDomainFromURL,
   resolveDashboardRole,
   resolveDashboardDomain,
+  resolvePostSignInDomain,
   type DashboardDomain,
   type DashboardModule,
   type DashboardRole
@@ -608,22 +611,15 @@ export function App() {
     { id: "coach", label: translate("roleCoach") },
     { id: "admin", label: translate("roleAdmin") }
   ];
+  const productLandingDomain = useMemo<DashboardDomain>(
+    () =>
+      onboardingStatus === "saved" && legalStatus === "saved" ? "training" : "onboarding",
+    [legalStatus, onboardingStatus]
+  );
   const normalizeDomainForMode = useCallback(
-    (domain: DashboardDomain): DashboardDomain => {
-      if (isQAMode) {
-        return domain;
-      }
-      if (
-        domain === "onboarding" ||
-        domain === "training" ||
-        domain === "nutrition" ||
-        domain === "progress"
-      ) {
-        return domain;
-      }
-      return "onboarding";
-    },
-    [isQAMode]
+    (domain: DashboardDomain): DashboardDomain =>
+      normalizeDomainForRuntimeMode(domain, isQAMode, productLandingDomain),
+    [isQAMode, productLandingDomain]
   );
   const activeDomainForUI = normalizeDomainForMode(activeDomain);
   const domainTabsForUI = useMemo(
@@ -656,20 +652,12 @@ export function App() {
       })),
     [language]
   );
-  const productVisibleModules = useMemo<DashboardModule[]>(
-    () => [
-      "onboarding",
-      "training",
-      "recommendations",
-      "nutrition",
-      "progress",
-      "settings"
-    ],
-    []
-  );
   const visibleModulesForDomain = useMemo(
-    () => (isQAMode ? getVisibleModules(activeDomainForUI) : productVisibleModules),
-    [activeDomainForUI, isQAMode, productVisibleModules]
+    () =>
+      isQAMode
+        ? getVisibleModules(activeDomainForUI)
+        : getProductVisibleModules(activeDomainForUI),
+    [activeDomainForUI, isQAMode]
   );
   const visibleModulesForDomainSet = useMemo(
     () => new Set<DashboardModule>(visibleModulesForDomain),
@@ -1903,11 +1891,14 @@ export function App() {
     if (dashboardHomeRuntimeStateOverride !== null) {
       setDashboardHomeRuntimeStateOverride(null);
     }
-    if (activeDomain === "all" || activeDomain === "operations") {
-      setActiveDomain("onboarding");
+    if (
+      (activeDomain === "operations" || activeDomain === "all") &&
+      activeDomain !== productLandingDomain
+    ) {
+      setActiveDomain(productLandingDomain);
     }
     setDomainRuntimeStates(createInitialDomainRuntimeStates());
-  }, [activeDomain, dashboardHomeRuntimeStateOverride, isQAMode, webLane]);
+  }, [activeDomain, dashboardHomeRuntimeStateOverride, isQAMode, productLandingDomain, webLane]);
 
   useEffect(() => {
     persistDomainPreference(activeDomain);
@@ -2291,6 +2282,8 @@ export function App() {
       const session = await createAuthSessionUseCase.executeWithApple();
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
+      setDashboardHomeRuntimeStateOverride(null);
+      setActiveDomain(resolvePostSignInDomain(isQAMode));
       markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
@@ -2312,6 +2305,8 @@ export function App() {
       const session = await createAuthSessionUseCase.executeWithEmail(email, password);
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
+      setDashboardHomeRuntimeStateOverride(null);
+      setActiveDomain(resolvePostSignInDomain(isQAMode));
       markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
@@ -2404,6 +2399,9 @@ export function App() {
         source: "web"
       });
       setLegalStatus("saved");
+      if (isQAMode === false) {
+        setActiveDomain("training");
+      }
       markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
@@ -3372,7 +3370,7 @@ export function App() {
     setSelectedAthleteIds([selectedNutritionLog.userId]);
     setAthleteSearch(selectedNutritionLog.userId);
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleFocusNutritionCoachAtRisk() {
@@ -3384,12 +3382,12 @@ export function App() {
     setSelectedAthleteIds([firstAtRiskAthlete.athleteId]);
     setAthleteSearch(firstAtRiskAthlete.athleteId);
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleOpenNutritionCoachOperations() {
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleFocusHighestNutritionRisk() {
@@ -3403,7 +3401,7 @@ export function App() {
     setSelectedAthleteIds([highestRiskRow.athleteId]);
     setAthleteSearch(highestRiskRow.athleteId);
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleClearProgressFilters() {
@@ -4064,84 +4062,230 @@ export function App() {
     : language === "es"
       ? "pendiente"
       : "pending";
+  const showProductAccessExperience = isQAMode === false && hasAuthenticatedSession === false;
+  const showProductDashboardExperience = isQAMode === false && hasAuthenticatedSession;
+  const showHeroAuthStatus =
+    showQATools ||
+    authStatus === "loading" ||
+    authStatus === "validation_error" ||
+    authStatus === "auth_error" ||
+    authStatus === "recovery_sent_email" ||
+    authStatus === "recovery_sent_sms";
+  const productWorkspaceTitle =
+    domainTabsForUI.find((tab) => tab.id === activeDomainForUI)?.label ??
+    translate("dashboardHomeTitle");
+  const activeSessionIdentity = activeSession?.identity ?? null;
+  const productUserLabel =
+    activeSessionIdentity?.displayName?.trim() ||
+    activeSessionIdentity?.email?.trim() ||
+    translate("productWorkspaceSignedIn");
+  const productUserMeta =
+    activeSessionIdentity?.displayName?.trim() && activeSessionIdentity.email?.trim()
+      ? activeSessionIdentity.email.trim()
+      : translate("productWorkspaceSignedIn");
+  const productUserInitials =
+    productUserLabel
+      .split(/\s+/)
+      .filter((value) => value.length > 0)
+      .slice(0, 2)
+      .map((value) => value[0]?.toUpperCase() ?? "")
+      .join("") || "FX";
 
   return (
-    <div className={`app-shell tone-${readiness.tone}`}>
+    <div
+      className={`app-shell tone-${readiness.tone} ${showProductAccessExperience ? "product-access-shell" : ""} ${showProductDashboardExperience ? "product-dashboard-shell" : ""}`}
+    >
       <div className="app-background app-background-left" />
       <div className="app-background app-background-right" />
-      <main className="app-main">
-        <section
-          className="hero-card"
-          data-screen-id={signInScreenModel.screenId}
-          data-route-id={signInScreenModel.routeId}
-          data-status-id={signInScreenModel.statusId}
-          aria-busy={isAuthLoading}
-        >
-          <div className="hero-content">
-            <p className="eyebrow">{translate("appName")}</p>
-            <h1>{translate("heroTitle")}</h1>
-            <p className="hero-copy">{translate("heroCopy")}</p>
-            <HeroAuthPanel
-              isAuthLoading={isAuthLoading}
-              email={email}
-              password={password}
-              emailPlaceholder={translate("emailPlaceholder")}
-              passwordPlaceholder={translate("passwordPlaceholder")}
-              signInWithAppleLabel={translate("signInWithApple")}
-              signInWithEmailLabel={translate("signInWithEmail")}
-              recoverByEmailLabel={translate("recoverByEmail")}
-              recoverBySMSLabel={translate("recoverBySMS")}
-              authStatusLabel={resolveAuthHeroStatus({
-                authStatus,
-                hasAuthenticatedSession,
-                language
-              })}
-              actionIds={{
-                apple: signInScreenModel.actions.apple,
-                email: signInScreenModel.actions.email,
-                recoverEmail: signInScreenModel.actions.recoverEmail,
-                recoverSMS: signInScreenModel.actions.recoverSMS,
-                status: signInScreenModel.statusId
+      <main
+        className={`app-main ${showProductAccessExperience ? "product-access-main" : ""} ${showProductDashboardExperience ? "product-dashboard-main" : ""}`}
+      >
+        {showProductAccessExperience ? (
+          <section
+            className="product-access-layout"
+            data-screen-id={signInScreenModel.screenId}
+            data-route-id={signInScreenModel.routeId}
+            data-status-id={signInScreenModel.statusId}
+            aria-busy={isAuthLoading}
+          >
+            <header className="product-access-header">
+              <div className="product-brand-lockup" aria-label={translate("appName")}>
+                <span className="product-brand-mark">FLUX</span>
+                <span className="product-brand-copy">training</span>
+              </div>
+              <div className="product-language-toggle" role="group" aria-label={translate("languageLabel")}>
+                <button
+                  className={`button ghost language-button ${language === "es" ? "active" : ""}`}
+                  onClick={() => setLanguage("es")}
+                  type="button"
+                >
+                  ES
+                </button>
+                <button
+                  className={`button ghost language-button ${language === "en" ? "active" : ""}`}
+                  onClick={() => setLanguage("en")}
+                  type="button"
+                >
+                  EN
+                </button>
+              </div>
+            </header>
+            <div className="product-access-stage">
+              <div className="product-access-card">
+                <div className="hero-content product-access-copy">
+                  <p className="eyebrow">{translate("appName")}</p>
+                  <h1>{translate("productAccessTitle")}</h1>
+                  <p className="hero-copy">{translate("productAccessCopy")}</p>
+                </div>
+                <HeroAuthPanel
+                  isAuthLoading={isAuthLoading}
+                  email={email}
+                  password={password}
+                  emailPlaceholder={translate("emailPlaceholder")}
+                  passwordPlaceholder={translate("passwordPlaceholder")}
+                  signInWithAppleLabel={translate("signInWithApple")}
+                  signInWithEmailLabel={translate("signInWithEmail")}
+                  recoverByEmailLabel={translate("recoverByEmail")}
+                  recoverBySMSLabel={translate("recoverBySMS")}
+                  authStatusLabel={resolveAuthHeroStatus({
+                    authStatus,
+                    hasAuthenticatedSession,
+                    language
+                  })}
+                  showStatus={showHeroAuthStatus}
+                  productMode={true}
+                  dividerLabel={language === "es" ? "o" : "or"}
+                  actionIds={{
+                    apple: signInScreenModel.actions.apple,
+                    email: signInScreenModel.actions.email,
+                    recoverEmail: signInScreenModel.actions.recoverEmail,
+                    recoverSMS: signInScreenModel.actions.recoverSMS,
+                    status: signInScreenModel.statusId
+                  }}
+                  onAppleSignIn={handleAppleSignIn}
+                  onEmailChange={setEmail}
+                  onPasswordChange={setPassword}
+                  onEmailSignIn={() => {
+                    void handleEmailSignIn();
+                  }}
+                  onEmailRecovery={handleEmailRecovery}
+                />
+              </div>
+            </div>
+            <footer className="product-access-footer">{translate("productAccessFooter")}</footer>
+          </section>
+        ) : showQATools ? (
+          <section
+            className="hero-card"
+            data-screen-id={signInScreenModel.screenId}
+            data-route-id={signInScreenModel.routeId}
+            data-status-id={signInScreenModel.statusId}
+            aria-busy={isAuthLoading}
+          >
+            <div className="hero-content">
+              <p className="eyebrow">{translate("appName")}</p>
+              <h1>{translate("heroTitle")}</h1>
+              <p className="hero-copy">{translate("heroCopy")}</p>
+              <HeroAuthPanel
+                isAuthLoading={isAuthLoading}
+                email={email}
+                password={password}
+                emailPlaceholder={translate("emailPlaceholder")}
+                passwordPlaceholder={translate("passwordPlaceholder")}
+                signInWithAppleLabel={translate("signInWithApple")}
+                signInWithEmailLabel={translate("signInWithEmail")}
+                recoverByEmailLabel={translate("recoverByEmail")}
+                recoverBySMSLabel={translate("recoverBySMS")}
+                authStatusLabel={resolveAuthHeroStatus({
+                  authStatus,
+                  hasAuthenticatedSession,
+                  language
+                })}
+                showStatus={showHeroAuthStatus}
+                actionIds={{
+                  apple: signInScreenModel.actions.apple,
+                  email: signInScreenModel.actions.email,
+                  recoverEmail: signInScreenModel.actions.recoverEmail,
+                  recoverSMS: signInScreenModel.actions.recoverSMS,
+                  status: signInScreenModel.statusId
+                }}
+                onAppleSignIn={handleAppleSignIn}
+                onEmailChange={setEmail}
+                onPasswordChange={setPassword}
+                onEmailSignIn={() => {
+                  void handleEmailSignIn();
+                }}
+                onEmailRecovery={handleEmailRecovery}
+              />
+            </div>
+            <HeroStatusPanel
+              language={language}
+              showQATools={showQATools}
+              webLane={webLane}
+              readinessScore={readiness.score}
+              readinessStateLabel={readinessLabel(readiness.label, language)}
+              labels={{
+                language: translate("languageLabel"),
+                lane: translate("laneLabel"),
+                laneMain: translate("laneMain"),
+                laneSecondary: translate("laneSecondary"),
+                readiness: translate("readinessLabel"),
+                authMetric: translate("authMetric"),
+                queueMetric: translate("queueMetric"),
+                goalMetric: translate("goalMetric"),
+                syncMetric: translate("syncMetric"),
+                runtimeMetric: translate("runtimeStateModeLabel")
               }}
-              onAppleSignIn={handleAppleSignIn}
-              onEmailChange={setEmail}
-              onPasswordChange={setPassword}
-              onEmailSignIn={() => {
-                void handleEmailSignIn();
+              values={{
+                goal: goalLabel(goal, language),
+                auth: heroAuthMetricValue,
+                queue: String(pendingQueueCount),
+                sync: humanizeStatus(syncStatus, language),
+                runtime: toHumanStatus(runtimeStateForUI, language)
               }}
-              onEmailRecovery={handleEmailRecovery}
+              hasAuthenticatedSession={hasAuthenticatedSession}
+              onLanguageChange={setLanguage}
+              onWebLaneChange={setWebLane}
             />
-          </div>
-          <HeroStatusPanel
-            language={language}
-            showQATools={showQATools}
-            webLane={webLane}
-            readinessScore={readiness.score}
-            readinessStateLabel={readinessLabel(readiness.label, language)}
-            labels={{
-              language: translate("languageLabel"),
-              lane: translate("laneLabel"),
-              laneMain: translate("laneMain"),
-              laneSecondary: translate("laneSecondary"),
-              readiness: translate("readinessLabel"),
-              authMetric: translate("authMetric"),
-              queueMetric: translate("queueMetric"),
-              goalMetric: translate("goalMetric"),
-              syncMetric: translate("syncMetric"),
-              runtimeMetric: translate("runtimeStateModeLabel")
-            }}
-            values={{
-              goal: goalLabel(goal, language),
-              auth: heroAuthMetricValue,
-              queue: String(pendingQueueCount),
-              sync: humanizeStatus(syncStatus, language),
-              runtime: toHumanStatus(runtimeStateForUI, language)
-            }}
-            hasAuthenticatedSession={hasAuthenticatedSession}
-            onLanguageChange={setLanguage}
-            onWebLaneChange={setWebLane}
-          />
-        </section>
+          </section>
+        ) : null}
+
+        {showProductDashboardExperience ? (
+          <section className="product-toolbar">
+            <div className="product-toolbar-copyblock">
+              <p className="eyebrow">{translate("appName")}</p>
+              <h1>{productWorkspaceTitle}</h1>
+              <p className="product-toolbar-copy">{translate("productWorkspaceSummary")}</p>
+            </div>
+            <div className="product-toolbar-meta">
+              <div className="product-language-toggle" role="group" aria-label={translate("languageLabel")}>
+                <button
+                  className={`button ghost language-button ${language === "es" ? "active" : ""}`}
+                  onClick={() => setLanguage("es")}
+                  type="button"
+                >
+                  ES
+                </button>
+                <button
+                  className={`button ghost language-button ${language === "en" ? "active" : ""}`}
+                  onClick={() => setLanguage("en")}
+                  type="button"
+                >
+                  EN
+                </button>
+              </div>
+              <div className="product-user-pill">
+                <span className="product-user-avatar" aria-hidden="true">
+                  {productUserInitials}
+                </span>
+                <div className="product-user-copy">
+                  <strong>{productUserLabel}</strong>
+                  <span>{productUserMeta}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {releaseCompatibilityStatus === "upgrade_required" ? (
           <section className="status-banner critical">
@@ -4190,6 +4334,32 @@ export function App() {
                 : runtimeStateDescription(activeDomainRuntimeState, translate)
             }
           />
+        ) : null}
+
+        {hasAuthenticatedSession && !showQATools ? (
+          <section
+            className="dashboard-section-card"
+            data-screen-id="web.productDomainTabs.screen"
+            data-route-id="web.productDomainTabs.route"
+            data-screen-state="success"
+          >
+            <div className="domain-filter-tabs" role="tablist" aria-label={translate("domainFilterLabel")}>
+              {domainTabsForUI.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeDomainForUI === tab.id}
+                  className={`button ghost domain-tab ${activeDomainForUI === tab.id ? "active" : ""}`}
+                  onClick={() => {
+                    handleDomainSelection(tab.id);
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </section>
         ) : null}
 
         <section
@@ -4583,6 +4753,7 @@ export function App() {
               statusLabel={translate("onboardingStatusLabel")}
               statusValue={toHumanStatus(onboardingStatus, language)}
               statusClass={toStatusClass(onboardingStatus)}
+              showStatus={isQAMode}
               displayNameLabel={translate("displayNamePlaceholder")}
               displayName={displayName}
               onDisplayNameChange={setDisplayName}
@@ -4613,21 +4784,8 @@ export function App() {
               parQ2Label={translate("parQQuestionTwo")}
               parQ2={parQ2}
               onParQ2Change={setParQ2}
-              privacyPolicyLabel={translate("acceptPrivacyPolicy")}
-              privacyPolicyAccepted={privacyPolicyAccepted}
-              onPrivacyPolicyChange={setPrivacyPolicyAccepted}
-              termsLabel={translate("acceptTerms")}
-              termsAccepted={termsAccepted}
-              onTermsChange={setTermsAccepted}
-              medicalDisclaimerLabel={translate("acceptMedicalDisclaimer")}
-              medicalDisclaimerAccepted={medicalDisclaimerAccepted}
-              onMedicalDisclaimerChange={setMedicalDisclaimerAccepted}
               completeLabel={translate("completeOnboarding")}
               onComplete={handleCompleteOnboarding}
-              saveConsentLabel={translate("saveConsent")}
-              onSaveConsent={handleSubmitLegalConsent}
-              exportDataLabel={translate("exportData")}
-              onExportData={handleExportData}
             />
           ) : null}
 
@@ -5642,6 +5800,7 @@ export function App() {
               title={translate("progressTrendsTitle")}
               status={progressTrendsScreenModel.status}
               statusLabel={translate("progressTrendsStatusLabel")}
+              showStatus={isQAMode}
               summary={translate("progressTrendsSummary")}
               refreshLabel={translate("progressTrendsRefreshAction")}
               refreshActionId={progressTrendsScreenModel.actions.refresh}
@@ -5723,6 +5882,7 @@ export function App() {
               title={translate("settingsTitle")}
               status={toHumanStatus(settingsStatus, language)}
               statusLabel={translate("settingsStatusLabel")}
+              showStatus={isQAMode}
               notificationsEnabled={notificationsEnabled}
               onNotificationsChange={setNotificationsEnabled}
               notificationsLabel={translate("notificationsPreference")}
@@ -5746,9 +5906,20 @@ export function App() {
               title={translate("legalSectionTitle")}
               status={legalComplianceScreenModel.status}
               statusLabel={translate("legalStatusLabel")}
+              showStatus={isQAMode}
               summaryLabel={translate("legalSummaryLabel")}
               summaryValue={`${privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"}`}
+              showSummary={isQAMode}
               language={language}
+              privacyPolicyLabel={translate("acceptPrivacyPolicy")}
+              privacyPolicyAccepted={privacyPolicyAccepted}
+              onPrivacyPolicyChange={setPrivacyPolicyAccepted}
+              termsLabel={translate("acceptTerms")}
+              termsAccepted={termsAccepted}
+              onTermsChange={setTermsAccepted}
+              medicalDisclaimerLabel={translate("acceptMedicalDisclaimer")}
+              medicalDisclaimerAccepted={medicalDisclaimerAccepted}
+              onMedicalDisclaimerChange={setMedicalDisclaimerAccepted}
               saveConsentLabel={translate("saveConsent")}
               exportDataLabel={translate("exportData")}
               requestDeletionLabel={translate("requestDeletion")}
@@ -6000,7 +6171,7 @@ function persistRolePreference(role: DashboardRole): void {
 
 function readDomainPreference(): DashboardDomain {
   if (typeof window === "undefined") {
-    return "onboarding";
+    return "all";
   }
   const domainFromURL = readDashboardDomainFromURL(window.location.href);
   if (domainFromURL !== null) {
@@ -6008,7 +6179,7 @@ function readDomainPreference(): DashboardDomain {
   }
   const persistedDomain = window.localStorage.getItem(dashboardDomainStorageKey);
   if (persistedDomain === null) {
-    return resolveWebRuntimeMode() === "qa" ? "all" : "onboarding";
+    return "all";
   }
   return resolveDashboardDomain(persistedDomain);
 }

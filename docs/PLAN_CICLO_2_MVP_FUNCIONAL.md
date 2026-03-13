@@ -10,10 +10,10 @@
 - Llevar Flux a MVP funcional real para usuarios en Web + iOS, alineado con `flux.pen`, sin UI interna de pruebas y con flujos end-to-end operativos.
 
 ## Estado actual
-- Web: backlog anterior cerrado, pendiente validacion real de producto.
-- iOS: backlog anterior cerrado, pendiente validacion real de producto.
-- Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real.
+- Web: backlog anterior cerrado, en correccion de paridad visible contra `flux.pen`.
+- iOS: backlog anterior cerrado, pendiente aplicar el mismo criterio de paridad visual.
+- Backend: backend alternativo en Vercel listo para el MVP inicial.
+- Task activa actual: 🚧 Cerrar paridad UX web visible contra `flux.pen`.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -29,8 +29,13 @@
   - ✅ Preview/host inicial en Vercel Hobby ya desplegado con exito.
   - ✅ `/api/health` ya responde `200` en preview Vercel.
   - ✅ La sonda `pnpm smoke:real-cloud-connectivity` ya responde `ready` contra la preview Vercel.
+  - ✅ La web en modo producto ya deja de exponer `Operaciones` y `Admin` fuera de QA.
+  - ✅ El login en modo producto ya redirige al dominio de producto (`onboarding` / `training`) en vez de caer en shell interna.
+  - ✅ Hero de acceso, onboarding, legal, ajustes y progreso ya ocultan copy tecnica de estado fuera de QA.
+  - ✅ El baseline web ya refleja tabs de producto (`Onboarding`, `Entrenamiento`, `Nutricion`, `Progreso`) y no la consola operativa anterior.
   - ⛔ Firebase Auth del proyecto sigue sin configuracion operativa para email/password (`CONFIGURATION_NOT_FOUND`).
-  - 🚧 Siguiente desbloqueo real: activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
+  - ⏳ Dependencia externa pendiente: activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
+  - 🚧 Foco actual del producto: cerrar la paridad UX web visible contra `flux.pen` antes de retomar la validacion cloud E2E.
 
 ## Checklist de salida Vercel Hobby (obligatorio antes de seguir)
 - Paso 1: mantener Firebase Auth + Firestore en `flux-training-mvp`.
@@ -52,6 +57,8 @@
 - ✅ Reabrir ciclo 2 en tracking maestro.
 - ✅ Registrar gaps reales entre runtime y `flux.pen`.
 - ✅ Confirmar criterio de cierre del MVP funcional.
+- ✅ Alinear la home web al modo producto visible (sin shell de operaciones por defecto).
+- 🚧 Cerrar la paridad de acceso y navegacion principal web contra `flux.pen`.
 
 ## Criterio de cierre del MVP funcional
 - El MVP solo podra declararse `✅` cuando se cumplan a la vez estos cinco bloques:
@@ -143,9 +150,34 @@
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
 - ✅ Confirmar que el bloqueo actual ya no es billing sino Firebase Auth sin configurar.
-- 🚧 Activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
+- ⛔ Activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
+
+## Fase 3 — Paridad UX visible contra `flux.pen`
+- 🚧 Cerrar hero de acceso web, tabs de dominio y navegacion principal de producto.
+- ✅ 2026-03-13: la entrada web ya replica el patron de card centrada de `WEB-000_ACCESS_GATE` / `WEB-010_SIGN_IN` con topbar minima, footer discreto y CTA principal lima.
+- ✅ 2026-03-13: tras login en modo producto ya no persiste la hero editorial; la web colapsa a cabecera compacta + tabs de dominio (`Onboarding`, `Entrenamiento`, `Nutricion`, `Progreso`) para acercarse a `WEB-020_DASHBOARD_HOME`.
+- ✅ Validacion local de esta iteracion:
+  - `pnpm --filter @flux/web test -- src/presentation/HeroAuthPanel.spec.tsx src/presentation/OnboardingCard.spec.tsx src/presentation/LegalCompliancePanel.spec.tsx src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/SettingsPanel.spec.tsx src/presentation/dashboard-domains.spec.ts src/infrastructure/firebase-auth-client.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Evidencia visual local de esta iteracion:
+  - `flux.pen` revisado contra `WEB-000_ACCESS_GATE`, `WEB-010_SIGN_IN` y `WEB-020_DASHBOARD_HOME`
+  - runtime web capturado en localhost antes y despues del ajuste visual
+- ⏳ Reducir estados internos restantes visibles en cards y modulos web.
+- ⏳ Revalidar el dashboard web contra `flux.pen` con smoke visual de producto.
+- ⏳ Acercar la shell autenticada al layout de `WEB-020_DASHBOARD_HOME` (rail lateral + jerarquia KPI) sin reintroducir consola operativa en producto.
+- ⏳ Ejecutar el mismo smoke visual apuntando a `VITE_API_TARGET` de Vercel para eliminar los `404` locales de analytics durante la navegacion de producto.
+- ⏳ Trasladar los mismos criterios de limpieza de UX a iOS si quedan huecos visibles.
+
+## Decisión operativa vigente
+- Mientras Firebase/Auth siga bloqueado externamente, el ciclo 2 avanza por la ruta visible de producto:
+  - primero paridad UX web contra `flux.pen`,
+  - despues paridad UX iOS,
+  - y solo entonces se retoma el smoke cloud E2E cuando el proveedor quede operativo.
+- No se reabrira como `🚧` ninguna task de Firebase mientras el cambio siga dependiendo de Firebase Console o billing externo.
 
 ## Resultado de la auditoria backend/runtime real (2026-03-08)
 - Backend real:

@@ -130,4 +130,55 @@ describe("ProgressTrendsPanel", () => {
     expect(markup).toContain("kcal 2200");
     expect(markup).toContain("esfuerzo 7");
   });
+
+  it("hides internal status in product mode", () => {
+    const markup = renderToStaticMarkup(
+      <ProgressTrendsPanel
+        screenId="web.progressTrends.screen"
+        routeId="web.route.progressTrends"
+        statusId="web.progressTrends.status"
+        title="Progreso"
+        status="success"
+        statusLabel="Progreso"
+        showStatus={false}
+        summary="Resumen de progreso"
+        refreshLabel="Cargar progreso"
+        refreshActionId="web.progressTrends.refresh"
+        onRefresh={vi.fn()}
+        refreshDisabled={false}
+        progressSummary={null}
+        noDataLabel="Sin datos de progreso"
+        workoutsLabel="sesiones"
+        minutesLabel="minutos"
+        setsLabel="series"
+        nutritionLabel="nutricion"
+        avgCaloriesLabel="kcal media"
+        avgProteinLabel="proteina media"
+        filtersLabel="Filtros"
+        minSessionsPlaceholder="minimo de sesiones"
+        minSessionsValue=""
+        onMinSessionsChange={vi.fn()}
+        sortLabel="orden"
+        sortMode="date_desc"
+        onSortModeChange={vi.fn()}
+        sortByDateLabel="fecha"
+        sortBySessionsLabel="sesiones"
+        sortByMinutesLabel="minutos"
+        clearFiltersLabel="Limpiar filtros"
+        onClearFilters={vi.fn()}
+        filteredHistoryLabel="Historial filtrado"
+        filteredHistoryValue="0"
+        filteredHistory={[]}
+        noFilteredHistoryLabel="Sin historial filtrado"
+        historySessionsLabel="sesiones"
+        historyMinutesLabel="minutos"
+        historySetsLabel="series"
+        historyCaloriesLabel="kcal"
+        effortLabel="esfuerzo"
+      />
+    );
+
+    expect(markup).toContain("Progreso");
+    expect(markup).not.toContain("Progreso: success");
+  });
 });

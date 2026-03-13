@@ -61,4 +61,34 @@ describe("SettingsPanel", () => {
     expect(markup).toContain("guardado");
     expect(markup).toContain("checked");
   });
+
+  it("hides internal status in product mode", () => {
+    const markup = renderToStaticMarkup(
+      <SettingsPanel
+        screenId="web.settings.screen"
+        routeId="web.route.settings"
+        statusId="web.settings.status"
+        title="Ajustes"
+        status="guardado"
+        statusLabel="Ajustes"
+        showStatus={false}
+        notificationsEnabled={false}
+        onNotificationsChange={vi.fn()}
+        notificationsLabel="Notificaciones activas"
+        watchSyncEnabled={false}
+        onWatchSyncChange={vi.fn()}
+        watchSyncLabel="Sincronizar Apple Watch"
+        calendarSyncEnabled={true}
+        onCalendarSyncChange={vi.fn()}
+        calendarSyncLabel="Sincronizar calendario"
+        saveLabel="Guardar ajustes"
+        saveActionId="web.settings.save"
+        onSave={vi.fn()}
+      />
+    );
+
+    expect(markup).toContain("Ajustes");
+    expect(markup).not.toContain("Ajustes:");
+    expect(markup).not.toContain("guardado");
+  });
 });

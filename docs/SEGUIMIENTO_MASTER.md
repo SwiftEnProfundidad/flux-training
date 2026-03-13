@@ -11,7 +11,7 @@
 - Objetivo actual: MVP web+iOS usable end-to-end, sin fallback demo, con paridad funcional contra `flux.pen`.
 - El plan activo esta en formato pantalla a pantalla (121 subtasks trazables).
 - Plan activo simple del siguiente ciclo: `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Baseline real del ciclo 2 ya levantado: Web entra y autentica, pero tras login sigue mostrando panel operativo apilado no alineado con `flux.pen`; iOS entra en producto real, pero la pieza de acceso todavia no replica el board 1:1.
+- Baseline real del ciclo 2 ya levantado: Web e iOS ya entran en modo producto, pero todavia queda trabajo para igualar la estructura visible, jerarquia y transiciones del board canonico `flux.pen`.
 - Criterio de cierre del ciclo 2 ya fijado por escrito: el MVP solo podra darse por cerrado con evidencia runtime real en Web+iOS+Backend y sin copy tecnica visible al usuario.
 - Auditoria backend/runtime ya cerrada: el backend cloud es real, pero el unico backend HTTP local disponible hoy es demo; Web e iOS mantienen fallback local controlado para auth y iOS todavia mezcla persistencia local en onboarding/settings/legal.
 - Entorno minimo del ciclo 2 ya esta definido: para validar MVP real debemos usar backend cloud + Firebase web config real; sin esas credenciales no puede cerrarse el login E2E real.
@@ -37,7 +37,11 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real**.
+- Task activa actual del ciclo 2: **🚧 Cerrar la paridad UX visible de Web contra `flux.pen` y dejar iOS listo para la misma pasada de fidelidad**.
+- Validacion visual local mas reciente (2026-03-13):
+  - la home web de producto ya entra por card centrada y compacta, alineada con el patron visual de `WEB-000_ACCESS_GATE` / `WEB-010_SIGN_IN`;
+  - tras login la hero editorial desaparece y queda una cabecera compacta + tabs de dominio para acercarse a `WEB-020_DASHBOARD_HOME`;
+  - el gap principal ya no es Firebase sino la shell autenticada restante (rail lateral/KPIs/topbar) y el uso del `VITE_API_TARGET` preview para evitar `404` locales de analytics en el smoke visual.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`
@@ -58,10 +62,11 @@
     - `https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app`
     - `GET /api/health -> 200 {"status":"ok"}`
     - `VITE_API_TARGET=https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app/api pnpm smoke:real-cloud-connectivity -> ready`
-- Bloqueo real actual tras revalidar el login cloud:
+- Bloqueo secundario actual del login cloud:
   - `pnpm check:firebase-auth-readiness -> blocked-firebase-auth-configuration`
   - `errorCode: CONFIGURATION_NOT_FOUND`
   - esto significa que la Web app y el proyecto existen, pero Firebase Auth no esta operativo todavia para Email/Password.
+- Ese bloqueo cloud no detiene el trabajo actual de paridad visual/UX, que sigue centrado en montar la experiencia visible del producto con fidelidad respecto a `flux.pen`.
 - Checklist operativo de salida del bloqueo actual:
   - apuntar Web e iOS al host Vercel para backend HTTP
   - confirmado: `firebase-tools` no expone un comando oficial para activar proveedores de Authentication; este paso es manual en Firebase Console

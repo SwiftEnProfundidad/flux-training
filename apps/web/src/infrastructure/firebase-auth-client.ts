@@ -1,4 +1,4 @@
-import type { AuthSession } from "@flux/contracts";
+import { authSessionSchema, type AuthSession, type AuthSessionPolicy } from "@flux/contracts";
 import { initializeApp } from "firebase/app";
 import {
   type Auth,
@@ -12,6 +12,11 @@ import type { AuthGateway } from "../domain/auth";
 import { assertApiResponse, createApiHeaders } from "./api-client";
 
 let cachedAuth: Auth | null = null;
+const LOCAL_PREVIEW_SESSION_POLICY: AuthSessionPolicy = {
+  maxIdleSeconds: 60 * 30,
+  rotationIntervalSeconds: 60 * 10,
+  absoluteTtlSeconds: 60 * 60 * 12
+};
 
 function isLocalHostname(candidate: string): boolean {
   const normalized = candidate.trim().toLowerCase();
@@ -46,13 +51,33 @@ export function isLocalDemoApiTarget(rawTarget: string): boolean {
 
 export function shouldUseLocalDemoAuthFallbackFromContext(
   rawTarget: string,
-  locationHostname: string
+  locationHostname: string,
+  isDev = true
 ): boolean {
+  if (isDev === false) {
+    return false;
+  }
   const normalizedTarget = rawTarget.trim();
+  const normalizedHostname = locationHostname.trim().toLowerCase();
+  if (isLocalHostname(normalizedHostname)) {
+    return true;
+  }
   if (normalizedTarget.length > 0) {
     return isLocalDemoApiTarget(normalizedTarget);
   }
-  return isLocalHostname(locationHostname.trim().toLowerCase());
+  return false;
+}
+
+export function shouldPreferLocalPreviewAuthFromContext(
+  rawTarget: string,
+  locationHostname: string,
+  isDev = true,
+  forceRealAuth = false
+): boolean {
+  if (forceRealAuth) {
+    return false;
+  }
+  return shouldUseLocalDemoAuthFallbackFromContext(rawTarget, locationHostname, isDev);
 }
 
 function resolveLocationHostname(): string {
@@ -65,7 +90,81 @@ function resolveLocationHostname(): string {
 
 function shouldUseLocalDemoAuthFallback(): boolean {
   const rawTarget = String(import.meta.env.VITE_API_TARGET ?? "");
-  return shouldUseLocalDemoAuthFallbackFromContext(rawTarget, resolveLocationHostname());
+  const isDev = import.meta.env.DEV !== false;
+  return shouldUseLocalDemoAuthFallbackFromContext(
+    rawTarget,
+    resolveLocationHostname(),
+    isDev
+  );
+}
+
+function shouldPreferLocalPreviewAuth(): boolean {
+  const rawTarget = String(import.meta.env.VITE_API_TARGET ?? "");
+  const isDev = import.meta.env.DEV !== false;
+  const forceRealAuth = String(import.meta.env.VITE_FORCE_REAL_AUTH ?? "") === "1";
+  return shouldPreferLocalPreviewAuthFromContext(
+    rawTarget,
+    resolveLocationHostname(),
+    isDev,
+    forceRealAuth
+  );
+}
+
+function toPreviewSlug(value: string): string {
+  const sanitized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return sanitized.length > 0 ? sanitized : "athlete";
+}
+
+export function createLocalPreviewSession(input: {
+  provider: "apple" | "email";
+  email?: string;
+}): AuthSession {
+  const now = new Date();
+  const issuedAtMs = now.getTime();
+  const email =
+    input.provider === "email"
+      ? input.email?.trim().toLowerCase() ?? ""
+      : "preview@flux.local";
+  const slug = toPreviewSlug(email);
+  const providerUserId = `preview-${slug}`;
+
+  return authSessionSchema.parse({
+    userId: providerUserId,
+    sessionId: `local-preview-session-${input.provider}-${slug}`,
+    token: `local-preview-token-${input.provider}-${slug}`,
+    issuedAt: now.toISOString(),
+    expiresAt: new Date(
+      issuedAtMs + LOCAL_PREVIEW_SESSION_POLICY.maxIdleSeconds * 1000
+    ).toISOString(),
+    rotationRequiredAt: new Date(
+      issuedAtMs + LOCAL_PREVIEW_SESSION_POLICY.rotationIntervalSeconds * 1000
+    ).toISOString(),
+    absoluteExpiresAt: new Date(
+      issuedAtMs + LOCAL_PREVIEW_SESSION_POLICY.absoluteTtlSeconds * 1000
+    ).toISOString(),
+    sessionPolicy: LOCAL_PREVIEW_SESSION_POLICY,
+    identity: {
+      provider: input.provider,
+      providerUserId,
+      email,
+      displayName: input.provider === "email" ? "Preview Athlete" : "Preview Apple Athlete"
+    }
+  });
+}
+
+function shouldFallbackToLocalPreviewOnError(error: unknown): boolean {
+  const code = (error as { code?: string } | null)?.code;
+  return (
+    code === "auth/configuration-not-found" ||
+    code === "auth/invalid-api-key" ||
+    code === "auth/auth-domain-config-required" ||
+    code === "auth/operation-not-allowed" ||
+    code === "auth/unauthorized-domain"
+  );
 }
 
 function getClientAuth(): Auth {
@@ -105,36 +204,75 @@ async function createBackendSession(providerToken: string): Promise<AuthSession>
 
 class FirebaseAuthGateway implements AuthGateway {
   async signInWithApple(): Promise<AuthSession> {
+    if (shouldPreferLocalPreviewAuth()) {
+      return createLocalPreviewSession({ provider: "apple" });
+    }
+
     if (hasFirebaseWebConfig() === false) {
       if (shouldUseLocalDemoAuthFallback()) {
-        return createBackendSession("apple-local-dev-token");
+        return createLocalPreviewSession({ provider: "apple" });
       }
       throw new Error("missing_firebase_web_config");
     }
 
-    const auth = getClientAuth();
-    const provider = new OAuthProvider("apple.com");
-    const credential = await signInWithPopup(auth, provider);
-    const providerToken = await credential.user.getIdToken();
-    return createBackendSession(providerToken);
+    try {
+      const auth = getClientAuth();
+      const provider = new OAuthProvider("apple.com");
+      const credential = await signInWithPopup(auth, provider);
+      const providerToken = await credential.user.getIdToken();
+      return createBackendSession(providerToken);
+    } catch (error) {
+      if (shouldUseLocalDemoAuthFallback() && shouldFallbackToLocalPreviewOnError(error)) {
+        return createLocalPreviewSession({ provider: "apple" });
+      }
+      throw error;
+    }
   }
 
   async signInWithEmail(email: string, password: string): Promise<AuthSession> {
+    if (shouldPreferLocalPreviewAuth()) {
+      const fallbackEmail = email.trim().toLowerCase();
+      if (fallbackEmail.length === 0) {
+        throw new Error("missing_email_for_local_demo_auth");
+      }
+      return createLocalPreviewSession({
+        provider: "email",
+        email: fallbackEmail
+      });
+    }
+
     if (hasFirebaseWebConfig() === false) {
       if (shouldUseLocalDemoAuthFallback()) {
-        const fallbackToken = email.trim().toLowerCase();
-        if (fallbackToken.length === 0) {
+        const fallbackEmail = email.trim().toLowerCase();
+        if (fallbackEmail.length === 0) {
           throw new Error("missing_email_for_local_demo_auth");
         }
-        return createBackendSession(fallbackToken);
+        return createLocalPreviewSession({
+          provider: "email",
+          email: fallbackEmail
+        });
       }
       throw new Error("missing_firebase_web_config");
     }
 
-    const auth = getClientAuth();
-    const credential = await signInOrCreateWithEmail(auth, email, password);
-    const providerToken = await credential.user.getIdToken();
-    return createBackendSession(providerToken);
+    try {
+      const auth = getClientAuth();
+      const credential = await signInOrCreateWithEmail(auth, email, password);
+      const providerToken = await credential.user.getIdToken();
+      return createBackendSession(providerToken);
+    } catch (error) {
+      if (shouldUseLocalDemoAuthFallback() && shouldFallbackToLocalPreviewOnError(error)) {
+        const fallbackEmail = email.trim().toLowerCase();
+        if (fallbackEmail.length === 0) {
+          throw new Error("missing_email_for_local_demo_auth");
+        }
+        return createLocalPreviewSession({
+          provider: "email",
+          email: fallbackEmail
+        });
+      }
+      throw error;
+    }
   }
 }
 

@@ -23,6 +23,7 @@ type ProgressTrendsPanelProps = {
   title: string;
   status: string;
   statusLabel: string;
+  showStatus?: boolean;
   summary: string;
   refreshLabel: string;
   refreshActionId: string;
@@ -75,6 +76,7 @@ export const ProgressTrendsPanel = memo(function ProgressTrendsPanel({
   title,
   status,
   statusLabel,
+  showStatus = true,
   summary,
   refreshLabel,
   refreshActionId,
@@ -119,7 +121,7 @@ export const ProgressTrendsPanel = memo(function ProgressTrendsPanel({
     >
       <div className="module-header">
         <h2>{title}</h2>
-        <span>{statusLabel}: {status}</span>
+        {showStatus ? <span>{statusLabel}: {status}</span> : null}
       </div>
       <div className="form-grid">
         <p className="runtime-state-copy">{summary}</p>

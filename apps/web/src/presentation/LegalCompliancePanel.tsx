@@ -10,7 +10,18 @@ interface LegalCompliancePanelProps {
   statusLabel: string;
   summaryLabel: string;
   summaryValue: string;
+  showStatus?: boolean;
+  showSummary?: boolean;
   language: AppLanguage;
+  privacyPolicyLabel: string;
+  privacyPolicyAccepted: boolean;
+  onPrivacyPolicyChange: (value: boolean) => void;
+  termsLabel: string;
+  termsAccepted: boolean;
+  onTermsChange: (value: boolean) => void;
+  medicalDisclaimerLabel: string;
+  medicalDisclaimerAccepted: boolean;
+  onMedicalDisclaimerChange: (value: boolean) => void;
   saveConsentLabel: string;
   exportDataLabel: string;
   requestDeletionLabel: string;
@@ -31,7 +42,18 @@ export const LegalCompliancePanel = memo(function LegalCompliancePanel({
   statusLabel,
   summaryLabel,
   summaryValue,
+  showStatus = true,
+  showSummary = true,
   language,
+  privacyPolicyLabel,
+  privacyPolicyAccepted,
+  onPrivacyPolicyChange,
+  termsLabel,
+  termsAccepted,
+  onTermsChange,
+  medicalDisclaimerLabel,
+  medicalDisclaimerAccepted,
+  onMedicalDisclaimerChange,
   saveConsentLabel,
   exportDataLabel,
   requestDeletionLabel,
@@ -52,20 +74,54 @@ export const LegalCompliancePanel = memo(function LegalCompliancePanel({
     >
       <div className="section-heading">
         <h2>{title}</h2>
-        <p>
-          {statusLabel}: {status}
-        </p>
+        {showStatus ? (
+          <p>
+            {statusLabel}: {status}
+          </p>
+        ) : null}
       </div>
       <div className="form-grid">
-        <p>
-          <span>{summaryLabel}</span>{" "}
-          <strong>{summaryValue}</strong>
-        </p>
+        {showSummary ? (
+          <p>
+            <span>{summaryLabel}</span>{" "}
+            <strong>{summaryValue}</strong>
+          </p>
+        ) : null}
+        <label>
+          <input
+            type="checkbox"
+            checked={privacyPolicyAccepted}
+            onChange={(event) => onPrivacyPolicyChange(event.target.checked)}
+          />
+          {privacyPolicyLabel}
+        </label>
+        <label>
+          <input type="checkbox" checked={termsAccepted} onChange={(event) => onTermsChange(event.target.checked)} />
+          {termsLabel}
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={medicalDisclaimerAccepted}
+            onChange={(event) => onMedicalDisclaimerChange(event.target.checked)}
+          />
+          {medicalDisclaimerLabel}
+        </label>
         <div className="inline-inputs">
-          <button className="button primary" data-action-id={saveConsentActionId} onClick={onSaveConsent} type="button">
+          <button
+            className="button primary"
+            data-action-id={saveConsentActionId}
+            onClick={onSaveConsent}
+            type="button"
+          >
             {saveConsentLabel}
           </button>
-          <button className="button ghost" data-action-id={exportDataActionId} onClick={onExportData} type="button">
+          <button
+            className="button ghost"
+            data-action-id={exportDataActionId}
+            onClick={onExportData}
+            type="button"
+          >
             {exportDataLabel}
           </button>
           <button
