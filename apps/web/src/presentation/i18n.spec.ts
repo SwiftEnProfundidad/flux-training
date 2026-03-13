@@ -27,6 +27,9 @@ describe("i18n", () => {
     expect(translate("laneLabel")).toBe("Lane");
     expect(translate("laneMain")).toBe("Main");
     expect(translate("laneSecondary")).toBe("Secondary");
+    expect(translate("productAccessTitle")).toBe("Welcome back");
+    expect(translate("productContinueLabel")).toBe("Continue");
+    expect(translate("continueWithGoogle")).toBe("Continue with Google account");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
@@ -255,6 +258,9 @@ describe("i18n", () => {
     expect(translate("laneLabel")).toBe("Lane");
     expect(translate("laneMain")).toBe("Main");
     expect(translate("laneSecondary")).toBe("Secondary");
+    expect(translate("productAccessTitle")).toBe("Bienvenido de nuevo");
+    expect(translate("productContinueLabel")).toBe("Continuar");
+    expect(translate("continueWithGoogle")).toBe("Continuar con cuenta Google");
     expect(translate("signInWithGoogle")).toBe("Iniciar con Google");
     expect(translate("recoverByEmail")).toBe("Recuperar por email");
     expect(translate("recoverBySMS")).toBe("Recuperar por SMS");

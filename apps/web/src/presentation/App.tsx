@@ -414,6 +414,9 @@ export function App() {
 
   const [email, setEmail] = useState(authScreenDefaults.email);
   const [password, setPassword] = useState(authScreenDefaults.password);
+  const [productAuthStep, setProductAuthStep] = useState<"access_gate" | "sign_in">(
+    "access_gate"
+  );
   const [displayName, setDisplayName] = useState("Juan");
   const [age, setAge] = useState("35");
   const [heightCm, setHeightCm] = useState("178");
@@ -712,6 +715,8 @@ export function App() {
   );
   const accessGateAppleActionId =
     webLane === "main" ? "web.accessGate.apple" : "web.light.accessGate.apple";
+  const accessGateStatusId =
+    webLane === "main" ? "web.accessGate.status" : "web.light.accessGate.status";
   const accessGateGoogleActionId =
     webLane === "main" ? "web.accessGate.google" : "web.light.accessGate.google";
   const accessGateEmailActionId =
@@ -2314,6 +2319,23 @@ export function App() {
       setAuthStatus("auth_error");
       markDomainFailure("onboarding", error);
     }
+  }
+
+  function handleAdvanceProductAccessWithEmail() {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!hasValidEmail(normalizedEmail)) {
+      setAuthStatus("validation_error");
+      return;
+    }
+    setEmail(normalizedEmail);
+    setAuthStatus("signed_out");
+    setProductAuthStep("sign_in");
+  }
+
+  function handleReturnToProductAccess() {
+    setPassword("");
+    setAuthStatus("signed_out");
+    setProductAuthStep("access_gate");
   }
 
   async function handleEmailSignIn() {
@@ -4085,6 +4107,7 @@ export function App() {
       : "pending";
   const showProductAccessExperience = isQAMode === false && hasAuthenticatedSession === false;
   const showProductDashboardExperience = isQAMode === false && hasAuthenticatedSession;
+  const isProductAccessGateStep = productAuthStep === "access_gate";
   const showHeroAuthStatus =
     showQATools ||
     authStatus === "loading" ||
@@ -4124,39 +4147,60 @@ export function App() {
         {showProductAccessExperience ? (
           <section
             className="product-access-layout"
-            data-screen-id={signInScreenModel.screenId}
-            data-route-id={signInScreenModel.routeId}
-            data-status-id={signInScreenModel.statusId}
+            data-screen-id={
+              isProductAccessGateStep ? accessGateScreenModel.screenId : signInScreenModel.screenId
+            }
+            data-route-id={
+              isProductAccessGateStep ? accessGateScreenModel.routeId : signInScreenModel.routeId
+            }
+            data-status-id={isProductAccessGateStep ? accessGateStatusId : signInScreenModel.statusId}
             aria-busy={isAuthLoading}
           >
             <header className="product-access-header">
               <div className="product-brand-lockup" aria-label={translate("appName")}>
                 <span className="product-brand-mark">FLUX</span>
-                <span className="product-brand-copy">training</span>
               </div>
-              <div className="product-language-toggle" role="group" aria-label={translate("languageLabel")}>
-                <button
-                  className={`button ghost language-button ${language === "es" ? "active" : ""}`}
-                  onClick={() => setLanguage("es")}
-                  type="button"
-                >
-                  ES
-                </button>
-                <button
-                  className={`button ghost language-button ${language === "en" ? "active" : ""}`}
-                  onClick={() => setLanguage("en")}
-                  type="button"
-                >
-                  EN
-                </button>
+              <div className="product-access-header-meta">
+                {isProductAccessGateStep ? null : (
+                  <button
+                    className="product-access-back"
+                    onClick={handleReturnToProductAccess}
+                    type="button"
+                  >
+                    {translate("productBackToAccess")}
+                  </button>
+                )}
+                <div className="product-language-toggle" role="group" aria-label={translate("languageLabel")}>
+                  <button
+                    className={`button ghost language-button ${language === "es" ? "active" : ""}`}
+                    onClick={() => setLanguage("es")}
+                    type="button"
+                  >
+                    ES
+                  </button>
+                  <button
+                    className={`button ghost language-button ${language === "en" ? "active" : ""}`}
+                    onClick={() => setLanguage("en")}
+                    type="button"
+                  >
+                    EN
+                  </button>
+                </div>
               </div>
             </header>
             <div className="product-access-stage">
               <div className="product-access-card">
                 <div className="hero-content product-access-copy">
-                  <p className="eyebrow">{translate("appName")}</p>
-                  <h1>{translate("productAccessTitle")}</h1>
-                  <p className="hero-copy">{translate("productAccessCopy")}</p>
+                  <h1>
+                    {isProductAccessGateStep
+                      ? translate("productAccessTitle")
+                      : translate("productSignInTitle")}
+                  </h1>
+                  {isProductAccessGateStep ? (
+                    <p className="hero-copy">{translate("productAccessCopy")}</p>
+                  ) : (
+                    <p className="product-access-identity">{email.trim().toLowerCase()}</p>
+                  )}
                 </div>
                 <HeroAuthPanel
                   isAuthLoading={isAuthLoading}
@@ -4176,20 +4220,37 @@ export function App() {
                   })}
                   showStatus={showHeroAuthStatus}
                   productMode={true}
+                  productStep={productAuthStep}
                   dividerLabel={language === "es" ? "o" : "or"}
+                  continueWithEmailLabel={translate("productContinueLabel")}
+                  continueWithGoogleLabel={translate("continueWithGoogle")}
+                  accessHintLabel={translate("productAccessHint")}
                   actionIds={{
                     apple: signInScreenModel.actions.apple,
-                    google: signInScreenModel.actions.google,
-                    email: signInScreenModel.actions.email,
+                    google: isProductAccessGateStep
+                      ? accessGateGoogleActionId
+                      : signInScreenModel.actions.google,
+                    email: isProductAccessGateStep
+                      ? accessGateEmailActionId
+                      : signInScreenModel.actions.email,
                     recoverEmail: signInScreenModel.actions.recoverEmail,
                     recoverSMS: signInScreenModel.actions.recoverSMS,
-                    status: signInScreenModel.statusId
+                    status: isProductAccessGateStep ? accessGateStatusId : signInScreenModel.statusId
                   }}
                   onAppleSignIn={handleAppleSignIn}
                   onGoogleSignIn={handleGoogleSignIn}
-                  onEmailChange={setEmail}
+                  onEmailChange={(value) => {
+                    setEmail(value);
+                    if (isProductAccessGateStep && authStatus === "validation_error") {
+                      setAuthStatus("signed_out");
+                    }
+                  }}
                   onPasswordChange={setPassword}
                   onEmailSignIn={() => {
+                    if (isProductAccessGateStep) {
+                      handleAdvanceProductAccessWithEmail();
+                      return;
+                    }
                     void handleEmailSignIn();
                   }}
                   onEmailRecovery={handleEmailRecovery}

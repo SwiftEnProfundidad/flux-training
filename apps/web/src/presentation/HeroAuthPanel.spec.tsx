@@ -13,6 +13,9 @@ const baseProps = {
   signInWithEmailLabel: "Iniciar con email",
   recoverByEmailLabel: "Recuperar por email",
   recoverBySMSLabel: "Recuperar por SMS",
+  continueWithEmailLabel: "Continuar",
+  continueWithGoogleLabel: "Continuar con cuenta Google",
+  accessHintLabel: "¿Sin cuenta? → Contacta con tu organización",
   authStatusLabel: "inicia sesion para continuar",
   actionIds: {
     apple: "web.auth.apple",
@@ -31,11 +34,12 @@ const baseProps = {
 };
 
 describe("HeroAuthPanel", () => {
-  it("renders stacked product mode auth flow", () => {
+  it("renders access gate product mode auth flow", () => {
     const markup = renderToStaticMarkup(
       <HeroAuthPanel
         {...baseProps}
         productMode={true}
+        productStep="access_gate"
         dividerLabel="o"
       />
     );
@@ -43,8 +47,27 @@ describe("HeroAuthPanel", () => {
     expect(markup).toContain("hero-actions-product");
     expect(markup).toContain("hero-auth-divider");
     expect(markup).toContain("<span>o</span>");
-    expect(markup).toContain("Iniciar con Google");
+    expect(markup).toContain("Continuar");
+    expect(markup).toContain("Continuar con cuenta Google");
+    expect(markup).toContain("¿Sin cuenta? → Contacta con tu organización");
     expect(markup).toContain("web.auth.google");
+    expect(markup).not.toContain("contrasena");
+  });
+
+  it("renders sign in product mode auth flow", () => {
+    const markup = renderToStaticMarkup(
+      <HeroAuthPanel
+        {...baseProps}
+        productMode={true}
+        productStep="sign_in"
+        dividerLabel="o"
+      />
+    );
+
+    expect(markup).toContain("contrasena");
+    expect(markup).toContain("Iniciar con email");
+    expect(markup).toContain("Iniciar con Apple");
+    expect(markup).toContain("Recuperar por email");
   });
 
   it("hides status copy when product mode does not need feedback", () => {

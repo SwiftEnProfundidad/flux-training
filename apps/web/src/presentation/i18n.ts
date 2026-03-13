@@ -9,6 +9,11 @@ type AppTranslations = {
   heroCopy: string;
   productAccessTitle: string;
   productAccessCopy: string;
+  productAccessHint: string;
+  productSignInTitle: string;
+  productContinueLabel: string;
+  continueWithGoogle: string;
+  productBackToAccess: string;
   productAccessFooter: string;
   productWorkspaceSummary: string;
   productWorkspaceSignedIn: string;
@@ -525,9 +530,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     appName: "Flux Training",
     heroTitle: "Entrena con foco y seguimiento real",
     heroCopy: "Panel personal para autenticacion, onboarding, entrenamiento, nutricion y progreso.",
-    productAccessTitle: "Inicia sesion",
-    productAccessCopy:
-      "Accede con email y contrasena o usa Apple o Google para entrar en tu panel de entrenamiento.",
+    productAccessTitle: "Bienvenido de nuevo",
+    productAccessCopy: "Introduce tu email para acceder al workspace.",
+    productAccessHint: "¿Sin cuenta? → Contacta con tu organización",
+    productSignInTitle: "Inicia sesión",
+    productContinueLabel: "Continuar",
+    continueWithGoogle: "Continuar con cuenta Google",
+    productBackToAccess: "← Volver",
     productAccessFooter: "© 2026 Flux Entrenamiento · Privacidad · Terminos de uso",
     productWorkspaceSummary:
       "Entrada de producto alineada con onboarding, entrenamiento, nutricion y progreso.",
@@ -1055,9 +1064,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     appName: "Flux Training",
     heroTitle: "Train with focus and real tracking",
     heroCopy: "Personal dashboard for auth, onboarding, training, nutrition and progress.",
-    productAccessTitle: "Sign in",
-    productAccessCopy:
-      "Access with email and password or use Apple or Google to enter your training workspace.",
+    productAccessTitle: "Welcome back",
+    productAccessCopy: "Enter your email to access the workspace.",
+    productAccessHint: "No account? Contact your organization",
+    productSignInTitle: "Sign in",
+    productContinueLabel: "Continue",
+    continueWithGoogle: "Continue with Google account",
+    productBackToAccess: "← Back",
     productAccessFooter: "© 2026 Flux Training · Privacy · Terms of use",
     productWorkspaceSummary:
       "Product entry aligned with onboarding, training, nutrition and progress.",
