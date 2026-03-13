@@ -16,12 +16,15 @@ describe("i18n", () => {
     expect(translate("productDashboardNavOverview")).toBe("Panel");
     expect(translate("productDashboardSearchPlaceholder")).toBe("Buscar atleta o plan...");
     expect(translate("productOverviewBreadcrumb")).toBe("Resumen");
+    expect(translate("productQuickActionsBreadcrumb")).toBe("Acciones rápidas");
     expect(translate("productSidebarQuickAi")).toBe("Preparación IA");
     expect(translate("productSidebarQuickSettings")).toBe("Ajustes");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist listo · señales al día");
     expect(translate("productOverviewCriticalSignalSingularLabel")).toBe("crítica");
     expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
     expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
+    expect(translate("productQuickActionsTitle")).toBe("¿Qué quieres hacer hoy?");
+    expect(translate("productQuickActionReviewAlertsMeta")).toBe("siguen abiertas");
   });
 
   it("supports english language", () => {
@@ -43,6 +46,7 @@ describe("i18n", () => {
     expect(translate("productDashboardSearchPlaceholder")).toBe("Search athlete or plan...");
     expect(translate("productDashboardAlertsAction")).toBe("View all alerts →");
     expect(translate("productOverviewBreadcrumb")).toBe("Overview");
+    expect(translate("productQuickActionsBreadcrumb")).toBe("Quick actions");
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
@@ -52,6 +56,8 @@ describe("i18n", () => {
       "Last 7 days · sessions, nutrition and prioritized signals."
     );
     expect(translate("productOverviewAlertsTitle")).toBe("Recent alerts");
+    expect(translate("productQuickActionsTitle")).toBe("What do you want to do today?");
+    expect(translate("productQuickActionMessageMeta")).toBe("Resume follow-up from onboarding");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");

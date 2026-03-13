@@ -21,6 +21,7 @@ type AppTranslations = {
   productDashboardSearchPlaceholder: string;
   productDashboardAlertsAction: string;
   productOverviewBreadcrumb: string;
+  productQuickActionsBreadcrumb: string;
   productSidebarQuickAi: string;
   productSidebarQuickSettings: string;
   productSidebarQuickSupport: string;
@@ -46,6 +47,19 @@ type AppTranslations = {
   productOverviewCriticalSignalSingularLabel: string;
   productOverviewCriticalSignalsLabel: string;
   productOverviewMonitoringSignalsLabel: string;
+  productQuickActionsTitle: string;
+  productQuickActionAddAthleteTitle: string;
+  productQuickActionAddAthleteMeta: string;
+  productQuickActionCreatePlanTitle: string;
+  productQuickActionCreatePlanMeta: string;
+  productQuickActionAssignSessionTitle: string;
+  productQuickActionAssignSessionMeta: string;
+  productQuickActionExportTitle: string;
+  productQuickActionExportMeta: string;
+  productQuickActionReviewAlertsTitle: string;
+  productQuickActionReviewAlertsMeta: string;
+  productQuickActionMessageTitle: string;
+  productQuickActionMessageMeta: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -574,6 +588,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardSearchPlaceholder: "Buscar atleta o plan...",
     productDashboardAlertsAction: "Ver todas las alertas →",
     productOverviewBreadcrumb: "Resumen",
+    productQuickActionsBreadcrumb: "Acciones rápidas",
     productSidebarQuickAi: "Preparación IA",
     productSidebarQuickSettings: "Ajustes",
     productSidebarQuickSupport: "Soporte",
@@ -599,6 +614,19 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewCriticalSignalSingularLabel: "crítica",
     productOverviewCriticalSignalsLabel: "críticas",
     productOverviewMonitoringSignalsLabel: "abiertas",
+    productQuickActionsTitle: "¿Qué quieres hacer hoy?",
+    productQuickActionAddAthleteTitle: "Añadir atleta",
+    productQuickActionAddAthleteMeta: "Crear perfil y checklist inicial",
+    productQuickActionCreatePlanTitle: "Crear plan",
+    productQuickActionCreatePlanMeta: "Abrir plantilla y preparar bloque",
+    productQuickActionAssignSessionTitle: "Asignar sesión",
+    productQuickActionAssignSessionMeta: "Enviar trabajo de hoy al atleta",
+    productQuickActionExportTitle: "Exportar reporte",
+    productQuickActionExportMeta: "Preparar resumen semanal del progreso",
+    productQuickActionReviewAlertsTitle: "Revisar alertas",
+    productQuickActionReviewAlertsMeta: "siguen abiertas",
+    productQuickActionMessageTitle: "Mensaje a atleta",
+    productQuickActionMessageMeta: "Retomar seguimiento desde onboarding",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1137,6 +1165,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardSearchPlaceholder: "Search athlete or plan...",
     productDashboardAlertsAction: "View all alerts →",
     productOverviewBreadcrumb: "Overview",
+    productQuickActionsBreadcrumb: "Quick actions",
     productSidebarQuickAi: "AI readiness",
     productSidebarQuickSettings: "Settings",
     productSidebarQuickSupport: "Support",
@@ -1162,6 +1191,19 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewCriticalSignalSingularLabel: "critical",
     productOverviewCriticalSignalsLabel: "critical",
     productOverviewMonitoringSignalsLabel: "open",
+    productQuickActionsTitle: "What do you want to do today?",
+    productQuickActionAddAthleteTitle: "Add athlete",
+    productQuickActionAddAthleteMeta: "Create profile and kickoff checklist",
+    productQuickActionCreatePlanTitle: "Create plan",
+    productQuickActionCreatePlanMeta: "Open template and shape the next block",
+    productQuickActionAssignSessionTitle: "Assign session",
+    productQuickActionAssignSessionMeta: "Send today's work to the athlete",
+    productQuickActionExportTitle: "Export report",
+    productQuickActionExportMeta: "Prepare the weekly progress summary",
+    productQuickActionReviewAlertsTitle: "Review alerts",
+    productQuickActionReviewAlertsMeta: "still open",
+    productQuickActionMessageTitle: "Message athlete",
+    productQuickActionMessageMeta: "Resume follow-up from onboarding",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",

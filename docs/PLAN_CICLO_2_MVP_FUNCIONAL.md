@@ -158,17 +158,26 @@
 - 🚧 Cerrar hero de acceso web, tabs de dominio y navegacion principal de producto.
 - ✅ 2026-03-13: la entrada web ya replica el patron de card centrada de `WEB-000_ACCESS_GATE` / `WEB-010_SIGN_IN` con topbar minima, footer discreto y CTA principal lima.
 - ✅ 2026-03-13: tras login en modo producto ya no persiste la hero editorial; la web colapsa a cabecera compacta + tabs de dominio (`Onboarding`, `Entrenamiento`, `Nutricion`, `Progreso`) para acercarse a `WEB-020_DASHBOARD_HOME`.
+- ✅ 2026-03-13: la shell productizada ya conmuta `Panel / Resumen` -> `Panel / Acciones rápidas` dentro del mismo rail lateral; `WEB-030_QUICK_ACTIONS` replica el breadcrumb de Pencil, el grid 3x2 de acciones y conecta al menos una CTA real (`Añadir atleta` -> `Onboarding`).
 - ✅ Validacion local de esta iteracion:
   - `pnpm --filter @flux/web test -- src/presentation/HeroAuthPanel.spec.tsx src/presentation/OnboardingCard.spec.tsx src/presentation/LegalCompliancePanel.spec.tsx src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/SettingsPanel.spec.tsx src/presentation/dashboard-domains.spec.ts src/infrastructure/firebase-auth-client.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Validacion local `WEB-030_QUICK_ACTIONS`:
+  - `pnpm --filter @flux/web test -- src/presentation/i18n.spec.ts src/presentation/ProductQuickActionsPanel.spec.tsx`
   - `pnpm --filter @flux/web check`
   - `pnpm --filter @flux/web build`
   - `pnpm -r test`
 - ✅ Evidencia visual local de esta iteracion:
   - `flux.pen` revisado contra `WEB-000_ACCESS_GATE`, `WEB-010_SIGN_IN` y `WEB-020_DASHBOARD_HOME`
   - runtime web capturado en localhost antes y despues del ajuste visual
-- ⏳ Reducir estados internos restantes visibles en cards y modulos web.
-- ⏳ Revalidar el dashboard web contra `flux.pen` con smoke visual de producto.
-- ⏳ Acercar la shell autenticada al layout de `WEB-020_DASHBOARD_HOME` (rail lateral + jerarquia KPI) sin reintroducir consola operativa en producto.
+- ✅ Evidencia visual local `WEB-030_QUICK_ACTIONS`:
+  - referencia `flux.pen`: `WEB-030_QUICK_ACTIONS` (`xJyx8`)
+  - runtime web capturado en `output/playwright/web-030-product-quick-actions-v1.png`
+  - smoke real validando `Continuar con cuenta Google` -> `Panel / Acciones rápidas` -> `Añadir atleta` -> `Onboarding`
+- ✅ La shell autenticada base (`WEB-020_DASHBOARD_HOME`) y su extension inmediata (`WEB-030_QUICK_ACTIONS`) ya quedan alineadas visualmente en la misma experiencia productizada.
+- ⏳ Atacar la siguiente pantalla visible del bloque inicial de dashboard: `WEB-040_ALERT_CENTER`.
 - ⏳ Ejecutar el mismo smoke visual apuntando a `VITE_API_TARGET` de Vercel para eliminar los `404` locales de analytics durante la navegacion de producto.
 - ⏳ Trasladar los mismos criterios de limpieza de UX a iOS si quedan huecos visibles.
 

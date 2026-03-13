@@ -37,11 +37,12 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Cerrar la paridad UX visible de Web contra `flux.pen` y dejar iOS listo para la misma pasada de fidelidad**.
+- Task activa actual del ciclo 2: **🚧 Extender la paridad UX visible de Web desde `WEB-020_DASHBOARD_HOME` / `WEB-030_QUICK_ACTIONS` hacia la siguiente pantalla visible de `flux.pen` (`WEB-040_ALERT_CENTER`) y dejar iOS listo para la misma pasada de fidelidad**.
 - Validacion visual local mas reciente (2026-03-13):
   - la home web de producto ya entra por card centrada y compacta, alineada con el patron visual de `WEB-000_ACCESS_GATE` / `WEB-010_SIGN_IN`;
   - tras login la hero editorial desaparece y queda una cabecera compacta + tabs de dominio para acercarse a `WEB-020_DASHBOARD_HOME`;
-  - el gap principal ya no es Firebase sino la shell autenticada restante (rail lateral/KPIs/topbar) y el uso del `VITE_API_TARGET` preview para evitar `404` locales de analytics en el smoke visual.
+  - `Panel` ya conmuta a `Acciones rápidas` dentro de la misma shell autenticada, replicando `WEB-030_QUICK_ACTIONS` con breadcrumb dedicado, grid 3x2 y CTA real `Añadir atleta -> Onboarding`;
+  - el gap principal ya no es Firebase sino seguir el bloque visible de dashboard de `flux.pen` pantalla a pantalla, empezando por `WEB-040_ALERT_CENTER`.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`

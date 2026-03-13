@@ -1125,6 +1125,33 @@ input::placeholder {
   font-weight: 500;
 }
 
+.product-shell-breadcrumb-button {
+  min-height: auto;
+  padding: 0 0 1px;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: #d4d8df;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.product-shell-breadcrumb-button:hover {
+  color: var(--gold-0);
+  border-color: rgba(196, 248, 42, 0.28);
+  transform: none;
+}
+
+.product-shell-breadcrumb-button:focus-visible {
+  outline: none;
+  color: var(--gold-0);
+  border-color: rgba(196, 248, 42, 0.42);
+}
+
 .product-topbar h1 {
   margin: 0;
   font-family: "Space Grotesk", sans-serif;
@@ -1193,6 +1220,116 @@ input::placeholder {
   grid-area: overview;
   display: grid;
   gap: 16px;
+}
+
+.product-quick-actions-shell {
+  grid-area: overview;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.035), transparent 36%),
+    linear-gradient(180deg, rgba(27, 27, 30, 0.98), rgba(20, 20, 22, 0.96));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.product-quick-actions-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.product-quick-actions-header h2 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.24rem, 1.65vw, 1.58rem);
+  letter-spacing: -0.03em;
+}
+
+.product-quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.product-quick-action-card {
+  min-height: 156px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.04), transparent 46%),
+    linear-gradient(180deg, rgba(31, 31, 34, 0.98), rgba(24, 24, 26, 0.96));
+  padding: 18px 18px 16px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  text-align: left;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 18px 30px rgba(0, 0, 0, 0.16);
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.product-quick-action-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(196, 248, 42, 0.18);
+}
+
+.product-quick-action-card:focus-visible {
+  outline: none;
+  border-color: rgba(196, 248, 42, 0.34);
+}
+
+.product-quick-action-card strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.04rem;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.product-quick-action-card span:last-child {
+  color: #8d9097;
+  font-size: 0.82rem;
+  line-height: 1.34;
+  max-width: 18ch;
+}
+
+.product-quick-action-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f2f7ff;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.06rem;
+  font-weight: 700;
+}
+
+.product-quick-action-card.tone-positive .product-quick-action-icon {
+  background: rgba(196, 248, 42, 0.12);
+  color: var(--gold-0);
+}
+
+.product-quick-action-card.tone-critical {
+  border-color: rgba(239, 68, 68, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(239, 68, 68, 0.08), transparent 40%),
+    linear-gradient(180deg, rgba(31, 24, 25, 0.98), rgba(25, 20, 21, 0.96));
+}
+
+.product-quick-action-card.tone-critical .product-quick-action-icon {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ff7a7a;
 }
 
 .product-kpi-row {
@@ -1506,6 +1643,10 @@ input::placeholder {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .product-quick-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .language-toggle {
     grid-template-columns: auto 1fr;
     align-items: center;
@@ -1593,6 +1734,14 @@ input::placeholder {
   .product-overview-chart {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     min-height: auto;
+  }
+
+  .product-quick-actions-shell {
+    padding: 18px;
+  }
+
+  .product-quick-actions-grid {
+    grid-template-columns: 1fr;
   }
 
   .metric-grid {

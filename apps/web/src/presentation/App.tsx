@@ -96,6 +96,7 @@ import { resolveAuthHeroStatus } from "./auth-feedback";
 import { HeroAuthPanel } from "./HeroAuthPanel";
 import { HeroStatusPanel } from "./HeroStatusPanel";
 import { ProductOverviewPanel } from "./ProductOverviewPanel";
+import { ProductQuickActionsPanel } from "./ProductQuickActionsPanel";
 import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
@@ -281,6 +282,7 @@ type SyncIdempotencyMetadata = {
 };
 type NutritionDeviationSeverity = "high" | "medium";
 type NutritionDeviationReason = "calories" | "protein";
+type ProductPanelView = "overview" | "quick_actions";
 type NutritionDeviationAlert = {
   id: string;
   userId: string;
@@ -578,6 +580,7 @@ export function App() {
   );
   const [dashboardHomeRuntimeStateOverride, setDashboardHomeRuntimeStateOverride] =
     useState<EnterpriseRuntimeState | null>(null);
+  const [productPanelView, setProductPanelView] = useState<ProductPanelView>("overview");
   const [roleCapabilitiesReloadNonce, setRoleCapabilitiesReloadNonce] = useState(0);
   const isInitialDomainRender = useRef(true);
   const isInitialRoleRender = useRef(true);
@@ -3981,6 +3984,7 @@ export function App() {
 
   function handleDomainSelection(domain: DashboardDomain) {
     const nextDomain = normalizeDomainForMode(domain);
+    setProductPanelView("overview");
     setActiveDomain(nextDomain);
     if (nextDomain === "all") {
       return;
@@ -4203,7 +4207,11 @@ export function App() {
     productDashboardNav.find((tab) => tab.id === activeDomainForUI)?.label ??
     translate("dashboardHomeTitle");
   const productWorkspaceBreadcrumb =
-    activeDomainForUI === "all" ? translate("productOverviewBreadcrumb") : productWorkspaceTitle;
+    activeDomainForUI === "all"
+      ? productPanelView === "quick_actions"
+        ? translate("productQuickActionsBreadcrumb")
+        : translate("productOverviewBreadcrumb")
+      : productWorkspaceTitle;
   const showCompactOverviewTopbar = activeDomainForUI === "all";
   const activeSessionIdentity = activeSession?.identity ?? null;
   const productUserLabel =
@@ -4226,7 +4234,14 @@ export function App() {
     { label: translate("productSidebarQuickSettings"), icon: "⚙" },
     { label: translate("productSidebarQuickSupport"), icon: "?" }
   ];
-  const showProductOverviewPanel = showProductDashboardExperience && isProductOverviewDomain;
+  const showProductOverviewPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "overview";
+  const showProductQuickActionsPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "quick_actions";
   const overviewLocale = language === "es" ? "es-ES" : "en-US";
   const criticalOperationalAlertsCount = openOperationalAlerts.filter(
     (alert) => alert.severity === "critical"
@@ -4567,6 +4582,72 @@ export function App() {
     recommendations,
     translate
   ]);
+  const productQuickActions = [
+    {
+      id: "add-athlete",
+      icon: "✦",
+      title: translate("productQuickActionAddAthleteTitle"),
+      meta: translate("productQuickActionAddAthleteMeta"),
+      tone: "positive" as const,
+      onPress: () => {
+        handleDomainSelection("onboarding");
+      }
+    },
+    {
+      id: "create-plan",
+      icon: "▤",
+      title: translate("productQuickActionCreatePlanTitle"),
+      meta: translate("productQuickActionCreatePlanMeta"),
+      tone: "neutral" as const,
+      onPress: () => {
+        handleDomainSelection("training");
+        void handleLoadPlans();
+      }
+    },
+    {
+      id: "assign-session",
+      icon: "▶",
+      title: translate("productQuickActionAssignSessionTitle"),
+      meta: translate("productQuickActionAssignSessionMeta"),
+      tone: "positive" as const,
+      onPress: () => {
+        handleDomainSelection("training");
+        void handleLoadSessions();
+      }
+    },
+    {
+      id: "export-report",
+      icon: "⇣",
+      title: translate("productQuickActionExportTitle"),
+      meta: translate("productQuickActionExportMeta"),
+      tone: "neutral" as const,
+      onPress: () => {
+        handleDomainSelection("progress");
+        void handleLoadProgressSummary();
+      }
+    },
+    {
+      id: "review-alerts",
+      icon: "△",
+      title: translate("productQuickActionReviewAlertsTitle"),
+      meta: `${Math.max(productPrioritySignalsCount, 1)} ${translate("productQuickActionReviewAlertsMeta")}`,
+      tone: "critical" as const,
+      onPress: () => {
+        setProductPanelView("overview");
+        void handleRefreshAlertCenter();
+      }
+    },
+    {
+      id: "message-athlete",
+      icon: "✉",
+      title: translate("productQuickActionMessageTitle"),
+      meta: translate("productQuickActionMessageMeta"),
+      tone: "neutral" as const,
+      onPress: () => {
+        handleDomainSelection("onboarding");
+      }
+    }
+  ];
 
   return (
     <div
@@ -4825,7 +4906,17 @@ export function App() {
                 <p className="product-shell-breadcrumb overview-inline">
                   <strong>{productWorkspaceTitle}</strong>
                   <span aria-hidden="true">/</span>
-                  <span>{productWorkspaceBreadcrumb}</span>
+                  <button
+                    className="product-shell-breadcrumb-button"
+                    type="button"
+                    onClick={() =>
+                      setProductPanelView((current) =>
+                        current === "overview" ? "quick_actions" : "overview"
+                      )
+                    }
+                  >
+                    {productWorkspaceBreadcrumb}
+                  </button>
                 </p>
               ) : (
                 <>
@@ -4875,6 +4966,16 @@ export function App() {
             onViewAllAlerts={() => {
               handleDomainSelection("all");
             }}
+          />
+        ) : null}
+
+        {showProductQuickActionsPanel ? (
+          <ProductQuickActionsPanel
+            screenId={quickActionsScreenModel.screenId}
+            routeId={quickActionsScreenModel.routeId}
+            status={quickActionsScreenModel.status}
+            title={translate("productQuickActionsTitle")}
+            actions={productQuickActions}
           />
         ) : null}
 
