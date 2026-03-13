@@ -1268,7 +1268,7 @@ input::placeholder {
   background: rgba(39, 39, 42, 0.62);
   padding: 16px;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   align-items: end;
   gap: 10px;
 }

@@ -15,6 +15,8 @@ describe("i18n", () => {
     expect(translate("rejectedLastSyncLabel")).toBe("Rechazadas en última sincronización");
     expect(translate("productDashboardNavOverview")).toBe("Panel");
     expect(translate("productDashboardSearchPlaceholder")).toBe("Buscar atleta o plan...");
+    expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
+    expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
   });
 
   it("supports english language", () => {
@@ -35,6 +37,11 @@ describe("i18n", () => {
     expect(translate("productDashboardNavOverview")).toBe("Panel");
     expect(translate("productDashboardSearchPlaceholder")).toBe("Search athlete or plan...");
     expect(translate("productDashboardAlertsAction")).toBe("View all alerts →");
+    expect(translate("productOverviewTitle")).toBe("Team readiness");
+    expect(translate("productOverviewSummary")).toBe(
+      "Last 7 days · sessions, nutrition and prioritized signals."
+    );
+    expect(translate("productOverviewAlertsTitle")).toBe("Recent alerts");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
@@ -269,6 +276,11 @@ describe("i18n", () => {
     expect(translate("signInWithGoogle")).toBe("Iniciar con Google");
     expect(translate("recoverByEmail")).toBe("Recuperar por email");
     expect(translate("recoverBySMS")).toBe("Recuperar por SMS");
+    expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
+    expect(translate("productOverviewSummary")).toBe(
+      "Últimos 7 días · sesiones, nutrición y señales priorizadas."
+    );
+    expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
     expect(translate("retryRoleCapabilities")).toBe("Reintentar capacidades");
     expect(translate("dashboardHomeTitle")).toBe("Panel principal");
     expect(translate("dashboardHomeStatusLabel")).toBe("Panel");

@@ -488,7 +488,8 @@
 
 ## Fase 3 — Web producto real
 - ✅ Entrada web producto ya alineada en tres pasos: `WEB-000_ACCESS_GATE` -> `WEB-010_SIGN_IN` -> `Panel` autenticado estilo `WEB-020_DASHBOARD_HOME`, con overview limpio y módulos detallados por dominio lateral.
-- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en métricas reales, copy de KPI y estado de alertas.
+- ✅ `Panel` web ya muestra KPI y alertas con semántica de producto (`Atletas activos`, `Preparación promedio`, `Sesiones hoy`, `Alertas activas`) y fallback local preview para no caer a cero en desarrollo.
+- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en microcopy fino del feed lateral y en el ruido local de analytics al navegar por dominios.
 - ⏳ Validar auth + onboarding + consentimiento.
 - ⏳ Validar training end-to-end.
 - ⏳ Validar nutrition + progress + IA.

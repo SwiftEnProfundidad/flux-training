@@ -20,6 +20,16 @@ type AppTranslations = {
   productDashboardNavOverview: string;
   productDashboardSearchPlaceholder: string;
   productDashboardAlertsAction: string;
+  productOverviewTitle: string;
+  productOverviewSummary: string;
+  productOverviewActiveAthletesLabel: string;
+  productOverviewReadinessAverageLabel: string;
+  productOverviewSessionsTodayLabel: string;
+  productOverviewActiveAlertsLabel: string;
+  productOverviewAlertsTitle: string;
+  productOverviewFollowUpAlertTitle: string;
+  productOverviewCaloriesAlertTitle: string;
+  productOverviewProteinAlertTitle: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -547,6 +557,16 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardNavOverview: "Panel",
     productDashboardSearchPlaceholder: "Buscar atleta o plan...",
     productDashboardAlertsAction: "Ver todas las alertas →",
+    productOverviewTitle: "Preparación del equipo",
+    productOverviewSummary: "Últimos 7 días · sesiones, nutrición y señales priorizadas.",
+    productOverviewActiveAthletesLabel: "Atletas activos",
+    productOverviewReadinessAverageLabel: "Preparación promedio",
+    productOverviewSessionsTodayLabel: "Sesiones hoy",
+    productOverviewActiveAlertsLabel: "Alertas activas",
+    productOverviewAlertsTitle: "Alertas recientes",
+    productOverviewFollowUpAlertTitle: "Seguimiento prioritario",
+    productOverviewCaloriesAlertTitle: "Desvío de calorías",
+    productOverviewProteinAlertTitle: "Proteína por debajo del objetivo",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1084,6 +1104,16 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardNavOverview: "Panel",
     productDashboardSearchPlaceholder: "Search athlete or plan...",
     productDashboardAlertsAction: "View all alerts →",
+    productOverviewTitle: "Team readiness",
+    productOverviewSummary: "Last 7 days · sessions, nutrition and prioritized signals.",
+    productOverviewActiveAthletesLabel: "Active athletes",
+    productOverviewReadinessAverageLabel: "Average readiness",
+    productOverviewSessionsTodayLabel: "Sessions today",
+    productOverviewActiveAlertsLabel: "Active alerts",
+    productOverviewAlertsTitle: "Recent alerts",
+    productOverviewFollowUpAlertTitle: "Priority follow-up",
+    productOverviewCaloriesAlertTitle: "Calorie deviation",
+    productOverviewProteinAlertTitle: "Protein below target",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",

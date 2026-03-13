@@ -1,4 +1,12 @@
-import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   AccessRole,
   ActivityLogEntry,
@@ -572,6 +580,7 @@ export function App() {
   const [roleCapabilitiesReloadNonce, setRoleCapabilitiesReloadNonce] = useState(0);
   const isInitialDomainRender = useRef(true);
   const isInitialRoleRender = useRef(true);
+  const productOverviewHydrationSessionRef = useRef<string | null>(null);
   const runtimeObservabilitySessionRef = useRef(createRuntimeObservabilitySession());
   const observabilityCollectionsCacheRef = useRef<{
     loadedAt: number;
@@ -2285,6 +2294,62 @@ export function App() {
   useEffect(() => {
     setApiAuthSession(activeSession);
   }, [activeSession]);
+
+  useEffect(() => {
+    const currentSession = activeSession;
+
+    if (isProductOverviewDomain === false || currentSession === null) {
+      productOverviewHydrationSessionRef.current = null;
+      return;
+    }
+
+    if (productOverviewHydrationSessionRef.current === currentSession.sessionId) {
+      return;
+    }
+
+    const resolvedSession: AuthSession = currentSession;
+    productOverviewHydrationSessionRef.current = currentSession.sessionId;
+
+    async function hydrateProductOverview(): Promise<void> {
+      if (isLocalPreviewAuthSession(resolvedSession)) {
+        const previewSeed = createLocalPreviewDashboardSeed(resolvedSession.userId);
+        setOnboardingStatus("saved");
+        setLegalStatus("saved");
+        setPlans(previewSeed.plans);
+        setSelectedPlanId(previewSeed.plans[0]?.id ?? "");
+        setTrainingStatus("loaded");
+        setSessions(previewSeed.sessions);
+        setSessionStatus("saved");
+        setNutritionLogs(previewSeed.nutritionLogs);
+        setNutritionStatus("loaded");
+        setProgressSummary(previewSeed.progressSummary);
+        setProgressStatus("loaded");
+        setRecommendations(previewSeed.recommendations);
+        setRecommendationsStatus("loaded");
+        setOperationalAlerts(previewSeed.operationalAlerts);
+        setOperationalRunbooks(previewSeed.operationalRunbooks);
+        setActivityLogEntries(previewSeed.activityLogEntries);
+        setAnalyticsEvents(previewSeed.analyticsEvents);
+        setCrashReports(previewSeed.crashReports);
+        setObservabilitySummary(previewSeed.observabilitySummary);
+        setStructuredLogs(previewSeed.structuredLogs);
+        setObservabilityStatus("loaded");
+        setPendingQueueCount(previewSeed.pendingQueueCount);
+        setDashboardHomeRuntimeStateOverride("success");
+        return;
+      }
+
+      await Promise.all([
+        handleLoadPlans(),
+        handleLoadSessions(),
+        handleLoadNutritionLogs(),
+        handleLoadProgressSummary(),
+        handleRefreshDashboardHome()
+      ]);
+    }
+
+    void hydrateProductOverview();
+  }, [activeSession, isProductOverviewDomain]);
 
   async function handleAppleSignIn() {
     setAuthStatus("loading");
@@ -4151,100 +4216,328 @@ export function App() {
     translate("governanceTitle"),
     translate("billingSupportTitle")
   ];
+  const overviewLocale = language === "es" ? "es-ES" : "en-US";
   const criticalOperationalAlertsCount = openOperationalAlerts.filter(
     (alert) => alert.severity === "critical"
   ).length;
+  const highPriorityRecommendationsCount = recommendations.filter(
+    (recommendation) => recommendation.priority === "high"
+  ).length;
+  const highSeverityNutritionDeviationCount = nutritionDeviationAlerts.filter(
+    (alert) => alert.severity === "high"
+  ).length;
+  const productOverviewReferenceDate = useMemo(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    if (sessions.some((session) => session.endedAt.slice(0, 10) === todayKey)) {
+      return todayKey;
+    }
+
+    const latestSessionDate = sessions
+      .map((session) => session.endedAt.slice(0, 10))
+      .sort((left, right) => right.localeCompare(left))[0];
+    if (latestSessionDate !== undefined) {
+      return latestSessionDate;
+    }
+
+    const latestHistoryDate = progressSummary?.history
+      .map((entry) => entry.date)
+      .sort((left, right) => right.localeCompare(left))[0];
+
+    return latestHistoryDate ?? todayKey;
+  }, [progressSummary?.history, sessions]);
+  const completedSessionsForOverviewDay = useMemo(
+    () =>
+      sessions.filter((session) => session.endedAt.slice(0, 10) === productOverviewReferenceDate)
+        .length,
+    [productOverviewReferenceDate, sessions]
+  );
+  const plannedSessionsForOverviewDay = useMemo(() => {
+    const athleteBaseline =
+      athleteOperationRowsBase.length > 0
+        ? Math.max(1, Math.ceil(athleteOperationRowsBase.length * 0.45))
+        : 1;
+    return Math.max(
+      completedSessionsForOverviewDay,
+      athleteBaseline + Math.min(cohortAttentionCount, 4)
+    );
+  }, [athleteOperationRowsBase.length, cohortAttentionCount, completedSessionsForOverviewDay]);
+  const sessionCompletionRate =
+    plannedSessionsForOverviewDay === 0
+      ? 0
+      : Math.round((completedSessionsForOverviewDay / plannedSessionsForOverviewDay) * 100);
+  const averageReadinessScore = useMemo(() => {
+    const onboardingScore =
+      onboardingStatus === "saved"
+        ? 100
+        : onboardingStatus === "loading"
+          ? 68
+          : onboardingStatus === "consent_required"
+            ? 52
+            : 40;
+    const legalScore =
+      legalStatus === "saved"
+        ? 100
+        : legalStatus === "loading"
+          ? 70
+          : legalStatus === "consent_required"
+            ? 50
+            : 38;
+    const trainingCoverageScore =
+      athleteOperationRowsBase.length === 0
+        ? sessions.length > 0
+          ? 58
+          : 26
+        : clampNumber(Math.round((sessions.length / athleteOperationRowsBase.length) * 68), 18, 100);
+    const nutritionCoverageScore =
+      athleteOperationRowsBase.length === 0
+        ? nutritionLogs.length > 0
+          ? 56
+          : 24
+        : clampNumber(
+            Math.round((nutritionLogs.length / athleteOperationRowsBase.length) * 24),
+            18,
+            100
+          );
+    const progressCoverageScore =
+      progressSummary === null
+        ? 34
+        : clampNumber(
+            42 + progressSummary.workoutSessionsCount * 6 + progressSummary.nutritionLogsCount * 4,
+            22,
+            100
+          );
+    const cohortStabilityScore =
+      athleteOperationRowsBase.length === 0
+        ? 44
+        : clampNumber(
+            Math.round(
+              ((athleteOperationRowsBase.length - cohortAttentionCount) /
+                athleteOperationRowsBase.length) *
+                100
+            ),
+            18,
+            100
+          );
+    const penalty = cohortAttentionCount * 6 + criticalOperationalAlertsCount * 4;
+
+    return clampNumber(
+      Math.round(
+        onboardingScore * 0.18 +
+          legalScore * 0.12 +
+          trainingCoverageScore * 0.3 +
+          nutritionCoverageScore * 0.18 +
+          progressCoverageScore * 0.22 +
+          cohortStabilityScore * 0.1 -
+          penalty
+      ),
+      20,
+      96
+    );
+  }, [
+    athleteOperationRowsBase.length,
+    cohortAttentionCount,
+    criticalOperationalAlertsCount,
+    legalStatus,
+    nutritionLogs.length,
+    onboardingStatus,
+    progressSummary,
+    sessions.length
+  ]);
+  const productPrioritySignalsCount = Math.min(
+    9,
+    openOperationalAlerts.length +
+      highSeverityNutritionDeviationCount +
+      highPriorityRecommendationsCount +
+      (cohortAttentionCount > 0 ? 1 : 0)
+  );
   const productOverviewMetrics = [
     {
       id: "athletes",
-      label: translate("athletesLoadedLabel"),
+      label: translate("productOverviewActiveAthletesLabel"),
       value: String(athleteOperationRowsBase.length),
-      detail: `${translate("onboardingStatusLabel")}: ${toHumanStatus(onboardingStatus, language)}`,
-      tone: onboardingStatus === "saved" ? "positive" : "neutral"
+      detail: `${translate("cohortAnalysisNormalLabel")}: ${cohortNormalCount} · ${translate("cohortAnalysisAttentionLabel")}: ${cohortAttentionCount}`,
+      tone: athleteOperationRowsBase.length > 0 ? "positive" : "neutral"
     },
     {
-      id: "plans",
-      label: translate("planStatusLabel"),
-      value: String(plans.length),
-      detail: `${translate("legalStatusLabel")}: ${toHumanStatus(legalStatus, language)}`,
-      tone: plans.length > 0 ? "positive" : "neutral"
+      id: "readiness",
+      label: translate("productOverviewReadinessAverageLabel"),
+      value: `${averageReadinessScore}%`,
+      detail: `${translate("onboardingStatusLabel")}: ${toHumanStatus(onboardingStatus, language)} · ${translate("legalStatusLabel")}: ${toHumanStatus(legalStatus, language)}`,
+      tone: averageReadinessScore >= 70 ? "positive" : averageReadinessScore < 50 ? "critical" : "neutral"
     },
     {
-      id: "sessions",
-      label: translate("sessionStatusLabel"),
-      value: String(sessions.length),
-      detail: `${translate("dashboardHomeActiveDomainLabel")}: ${productWorkspaceTitle}`,
-      tone: sessions.length > 0 ? "positive" : "neutral"
-    },
-    {
-      id: "alerts",
-      label: translate("alertCenterOpenCountLabel"),
-      value: String(openOperationalAlerts.length),
-      detail: `${translate("alertCenterHighSeverityLabel")}: ${criticalOperationalAlertsCount}`,
-      tone: openOperationalAlerts.length > 0 ? "critical" : "neutral"
-    }
-  ] as const;
-  const productOverviewBars = [
-    {
-      id: "onboarding",
-      label: translate("domainOnboarding"),
-      value: `${onboardingStatus === "saved" ? 84 : 42}%`,
-      height: onboardingStatus === "saved" ? 84 : 42,
-      tone: onboardingStatus === "saved" ? "positive" : "neutral"
-    },
-    {
-      id: "training",
-      label: translate("domainTraining"),
-      value: `${plans.length > 0 ? Math.min(90, 48 + plans.length * 10) : 32}%`,
-      height: plans.length > 0 ? Math.min(90, 48 + plans.length * 10) : 32,
-      tone: plans.length > 0 ? "positive" : "neutral"
-    },
-    {
-      id: "sessions",
-      label: translate("sessionStatusLabel"),
-      value: `${sessions.length > 0 ? Math.min(92, 44 + sessions.length * 9) : 28}%`,
-      height: sessions.length > 0 ? Math.min(92, 44 + sessions.length * 9) : 28,
-      tone: sessions.length > 0 ? "positive" : "neutral"
-    },
-    {
-      id: "nutrition",
-      label: translate("domainNutrition"),
-      value: `${nutritionLogs.length > 0 ? Math.min(88, 40 + nutritionLogs.length * 14) : 26}%`,
-      height: nutritionLogs.length > 0 ? Math.min(88, 40 + nutritionLogs.length * 14) : 26,
-      tone: nutritionLogs.length > 0 ? "positive" : "neutral"
-    },
-    {
-      id: "progress",
-      label: translate("domainProgress"),
-      value: `${recommendations.length > 0 ? Math.min(86, 38 + recommendations.length * 12) : 30}%`,
-      height: recommendations.length > 0 ? Math.min(86, 38 + recommendations.length * 12) : 30,
-      tone: recommendations.length > 0 ? "positive" : "neutral"
+      id: "today-sessions",
+      label: translate("productOverviewSessionsTodayLabel"),
+      value: `${completedSessionsForOverviewDay} / ${plannedSessionsForOverviewDay}`,
+      detail: `${sessionCompletionRate}% · ${translate("sessionStatusLabel")}: ${toHumanStatus(sessionStatus, language)}`,
+      tone: sessionCompletionRate >= 70 ? "positive" : sessionCompletionRate < 35 ? "critical" : "neutral"
     },
     {
       id: "alerts",
-      label: translate("alertCenterTitle"),
-      value: `${openOperationalAlerts.length > 0 ? Math.min(82, 24 + openOperationalAlerts.length * 14) : 18}%`,
-      height: openOperationalAlerts.length > 0 ? Math.min(82, 24 + openOperationalAlerts.length * 14) : 18,
-      tone: openOperationalAlerts.length > 0 ? "critical" : "neutral"
+      label: translate("productOverviewActiveAlertsLabel"),
+      value: String(productPrioritySignalsCount),
+      detail: `${translate("alertCenterHighSeverityLabel")}: ${criticalOperationalAlertsCount} · ${translate("alertCenterTitle")}: ${openOperationalAlerts.length}`,
+      tone: productPrioritySignalsCount > 0 ? "critical" : "neutral"
     }
   ] as const;
-  const productOverviewAlerts: Array<{
+  const progressHistoryByDate = useMemo(
+    () => new Map((progressSummary?.history ?? []).map((entry) => [entry.date, entry])),
+    [progressSummary?.history]
+  );
+  const productOverviewBars = useMemo(() => {
+    const weekdayFormatter = new Intl.DateTimeFormat(overviewLocale, { weekday: "short" });
+    const referenceDate = new Date(`${productOverviewReferenceDate}T12:00:00`);
+
+    return Array.from({ length: 7 }, (_, offset) => {
+      const date = new Date(referenceDate);
+      date.setDate(referenceDate.getDate() - (6 - offset));
+      const dateKey = date.toISOString().slice(0, 10);
+      const historyEntry = progressHistoryByDate.get(dateKey);
+      const dailySessionsCount = sessions.filter((session) => session.endedAt.slice(0, 10) === dateKey).length;
+      const dailyNutritionAlertCount = nutritionDeviationAlerts.filter(
+        (alert) => alert.date === dateKey
+      ).length;
+      const dailyWorkoutScore =
+        historyEntry === undefined
+          ? 26 + dailySessionsCount * 10
+          : clampNumber(historyEntry.workoutSessions * 42 + dailySessionsCount * 8, 18, 100);
+      const dailyProteinScore =
+        historyEntry?.proteinGrams === null || historyEntry?.proteinGrams === undefined
+          ? 44
+          : clampNumber(100 - Math.abs(historyEntry.proteinGrams - 150) * 0.9, 28, 100);
+      const dailyCaloriesScore =
+        historyEntry?.calories === null || historyEntry?.calories === undefined
+          ? 44
+          : clampNumber(100 - Math.abs(historyEntry.calories - 2200) / 12, 24, 100);
+      const fallbackScore = clampNumber(
+        averageReadinessScore - (6 - offset) * 3 + dailySessionsCount * 5 - dailyNutritionAlertCount * 8,
+        24,
+        92
+      );
+      const combinedScore =
+        historyEntry === undefined
+          ? fallbackScore
+          : clampNumber(
+              Math.round(
+                dailyWorkoutScore * 0.4 +
+                  dailyProteinScore * 0.3 +
+                  dailyCaloriesScore * 0.3 -
+                  dailyNutritionAlertCount * 9
+              ),
+              24,
+              96
+            );
+      const tone: "positive" | "neutral" | "critical" =
+        combinedScore >= 72 ? "positive" : combinedScore < 50 ? "critical" : "neutral";
+
+      return {
+        id: dateKey,
+        label: weekdayFormatter.format(date).replace(".", "").slice(0, 3),
+        value: `${combinedScore}%`,
+        height: combinedScore,
+        tone
+      };
+    });
+  }, [
+    averageReadinessScore,
+    nutritionDeviationAlerts,
+    overviewLocale,
+    productOverviewReferenceDate,
+    progressHistoryByDate,
+    sessions
+  ]);
+  const productOverviewAlerts = useMemo<Array<{
     id: string;
     title: string;
     meta: string;
     tone: "critical" | "neutral";
-  }> = openOperationalAlerts.slice(0, 3).map((alert) => ({
-    id: alert.id,
-    title: alert.summary,
-    meta: `${new Date(alert.triggeredAt).toLocaleTimeString(
-      language === "es" ? "es-ES" : "en-US",
-      {
-        hour: "2-digit",
-        minute: "2-digit"
-      }
-    )} · ${toHumanStatus(alert.severity, language)}`,
-    tone: alert.severity === "critical" ? "critical" : "neutral"
-  }));
+  }>>(() => {
+    const nextAlerts: Array<{
+      id: string;
+      title: string;
+      meta: string;
+      tone: "critical" | "neutral";
+    }> = [];
+
+    if (cohortAttentionCount > 0) {
+      nextAlerts.push({
+        id: "follow-up",
+        title: translate("productOverviewFollowUpAlertTitle"),
+        meta: `${cohortAttentionCount} · ${translate("cohortAnalysisAttentionLabel").toLowerCase()} · ${translate("sessionStatusLabel").toLowerCase()} / ${translate("domainNutrition").toLowerCase()}`,
+        tone: cohortAttentionCount > 1 ? "critical" : "neutral"
+      });
+    }
+
+    nutritionDeviationAlerts.slice(0, 2).forEach((alert) => {
+      nextAlerts.push({
+        id: alert.id,
+        title:
+          alert.reason === "protein"
+            ? translate("productOverviewProteinAlertTitle")
+            : translate("productOverviewCaloriesAlertTitle"),
+        meta:
+          alert.reason === "protein"
+            ? `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                day: "2-digit",
+                month: "short"
+              })} · ${alert.proteinGrams} g`
+            : `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                day: "2-digit",
+                month: "short"
+              })} · ${alert.calories} kcal`,
+        tone: alert.severity === "high" ? "critical" : "neutral"
+      });
+    });
+
+    recommendations.slice(0, 2).forEach((recommendation) => {
+      nextAlerts.push({
+        id: recommendation.id,
+        title: recommendation.title,
+        meta: `${toHumanStatus(recommendation.category, language)} · ${toHumanStatus(
+          recommendation.priority,
+          language
+        )}`,
+        tone: recommendation.priority === "high" ? "critical" : "neutral"
+      });
+    });
+
+    openOperationalAlerts.slice(0, 2).forEach((alert) => {
+      nextAlerts.push({
+        id: alert.id,
+        title: alert.summary,
+        meta: `${new Date(alert.triggeredAt).toLocaleTimeString(overviewLocale, {
+          hour: "2-digit",
+          minute: "2-digit"
+        })} · ${toHumanStatus(alert.severity, language)}`,
+        tone: alert.severity === "critical" ? "critical" : "neutral"
+      });
+    });
+
+    const recentActivityFallback = latestRecentActivityRow;
+
+    if (nextAlerts.length === 0 && recentActivityFallback !== undefined) {
+      nextAlerts.push({
+        id: recentActivityFallback.id,
+        title: recentActivityFallback.summary,
+        meta: `${new Date(recentActivityFallback.occurredAt).toLocaleTimeString(overviewLocale, {
+          hour: "2-digit",
+          minute: "2-digit"
+        })} · ${toHumanStatus(recentActivityFallback.outcome, language)}`,
+        tone: recentActivityFallback.outcome === "error" ? "critical" : "neutral"
+      });
+    }
+
+    return nextAlerts.slice(0, 3);
+  }, [
+    cohortAttentionCount,
+    language,
+    latestRecentActivityRow,
+    nutritionDeviationAlerts,
+    openOperationalAlerts,
+    overviewLocale,
+    recommendations,
+    translate
+  ]);
 
   return (
     <div
@@ -4546,11 +4839,11 @@ export function App() {
 
         {showProductDashboardExperience ? (
           <ProductOverviewPanel
-            title={translate("dashboardHomeTitle")}
-            summary={translate("productWorkspaceSummary")}
+            title={translate("productOverviewTitle")}
+            summary={translate("productOverviewSummary")}
             metrics={[...productOverviewMetrics]}
             bars={[...productOverviewBars]}
-            alertsTitle={translate("alertCenterTitle")}
+            alertsTitle={translate("productOverviewAlertsTitle")}
             alerts={productOverviewAlerts}
             emptyAlertsLabel={translate("alertCenterNoAlerts")}
             viewAllAlertsLabel={translate("productDashboardAlertsAction")}
@@ -6346,6 +6639,503 @@ const DenseRowsInfo = memo(function DenseRowsInfo({
 
 function toHumanStatus(status: string, language: AppLanguage): string {
   return humanizeStatus(status, language);
+}
+
+function clampNumber(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function isLocalPreviewAuthSession(session: AuthSession): boolean {
+  return session.sessionId.startsWith("local-preview-session-");
+}
+
+function formatLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function createDateWithOffset(
+  baseDate: Date,
+  dayOffset: number,
+  hours: number,
+  minutes: number
+): string {
+  const nextDate = new Date(baseDate);
+  nextDate.setDate(baseDate.getDate() + dayOffset);
+  nextDate.setHours(hours, minutes, 0, 0);
+  return nextDate.toISOString();
+}
+
+function formatOffsetDateKey(baseDate: Date, dayOffset: number): string {
+  const nextDate = new Date(baseDate);
+  nextDate.setDate(baseDate.getDate() + dayOffset);
+  return formatLocalDateKey(nextDate);
+}
+
+function createLocalPreviewDashboardSeed(userId: string, now = new Date()): {
+  plans: TrainingPlan[];
+  sessions: WorkoutSessionInput[];
+  nutritionLogs: NutritionLog[];
+  progressSummary: ProgressSummary;
+  operationalAlerts: OperationalAlert[];
+  operationalRunbooks: OperationalRunbook[];
+  recommendations: AIRecommendation[];
+  activityLogEntries: ActivityLogEntry[];
+  analyticsEvents: AnalyticsEvent[];
+  crashReports: CrashReport[];
+  observabilitySummary: ObservabilitySummary;
+  structuredLogs: StructuredLog[];
+  pendingQueueCount: number;
+} {
+  const previewAthletes = [
+    userId,
+    "preview-athlete-pablo",
+    "preview-athlete-laura",
+    "preview-athlete-marta"
+  ] as const;
+  const dayMinus6 = formatOffsetDateKey(now, -6);
+  const dayMinus5 = formatOffsetDateKey(now, -5);
+  const dayMinus4 = formatOffsetDateKey(now, -4);
+  const dayMinus3 = formatOffsetDateKey(now, -3);
+  const dayMinus2 = formatOffsetDateKey(now, -2);
+  const dayMinus1 = formatOffsetDateKey(now, -1);
+  const today = formatOffsetDateKey(now, 0);
+  const basePlanDays = [
+    {
+      dayIndex: 1,
+      exercises: [
+        { exerciseId: "goblet-squat", targetSets: 4, targetReps: 10 },
+        { exerciseId: "push-up", targetSets: 4, targetReps: 12 }
+      ]
+    },
+    {
+      dayIndex: 3,
+      exercises: [
+        { exerciseId: "romanian-deadlift", targetSets: 4, targetReps: 10 },
+        { exerciseId: "lat-pulldown", targetSets: 4, targetReps: 12 }
+      ]
+    },
+    {
+      dayIndex: 5,
+      exercises: [
+        { exerciseId: "split-squat", targetSets: 3, targetReps: 12 },
+        { exerciseId: "seated-row", targetSets: 3, targetReps: 12 }
+      ]
+    }
+  ];
+
+  const plans: TrainingPlan[] = previewAthletes.map((athleteId, index) => ({
+    id: `${athleteId}-plan-${index + 1}`,
+    userId: athleteId,
+    name: index === 0 ? "Performance Reset" : `Starter Cohort ${index}`,
+    weeks: 6,
+    days: [...basePlanDays],
+    createdAt: createDateWithOffset(now, -14 + index, 9, 15)
+  }));
+
+  const sessions: WorkoutSessionInput[] = [
+    {
+      userId,
+      planId: `${userId}-plan-1`,
+      startedAt: createDateWithOffset(now, 0, 6, 30),
+      endedAt: createDateWithOffset(now, 0, 7, 18),
+      exercises: [
+        { exerciseId: "goblet-squat", sets: [{ reps: 10, loadKg: 24, rpe: 7 }] },
+        { exerciseId: "push-up", sets: [{ reps: 12, loadKg: 0, rpe: 7 }] }
+      ]
+    },
+    {
+      userId: "preview-athlete-pablo",
+      planId: "preview-athlete-pablo-plan-2",
+      startedAt: createDateWithOffset(now, 0, 12, 0),
+      endedAt: createDateWithOffset(now, 0, 12, 42),
+      exercises: [
+        { exerciseId: "split-squat", sets: [{ reps: 12, loadKg: 18, rpe: 8 }] }
+      ]
+    },
+    {
+      userId: "preview-athlete-marta",
+      planId: "preview-athlete-marta-plan-4",
+      startedAt: createDateWithOffset(now, -1, 18, 10),
+      endedAt: createDateWithOffset(now, -1, 18, 54),
+      exercises: [
+        { exerciseId: "lat-pulldown", sets: [{ reps: 12, loadKg: 32, rpe: 7 }] }
+      ]
+    },
+    {
+      userId,
+      planId: `${userId}-plan-1`,
+      startedAt: createDateWithOffset(now, -2, 7, 5),
+      endedAt: createDateWithOffset(now, -2, 7, 48),
+      exercises: [
+        { exerciseId: "romanian-deadlift", sets: [{ reps: 8, loadKg: 46, rpe: 8 }] }
+      ]
+    },
+    {
+      userId: "preview-athlete-laura",
+      planId: "preview-athlete-laura-plan-3",
+      startedAt: createDateWithOffset(now, -3, 8, 0),
+      endedAt: createDateWithOffset(now, -3, 8, 36),
+      exercises: [
+        { exerciseId: "goblet-squat", sets: [{ reps: 10, loadKg: 18, rpe: 7 }] }
+      ]
+    },
+    {
+      userId,
+      planId: `${userId}-plan-1`,
+      startedAt: createDateWithOffset(now, -5, 6, 40),
+      endedAt: createDateWithOffset(now, -5, 7, 20),
+      exercises: [
+        { exerciseId: "push-up", sets: [{ reps: 14, loadKg: 0, rpe: 6 }] }
+      ]
+    }
+  ];
+
+  const nutritionLogs: NutritionLog[] = [
+    {
+      userId,
+      date: today,
+      calories: 2210,
+      proteinGrams: 152,
+      carbsGrams: 228,
+      fatsGrams: 68
+    },
+    {
+      userId: "preview-athlete-laura",
+      date: dayMinus1,
+      calories: 3020,
+      proteinGrams: 104,
+      carbsGrams: 315,
+      fatsGrams: 92
+    },
+    {
+      userId: "preview-athlete-marta",
+      date: dayMinus2,
+      calories: 2140,
+      proteinGrams: 74,
+      carbsGrams: 206,
+      fatsGrams: 64
+    },
+    {
+      userId,
+      date: dayMinus3,
+      calories: 2185,
+      proteinGrams: 148,
+      carbsGrams: 221,
+      fatsGrams: 70
+    },
+    {
+      userId: "preview-athlete-laura",
+      date: dayMinus4,
+      calories: 2340,
+      proteinGrams: 138,
+      carbsGrams: 240,
+      fatsGrams: 72
+    },
+    {
+      userId,
+      date: dayMinus6,
+      calories: 2160,
+      proteinGrams: 143,
+      carbsGrams: 214,
+      fatsGrams: 69
+    }
+  ];
+
+  const progressSummary: ProgressSummary = {
+    userId,
+    generatedAt: createDateWithOffset(now, 0, 8, 20),
+    workoutSessionsCount: 18,
+    totalTrainingMinutes: 712,
+    totalCompletedSets: 186,
+    nutritionLogsCount: 23,
+    averageCalories: 2210,
+    averageProteinGrams: 146,
+    averageCarbsGrams: 228,
+    averageFatsGrams: 69,
+    history: [
+      {
+        date: dayMinus6,
+        workoutSessions: 2,
+        trainingMinutes: 76,
+        completedSets: 20,
+        calories: 2160,
+        proteinGrams: 143,
+        carbsGrams: 214,
+        fatsGrams: 69
+      },
+      {
+        date: dayMinus5,
+        workoutSessions: 2,
+        trainingMinutes: 88,
+        completedSets: 24,
+        calories: 2220,
+        proteinGrams: 148,
+        carbsGrams: 228,
+        fatsGrams: 70
+      },
+      {
+        date: dayMinus4,
+        workoutSessions: 1,
+        trainingMinutes: 62,
+        completedSets: 16,
+        calories: 2340,
+        proteinGrams: 138,
+        carbsGrams: 240,
+        fatsGrams: 72
+      },
+      {
+        date: dayMinus3,
+        workoutSessions: 3,
+        trainingMinutes: 96,
+        completedSets: 26,
+        calories: 2185,
+        proteinGrams: 148,
+        carbsGrams: 221,
+        fatsGrams: 70
+      },
+      {
+        date: dayMinus2,
+        workoutSessions: 2,
+        trainingMinutes: 84,
+        completedSets: 22,
+        calories: 2140,
+        proteinGrams: 74,
+        carbsGrams: 206,
+        fatsGrams: 64
+      },
+      {
+        date: dayMinus1,
+        workoutSessions: 2,
+        trainingMinutes: 92,
+        completedSets: 24,
+        calories: 3020,
+        proteinGrams: 104,
+        carbsGrams: 315,
+        fatsGrams: 92
+      },
+      {
+        date: today,
+        workoutSessions: 3,
+        trainingMinutes: 114,
+        completedSets: 30,
+        calories: 2210,
+        proteinGrams: 152,
+        carbsGrams: 228,
+        fatsGrams: 68
+      }
+    ]
+  };
+
+  const operationalRunbooks: OperationalRunbook[] = [
+    {
+      id: "runbook-high-incident-backlog",
+      alertCode: "high_incident_backlog",
+      title: "Priorizar atletas con backlog alto",
+      objective: "Reducir señales abiertas en progreso y nutrición durante el día.",
+      ownerOnCall: "coach@flux.app",
+      steps: [
+        {
+          id: "step-1",
+          title: "Revisar atletas en atención",
+          ownerRole: "coach",
+          slaMinutes: 15,
+          outcome: "Lista priorizada"
+        }
+      ],
+      updatedAt: createDateWithOffset(now, -1, 18, 0)
+    },
+    {
+      id: "runbook-blocked-action-spike",
+      alertCode: "blocked_action_spike",
+      title: "Resolver desvíos de nutrición prioritarios",
+      objective: "Disminuir alertas altas antes del cierre del día.",
+      ownerOnCall: "nutrition@flux.app",
+      steps: [
+        {
+          id: "step-2",
+          title: "Abrir revisión con atleta",
+          ownerRole: "coach",
+          slaMinutes: 20,
+          outcome: "Seguimiento abierto"
+        }
+      ],
+      updatedAt: createDateWithOffset(now, 0, 8, 10)
+    }
+  ];
+
+  const operationalAlerts: OperationalAlert[] = [
+    {
+      id: "preview-alert-progress",
+      userId,
+      code: "high_incident_backlog",
+      severity: "critical",
+      state: "open",
+      source: "web",
+      summary: "Pablo M. · progreso bajo esta semana",
+      correlationId: "preview-correlation-progress",
+      runbookId: "runbook-high-incident-backlog",
+      ownerOnCall: "coach@flux.app",
+      serviceLevelObjective: "15m",
+      currentValue: 3,
+      thresholdValue: 1,
+      triggeredAt: createDateWithOffset(now, 0, 8, 12),
+      lastEvaluatedAt: createDateWithOffset(now, 0, 8, 25)
+    },
+    {
+      id: "preview-alert-nutrition",
+      userId,
+      code: "blocked_action_spike",
+      severity: "high",
+      state: "open",
+      source: "web",
+      summary: "Laura R. · faltan logs nutricionales",
+      correlationId: "preview-correlation-nutrition",
+      runbookId: "runbook-blocked-action-spike",
+      ownerOnCall: "nutrition@flux.app",
+      serviceLevelObjective: "20m",
+      currentValue: 2,
+      thresholdValue: 1,
+      triggeredAt: createDateWithOffset(now, 0, 7, 44),
+      lastEvaluatedAt: createDateWithOffset(now, 0, 8, 18)
+    }
+  ];
+
+  const recommendations: AIRecommendation[] = [
+    {
+      id: "preview-recommendation-recovery",
+      userId,
+      title: "Reduce la carga del viernes para Pablo M.",
+      rationale: "El atleta enlaza dos días con recuperación baja y sueño irregular.",
+      priority: "high",
+      category: "recovery",
+      expectedImpact: "consistency",
+      actionLabel: "Ajustar sesión",
+      generatedAt: createDateWithOffset(now, 0, 7, 36)
+    },
+    {
+      id: "preview-recommendation-nutrition",
+      userId,
+      title: "Cerrar seguimiento de proteína en Marta R.",
+      rationale: "Se detectan dos días bajo objetivo de proteína con impacto en rendimiento.",
+      priority: "medium",
+      category: "nutrition",
+      expectedImpact: "performance",
+      actionLabel: "Abrir revisión",
+      generatedAt: createDateWithOffset(now, 0, 7, 48)
+    }
+  ];
+
+  const activityLogEntries: ActivityLogEntry[] = [
+    {
+      id: "preview-activity-progress",
+      userId,
+      occurredAt: createDateWithOffset(now, 0, 8, 6),
+      actorRole: "coach",
+      action: "incident_opened",
+      resource: "preview-athlete-pablo",
+      domain: "progress",
+      source: "web",
+      outcome: "success",
+      correlationId: "preview-correlation-progress",
+      summary: "Seguimiento abierto para Pablo M. por baja adherencia."
+    },
+    {
+      id: "preview-activity-legal",
+      userId,
+      occurredAt: createDateWithOffset(now, -1, 19, 5),
+      actorRole: "coach",
+      action: "consent_recorded",
+      resource: "preview-athlete-laura",
+      domain: "onboarding",
+      source: "web",
+      outcome: "success",
+      correlationId: "preview-correlation-legal",
+      summary: "Consentimiento médico registrado para Laura R."
+    }
+  ];
+
+  const analyticsEvents: AnalyticsEvent[] = [
+    {
+      userId,
+      name: "dashboard_viewed",
+      source: "web",
+      occurredAt: createDateWithOffset(now, 0, 8, 28),
+      attributes: {
+        seed: true,
+        domain: "all"
+      }
+    },
+    {
+      userId,
+      name: "recommendation_reviewed",
+      source: "web",
+      occurredAt: createDateWithOffset(now, 0, 8, 16),
+      attributes: {
+        seed: true,
+        priority: "high"
+      }
+    }
+  ];
+
+  const structuredLogs: StructuredLog[] = [
+    {
+      id: "preview-log-progress",
+      userId,
+      occurredAt: createDateWithOffset(now, 0, 8, 15),
+      source: "web",
+      level: "warning",
+      category: "operations",
+      eventName: "preview_dashboard_seed_loaded",
+      domain: "all",
+      correlationId: "preview-correlation-seed",
+      summary: "Seed local cargado para validar panel de producto.",
+      attributes: {
+        athletes: previewAthletes.length,
+        alerts: operationalAlerts.length
+      }
+    }
+  ];
+
+  const observabilitySummary: ObservabilitySummary = {
+    userId,
+    generatedAt: createDateWithOffset(now, 0, 8, 30),
+    totalAnalyticsEvents: analyticsEvents.length,
+    totalCrashReports: 0,
+    blockedActions: 1,
+    deniedAccessEvents: 0,
+    fatalCrashReports: 0,
+    uniqueCorrelationIds: 4,
+    sourceBreakdown: {
+      web: analyticsEvents.length + structuredLogs.length + operationalAlerts.length,
+      ios: 0,
+      backend: 0
+    },
+    canonicalCoverage: {
+      trackedCanonicalEvents: 4,
+      customEvents: 0
+    },
+    latestAnalyticsAt: analyticsEvents[0]?.occurredAt ?? null,
+    latestCrashAt: null
+  };
+
+  return {
+    plans,
+    sessions,
+    nutritionLogs,
+    progressSummary,
+    operationalAlerts,
+    operationalRunbooks,
+    recommendations,
+    activityLogEntries,
+    analyticsEvents,
+    crashReports: [],
+    observabilitySummary,
+    structuredLogs,
+    pendingQueueCount: 1
+  };
 }
 
 function toStatusClass(status: string): string {
