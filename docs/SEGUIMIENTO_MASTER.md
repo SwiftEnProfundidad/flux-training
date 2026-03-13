@@ -144,8 +144,8 @@
 - `IOS-L-130_WORKOUT_ACTIVE` ya esta operativo como variante light del workout activo con ruta/pantalla propias (`training.route.workoutActiveLight`, `training.workoutActive.light.screen`) y ajuste real de ejercicio con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-L-140_EXERCISE_VIDEO` ya esta operativo como variante light de video por ejercicio con ruta/pantalla propias (`training.route.videoPlayerLight`, `training.videoPlayer.light.screen`) y reproduccion real con estados `loading|empty|error|success|denied|offline`.
 - `IOS-L-150_SESSION_SUMMARY` ya esta operativo como variante light del resumen de sesion con ruta/pantalla propias (`training.route.sessionSummaryLight`, `training.sessionSummary.light.screen`) y resumen real de cierre con estados `loading|empty|error|saved|loaded|denied|offline`.
-- `WEB-000_ACCESS_GATE` ya esta operativo con gate de acceso real: cuando no hay sesion renderiza `web.accessGate.screen`, bloquea el dashboard operativo y ofrece entrada por Apple/email hacia autenticacion real.
-- `WEB-010_SIGN_IN` ya esta operativo con instrumentacion de pantalla/acciones (`web.signIn.screen`, `web.signIn.apple`, `web.signIn.email`) y estados reales de autenticacion/recovery.
+- `WEB-000_ACCESS_GATE` ya esta operativo con gate de acceso real: cuando no hay sesion renderiza `web.accessGate.screen`, bloquea el dashboard operativo y ofrece entrada por Apple/Google/email hacia autenticacion real.
+- `WEB-010_SIGN_IN` ya esta operativo con instrumentacion de pantalla/acciones (`web.signIn.screen`, `web.signIn.apple`, `web.signIn.google`, `web.signIn.email`) y estados reales de autenticacion/recovery.
 - `WEB-020_DASHBOARD_HOME` ya esta operativo con contrato de pantalla (`web.route.dashboardHome -> web.dashboardHome.screen`), estado trazable (`web.dashboardHome.status`) y accion real de refresco (`web.dashboardHome.refresh`) conectada a capacidades RBAC, observabilidad y cola offline.
 - `WEB-030_QUICK_ACTIONS` ya esta operativo con pantalla dedicada (`web.quickActions.screen`) y acciones rapidas reales instrumentadas (`web.quickActions.runAll`, `loadPlans`, `loadSessions`, `loadRecommendations`, `refreshDashboard`) para ejecutar operaciones clave del dashboard.
 - `WEB-040_ALERT_CENTER` ya esta operativo con pantalla dedicada (`web.alertCenter.screen`), estado trazable (`web.alertCenter.status`) y carga real de alertas/runbooks (`web.alertCenter.load`, `web.alertCenter.audit`) sobre observabilidad.
@@ -310,7 +310,7 @@
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
-- Auth real: Apple + email/password.
+- Auth real: Apple + Google + email/password.
 - Idioma base: ES, secundario: EN.
 - Alcance de salida: 121 pantallas funcionales (66 iOS + 55 Web).
 
@@ -325,7 +325,7 @@ Planes activos:
 | Fase 1 | Inventario canonico 121/121 + cobertura base | ✅ |
 | Fase 1 | Reabrir cierres no validados en runtime | ✅ |
 | Fase 1 | Priorizacion por impacto de usuario | ✅ |
-| Fase 2 | Auth real de sesion (email/password + Apple) | ✅ |
+| Fase 2 | Auth real de sesion (email/password + Apple + Google) | ✅ |
 | Fase 2 | RBAC por endpoint y dominio | ✅ |
 | Fase 2 | Persistencia real (Firestore) sin in-memory | ✅ |
 | Fase 2 | Errores observables (codigos + correlationId) | ✅ |

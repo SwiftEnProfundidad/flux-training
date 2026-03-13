@@ -122,6 +122,12 @@ body {
   align-content: start;
 }
 
+.hero-provider-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .hero-primary-action {
   min-height: 48px;
   font-size: 0.98rem;
@@ -162,6 +168,10 @@ body {
 .hero-auth-fields-product .button,
 .hero-provider-action {
   width: 100%;
+}
+
+.hero-provider-action {
+  min-height: 48px;
 }
 
 .hero-auth-divider {
@@ -990,6 +1000,10 @@ input::placeholder {
   }
 
   .hero-auth-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-provider-actions {
     grid-template-columns: 1fr;
   }
 

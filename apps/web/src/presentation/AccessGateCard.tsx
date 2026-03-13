@@ -7,10 +7,13 @@ type AccessGateCardProps = {
   summary: string;
   hint: string;
   signInWithAppleLabel: string;
+  signInWithGoogleLabel: string;
   signInWithEmailLabel: string;
   appleActionId: string;
+  googleActionId: string;
   emailActionId: string;
   onAppleSignIn: () => void;
+  onGoogleSignIn: () => void;
   onEmailSignIn: () => void;
 };
 
@@ -21,10 +24,13 @@ export const AccessGateCard = memo(function AccessGateCard({
   summary,
   hint,
   signInWithAppleLabel,
+  signInWithGoogleLabel,
   signInWithEmailLabel,
   appleActionId,
+  googleActionId,
   emailActionId,
   onAppleSignIn,
+  onGoogleSignIn,
   onEmailSignIn
 }: AccessGateCardProps) {
   return (
@@ -48,6 +54,14 @@ export const AccessGateCard = memo(function AccessGateCard({
             data-action-id={appleActionId}
           >
             {signInWithAppleLabel}
+          </button>
+          <button
+            className="button ghost"
+            onClick={onGoogleSignIn}
+            type="button"
+            data-action-id={googleActionId}
+          >
+            {signInWithGoogleLabel}
           </button>
           <button
             className="button ghost"

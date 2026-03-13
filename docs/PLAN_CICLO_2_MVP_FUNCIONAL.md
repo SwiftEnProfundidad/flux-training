@@ -64,7 +64,7 @@
 - El MVP solo podra declararse `✅` cuando se cumplan a la vez estos cinco bloques:
   - Web producto real:
     - la entrada por defecto en `/` abre experiencia de producto y no una consola interna o shell QA,
-    - el usuario puede iniciar sesion por email/password y completar onboarding + consentimiento,
+    - el usuario puede iniciar sesion por email/password o Google y completar onboarding + consentimiento,
     - entrenamiento, nutricion, progreso, ajustes y legal permiten una accion principal real y muestran un resultado observable,
     - no queda copy tecnica visible al usuario (`screen`, `route`, `qa`, `ops`, `debug`, `idle`, `empty`, `success`, `runtime`, `lane`, `web.*`).
   - iOS producto real:

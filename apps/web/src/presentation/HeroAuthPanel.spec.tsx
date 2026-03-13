@@ -9,18 +9,21 @@ const baseProps = {
   emailPlaceholder: "correo",
   passwordPlaceholder: "contrasena",
   signInWithAppleLabel: "Iniciar con Apple",
+  signInWithGoogleLabel: "Iniciar con Google",
   signInWithEmailLabel: "Iniciar con email",
   recoverByEmailLabel: "Recuperar por email",
   recoverBySMSLabel: "Recuperar por SMS",
   authStatusLabel: "inicia sesion para continuar",
   actionIds: {
     apple: "web.auth.apple",
+    google: "web.auth.google",
     email: "web.auth.email",
     recoverEmail: "web.auth.recover.email",
     recoverSMS: "web.auth.recover.sms",
     status: "web.auth.status"
   },
   onAppleSignIn: vi.fn(),
+  onGoogleSignIn: vi.fn(),
   onEmailChange: vi.fn(),
   onPasswordChange: vi.fn(),
   onEmailSignIn: vi.fn(),
@@ -40,6 +43,8 @@ describe("HeroAuthPanel", () => {
     expect(markup).toContain("hero-actions-product");
     expect(markup).toContain("hero-auth-divider");
     expect(markup).toContain("<span>o</span>");
+    expect(markup).toContain("Iniciar con Google");
+    expect(markup).toContain("web.auth.google");
   });
 
   it("hides status copy when product mode does not need feedback", () => {

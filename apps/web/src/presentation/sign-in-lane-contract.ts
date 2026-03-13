@@ -21,6 +21,7 @@ export type SignInLaneScreenModel = {
   statusId: "web.signIn.status" | "web.light.signIn.status";
   actions: {
     apple: "web.signIn.apple" | "web.light.signIn.apple";
+    google: "web.signIn.google" | "web.light.signIn.google";
     email: "web.signIn.email" | "web.light.signIn.email";
     recoverEmail: "web.signIn.recoverEmail" | "web.light.signIn.recoverEmail";
     recoverSMS: "web.signIn.recoverSMS" | "web.light.signIn.recoverSMS";
@@ -38,6 +39,7 @@ export function createSignInLaneScreenModel(
       statusId: "web.light.signIn.status",
       actions: {
         apple: "web.light.signIn.apple",
+        google: "web.light.signIn.google",
         email: "web.light.signIn.email",
         recoverEmail: "web.light.signIn.recoverEmail",
         recoverSMS: "web.light.signIn.recoverSMS"
@@ -52,6 +54,7 @@ export function createSignInLaneScreenModel(
     statusId: "web.signIn.status",
     actions: {
       apple: "web.signIn.apple",
+      google: "web.signIn.google",
       email: "web.signIn.email",
       recoverEmail: "web.signIn.recoverEmail",
       recoverSMS: "web.signIn.recoverSMS"

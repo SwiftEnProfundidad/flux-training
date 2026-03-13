@@ -7,6 +7,7 @@ interface HeroAuthPanelProps {
   emailPlaceholder: string;
   passwordPlaceholder: string;
   signInWithAppleLabel: string;
+  signInWithGoogleLabel: string;
   signInWithEmailLabel: string;
   recoverByEmailLabel: string;
   recoverBySMSLabel: string;
@@ -16,12 +17,14 @@ interface HeroAuthPanelProps {
   dividerLabel?: string;
   actionIds: {
     apple: string;
+    google: string;
     email: string;
     recoverEmail: string;
     recoverSMS: string;
     status: string;
   };
   onAppleSignIn: () => void;
+  onGoogleSignIn: () => void;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onEmailSignIn: () => void;
@@ -35,6 +38,7 @@ export const HeroAuthPanel = memo(function HeroAuthPanel({
   emailPlaceholder,
   passwordPlaceholder,
   signInWithAppleLabel,
+  signInWithGoogleLabel,
   signInWithEmailLabel,
   recoverByEmailLabel,
   recoverBySMSLabel,
@@ -44,6 +48,7 @@ export const HeroAuthPanel = memo(function HeroAuthPanel({
   dividerLabel = "or",
   actionIds,
   onAppleSignIn,
+  onGoogleSignIn,
   onEmailChange,
   onPasswordChange,
   onEmailSignIn,
@@ -86,15 +91,26 @@ export const HeroAuthPanel = memo(function HeroAuthPanel({
         <div className="hero-auth-divider" aria-hidden="true">
           <span>{dividerLabel}</span>
         </div>
-        <button
-          className="button ghost hero-provider-action"
-          onClick={onAppleSignIn}
-          type="button"
-          disabled={isAuthLoading}
-          data-action-id={actionIds.apple}
-        >
-          {signInWithAppleLabel}
-        </button>
+        <div className="hero-provider-actions hero-provider-actions-product">
+          <button
+            className="button ghost hero-provider-action"
+            onClick={onAppleSignIn}
+            type="button"
+            disabled={isAuthLoading}
+            data-action-id={actionIds.apple}
+          >
+            {signInWithAppleLabel}
+          </button>
+          <button
+            className="button ghost hero-provider-action"
+            onClick={onGoogleSignIn}
+            type="button"
+            disabled={isAuthLoading}
+            data-action-id={actionIds.google}
+          >
+            {signInWithGoogleLabel}
+          </button>
+        </div>
         <div className="inline-inputs hero-recovery-actions hero-recovery-actions-product">
           <button
             className="button ghost"
@@ -126,15 +142,26 @@ export const HeroAuthPanel = memo(function HeroAuthPanel({
 
   return (
     <div className="hero-actions">
-      <button
-        className="button primary hero-primary-action"
-        onClick={onAppleSignIn}
-        type="button"
-        disabled={isAuthLoading}
-        data-action-id={actionIds.apple}
-      >
-        {signInWithAppleLabel}
-      </button>
+      <div className="hero-provider-actions">
+        <button
+          className="button primary hero-primary-action"
+          onClick={onAppleSignIn}
+          type="button"
+          disabled={isAuthLoading}
+          data-action-id={actionIds.apple}
+        >
+          {signInWithAppleLabel}
+        </button>
+        <button
+          className="button ghost hero-provider-action"
+          onClick={onGoogleSignIn}
+          type="button"
+          disabled={isAuthLoading}
+          data-action-id={actionIds.google}
+        >
+          {signInWithGoogleLabel}
+        </button>
+      </div>
       <form className="inline-inputs hero-auth-fields" onSubmit={handleSubmit}>
         <input
           aria-label={emailPlaceholder}

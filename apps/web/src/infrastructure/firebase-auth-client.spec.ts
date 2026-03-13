@@ -101,4 +101,15 @@ describe("createLocalPreviewSession", () => {
     expect(session.identity.email).toBe("preview@flux.local");
     expect(session.userId).toBe("preview-preview-flux-local");
   });
+
+  it("creates a valid local preview google session", () => {
+    const session = createLocalPreviewSession({
+      provider: "google"
+    });
+
+    expect(session.identity.provider).toBe("google");
+    expect(session.identity.email).toBe("preview.google@flux.local");
+    expect(session.identity.displayName).toBe("Preview Google Athlete");
+    expect(session.userId).toBe("preview-preview-google-flux-local");
+  });
 });

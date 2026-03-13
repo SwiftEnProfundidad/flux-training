@@ -2,6 +2,7 @@ import { authSessionSchema, type AuthSession, type AuthSessionPolicy } from "@fl
 import { initializeApp } from "firebase/app";
 import {
   type Auth,
+  GoogleAuthProvider,
   OAuthProvider,
   createUserWithEmailAndPassword,
   getAuth,
@@ -120,15 +121,12 @@ function toPreviewSlug(value: string): string {
 }
 
 export function createLocalPreviewSession(input: {
-  provider: "apple" | "email";
+  provider: "apple" | "email" | "google";
   email?: string;
 }): AuthSession {
   const now = new Date();
   const issuedAtMs = now.getTime();
-  const email =
-    input.provider === "email"
-      ? input.email?.trim().toLowerCase() ?? ""
-      : "preview@flux.local";
+  const email = resolveLocalPreviewEmail(input);
   const slug = toPreviewSlug(email);
   const providerUserId = `preview-${slug}`;
 
@@ -151,9 +149,34 @@ export function createLocalPreviewSession(input: {
       provider: input.provider,
       providerUserId,
       email,
-      displayName: input.provider === "email" ? "Preview Athlete" : "Preview Apple Athlete"
+      displayName: resolveLocalPreviewDisplayName(input.provider)
     }
   });
+}
+
+function resolveLocalPreviewEmail(input: {
+  provider: "apple" | "email" | "google";
+  email?: string;
+}): string {
+  if (input.provider === "email") {
+    return input.email?.trim().toLowerCase() ?? "";
+  }
+  if (input.provider === "google") {
+    return "preview.google@flux.local";
+  }
+  return "preview@flux.local";
+}
+
+function resolveLocalPreviewDisplayName(
+  provider: "apple" | "email" | "google"
+): string {
+  if (provider === "google") {
+    return "Preview Google Athlete";
+  }
+  if (provider === "apple") {
+    return "Preview Apple Athlete";
+  }
+  return "Preview Athlete";
 }
 
 function shouldFallbackToLocalPreviewOnError(error: unknown): boolean {
@@ -202,31 +225,44 @@ async function createBackendSession(providerToken: string): Promise<AuthSession>
   return payload.session;
 }
 
+async function signInWithOAuthProvider(
+  provider: "apple" | "google"
+): Promise<AuthSession> {
+  if (shouldPreferLocalPreviewAuth()) {
+    return createLocalPreviewSession({ provider });
+  }
+
+  if (hasFirebaseWebConfig() === false) {
+    if (shouldUseLocalDemoAuthFallback()) {
+      return createLocalPreviewSession({ provider });
+    }
+    throw new Error("missing_firebase_web_config");
+  }
+
+  try {
+    const auth = getClientAuth();
+    const authProvider =
+      provider === "apple"
+        ? new OAuthProvider("apple.com")
+        : new GoogleAuthProvider();
+    const credential = await signInWithPopup(auth, authProvider);
+    const providerToken = await credential.user.getIdToken();
+    return createBackendSession(providerToken);
+  } catch (error) {
+    if (shouldUseLocalDemoAuthFallback() && shouldFallbackToLocalPreviewOnError(error)) {
+      return createLocalPreviewSession({ provider });
+    }
+    throw error;
+  }
+}
+
 class FirebaseAuthGateway implements AuthGateway {
   async signInWithApple(): Promise<AuthSession> {
-    if (shouldPreferLocalPreviewAuth()) {
-      return createLocalPreviewSession({ provider: "apple" });
-    }
+    return signInWithOAuthProvider("apple");
+  }
 
-    if (hasFirebaseWebConfig() === false) {
-      if (shouldUseLocalDemoAuthFallback()) {
-        return createLocalPreviewSession({ provider: "apple" });
-      }
-      throw new Error("missing_firebase_web_config");
-    }
-
-    try {
-      const auth = getClientAuth();
-      const provider = new OAuthProvider("apple.com");
-      const credential = await signInWithPopup(auth, provider);
-      const providerToken = await credential.user.getIdToken();
-      return createBackendSession(providerToken);
-    } catch (error) {
-      if (shouldUseLocalDemoAuthFallback() && shouldFallbackToLocalPreviewOnError(error)) {
-        return createLocalPreviewSession({ provider: "apple" });
-      }
-      throw error;
-    }
+  async signInWithGoogle(): Promise<AuthSession> {
+    return signInWithOAuthProvider("google");
   }
 
   async signInWithEmail(email: string, password: string): Promise<AuthSession> {

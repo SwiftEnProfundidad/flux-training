@@ -712,6 +712,8 @@ export function App() {
   );
   const accessGateAppleActionId =
     webLane === "main" ? "web.accessGate.apple" : "web.light.accessGate.apple";
+  const accessGateGoogleActionId =
+    webLane === "main" ? "web.accessGate.google" : "web.light.accessGate.google";
   const accessGateEmailActionId =
     webLane === "main" ? "web.accessGate.email" : "web.light.accessGate.email";
   const quickActionsScreenModel = useMemo(
@@ -2280,6 +2282,25 @@ export function App() {
     setAuthStatus("loading");
     try {
       const session = await createAuthSessionUseCase.executeWithApple();
+      setActiveSession(session);
+      setAuthStatus(`signed_in:${session.identity.provider}`);
+      setDashboardHomeRuntimeStateOverride(null);
+      setActiveDomain(resolvePostSignInDomain(isQAMode));
+      markDomainSuccess("onboarding");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setActiveSession(null);
+      setAuthStatus("auth_error");
+      markDomainFailure("onboarding", error);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setAuthStatus("loading");
+    try {
+      const session = await createAuthSessionUseCase.executeWithGoogle();
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
       setDashboardHomeRuntimeStateOverride(null);
@@ -4144,6 +4165,7 @@ export function App() {
                   emailPlaceholder={translate("emailPlaceholder")}
                   passwordPlaceholder={translate("passwordPlaceholder")}
                   signInWithAppleLabel={translate("signInWithApple")}
+                  signInWithGoogleLabel={translate("signInWithGoogle")}
                   signInWithEmailLabel={translate("signInWithEmail")}
                   recoverByEmailLabel={translate("recoverByEmail")}
                   recoverBySMSLabel={translate("recoverBySMS")}
@@ -4157,12 +4179,14 @@ export function App() {
                   dividerLabel={language === "es" ? "o" : "or"}
                   actionIds={{
                     apple: signInScreenModel.actions.apple,
+                    google: signInScreenModel.actions.google,
                     email: signInScreenModel.actions.email,
                     recoverEmail: signInScreenModel.actions.recoverEmail,
                     recoverSMS: signInScreenModel.actions.recoverSMS,
                     status: signInScreenModel.statusId
                   }}
                   onAppleSignIn={handleAppleSignIn}
+                  onGoogleSignIn={handleGoogleSignIn}
                   onEmailChange={setEmail}
                   onPasswordChange={setPassword}
                   onEmailSignIn={() => {
@@ -4193,6 +4217,7 @@ export function App() {
                 emailPlaceholder={translate("emailPlaceholder")}
                 passwordPlaceholder={translate("passwordPlaceholder")}
                 signInWithAppleLabel={translate("signInWithApple")}
+                signInWithGoogleLabel={translate("signInWithGoogle")}
                 signInWithEmailLabel={translate("signInWithEmail")}
                 recoverByEmailLabel={translate("recoverByEmail")}
                 recoverBySMSLabel={translate("recoverBySMS")}
@@ -4204,12 +4229,14 @@ export function App() {
                 showStatus={showHeroAuthStatus}
                 actionIds={{
                   apple: signInScreenModel.actions.apple,
+                  google: signInScreenModel.actions.google,
                   email: signInScreenModel.actions.email,
                   recoverEmail: signInScreenModel.actions.recoverEmail,
                   recoverSMS: signInScreenModel.actions.recoverSMS,
                   status: signInScreenModel.statusId
                 }}
                 onAppleSignIn={handleAppleSignIn}
+                onGoogleSignIn={handleGoogleSignIn}
                 onEmailChange={setEmail}
                 onPasswordChange={setPassword}
                 onEmailSignIn={() => {
@@ -4383,10 +4410,13 @@ export function App() {
                     : "Access required to load the operational dashboard."
                 }
                 signInWithAppleLabel={translate("signInWithApple")}
+                signInWithGoogleLabel={translate("signInWithGoogle")}
                 signInWithEmailLabel={translate("signInWithEmail")}
                 appleActionId={accessGateAppleActionId}
+                googleActionId={accessGateGoogleActionId}
                 emailActionId={accessGateEmailActionId}
                 onAppleSignIn={handleAppleSignIn}
+                onGoogleSignIn={handleGoogleSignIn}
                 onEmailSignIn={handleEmailSignIn}
               />
             ) : null

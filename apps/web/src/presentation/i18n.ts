@@ -13,6 +13,7 @@ type AppTranslations = {
   productWorkspaceSummary: string;
   productWorkspaceSignedIn: string;
   signInWithApple: string;
+  signInWithGoogle: string;
   signInWithEmail: string;
   recoverByEmail: string;
   recoverBySMS: string;
@@ -526,12 +527,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heroCopy: "Panel personal para autenticacion, onboarding, entrenamiento, nutricion y progreso.",
     productAccessTitle: "Inicia sesion",
     productAccessCopy:
-      "Accede con email y contrasena o usa Apple para entrar en tu panel de entrenamiento.",
+      "Accede con email y contrasena o usa Apple o Google para entrar en tu panel de entrenamiento.",
     productAccessFooter: "© 2026 Flux Entrenamiento · Privacidad · Terminos de uso",
     productWorkspaceSummary:
       "Entrada de producto alineada con onboarding, entrenamiento, nutricion y progreso.",
     productWorkspaceSignedIn: "Sesion activa",
     signInWithApple: "Iniciar con Apple",
+    signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
     recoverByEmail: "Recuperar por email",
     recoverBySMS: "Recuperar por SMS",
@@ -1055,12 +1057,13 @@ const translations: Record<AppLanguage, AppTranslations> = {
     heroCopy: "Personal dashboard for auth, onboarding, training, nutrition and progress.",
     productAccessTitle: "Sign in",
     productAccessCopy:
-      "Access with email and password or use Apple to enter your training workspace.",
+      "Access with email and password or use Apple or Google to enter your training workspace.",
     productAccessFooter: "© 2026 Flux Training · Privacy · Terms of use",
     productWorkspaceSummary:
       "Product entry aligned with onboarding, training, nutrition and progress.",
     productWorkspaceSignedIn: "Active session",
     signInWithApple: "Sign in with Apple",
+    signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",
     recoverByEmail: "Recover by email",
     recoverBySMS: "Recover by SMS",

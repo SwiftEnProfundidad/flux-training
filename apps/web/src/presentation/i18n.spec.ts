@@ -27,6 +27,7 @@ describe("i18n", () => {
     expect(translate("laneLabel")).toBe("Lane");
     expect(translate("laneMain")).toBe("Main");
     expect(translate("laneSecondary")).toBe("Secondary");
+    expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
     expect(translate("retryRoleCapabilities")).toBe("Retry capabilities");
@@ -254,6 +255,7 @@ describe("i18n", () => {
     expect(translate("laneLabel")).toBe("Lane");
     expect(translate("laneMain")).toBe("Main");
     expect(translate("laneSecondary")).toBe("Secondary");
+    expect(translate("signInWithGoogle")).toBe("Iniciar con Google");
     expect(translate("recoverByEmail")).toBe("Recuperar por email");
     expect(translate("recoverBySMS")).toBe("Recuperar por SMS");
     expect(translate("retryRoleCapabilities")).toBe("Reintentar capacidades");
