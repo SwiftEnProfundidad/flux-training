@@ -4212,10 +4212,11 @@ export function App() {
       .map((value) => value[0]?.toUpperCase() ?? "")
       .join("") || "FX";
   const productSidebarSecondaryNav = [
-    translate("aiInsightsTitle"),
-    translate("governanceTitle"),
-    translate("billingSupportTitle")
+    translate("productSidebarQuickAi"),
+    translate("productSidebarQuickSettings"),
+    translate("productSidebarQuickSupport")
   ];
+  const showProductOverviewPanel = showProductDashboardExperience && isProductOverviewDomain;
   const overviewLocale = language === "es" ? "es-ES" : "en-US";
   const criticalOperationalAlertsCount = openOperationalAlerts.filter(
     (alert) => alert.severity === "critical"
@@ -4771,6 +4772,7 @@ export function App() {
                 </span>
               ))}
             </div>
+            <div className="product-sidebar-spacer" aria-hidden="true" />
             <div className="product-sidebar-user">
               <span className="product-user-avatar" aria-hidden="true">
                 {productUserInitials}
@@ -4837,7 +4839,7 @@ export function App() {
           </section>
         ) : null}
 
-        {showProductDashboardExperience ? (
+        {showProductOverviewPanel ? (
           <ProductOverviewPanel
             title={translate("productOverviewTitle")}
             summary={translate("productOverviewSummary")}

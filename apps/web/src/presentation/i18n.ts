@@ -20,6 +20,9 @@ type AppTranslations = {
   productDashboardNavOverview: string;
   productDashboardSearchPlaceholder: string;
   productDashboardAlertsAction: string;
+  productSidebarQuickAi: string;
+  productSidebarQuickSettings: string;
+  productSidebarQuickSupport: string;
   productOverviewTitle: string;
   productOverviewSummary: string;
   productOverviewActiveAthletesLabel: string;
@@ -557,6 +560,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardNavOverview: "Panel",
     productDashboardSearchPlaceholder: "Buscar atleta o plan...",
     productDashboardAlertsAction: "Ver todas las alertas →",
+    productSidebarQuickAi: "Preparación IA",
+    productSidebarQuickSettings: "Ajustes",
+    productSidebarQuickSupport: "Soporte",
     productOverviewTitle: "Preparación del equipo",
     productOverviewSummary: "Últimos 7 días · sesiones, nutrición y señales priorizadas.",
     productOverviewActiveAthletesLabel: "Atletas activos",
@@ -1104,6 +1110,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardNavOverview: "Panel",
     productDashboardSearchPlaceholder: "Search athlete or plan...",
     productDashboardAlertsAction: "View all alerts →",
+    productSidebarQuickAi: "AI readiness",
+    productSidebarQuickSettings: "Settings",
+    productSidebarQuickSupport: "Support",
     productOverviewTitle: "Team readiness",
     productOverviewSummary: "Last 7 days · sessions, nutrition and prioritized signals.",
     productOverviewActiveAthletesLabel: "Active athletes",

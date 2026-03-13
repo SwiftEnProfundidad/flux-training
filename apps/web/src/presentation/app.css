@@ -929,7 +929,7 @@ input::placeholder {
   width: min(1440px, calc(100% - 24px));
   max-width: none;
   padding: 18px 0 28px;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 228px minmax(0, 1fr);
   grid-template-areas:
     "sidebar topbar"
     "sidebar banner"
@@ -953,10 +953,10 @@ input::placeholder {
   background:
     linear-gradient(180deg, rgba(6, 6, 7, 0.98), rgba(3, 3, 4, 0.98)),
     radial-gradient(circle at top left, rgba(196, 248, 42, 0.08), transparent 32%);
-  padding: 18px 12px 18px;
+  padding: 16px 12px 18px;
   display: grid;
-  grid-template-rows: auto auto auto 1fr auto;
-  gap: 14px;
+  grid-template-rows: auto auto auto auto 1fr auto;
+  gap: 12px;
   position: sticky;
   top: 0;
 }
@@ -981,7 +981,7 @@ input::placeholder {
 }
 
 .product-sidebar-link {
-  min-height: 42px;
+  min-height: 40px;
   border-radius: 12px;
   border-color: transparent;
   background: transparent;
@@ -991,6 +991,7 @@ input::placeholder {
   align-items: center;
   gap: 10px;
   padding: 0 12px;
+  font-size: 0.96rem;
 }
 
 .product-sidebar-link.active {
@@ -1014,12 +1015,22 @@ input::placeholder {
 }
 
 .product-sidebar-secondary-link {
-  min-height: 36px;
+  min-height: 30px;
   display: inline-flex;
   align-items: center;
   padding: 0 12px;
   color: var(--text-2);
-  border-radius: 12px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.product-sidebar-spacer {
+  min-height: 0;
 }
 
 .product-sidebar-user {
@@ -1060,27 +1071,27 @@ input::placeholder {
 
 .product-topbar {
   grid-area: topbar;
-  min-height: 60px;
+  min-height: 54px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 0 0 18px 18px;
   border-top: none;
   background: rgba(5, 5, 6, 0.94);
-  padding: 12px 18px;
+  padding: 10px 16px;
   display: grid;
-  grid-template-columns: auto minmax(280px, 420px) auto;
+  grid-template-columns: auto minmax(220px, 360px) auto;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .product-topbar-copyblock {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .product-shell-breadcrumb {
   margin: 0;
   color: var(--text-2);
-  font-size: 0.88rem;
+  font-size: 0.76rem;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1093,19 +1104,19 @@ input::placeholder {
 .product-topbar h1 {
   margin: 0;
   font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
   letter-spacing: -0.03em;
 }
 
 .product-topbar-search {
-  height: 44px;
+  height: 40px;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(22, 22, 24, 0.96);
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 14px;
+  gap: 8px;
+  padding: 0 12px;
   color: var(--text-2);
 }
 
@@ -1130,8 +1141,8 @@ input::placeholder {
 
 .product-topbar-badge,
 .product-topbar-avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   display: inline-grid;
   place-items: center;
@@ -1168,9 +1179,9 @@ input::placeholder {
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(17, 17, 17, 0.98), rgba(12, 12, 14, 0.94));
-  padding: 18px 20px;
+  padding: 16px 18px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .product-kpi-card p,
@@ -1180,7 +1191,7 @@ input::placeholder {
 }
 
 .product-kpi-card strong {
-  font-size: clamp(2rem, 3vw, 3rem);
+  font-size: clamp(1.8rem, 2.6vw, 2.6rem);
   line-height: 0.95;
 }
 
@@ -1211,9 +1222,9 @@ input::placeholder {
 }
 
 .product-overview-card {
-  padding: 18px 20px 20px;
+  padding: 16px 18px 18px;
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .product-overview-header,
@@ -1229,7 +1240,7 @@ input::placeholder {
 .product-workspace-header h2 {
   margin: 0;
   font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
   letter-spacing: -0.03em;
 }
 
@@ -1324,9 +1335,9 @@ input::placeholder {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   background: rgba(28, 28, 30, 0.92);
-  padding: 14px;
+  padding: 12px;
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .product-alert-card span {
