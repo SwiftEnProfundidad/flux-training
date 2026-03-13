@@ -24,6 +24,7 @@ type AppTranslations = {
   productQuickActionsBreadcrumb: string;
   productAlertCenterBreadcrumb: string;
   productSystemStatusBreadcrumb: string;
+  productDashboardKpisBreadcrumb: string;
   productSidebarQuickAi: string;
   productSidebarQuickSettings: string;
   productSidebarQuickSupport: string;
@@ -90,6 +91,29 @@ type AppTranslations = {
   productSystemStatusQueuePendingPlural: string;
   productSystemStatusDegradedStatus: string;
   productSystemStatusEventsTitle: string;
+  productDashboardKpisTitle: string;
+  productDashboardKpisOpenLabel: string;
+  productDashboardKpisRangeToday: string;
+  productDashboardKpisRangeWeek: string;
+  productDashboardKpisRangeMonth: string;
+  productDashboardKpisPlannedSessionsLabel: string;
+  productDashboardKpisAdherenceLabel: string;
+  productDashboardKpisAverageRpeLabel: string;
+  productDashboardKpisViewedVideosLabel: string;
+  productDashboardKpisCompletedGoalsLabel: string;
+  productDashboardKpisLoggedLabel: string;
+  productDashboardKpisVsPreviousLabel: string;
+  productDashboardKpisOptimalRpeDetail: string;
+  productDashboardKpisAdjustLoadDetail: string;
+  productDashboardKpisCoachAlertsLabel: string;
+  productDashboardKpisNutritionAlertsLabel: string;
+  productDashboardKpisGuidedPatternsLabel: string;
+  productDashboardKpisPendingLabel: string;
+  productDashboardKpisInsightFatiguePrefix: string;
+  productDashboardKpisInsightFatigueSuffix: string;
+  productDashboardKpisInsightAlerts: string;
+  productDashboardKpisInsightStable: string;
+  productDashboardKpisInsightAction: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -621,6 +645,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productQuickActionsBreadcrumb: "Acciones rápidas",
     productAlertCenterBreadcrumb: "Centro de alertas",
     productSystemStatusBreadcrumb: "Estado del sistema",
+    productDashboardKpisBreadcrumb: "KPIs",
     productSidebarQuickAi: "Preparación IA",
     productSidebarQuickSettings: "Ajustes",
     productSidebarQuickSupport: "Soporte",
@@ -687,6 +712,32 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productSystemStatusQueuePendingPlural: "operaciones pendientes",
     productSystemStatusDegradedStatus: "Degradado",
     productSystemStatusEventsTitle: "Eventos recientes del sistema",
+    productDashboardKpisTitle: "KPIs del panel",
+    productDashboardKpisOpenLabel: "Abrir KPIs del panel",
+    productDashboardKpisRangeToday: "Hoy",
+    productDashboardKpisRangeWeek: "7D",
+    productDashboardKpisRangeMonth: "30D",
+    productDashboardKpisPlannedSessionsLabel: "Sesiones planificadas",
+    productDashboardKpisAdherenceLabel: "Adherencia semanal",
+    productDashboardKpisAverageRpeLabel: "RPE medio registrado",
+    productDashboardKpisViewedVideosLabel: "Videos revisados hoy",
+    productDashboardKpisCompletedGoalsLabel: "Objetivos logrados (mes)",
+    productDashboardKpisLoggedLabel: "registradas",
+    productDashboardKpisVsPreviousLabel: "vs periodo anterior",
+    productDashboardKpisOptimalRpeDetail: "zona optima 6-7.5",
+    productDashboardKpisAdjustLoadDetail: "ajustar carga semanal",
+    productDashboardKpisCoachAlertsLabel: "coach",
+    productDashboardKpisNutritionAlertsLabel: "nutrición",
+    productDashboardKpisGuidedPatternsLabel: "patrones con guía",
+    productDashboardKpisPendingLabel: "pendientes",
+    productDashboardKpisInsightFatiguePrefix: "Pico de fatiga detectado en",
+    productDashboardKpisInsightFatigueSuffix:
+      "atletas — revisar carga semanal antes del siguiente bloque.",
+    productDashboardKpisInsightAlerts:
+      "Las alertas siguen concentradas en nutrición y progreso — conviene revisar el centro de alertas.",
+    productDashboardKpisInsightStable:
+      "La semana se mantiene estable — puedes profundizar en progreso antes de cerrar el día.",
+    productDashboardKpisInsightAction: "Ver análisis IA →",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1228,6 +1279,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productQuickActionsBreadcrumb: "Quick actions",
     productAlertCenterBreadcrumb: "Alert center",
     productSystemStatusBreadcrumb: "System status",
+    productDashboardKpisBreadcrumb: "KPIs",
     productSidebarQuickAi: "AI readiness",
     productSidebarQuickSettings: "Settings",
     productSidebarQuickSupport: "Support",
@@ -1294,6 +1346,32 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productSystemStatusQueuePendingPlural: "pending operations",
     productSystemStatusDegradedStatus: "Degraded",
     productSystemStatusEventsTitle: "Recent system events",
+    productDashboardKpisTitle: "Panel KPIs",
+    productDashboardKpisOpenLabel: "Open panel KPIs",
+    productDashboardKpisRangeToday: "Today",
+    productDashboardKpisRangeWeek: "7D",
+    productDashboardKpisRangeMonth: "30D",
+    productDashboardKpisPlannedSessionsLabel: "Planned sessions",
+    productDashboardKpisAdherenceLabel: "Weekly adherence",
+    productDashboardKpisAverageRpeLabel: "Average logged RPE",
+    productDashboardKpisViewedVideosLabel: "Videos reviewed today",
+    productDashboardKpisCompletedGoalsLabel: "Goals completed (month)",
+    productDashboardKpisLoggedLabel: "logged",
+    productDashboardKpisVsPreviousLabel: "vs previous range",
+    productDashboardKpisOptimalRpeDetail: "optimal zone 6-7.5",
+    productDashboardKpisAdjustLoadDetail: "adjust weekly load",
+    productDashboardKpisCoachAlertsLabel: "coach",
+    productDashboardKpisNutritionAlertsLabel: "nutrition",
+    productDashboardKpisGuidedPatternsLabel: "guided patterns",
+    productDashboardKpisPendingLabel: "pending",
+    productDashboardKpisInsightFatiguePrefix: "Fatigue spike detected in",
+    productDashboardKpisInsightFatigueSuffix:
+      "athletes — review weekly load before the next block.",
+    productDashboardKpisInsightAlerts:
+      "Alerts remain concentrated in nutrition and progress — it is worth reviewing the alert center.",
+    productDashboardKpisInsightStable:
+      "The range remains stable — you can go deeper into progress before the day closes.",
+    productDashboardKpisInsightAction: "View AI analysis →",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",

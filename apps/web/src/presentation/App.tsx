@@ -96,6 +96,7 @@ import { resolveAuthHeroStatus } from "./auth-feedback";
 import { HeroAuthPanel } from "./HeroAuthPanel";
 import { HeroStatusPanel } from "./HeroStatusPanel";
 import { ProductOverviewPanel } from "./ProductOverviewPanel";
+import { ProductDashboardKpisPanel } from "./ProductDashboardKpisPanel";
 import { ProductQuickActionsPanel } from "./ProductQuickActionsPanel";
 import { ProductAlertCenterPanel } from "./ProductAlertCenterPanel";
 import { ProductSystemStatusPanel } from "./ProductSystemStatusPanel";
@@ -284,7 +285,13 @@ type SyncIdempotencyMetadata = {
 };
 type NutritionDeviationSeverity = "high" | "medium";
 type NutritionDeviationReason = "calories" | "protein";
-type ProductPanelView = "overview" | "quick_actions" | "alert_center" | "system_status";
+type ProductPanelView =
+  | "overview"
+  | "dashboard_kpis"
+  | "quick_actions"
+  | "alert_center"
+  | "system_status";
+type ProductDashboardKpiRange = "today" | "week" | "month";
 type NutritionDeviationAlert = {
   id: string;
   userId: string;
@@ -583,6 +590,8 @@ export function App() {
   const [dashboardHomeRuntimeStateOverride, setDashboardHomeRuntimeStateOverride] =
     useState<EnterpriseRuntimeState | null>(null);
   const [productPanelView, setProductPanelView] = useState<ProductPanelView>("overview");
+  const [productDashboardKpiRange, setProductDashboardKpiRange] =
+    useState<ProductDashboardKpiRange>("today");
   const [roleCapabilitiesReloadNonce, setRoleCapabilitiesReloadNonce] = useState(0);
   const isInitialDomainRender = useRef(true);
   const isInitialRoleRender = useRef(true);
@@ -4210,7 +4219,9 @@ export function App() {
     translate("dashboardHomeTitle");
   const productWorkspaceBreadcrumb =
     activeDomainForUI === "all"
-      ? productPanelView === "quick_actions"
+      ? productPanelView === "dashboard_kpis"
+        ? translate("productDashboardKpisBreadcrumb")
+        : productPanelView === "quick_actions"
         ? translate("productQuickActionsBreadcrumb")
         : productPanelView === "alert_center"
           ? translate("productAlertCenterBreadcrumb")
@@ -4263,6 +4274,10 @@ export function App() {
     showProductDashboardExperience &&
     isProductOverviewDomain &&
     productPanelView === "overview";
+  const showProductDashboardKpisPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "dashboard_kpis";
   const showProductQuickActionsPanel =
     showProductDashboardExperience &&
     isProductOverviewDomain &&
@@ -4615,6 +4630,354 @@ export function App() {
     recommendations,
     translate
   ]);
+  const productDashboardKpiReferenceDate = useMemo(
+    () => new Date(`${productOverviewReferenceDate}T12:00:00`),
+    [productOverviewReferenceDate]
+  );
+  const productDashboardKpiWindowDays =
+    productDashboardKpiRange === "today" ? 1 : productDashboardKpiRange === "week" ? 7 : 30;
+  const productDashboardKpiWindow = useMemo(() => {
+    const endDate = new Date(productDashboardKpiReferenceDate);
+    endDate.setHours(23, 59, 59, 999);
+    const startDate = new Date(productDashboardKpiReferenceDate);
+    startDate.setDate(productDashboardKpiReferenceDate.getDate() - (productDashboardKpiWindowDays - 1));
+    startDate.setHours(0, 0, 0, 0);
+
+    const previousEndDate = new Date(startDate);
+    previousEndDate.setDate(startDate.getDate() - 1);
+    previousEndDate.setHours(23, 59, 59, 999);
+
+    const previousStartDate = new Date(previousEndDate);
+    previousStartDate.setDate(previousEndDate.getDate() - (productDashboardKpiWindowDays - 1));
+    previousStartDate.setHours(0, 0, 0, 0);
+
+    return {
+      startKey: formatLocalDateKey(startDate),
+      endKey: formatLocalDateKey(endDate),
+      previousStartKey: formatLocalDateKey(previousStartDate),
+      previousEndKey: formatLocalDateKey(previousEndDate),
+      startDate,
+      endDate
+    };
+  }, [productDashboardKpiReferenceDate, productDashboardKpiWindowDays]);
+  const productDashboardKpiSessionsInWindow = useMemo(
+    () =>
+      sessions.filter((session) => {
+        const dateKey = session.endedAt.slice(0, 10);
+        return (
+          dateKey >= productDashboardKpiWindow.startKey &&
+          dateKey <= productDashboardKpiWindow.endKey
+        );
+      }),
+    [productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey, sessions]
+  );
+  const productDashboardKpiPreviousSessionsInWindow = useMemo(
+    () =>
+      sessions.filter((session) => {
+        const dateKey = session.endedAt.slice(0, 10);
+        return (
+          dateKey >= productDashboardKpiWindow.previousStartKey &&
+          dateKey <= productDashboardKpiWindow.previousEndKey
+        );
+      }),
+    [
+      productDashboardKpiWindow.previousEndKey,
+      productDashboardKpiWindow.previousStartKey,
+      sessions
+    ]
+  );
+  const productDashboardKpiNutritionLogsInWindow = useMemo(
+    () =>
+      nutritionLogs.filter(
+        (log) =>
+          log.date >= productDashboardKpiWindow.startKey &&
+          log.date <= productDashboardKpiWindow.endKey
+      ),
+    [nutritionLogs, productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey]
+  );
+  const productDashboardKpiHistoryInWindow = useMemo(
+    () =>
+      (progressSummary?.history ?? []).filter(
+        (entry) =>
+          entry.date >= productDashboardKpiWindow.startKey &&
+          entry.date <= productDashboardKpiWindow.endKey
+      ),
+    [productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey, progressSummary?.history]
+  );
+  const productDashboardKpiMonthlyHistory = useMemo(() => {
+    const monthlyStartDate = new Date(productDashboardKpiReferenceDate);
+    monthlyStartDate.setDate(productDashboardKpiReferenceDate.getDate() - 29);
+    const monthlyStartKey = formatLocalDateKey(monthlyStartDate);
+
+    return (progressSummary?.history ?? []).filter(
+      (entry) =>
+        entry.date >= monthlyStartKey && entry.date <= productDashboardKpiWindow.endKey
+    );
+  }, [
+    productDashboardKpiReferenceDate,
+    productDashboardKpiWindow.endKey,
+    progressSummary?.history
+  ]);
+  const productDashboardKpiOperationalAlertsInWindow = useMemo(
+    () =>
+      openOperationalAlerts.filter((alert) => {
+        const dateKey = alert.triggeredAt.slice(0, 10);
+        return (
+          dateKey >= productDashboardKpiWindow.startKey &&
+          dateKey <= productDashboardKpiWindow.endKey
+        );
+      }),
+    [openOperationalAlerts, productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey]
+  );
+  const productDashboardKpiNutritionAlertsInWindow = useMemo(
+    () =>
+      nutritionDeviationAlerts.filter(
+        (alert) =>
+          alert.date >= productDashboardKpiWindow.startKey &&
+          alert.date <= productDashboardKpiWindow.endKey
+      ),
+    [
+      nutritionDeviationAlerts,
+      productDashboardKpiWindow.endKey,
+      productDashboardKpiWindow.startKey
+    ]
+  );
+  const productDashboardKpiCompletedSessions = productDashboardKpiSessionsInWindow.length;
+  const productDashboardKpiAthletesCount = athleteOperationRowsBase.length;
+  const productDashboardKpiWeeklyPlanBaseline = useMemo(
+    () => plans.reduce((total, plan) => total + plan.days.length, 0),
+    [plans]
+  );
+  const productDashboardKpiPlannedSessions =
+    productDashboardKpiRange === "today"
+      ? plannedSessionsForOverviewDay
+      : Math.max(
+          productDashboardKpiCompletedSessions,
+          productDashboardKpiWeeklyPlanBaseline *
+            Math.max(1, Math.ceil(productDashboardKpiWindowDays / 7))
+        );
+  const productDashboardKpiPreviousPlannedSessions =
+    productDashboardKpiRange === "today"
+      ? plannedSessionsForOverviewDay
+      : Math.max(
+          productDashboardKpiPreviousSessionsInWindow.length,
+          productDashboardKpiWeeklyPlanBaseline *
+            Math.max(1, Math.ceil(productDashboardKpiWindowDays / 7))
+        );
+  const productDashboardKpiAdherence =
+    productDashboardKpiPlannedSessions === 0
+      ? 0
+      : Math.round((productDashboardKpiCompletedSessions / productDashboardKpiPlannedSessions) * 100);
+  const productDashboardKpiPreviousAdherence =
+    productDashboardKpiPreviousPlannedSessions === 0
+      ? 0
+      : Math.round(
+          (productDashboardKpiPreviousSessionsInWindow.length / productDashboardKpiPreviousPlannedSessions) *
+            100
+        );
+  const productDashboardKpiAdherenceDelta =
+    productDashboardKpiAdherence - productDashboardKpiPreviousAdherence;
+  const productDashboardKpiRpeSets = useMemo(
+    () =>
+      productDashboardKpiSessionsInWindow.flatMap((session) =>
+        session.exercises.flatMap((exercise) => exercise.sets)
+      ),
+    [productDashboardKpiSessionsInWindow]
+  );
+  const productDashboardKpiAverageRpe = productDashboardKpiRpeSets.length
+    ? Math.round(
+        (productDashboardKpiRpeSets.reduce((total, set) => total + set.rpe, 0) /
+          productDashboardKpiRpeSets.length) *
+          10
+      ) / 10
+    : 0;
+  const productDashboardKpiAlertsCount =
+    productDashboardKpiOperationalAlertsInWindow.length +
+    productDashboardKpiNutritionAlertsInWindow.length;
+  const productDashboardKpiNutritionCoverage = Math.min(
+    100,
+    Math.round(
+      (productDashboardKpiNutritionLogsInWindow.length / productDashboardKpiWindowDays) * 100
+    )
+  );
+  const productDashboardKpiReadinessScore = clampNumber(
+    Math.round(
+      averageReadinessScore * 0.58 +
+        productDashboardKpiAdherence * 0.26 +
+        productDashboardKpiNutritionCoverage * 0.16 -
+        productDashboardKpiAlertsCount * 4
+    ),
+    24,
+    96
+  );
+  const productDashboardKpiVideoBlocks = useMemo(
+    () =>
+      productDashboardKpiSessionsInWindow.reduce(
+        (total, session) => total + session.exercises.length,
+        0
+      ),
+    [productDashboardKpiSessionsInWindow]
+  );
+  const productDashboardKpiDistinctPatterns = useMemo(
+    () =>
+      new Set(
+        productDashboardKpiSessionsInWindow.flatMap((session) =>
+          session.exercises.map((exercise) => exercise.exerciseId)
+        )
+      ).size,
+    [productDashboardKpiSessionsInWindow]
+  );
+  const productDashboardKpiGoalTarget = Math.max(
+    productDashboardKpiMonthlyHistory.length * 2,
+    15
+  );
+  const productDashboardKpiGoalCompleted = Math.min(
+    productDashboardKpiGoalTarget,
+    productDashboardKpiMonthlyHistory.reduce((total, entry) => {
+      const proteinPoint = entry.proteinGrams !== null && entry.proteinGrams >= 140 ? 1 : 0;
+      const caloriesPoint =
+        entry.calories !== null && entry.calories >= 2000 && entry.calories <= 2400 ? 1 : 0;
+      return total + proteinPoint + caloriesPoint;
+    }, 0)
+  );
+  const productDashboardKpiGoalCompletionRate =
+    productDashboardKpiGoalTarget === 0
+      ? 0
+      : Math.round((productDashboardKpiGoalCompleted / productDashboardKpiGoalTarget) * 100);
+  const productDashboardKpiDateLabel = useMemo(() => {
+    const dayFormatter = new Intl.DateTimeFormat(overviewLocale, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+    if (productDashboardKpiRange === "today") {
+      return `${translate("productDashboardKpisRangeToday")} · ${dayFormatter.format(
+        productDashboardKpiWindow.endDate
+      )}`;
+    }
+
+    const startLabel = dayFormatter.format(productDashboardKpiWindow.startDate);
+    const endLabel = dayFormatter.format(productDashboardKpiWindow.endDate);
+    const rangeLabel =
+      productDashboardKpiRange === "week"
+        ? translate("productDashboardKpisRangeWeek")
+        : translate("productDashboardKpisRangeMonth");
+
+    return `${rangeLabel} · ${startLabel} – ${endLabel}`;
+  }, [
+    overviewLocale,
+    productDashboardKpiRange,
+    productDashboardKpiWindow.endDate,
+    productDashboardKpiWindow.startDate,
+    translate
+  ]);
+  const productDashboardKpiCards = [
+    {
+      id: "athletes",
+      label: translate("productOverviewActiveAthletesLabel"),
+      value: String(productDashboardKpiAthletesCount),
+      detail: `${cohortNormalCount} ${translate("productOverviewNormalCohortLabel")} · ${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
+      tone: productDashboardKpiAthletesCount > 0 ? "positive" : "neutral",
+      meterValue:
+        productDashboardKpiAthletesCount === 0
+          ? 0
+          : Math.round((cohortNormalCount / productDashboardKpiAthletesCount) * 100),
+      meterVariant: "segments" as const
+    },
+    {
+      id: "sessions",
+      label: translate("productDashboardKpisPlannedSessionsLabel"),
+      value: String(productDashboardKpiPlannedSessions),
+      detail: `${productDashboardKpiCompletedSessions} ${translate("productDashboardKpisLoggedLabel")}`,
+      tone:
+        productDashboardKpiCompletedSessions >= productDashboardKpiPlannedSessions
+          ? "positive"
+          : "neutral",
+      meterValue:
+        productDashboardKpiPlannedSessions === 0
+          ? 0
+          : Math.round(
+              (productDashboardKpiCompletedSessions / productDashboardKpiPlannedSessions) * 100
+            ),
+      meterVariant: "solid" as const
+    },
+    {
+      id: "adherence",
+      label: translate("productDashboardKpisAdherenceLabel"),
+      value: `${productDashboardKpiAdherence}%`,
+      detail: `${productDashboardKpiAdherenceDelta >= 0 ? "↑" : "↓"} ${Math.abs(
+        productDashboardKpiAdherenceDelta
+      )}% ${translate("productDashboardKpisVsPreviousLabel")}`,
+      tone:
+        productDashboardKpiAdherence >= 75
+          ? "positive"
+          : productDashboardKpiAdherence < 45
+            ? "critical"
+            : "neutral"
+    },
+    {
+      id: "rpe",
+      label: translate("productDashboardKpisAverageRpeLabel"),
+      value: productDashboardKpiAverageRpe.toFixed(1),
+      detail:
+        productDashboardKpiAverageRpe >= 6 &&
+        productDashboardKpiAverageRpe <= 7.5
+          ? translate("productDashboardKpisOptimalRpeDetail")
+          : translate("productDashboardKpisAdjustLoadDetail"),
+      tone:
+        productDashboardKpiAverageRpe >= 6 && productDashboardKpiAverageRpe <= 7.5
+          ? "neutral"
+          : "warning"
+    },
+    {
+      id: "readiness",
+      label: translate("productOverviewReadinessAverageLabel"),
+      value: String(productDashboardKpiReadinessScore),
+      detail: `${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
+      tone:
+        productDashboardKpiReadinessScore >= 72
+          ? "positive"
+          : productDashboardKpiReadinessScore < 48
+            ? "critical"
+            : "warning"
+    },
+    {
+      id: "alerts",
+      label: translate("productOverviewActiveAlertsLabel"),
+      value: String(productDashboardKpiAlertsCount),
+      detail: `${productDashboardKpiOperationalAlertsInWindow.length} ${translate("productDashboardKpisCoachAlertsLabel")} · ${productDashboardKpiNutritionAlertsInWindow.length} ${translate("productDashboardKpisNutritionAlertsLabel")}`,
+      tone: productDashboardKpiAlertsCount > 0 ? "critical" : "neutral"
+    },
+    {
+      id: "videos",
+      label: translate("productDashboardKpisViewedVideosLabel"),
+      value: String(productDashboardKpiVideoBlocks),
+      detail: `${productDashboardKpiDistinctPatterns} ${translate("productDashboardKpisGuidedPatternsLabel")}`,
+      tone: productDashboardKpiVideoBlocks > 0 ? "neutral" : "warning"
+    },
+    {
+      id: "goals",
+      label: translate("productDashboardKpisCompletedGoalsLabel"),
+      value: `${productDashboardKpiGoalCompleted} / ${productDashboardKpiGoalTarget}`,
+      detail: `${productDashboardKpiGoalCompletionRate}% · ${Math.max(
+        productDashboardKpiGoalTarget - productDashboardKpiGoalCompleted,
+        0
+      )} ${translate("productDashboardKpisPendingLabel")}`,
+      tone: productDashboardKpiGoalCompletionRate >= 70 ? "positive" : "warning",
+      emphasis: true
+    }
+  ] as const;
+  const productDashboardKpiInsightSummary =
+    cohortAttentionCount > 0
+      ? `${translate("productDashboardKpisInsightFatiguePrefix")} ${cohortAttentionCount} ${translate("productDashboardKpisInsightFatigueSuffix")}`
+      : productDashboardKpiAlertsCount > 0
+        ? translate("productDashboardKpisInsightAlerts")
+        : translate("productDashboardKpisInsightStable");
+  const productDashboardKpiRanges = [
+    { id: "today" as const, label: translate("productDashboardKpisRangeToday") },
+    { id: "week" as const, label: translate("productDashboardKpisRangeWeek") },
+    { id: "month" as const, label: translate("productDashboardKpisRangeMonth") }
+  ];
   const productAlertCenterRows = useMemo<Array<{
     id: string;
     title: string;
@@ -5193,7 +5556,43 @@ export function App() {
           <section className="product-topbar">
             <div className="product-topbar-copyblock">
               {showCompactOverviewTopbar ? (
-                productPanelView === "alert_center" ? (
+                productPanelView === "dashboard_kpis" ? (
+                  <div className="product-panel-headline product-panel-headline-kpis">
+                    <p className="product-shell-breadcrumb overview-inline">
+                      <strong>{productWorkspaceTitle}</strong>
+                      <span aria-hidden="true">/</span>
+                      <button
+                        className="product-shell-breadcrumb-button"
+                        type="button"
+                        onClick={() => {
+                          setProductPanelView("overview");
+                        }}
+                      >
+                        {translate("productDashboardKpisBreadcrumb")}
+                      </button>
+                      <span className="product-shell-breadcrumb-context">— {productDashboardKpiDateLabel}</span>
+                    </p>
+                    <div
+                      className="product-panel-chip-row product-panel-chip-row-interactive"
+                      aria-label={translate("productDashboardKpisTitle")}
+                    >
+                      {productDashboardKpiRanges.map((range) => (
+                        <button
+                          key={range.id}
+                          className={`product-panel-chip product-panel-chip-button ${
+                            productDashboardKpiRange === range.id ? "active" : ""
+                          }`}
+                          type="button"
+                          onClick={() => {
+                            setProductDashboardKpiRange(range.id);
+                          }}
+                        >
+                          <strong>{range.label}</strong>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : productPanelView === "alert_center" ? (
                   <div className="product-panel-headline">
                     <strong>{translate("productAlertCenterTitle")}</strong>
                     <div className="product-panel-chip-row" aria-label={translate("productAlertCenterTitle")}>
@@ -5293,6 +5692,25 @@ export function App() {
             onViewAllAlerts={() => {
               setProductPanelView("alert_center");
               void handleRefreshAlertCenter();
+            }}
+            openKpisLabel={translate("productDashboardKpisOpenLabel")}
+            onOpenKpis={() => {
+              setProductDashboardKpiRange("today");
+              setProductPanelView("dashboard_kpis");
+            }}
+          />
+        ) : null}
+
+        {showProductDashboardKpisPanel ? (
+          <ProductDashboardKpisPanel
+            screenId={dashboardKpisScreenModel.screenId}
+            routeId={dashboardKpisScreenModel.routeId}
+            status={dashboardKpisScreenModel.status}
+            cards={productDashboardKpiCards}
+            insightSummary={productDashboardKpiInsightSummary}
+            insightActionLabel={translate("productDashboardKpisInsightAction")}
+            onInsightPress={() => {
+              handleDomainSelection("progress");
             }}
           />
         ) : null}

@@ -35,6 +35,8 @@ type ProductOverviewPanelProps = {
   emptyAlertsLabel: string;
   viewAllAlertsLabel: string;
   onViewAllAlerts: () => void;
+  onOpenKpis?: () => void;
+  openKpisLabel?: string;
 };
 
 export const ProductOverviewPanel = memo(function ProductOverviewPanel({
@@ -46,17 +48,33 @@ export const ProductOverviewPanel = memo(function ProductOverviewPanel({
   alerts,
   emptyAlertsLabel,
   viewAllAlertsLabel,
-  onViewAllAlerts
+  onViewAllAlerts,
+  onOpenKpis,
+  openKpisLabel
 }: ProductOverviewPanelProps) {
   return (
     <section className="product-overview-shell">
       <div className="product-kpi-row">
         {metrics.map((metric) => (
-          <article key={metric.id} className={`product-kpi-card tone-${metric.tone}`}>
-            <p>{metric.label}</p>
-            <strong>{metric.value}</strong>
-            <span className="product-kpi-detail">{metric.detail}</span>
-          </article>
+          onOpenKpis !== undefined ? (
+            <button
+              key={metric.id}
+              className={`product-kpi-card interactive tone-${metric.tone}`}
+              type="button"
+              onClick={onOpenKpis}
+              aria-label={openKpisLabel ?? metric.label}
+            >
+              <p>{metric.label}</p>
+              <strong>{metric.value}</strong>
+              <span className="product-kpi-detail">{metric.detail}</span>
+            </button>
+          ) : (
+            <article key={metric.id} className={`product-kpi-card tone-${metric.tone}`}>
+              <p>{metric.label}</p>
+              <strong>{metric.value}</strong>
+              <span className="product-kpi-detail">{metric.detail}</span>
+            </article>
+          )
         ))}
       </div>
       <div className="product-overview-grid">

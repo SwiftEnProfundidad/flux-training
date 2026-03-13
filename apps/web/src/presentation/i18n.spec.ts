@@ -55,6 +55,7 @@ describe("i18n", () => {
     expect(translate("productQuickActionsBreadcrumb")).toBe("Quick actions");
     expect(translate("productAlertCenterBreadcrumb")).toBe("Alert center");
     expect(translate("productSystemStatusBreadcrumb")).toBe("System status");
+    expect(translate("productDashboardKpisBreadcrumb")).toBe("KPIs");
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
@@ -70,6 +71,10 @@ describe("i18n", () => {
     expect(translate("productAlertCenterFooterTitle")).toBe("Runbooks ready to act");
     expect(translate("productSystemStatusTitle")).toBe("System status");
     expect(translate("productSystemStatusQueuePendingPlural")).toBe("pending operations");
+    expect(translate("productDashboardKpisTitle")).toBe("Panel KPIs");
+    expect(translate("productDashboardKpisOpenLabel")).toBe("Open panel KPIs");
+    expect(translate("productDashboardKpisViewedVideosLabel")).toBe("Videos reviewed today");
+    expect(translate("productDashboardKpisInsightAction")).toBe("View AI analysis →");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
@@ -339,6 +344,11 @@ describe("i18n", () => {
     expect(translate("dashboardKpisTitle")).toBe("Indicadores clave");
     expect(translate("dashboardKpisStatusLabel")).toBe("Indicadores");
     expect(translate("dashboardKpisRefreshAction")).toBe("Refrescar indicadores");
+    expect(translate("productDashboardKpisBreadcrumb")).toBe("KPIs");
+    expect(translate("productDashboardKpisTitle")).toBe("KPIs del panel");
+    expect(translate("productDashboardKpisOpenLabel")).toBe("Abrir KPIs del panel");
+    expect(translate("productDashboardKpisViewedVideosLabel")).toBe("Videos revisados hoy");
+    expect(translate("productDashboardKpisInsightAction")).toBe("Ver análisis IA →");
     expect(translate("readinessLabel")).toBe("Preparacion");
     expect(translate("readinessMonitorTitle")).toBe("Monitor de preparacion");
     expect(translate("readinessMonitorStatusLabel")).toBe("Preparacion");
