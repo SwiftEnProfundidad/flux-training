@@ -1130,10 +1130,23 @@ input::placeholder {
   gap: 10px;
 }
 
+.product-panel-headline-readiness {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
 .product-panel-headline strong {
   font-family: "Space Grotesk", sans-serif;
   font-size: 1.08rem;
   letter-spacing: -0.03em;
+}
+
+.product-panel-headline-support {
+  color: #8d9097;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .product-panel-chip-row {
@@ -1266,6 +1279,15 @@ input::placeholder {
 
 .product-topbar-search input:focus {
   outline: none;
+}
+
+.product-topbar-utility {
+  min-width: 126px;
+  justify-self: start;
+  border-radius: 10px;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #d4d8df;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .product-topbar-meta {
@@ -1875,6 +1897,206 @@ input::placeholder {
   border-color: rgba(196, 248, 42, 0.52);
 }
 
+.product-readiness-shell {
+  grid-area: overview;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.86fr) minmax(0, 1.74fr);
+  gap: 18px;
+}
+
+.product-readiness-athletes-card,
+.product-readiness-trend-card {
+  border: 1px solid #27272a;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.035), transparent 40%),
+    linear-gradient(180deg, rgba(27, 27, 30, 0.98), rgba(20, 20, 22, 0.96));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 18px 36px rgba(0, 0, 0, 0.18);
+}
+
+.product-readiness-athletes-card {
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.product-readiness-card-header h2 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.02rem;
+  letter-spacing: -0.03em;
+}
+
+.product-readiness-athletes-list {
+  display: grid;
+  gap: 10px;
+}
+
+.product-readiness-athlete-row {
+  min-height: 48px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0 14px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-readiness-athlete-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.product-readiness-athlete-row strong {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #d4d8df;
+}
+
+.product-readiness-athlete-score {
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.product-readiness-athlete-row.tone-positive .product-readiness-athlete-avatar {
+  background: var(--gold-0);
+  color: #111111;
+}
+
+.product-readiness-athlete-row.tone-positive .product-readiness-athlete-score {
+  color: var(--gold-0);
+}
+
+.product-readiness-athlete-row.tone-neutral .product-readiness-athlete-score {
+  color: #d4d8df;
+}
+
+.product-readiness-athlete-row.tone-critical .product-readiness-athlete-score {
+  color: #ff6b6b;
+}
+
+.product-readiness-view-all {
+  min-height: 38px;
+  border-radius: 10px;
+  color: var(--gold-0);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.product-readiness-trend-card {
+  padding: 18px 18px 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.product-readiness-trend-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.product-readiness-trend-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.product-readiness-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8d9097;
+  font-size: 0.76rem;
+}
+
+.product-readiness-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.product-readiness-legend-dot.positive {
+  background: rgba(196, 248, 42, 0.9);
+}
+
+.product-readiness-legend-dot.critical {
+  background: rgba(239, 68, 68, 0.6);
+}
+
+.product-readiness-trend-chart {
+  min-height: 278px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.product-readiness-trend-bar {
+  height: 250px;
+  border-radius: 6px;
+  background: transparent;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.product-readiness-trend-fill {
+  width: 100%;
+  min-height: 18px;
+  border-radius: 4px 4px 0 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  background: rgba(196, 248, 42, 0.42);
+}
+
+.product-readiness-trend-bar.tone-positive .product-readiness-trend-fill {
+  background: rgba(196, 248, 42, 0.42);
+}
+
+.product-readiness-trend-bar.tone-critical .product-readiness-trend-fill {
+  background: rgba(239, 68, 68, 0.35);
+}
+
+.product-readiness-insight {
+  min-height: 42px;
+  border: 1px solid rgba(196, 248, 42, 0.18);
+  border-radius: 10px;
+  background: rgba(196, 248, 42, 0.04);
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #9ba0aa;
+}
+
+.product-readiness-insight span {
+  color: rgba(196, 248, 42, 0.72);
+  font-size: 0.88rem;
+}
+
+.product-readiness-insight strong {
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: #c8ccd4;
+}
+
 .product-overview-card,
 .product-alerts-card {
   border: 1px solid #27272a;
@@ -2123,12 +2345,20 @@ input::placeholder {
     grid-template-columns: 1fr;
   }
 
+  .product-readiness-shell {
+    grid-template-columns: 1fr;
+  }
+
   .product-kpi-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .product-dashboard-kpis-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-readiness-trend-chart {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 
   .product-quick-actions-grid {
@@ -2242,6 +2472,15 @@ input::placeholder {
 
   .product-dashboard-kpi-insight {
     grid-template-columns: 1fr;
+  }
+
+  .product-panel-headline-readiness {
+    display: grid;
+    gap: 4px;
+  }
+
+  .product-readiness-trend-chart {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 
   .product-system-status-grid {

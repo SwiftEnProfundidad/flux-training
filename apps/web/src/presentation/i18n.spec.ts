@@ -56,6 +56,7 @@ describe("i18n", () => {
     expect(translate("productAlertCenterBreadcrumb")).toBe("Alert center");
     expect(translate("productSystemStatusBreadcrumb")).toBe("System status");
     expect(translate("productDashboardKpisBreadcrumb")).toBe("KPIs");
+    expect(translate("productReadinessMonitorBreadcrumb")).toBe("Readiness");
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
@@ -75,6 +76,9 @@ describe("i18n", () => {
     expect(translate("productDashboardKpisOpenLabel")).toBe("Open panel KPIs");
     expect(translate("productDashboardKpisViewedVideosLabel")).toBe("Videos reviewed today");
     expect(translate("productDashboardKpisInsightAction")).toBe("View AI analysis →");
+    expect(translate("productReadinessMonitorTitle")).toBe("Readiness monitor");
+    expect(translate("productReadinessMonitorExportAction")).toBe("Export CSV");
+    expect(translate("productReadinessMonitorTrendTitle")).toBe("Readiness trend — Last 14 days");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
@@ -349,6 +353,12 @@ describe("i18n", () => {
     expect(translate("productDashboardKpisOpenLabel")).toBe("Abrir KPIs del panel");
     expect(translate("productDashboardKpisViewedVideosLabel")).toBe("Videos revisados hoy");
     expect(translate("productDashboardKpisInsightAction")).toBe("Ver análisis IA →");
+    expect(translate("productReadinessMonitorBreadcrumb")).toBe("Preparación");
+    expect(translate("productReadinessMonitorTitle")).toBe("Monitor de Preparación");
+    expect(translate("productReadinessMonitorExportAction")).toBe("Exportar CSV");
+    expect(translate("productReadinessMonitorTrendTitle")).toBe(
+      "Tendencia preparación — Últimos 14 días"
+    );
     expect(translate("readinessLabel")).toBe("Preparacion");
     expect(translate("readinessMonitorTitle")).toBe("Monitor de preparacion");
     expect(translate("readinessMonitorStatusLabel")).toBe("Preparacion");

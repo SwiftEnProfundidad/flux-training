@@ -25,6 +25,7 @@ type AppTranslations = {
   productAlertCenterBreadcrumb: string;
   productSystemStatusBreadcrumb: string;
   productDashboardKpisBreadcrumb: string;
+  productReadinessMonitorBreadcrumb: string;
   productSidebarQuickAi: string;
   productSidebarQuickSettings: string;
   productSidebarQuickSupport: string;
@@ -114,6 +115,17 @@ type AppTranslations = {
   productDashboardKpisInsightAlerts: string;
   productDashboardKpisInsightStable: string;
   productDashboardKpisInsightAction: string;
+  productReadinessMonitorTitle: string;
+  productReadinessMonitorTeamSuffix: string;
+  productReadinessMonitorExportAction: string;
+  productReadinessMonitorAthletesTitle: string;
+  productReadinessMonitorViewAllPrefix: string;
+  productReadinessMonitorTrendTitle: string;
+  productReadinessMonitorLegendLabel: string;
+  productReadinessMonitorCriticalLegend: string;
+  productReadinessMonitorInsightPrefix: string;
+  productReadinessMonitorInsightSuffix: string;
+  productReadinessMonitorStableInsight: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -646,6 +658,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productAlertCenterBreadcrumb: "Centro de alertas",
     productSystemStatusBreadcrumb: "Estado del sistema",
     productDashboardKpisBreadcrumb: "KPIs",
+    productReadinessMonitorBreadcrumb: "Preparación",
     productSidebarQuickAi: "Preparación IA",
     productSidebarQuickSettings: "Ajustes",
     productSidebarQuickSupport: "Soporte",
@@ -738,6 +751,19 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardKpisInsightStable:
       "La semana se mantiene estable — puedes profundizar en progreso antes de cerrar el día.",
     productDashboardKpisInsightAction: "Ver análisis IA →",
+    productReadinessMonitorTitle: "Monitor de Preparación",
+    productReadinessMonitorTeamSuffix: "Equipo",
+    productReadinessMonitorExportAction: "Exportar CSV",
+    productReadinessMonitorAthletesTitle: "Atletas — Preparación hoy",
+    productReadinessMonitorViewAllPrefix: "Ver todos",
+    productReadinessMonitorTrendTitle: "Tendencia preparación — Últimos 14 días",
+    productReadinessMonitorLegendLabel: "Equipo",
+    productReadinessMonitorCriticalLegend: "<50 (crítico)",
+    productReadinessMonitorInsightPrefix: "IA detecta patrón: preparación baja los",
+    productReadinessMonitorInsightSuffix:
+      " — posible acumulación de fatiga a final de semana. Sugerencia: reducir volumen el domingo.",
+    productReadinessMonitorStableInsight:
+      "IA detecta patrón estable: el equipo sostiene una preparación consistente en los últimos 14 días.",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1280,6 +1306,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productAlertCenterBreadcrumb: "Alert center",
     productSystemStatusBreadcrumb: "System status",
     productDashboardKpisBreadcrumb: "KPIs",
+    productReadinessMonitorBreadcrumb: "Readiness",
     productSidebarQuickAi: "AI readiness",
     productSidebarQuickSettings: "Settings",
     productSidebarQuickSupport: "Support",
@@ -1372,6 +1399,19 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardKpisInsightStable:
       "The range remains stable — you can go deeper into progress before the day closes.",
     productDashboardKpisInsightAction: "View AI analysis →",
+    productReadinessMonitorTitle: "Readiness monitor",
+    productReadinessMonitorTeamSuffix: "Team",
+    productReadinessMonitorExportAction: "Export CSV",
+    productReadinessMonitorAthletesTitle: "Athletes — readiness today",
+    productReadinessMonitorViewAllPrefix: "View all",
+    productReadinessMonitorTrendTitle: "Readiness trend — Last 14 days",
+    productReadinessMonitorLegendLabel: "Team",
+    productReadinessMonitorCriticalLegend: "<50 (critical)",
+    productReadinessMonitorInsightPrefix: "AI detects pattern: low readiness on",
+    productReadinessMonitorInsightSuffix:
+      " — possible fatigue accumulation near the weekend. Suggestion: reduce Sunday volume.",
+    productReadinessMonitorStableInsight:
+      "AI detects a stable pattern: the team is sustaining consistent readiness across the last 14 days.",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",
