@@ -4839,26 +4839,6 @@ export function App() {
             </label>
             <div className="product-topbar-meta">
               <span className="product-topbar-badge">{openOperationalAlerts.length}</span>
-              <div
-                className="product-language-toggle"
-                role="group"
-                aria-label={translate("languageLabel")}
-              >
-                <button
-                  className={`button ghost language-button ${language === "es" ? "active" : ""}`}
-                  onClick={() => setLanguage("es")}
-                  type="button"
-                >
-                  ES
-                </button>
-                <button
-                  className={`button ghost language-button ${language === "en" ? "active" : ""}`}
-                  onClick={() => setLanguage("en")}
-                  type="button"
-                >
-                  EN
-                </button>
-              </div>
               <span className="product-topbar-avatar" aria-hidden="true">
                 {productUserInitials}
               </span>
