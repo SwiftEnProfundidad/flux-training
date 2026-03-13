@@ -626,6 +626,8 @@ export function App() {
     [isQAMode, productLandingDomain]
   );
   const activeDomainForUI = normalizeDomainForMode(activeDomain);
+  const isProductOverviewDomain =
+    isQAMode === false && hasAuthenticatedSession && activeDomainForUI === "all";
   const domainTabsForUI = useMemo(
     () =>
       isQAMode
@@ -679,6 +681,8 @@ export function App() {
   const runtimeStateForUI: EnterpriseRuntimeState = isQAMode ? activeDomainRuntimeState : "success";
   const canRenderOperationalModules =
     hasAuthenticatedSession && runtimeStateForUI === "success";
+  const canRenderDomainWorkspaceModules =
+    canRenderOperationalModules && isProductOverviewDomain === false;
   const effectiveDashboardHomeRuntimeState =
     isQAMode ? dashboardHomeRuntimeStateOverride ?? activeDomainRuntimeState : "success";
   const dashboardHomeScreenModel = useMemo(
@@ -4599,13 +4603,15 @@ export function App() {
         ) : null}
 
         {showProductDashboardExperience ? (
-          <section className="product-workspace-header">
-            <div>
-              <p className="eyebrow">{translate("dashboardHomeTitle")}</p>
-              <h2>{productWorkspaceTitle}</h2>
-              <p>{translate("productWorkspaceSummary")}</p>
-            </div>
-          </section>
+          isProductOverviewDomain === false ? (
+            <section className="product-workspace-header">
+              <div>
+                <p className="eyebrow">{translate("dashboardHomeTitle")}</p>
+                <h2>{productWorkspaceTitle}</h2>
+                <p>{translate("productWorkspaceSummary")}</p>
+              </div>
+            </section>
+          ) : null
         ) : hasAuthenticatedSession && !showQATools ? (
           <section
             className="dashboard-section-card"
@@ -4632,14 +4638,18 @@ export function App() {
           </section>
         ) : null}
 
-        <section
-          id="dashboard-grid"
-          className={`dashboard-grid ${showProductDashboardExperience ? "product-workspace-grid" : ""}`}
-          data-screen-id={hasAuthenticatedSession ? dashboardHomeScreenModel.screenId : undefined}
-          data-route-id={hasAuthenticatedSession ? dashboardHomeScreenModel.routeId : undefined}
-          data-screen-state={hasAuthenticatedSession ? dashboardHomeScreenModel.status : undefined}
-          aria-busy={dashboardHomeScreenModel.status === "loading"}
-        >
+        {hasAuthenticatedSession === false ||
+        runtimeStateForUI !== "success" ||
+        isQAMode ||
+        isProductOverviewDomain === false ? (
+          <section
+            id="dashboard-grid"
+            className={`dashboard-grid ${showProductDashboardExperience ? "product-workspace-grid" : ""}`}
+            data-screen-id={hasAuthenticatedSession ? dashboardHomeScreenModel.screenId : undefined}
+            data-route-id={hasAuthenticatedSession ? dashboardHomeScreenModel.routeId : undefined}
+            data-screen-state={hasAuthenticatedSession ? dashboardHomeScreenModel.status : undefined}
+            aria-busy={dashboardHomeScreenModel.status === "loading"}
+          >
           {hasAuthenticatedSession === false ? (
             isQAMode ? (
               <AccessGateCard
@@ -5020,7 +5030,7 @@ export function App() {
               ) : null}
                 </>
               ) : null}
-          {canRenderOperationalModules && isModuleVisibleForUI("onboarding") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("onboarding") ? (
             <OnboardingCard
               title={translate("onboardingSectionTitle")}
               statusLabel={translate("onboardingStatusLabel")}
@@ -5062,7 +5072,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("training") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("training") ? (
             <article
               className="module-card"
               data-screen-id={plansListScreenModel.screenId}
@@ -5341,7 +5351,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("operationsHub") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("operationsHub") ? (
             <article
               className="module-card"
               data-screen-id={athletesListScreenModel.screenId}
@@ -5517,7 +5527,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("adminGovernance") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("adminGovernance") ? (
             <article
               className="module-card"
               data-screen-id={adminUsersScreenModel.screenId}
@@ -5593,7 +5603,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("auditCompliance") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("auditCompliance") ? (
             <article
               className="module-card"
               data-screen-id={auditTrailScreenModel.screenId}
@@ -5695,7 +5705,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("billingSupport") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("billingSupport") ? (
             <article
               className="module-card"
               data-screen-id={billingOverviewScreenModel.screenId}
@@ -5816,7 +5826,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("recommendations") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("recommendations") ? (
             <article
               className="module-card"
               data-screen-id={aiInsightsScreenModel.screenId}
@@ -5857,7 +5867,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("nutrition") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("nutrition") ? (
             <article
               className="module-card"
               data-screen-id={nutritionOverviewScreenModel.screenId}
@@ -6065,7 +6075,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("progress") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("progress") ? (
             <ProgressTrendsPanel
               screenId={progressTrendsScreenModel.screenId}
               routeId={progressTrendsScreenModel.routeId}
@@ -6111,7 +6121,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("offlineSync") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("offlineSync") ? (
             <OfflineSyncPanel
               screenId="web.offlineSync.screen"
               routeId="web.route.offlineSync"
@@ -6147,7 +6157,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("settings") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("settings") ? (
             <SettingsPanel
               screenId="web.settings.screen"
               routeId="web.route.settings"
@@ -6171,7 +6181,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("legal") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("legal") ? (
             <LegalCompliancePanel
               screenId={legalComplianceScreenModel.screenId}
               routeId={legalComplianceScreenModel.routeId}
@@ -6205,7 +6215,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("observability") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("observability") ? (
             <ObservabilityPanel
               screenId={analyticsOverviewScreenModel.screenId}
               routeId={analyticsOverviewScreenModel.routeId}
@@ -6247,7 +6257,8 @@ export function App() {
           ) : null}
             </>
           )}
-        </section>
+          </section>
+        ) : null}
       </main>
     </div>
   );
