@@ -1217,9 +1217,18 @@ input::placeholder {
   color: #71717a;
 }
 
+.product-kpi-card p {
+  font-size: 0.78rem;
+}
+
 .product-kpi-card strong {
   font-size: clamp(1.9rem, 2.4vw, 2.4rem);
   line-height: 0.95;
+}
+
+.product-kpi-detail {
+  font-size: 0.74rem;
+  line-height: 1.22;
 }
 
 .product-kpi-card.tone-positive span {
@@ -1362,23 +1371,46 @@ input::placeholder {
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 12px;
   background: rgba(28, 28, 30, 0.92);
-  padding: 12px;
+  padding: 10px 12px;
   display: grid;
-  gap: 4px;
+  gap: 6px;
 }
 
 .product-alert-card strong {
-  font-size: 0.94rem;
+  font-size: 0.9rem;
+  line-height: 1.18;
+}
+
+.product-alert-card.tone-critical {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: linear-gradient(180deg, rgba(34, 22, 24, 0.96), rgba(28, 18, 20, 0.92));
+}
+
+.product-alert-card.tone-warning {
+  border-color: rgba(230, 168, 74, 0.22);
+  background: linear-gradient(180deg, rgba(32, 28, 20, 0.96), rgba(28, 24, 18, 0.92));
+}
+
+.product-alert-card.tone-warning strong {
+  color: #e6a84a;
 }
 
 .product-alert-card span {
   color: #71717a;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.product-alert-meta {
+  color: #71717a;
 }
 
 .product-alerts-action {
   min-height: 40px;
   border-radius: 10px;
+  color: var(--gold-0);
+  border-color: rgba(196, 248, 42, 0.12);
+  background: rgba(196, 248, 42, 0.06);
 }
 
 .product-workspace-header {

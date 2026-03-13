@@ -4464,13 +4464,13 @@ export function App() {
     id: string;
     title: string;
     meta: string;
-    tone: "critical" | "neutral";
+    tone: "critical" | "warning" | "neutral";
   }>>(() => {
     const nextAlerts: Array<{
       id: string;
       title: string;
       meta: string;
-      tone: "critical" | "neutral";
+      tone: "critical" | "warning" | "neutral";
     }> = [];
 
     if (cohortAttentionCount > 0) {
@@ -4482,7 +4482,7 @@ export function App() {
         id: "follow-up",
         title: `${focusAthleteLabel} · ${translate("productOverviewFollowUpAlertTitle")}`,
         meta: `${translate("productOverviewFollowUpAlertMeta")} · ${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
-        tone: cohortAttentionCount > 1 ? "critical" : "neutral"
+        tone: "critical"
       });
     }
 
@@ -4508,7 +4508,7 @@ export function App() {
                 day: "2-digit",
                 month: "short"
               })} · ${alert.calories} kcal · ${translate("productOverviewCaloriesAlertMeta")}`,
-        tone: alert.severity === "high" ? "critical" : "neutral"
+        tone: alert.severity === "high" ? "critical" : "warning"
       });
     });
 
@@ -4520,7 +4520,7 @@ export function App() {
           recommendation.priority,
           language
         )}`,
-        tone: recommendation.priority === "high" ? "critical" : "neutral"
+        tone: recommendation.priority === "high" ? "critical" : "warning"
       });
     });
 
@@ -4532,7 +4532,7 @@ export function App() {
           hour: "2-digit",
           minute: "2-digit"
         })} · ${toHumanStatus(alert.severity, language)}`,
-        tone: alert.severity === "critical" ? "critical" : "neutral"
+        tone: alert.severity === "critical" ? "critical" : "warning"
       });
     });
 

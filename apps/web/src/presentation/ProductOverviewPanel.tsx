@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-type ProductOverviewTone = "neutral" | "positive" | "critical";
+type ProductOverviewTone = "neutral" | "positive" | "warning" | "critical";
 
 type ProductOverviewMetric = {
   id: string;
@@ -55,7 +55,7 @@ export const ProductOverviewPanel = memo(function ProductOverviewPanel({
           <article key={metric.id} className={`product-kpi-card tone-${metric.tone}`}>
             <p>{metric.label}</p>
             <strong>{metric.value}</strong>
-            <span>{metric.detail}</span>
+            <span className="product-kpi-detail">{metric.detail}</span>
           </article>
         ))}
       </div>
@@ -98,7 +98,7 @@ export const ProductOverviewPanel = memo(function ProductOverviewPanel({
               {alerts.map((alert) => (
                 <article key={alert.id} className={`product-alert-card tone-${alert.tone}`}>
                   <strong>{alert.title}</strong>
-                  <span>{alert.meta}</span>
+                  <span className="product-alert-meta">{alert.meta}</span>
                 </article>
               ))}
             </div>

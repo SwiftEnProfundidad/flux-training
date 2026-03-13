@@ -18,6 +18,7 @@ describe("i18n", () => {
     expect(translate("productOverviewBreadcrumb")).toBe("Resumen");
     expect(translate("productSidebarQuickAi")).toBe("Preparación IA");
     expect(translate("productSidebarQuickSettings")).toBe("Ajustes");
+    expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist listo · señales al día");
     expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
     expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
   });
@@ -43,6 +44,7 @@ describe("i18n", () => {
     expect(translate("productOverviewBreadcrumb")).toBe("Overview");
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
+    expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
     expect(translate("productOverviewTitle")).toBe("Team readiness");
     expect(translate("productOverviewSummary")).toBe(
       "Last 7 days · sessions, nutrition and prioritized signals."
@@ -285,6 +287,7 @@ describe("i18n", () => {
     expect(translate("productSidebarQuickSupport")).toBe("Soporte");
     expect(translate("productOverviewCaloriesAlertTitle")).toBe("calorías altas");
     expect(translate("productOverviewProteinAlertMeta")).toBe("por debajo del objetivo");
+    expect(translate("productOverviewSessionsRemainingLabel")).toBe("pendiente");
     expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
     expect(translate("productOverviewSummary")).toBe(
       "Últimos 7 días · sesiones, nutrición y señales priorizadas."
