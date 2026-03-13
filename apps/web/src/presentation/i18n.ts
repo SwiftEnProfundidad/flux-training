@@ -22,6 +22,7 @@ type AppTranslations = {
   productDashboardAlertsAction: string;
   productOverviewBreadcrumb: string;
   productQuickActionsBreadcrumb: string;
+  productAlertCenterBreadcrumb: string;
   productSidebarQuickAi: string;
   productSidebarQuickSettings: string;
   productSidebarQuickSupport: string;
@@ -60,6 +61,20 @@ type AppTranslations = {
   productQuickActionReviewAlertsMeta: string;
   productQuickActionMessageTitle: string;
   productQuickActionMessageMeta: string;
+  productAlertCenterTitle: string;
+  productAlertCenterChipTotal: string;
+  productAlertCenterChipCritical: string;
+  productAlertCenterChipToday: string;
+  productAlertCenterChipRunbooks: string;
+  productAlertCenterOpenLabel: string;
+  productAlertCenterOpenProgressAction: string;
+  productAlertCenterOpenNutritionAction: string;
+  productAlertCenterOpenOnboardingAction: string;
+  productAlertCenterRunbookFallback: string;
+  productAlertCenterEmpty: string;
+  productAlertCenterFooterTitle: string;
+  productAlertCenterFooterRunbooksMeta: string;
+  productAlertCenterFooterActivityMeta: string;
   signInWithApple: string;
   signInWithGoogle: string;
   signInWithEmail: string;
@@ -589,6 +604,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardAlertsAction: "Ver todas las alertas →",
     productOverviewBreadcrumb: "Resumen",
     productQuickActionsBreadcrumb: "Acciones rápidas",
+    productAlertCenterBreadcrumb: "Centro de alertas",
     productSidebarQuickAi: "Preparación IA",
     productSidebarQuickSettings: "Ajustes",
     productSidebarQuickSupport: "Soporte",
@@ -627,6 +643,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productQuickActionReviewAlertsMeta: "siguen abiertas",
     productQuickActionMessageTitle: "Mensaje a atleta",
     productQuickActionMessageMeta: "Retomar seguimiento desde onboarding",
+    productAlertCenterTitle: "Centro de alertas",
+    productAlertCenterChipTotal: "Total",
+    productAlertCenterChipCritical: "Críticas",
+    productAlertCenterChipToday: "Hoy",
+    productAlertCenterChipRunbooks: "Runbooks",
+    productAlertCenterOpenLabel: "Abrir centro de alertas",
+    productAlertCenterOpenProgressAction: "Abrir progreso →",
+    productAlertCenterOpenNutritionAction: "Abrir nutrición →",
+    productAlertCenterOpenOnboardingAction: "Abrir onboarding →",
+    productAlertCenterRunbookFallback: "Runbook activo",
+    productAlertCenterEmpty: "Sin alertas activas ahora",
+    productAlertCenterFooterTitle: "Runbooks listos para actuar",
+    productAlertCenterFooterRunbooksMeta: "flujos activos",
+    productAlertCenterFooterActivityMeta: "seguimientos recientes",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1166,6 +1196,7 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productDashboardAlertsAction: "View all alerts →",
     productOverviewBreadcrumb: "Overview",
     productQuickActionsBreadcrumb: "Quick actions",
+    productAlertCenterBreadcrumb: "Alert center",
     productSidebarQuickAi: "AI readiness",
     productSidebarQuickSettings: "Settings",
     productSidebarQuickSupport: "Support",
@@ -1204,6 +1235,20 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productQuickActionReviewAlertsMeta: "still open",
     productQuickActionMessageTitle: "Message athlete",
     productQuickActionMessageMeta: "Resume follow-up from onboarding",
+    productAlertCenterTitle: "Alert center",
+    productAlertCenterChipTotal: "Total",
+    productAlertCenterChipCritical: "Critical",
+    productAlertCenterChipToday: "Today",
+    productAlertCenterChipRunbooks: "Runbooks",
+    productAlertCenterOpenLabel: "Open alert center",
+    productAlertCenterOpenProgressAction: "Open progress →",
+    productAlertCenterOpenNutritionAction: "Open nutrition →",
+    productAlertCenterOpenOnboardingAction: "Open onboarding →",
+    productAlertCenterRunbookFallback: "Active runbook",
+    productAlertCenterEmpty: "No active alerts right now",
+    productAlertCenterFooterTitle: "Runbooks ready to act",
+    productAlertCenterFooterRunbooksMeta: "active flows",
+    productAlertCenterFooterActivityMeta: "recent follow-ups",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",

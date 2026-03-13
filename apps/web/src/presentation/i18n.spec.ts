@@ -17,6 +17,7 @@ describe("i18n", () => {
     expect(translate("productDashboardSearchPlaceholder")).toBe("Buscar atleta o plan...");
     expect(translate("productOverviewBreadcrumb")).toBe("Resumen");
     expect(translate("productQuickActionsBreadcrumb")).toBe("Acciones rápidas");
+    expect(translate("productAlertCenterBreadcrumb")).toBe("Centro de alertas");
     expect(translate("productSidebarQuickAi")).toBe("Preparación IA");
     expect(translate("productSidebarQuickSettings")).toBe("Ajustes");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist listo · señales al día");
@@ -25,6 +26,8 @@ describe("i18n", () => {
     expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
     expect(translate("productQuickActionsTitle")).toBe("¿Qué quieres hacer hoy?");
     expect(translate("productQuickActionReviewAlertsMeta")).toBe("siguen abiertas");
+    expect(translate("productAlertCenterTitle")).toBe("Centro de alertas");
+    expect(translate("productAlertCenterOpenProgressAction")).toBe("Abrir progreso →");
   });
 
   it("supports english language", () => {
@@ -47,6 +50,7 @@ describe("i18n", () => {
     expect(translate("productDashboardAlertsAction")).toBe("View all alerts →");
     expect(translate("productOverviewBreadcrumb")).toBe("Overview");
     expect(translate("productQuickActionsBreadcrumb")).toBe("Quick actions");
+    expect(translate("productAlertCenterBreadcrumb")).toBe("Alert center");
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
@@ -58,6 +62,8 @@ describe("i18n", () => {
     expect(translate("productOverviewAlertsTitle")).toBe("Recent alerts");
     expect(translate("productQuickActionsTitle")).toBe("What do you want to do today?");
     expect(translate("productQuickActionMessageMeta")).toBe("Resume follow-up from onboarding");
+    expect(translate("productAlertCenterTitle")).toBe("Alert center");
+    expect(translate("productAlertCenterFooterTitle")).toBe("Runbooks ready to act");
     expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");

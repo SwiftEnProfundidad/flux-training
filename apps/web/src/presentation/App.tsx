@@ -97,6 +97,7 @@ import { HeroAuthPanel } from "./HeroAuthPanel";
 import { HeroStatusPanel } from "./HeroStatusPanel";
 import { ProductOverviewPanel } from "./ProductOverviewPanel";
 import { ProductQuickActionsPanel } from "./ProductQuickActionsPanel";
+import { ProductAlertCenterPanel } from "./ProductAlertCenterPanel";
 import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
@@ -282,7 +283,7 @@ type SyncIdempotencyMetadata = {
 };
 type NutritionDeviationSeverity = "high" | "medium";
 type NutritionDeviationReason = "calories" | "protein";
-type ProductPanelView = "overview" | "quick_actions";
+type ProductPanelView = "overview" | "quick_actions" | "alert_center";
 type NutritionDeviationAlert = {
   id: string;
   userId: string;
@@ -4210,7 +4211,9 @@ export function App() {
     activeDomainForUI === "all"
       ? productPanelView === "quick_actions"
         ? translate("productQuickActionsBreadcrumb")
-        : translate("productOverviewBreadcrumb")
+        : productPanelView === "alert_center"
+          ? translate("productAlertCenterBreadcrumb")
+          : translate("productOverviewBreadcrumb")
       : productWorkspaceTitle;
   const showCompactOverviewTopbar = activeDomainForUI === "all";
   const activeSessionIdentity = activeSession?.identity ?? null;
@@ -4242,6 +4245,10 @@ export function App() {
     showProductDashboardExperience &&
     isProductOverviewDomain &&
     productPanelView === "quick_actions";
+  const showProductAlertCenterPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "alert_center";
   const overviewLocale = language === "es" ? "es-ES" : "en-US";
   const criticalOperationalAlertsCount = openOperationalAlerts.filter(
     (alert) => alert.severity === "critical"
@@ -4582,6 +4589,148 @@ export function App() {
     recommendations,
     translate
   ]);
+  const productAlertCenterRows = useMemo<Array<{
+    id: string;
+    title: string;
+    meta: string;
+    tone: "critical" | "warning" | "neutral";
+    actionLabel: string;
+    onPress: () => void;
+  }>>(() => {
+    const rows: Array<{
+      id: string;
+      title: string;
+      meta: string;
+      tone: "critical" | "warning" | "neutral";
+      actionLabel: string;
+      onPress: () => void;
+    }> = [];
+
+    openOperationalAlerts.slice(0, 3).forEach((alert) => {
+      const runbookTitle = runbookTitleById[alert.runbookId] ?? translate("productAlertCenterRunbookFallback");
+      const alertTargetDomain: DashboardDomain =
+        alert.code === "blocked_action_spike" ? "nutrition" : "progress";
+      rows.push({
+        id: alert.id,
+        title: alert.summary,
+        meta: `${new Date(alert.triggeredAt).toLocaleTimeString(overviewLocale, {
+          hour: "2-digit",
+          minute: "2-digit"
+        })} · ${runbookTitle} · SLA ${alert.serviceLevelObjective}`,
+        tone: alert.severity === "critical" ? "critical" : "warning",
+        actionLabel:
+          alertTargetDomain === "nutrition"
+            ? translate("productAlertCenterOpenNutritionAction")
+            : translate("productAlertCenterOpenProgressAction"),
+        onPress: () => {
+          handleDomainSelection(alertTargetDomain);
+        }
+      });
+    });
+
+    if (rows.length < 3) {
+      nutritionDeviationAlerts.slice(0, 3 - rows.length).forEach((alert) => {
+        const nutritionAlertAthleteLabel = formatProductAthleteLabel(
+          alert.userId,
+          activeSessionIdentity?.displayName ?? null
+        );
+        rows.push({
+          id: alert.id,
+          title: `${nutritionAlertAthleteLabel} · ${
+            alert.reason === "protein"
+              ? translate("productOverviewProteinAlertTitle")
+              : translate("productOverviewCaloriesAlertTitle")
+          }`,
+          meta:
+            alert.reason === "protein"
+              ? `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                  day: "2-digit",
+                  month: "short"
+                })} · ${alert.proteinGrams} g · ${translate("productOverviewProteinAlertMeta")}`
+              : `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                  day: "2-digit",
+                  month: "short"
+                })} · ${alert.calories} kcal · ${translate("productOverviewCaloriesAlertMeta")}`,
+          tone: alert.severity === "high" ? "critical" : "warning",
+          actionLabel: translate("productAlertCenterOpenNutritionAction"),
+          onPress: () => {
+            handleDomainSelection("nutrition");
+          }
+        });
+      });
+    }
+
+    if (rows.length < 3) {
+      recentActivityRows.slice(0, 3 - rows.length).forEach((entry) => {
+        rows.push({
+          id: entry.id,
+          title: entry.summary,
+          meta: `${new Date(entry.occurredAt).toLocaleTimeString(overviewLocale, {
+            hour: "2-digit",
+            minute: "2-digit"
+          })} · ${toHumanStatus(entry.outcome, language)}`,
+          tone: entry.outcome === "error" ? "critical" : "neutral",
+          actionLabel:
+            entry.domain === "onboarding"
+              ? translate("productAlertCenterOpenOnboardingAction")
+              : entry.domain === "nutrition"
+                ? translate("productAlertCenterOpenNutritionAction")
+                : translate("productAlertCenterOpenProgressAction"),
+          onPress: () => {
+            handleDomainSelection(
+              entry.domain === "onboarding" || entry.domain === "nutrition"
+                ? entry.domain
+                : "progress"
+            );
+          }
+        });
+      });
+    }
+
+    return rows.slice(0, 3);
+  }, [
+    activeSessionIdentity?.displayName,
+    handleDomainSelection,
+    language,
+    nutritionDeviationAlerts,
+    openOperationalAlerts,
+    overviewLocale,
+    recentActivityRows,
+    runbookTitleById,
+    translate
+  ]);
+  const productAlertCenterTodayCount = useMemo(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const operationalToday = openOperationalAlerts.filter(
+      (alert) => alert.triggeredAt.slice(0, 10) === todayKey
+    ).length;
+    const nutritionToday = nutritionDeviationAlerts.filter((alert) => alert.date === todayKey).length;
+    return operationalToday + nutritionToday;
+  }, [nutritionDeviationAlerts, openOperationalAlerts]);
+  const productAlertCenterChips = [
+    {
+      id: "total",
+      label: translate("productAlertCenterChipTotal"),
+      value: String(productAlertCenterRows.length || openOperationalAlerts.length)
+    },
+    {
+      id: "critical",
+      label: translate("productAlertCenterChipCritical"),
+      value: String(
+        productAlertCenterRows.filter((alert) => alert.tone === "critical").length
+      )
+    },
+    {
+      id: "today",
+      label: translate("productAlertCenterChipToday"),
+      value: String(productAlertCenterTodayCount)
+    },
+    {
+      id: "runbooks",
+      label: translate("productAlertCenterChipRunbooks"),
+      value: String(operationalRunbooks.length)
+    }
+  ] as const;
   const productQuickActions = [
     {
       id: "add-athlete",
@@ -4633,7 +4782,7 @@ export function App() {
       meta: `${Math.max(productPrioritySignalsCount, 1)} ${translate("productQuickActionReviewAlertsMeta")}`,
       tone: "critical" as const,
       onPress: () => {
-        setProductPanelView("overview");
+        setProductPanelView("alert_center");
         void handleRefreshAlertCenter();
       }
     },
@@ -4903,21 +5052,35 @@ export function App() {
           <section className="product-topbar">
             <div className="product-topbar-copyblock">
               {showCompactOverviewTopbar ? (
-                <p className="product-shell-breadcrumb overview-inline">
-                  <strong>{productWorkspaceTitle}</strong>
-                  <span aria-hidden="true">/</span>
-                  <button
-                    className="product-shell-breadcrumb-button"
-                    type="button"
-                    onClick={() =>
-                      setProductPanelView((current) =>
-                        current === "overview" ? "quick_actions" : "overview"
-                      )
-                    }
-                  >
-                    {productWorkspaceBreadcrumb}
-                  </button>
-                </p>
+                productPanelView === "alert_center" ? (
+                  <div className="product-panel-headline">
+                    <strong>{translate("productAlertCenterTitle")}</strong>
+                    <div className="product-panel-chip-row" aria-label={translate("productAlertCenterTitle")}>
+                      {productAlertCenterChips.map((chip) => (
+                        <span key={chip.id} className="product-panel-chip">
+                          <span>{chip.label}</span>
+                          <strong>{chip.value}</strong>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="product-shell-breadcrumb overview-inline">
+                    <strong>{productWorkspaceTitle}</strong>
+                    <span aria-hidden="true">/</span>
+                    <button
+                      className="product-shell-breadcrumb-button"
+                      type="button"
+                      onClick={() =>
+                        setProductPanelView((current) =>
+                          current === "overview" ? "quick_actions" : "overview"
+                        )
+                      }
+                    >
+                      {productWorkspaceBreadcrumb}
+                    </button>
+                  </p>
+                )
               ) : (
                 <>
                   <p className="product-shell-breadcrumb">
@@ -4938,7 +5101,18 @@ export function App() {
               />
             </label>
             <div className="product-topbar-meta">
-              <span className="product-topbar-badge">{openOperationalAlerts.length}</span>
+              <button
+                className={`product-topbar-badge ${productPanelView === "alert_center" ? "active" : ""}`}
+                type="button"
+                aria-label={translate("productAlertCenterOpenLabel")}
+                onClick={() =>
+                  setProductPanelView((current) =>
+                    current === "alert_center" ? "overview" : "alert_center"
+                  )
+                }
+              >
+                {openOperationalAlerts.length}
+              </button>
               <span className="product-topbar-avatar" aria-hidden="true">
                 {productUserInitials}
               </span>
@@ -4964,8 +5138,21 @@ export function App() {
             emptyAlertsLabel={translate("alertCenterNoAlerts")}
             viewAllAlertsLabel={translate("productDashboardAlertsAction")}
             onViewAllAlerts={() => {
-              handleDomainSelection("all");
+              setProductPanelView("alert_center");
+              void handleRefreshAlertCenter();
             }}
+          />
+        ) : null}
+
+        {showProductAlertCenterPanel ? (
+          <ProductAlertCenterPanel
+            screenId={alertCenterScreenModel.screenId}
+            routeId={alertCenterScreenModel.routeId}
+            status={alertCenterScreenModel.status}
+            items={productAlertCenterRows}
+            emptyLabel={translate("productAlertCenterEmpty")}
+            footerTitle={translate("productAlertCenterFooterTitle")}
+            footerMeta={`${operationalRunbooks.length} ${translate("productAlertCenterFooterRunbooksMeta")} · ${recentActivityRows.length} ${translate("productAlertCenterFooterActivityMeta")}`}
           />
         ) : null}
 
