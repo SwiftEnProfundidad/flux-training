@@ -19,6 +19,7 @@ describe("i18n", () => {
     expect(translate("productSidebarQuickAi")).toBe("Preparación IA");
     expect(translate("productSidebarQuickSettings")).toBe("Ajustes");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist listo · señales al día");
+    expect(translate("productOverviewCriticalSignalSingularLabel")).toBe("crítica");
     expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
     expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
   });
@@ -45,6 +46,7 @@ describe("i18n", () => {
     expect(translate("productSidebarQuickAi")).toBe("AI readiness");
     expect(translate("productSidebarQuickSupport")).toBe("Support");
     expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
+    expect(translate("productOverviewCriticalSignalSingularLabel")).toBe("critical");
     expect(translate("productOverviewTitle")).toBe("Team readiness");
     expect(translate("productOverviewSummary")).toBe(
       "Last 7 days · sessions, nutrition and prioritized signals."

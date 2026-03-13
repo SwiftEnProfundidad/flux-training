@@ -496,7 +496,8 @@
 - ✅ El topbar autenticado ya elimina el selector visible de idioma en modo producto para acercarse mejor a la referencia Pencil y dejar solo búsqueda, alertas y avatar en cabecera.
 - ✅ El rail lateral ya incorpora iconografía sutil y una jerarquía visual más cercana al board `WEB-020`, manteniendo los dominios reales de producto.
 - ✅ La columna de alertas ya diferencia mejor estados `critical/warning` y el copy de KPI se ha comprimido para acercar la densidad de cards a la referencia Pencil.
-- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en microdetalles residuales de contraste y espaciado.
+- ✅ El remate visual del `Panel` ya ajusta microcontraste, sombras y ritmo vertical de KPI/chart/alertas; además, el KPI de alertas corrige singular/plural (`1 crítica · 4 abiertas`) para no introducir ruido visible.
+- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en microdetalles residuales muy finos de tipografía y contraste.
 - ⏳ Validar auth + onboarding + consentimiento.
 - ⏳ Validar training end-to-end.
 - ⏳ Validar nutrition + progress + IA.

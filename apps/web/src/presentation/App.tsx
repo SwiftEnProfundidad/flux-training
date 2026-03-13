@@ -4390,7 +4390,11 @@ export function App() {
       id: "alerts",
       label: translate("productOverviewActiveAlertsLabel"),
       value: String(productPrioritySignalsCount),
-      detail: `${criticalOperationalAlertsCount} ${translate("productOverviewCriticalSignalsLabel")} · ${Math.max(productPrioritySignalsCount - criticalOperationalAlertsCount, 0)} ${translate("productOverviewMonitoringSignalsLabel")}`,
+      detail: `${criticalOperationalAlertsCount} ${
+        criticalOperationalAlertsCount === 1
+          ? translate("productOverviewCriticalSignalSingularLabel")
+          : translate("productOverviewCriticalSignalsLabel")
+      } · ${Math.max(productPrioritySignalsCount - criticalOperationalAlertsCount, 0)} ${translate("productOverviewMonitoringSignalsLabel")}`,
       tone: productPrioritySignalsCount > 0 ? "critical" : "neutral"
     }
   ] as const;

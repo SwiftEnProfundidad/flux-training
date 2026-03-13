@@ -43,6 +43,7 @@ type AppTranslations = {
   productOverviewReadinessAttentionDetail: string;
   productOverviewSessionsCompletedLabel: string;
   productOverviewSessionsRemainingLabel: string;
+  productOverviewCriticalSignalSingularLabel: string;
   productOverviewCriticalSignalsLabel: string;
   productOverviewMonitoringSignalsLabel: string;
   signInWithApple: string;
@@ -595,8 +596,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewReadinessAttentionDetail: "señales abiertas hoy",
     productOverviewSessionsCompletedLabel: "listas",
     productOverviewSessionsRemainingLabel: "pendiente",
+    productOverviewCriticalSignalSingularLabel: "crítica",
     productOverviewCriticalSignalsLabel: "críticas",
-    productOverviewMonitoringSignalsLabel: "seguimiento",
+    productOverviewMonitoringSignalsLabel: "abiertas",
     signInWithApple: "Iniciar con Apple",
     signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
@@ -1157,8 +1159,9 @@ const translations: Record<AppLanguage, AppTranslations> = {
     productOverviewReadinessAttentionDetail: "open signals today",
     productOverviewSessionsCompletedLabel: "done",
     productOverviewSessionsRemainingLabel: "pending",
+    productOverviewCriticalSignalSingularLabel: "critical",
     productOverviewCriticalSignalsLabel: "critical",
-    productOverviewMonitoringSignalsLabel: "tracked",
+    productOverviewMonitoringSignalsLabel: "open",
     signInWithApple: "Sign in with Apple",
     signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",
