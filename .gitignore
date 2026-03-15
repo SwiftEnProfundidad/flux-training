@@ -30,3 +30,4 @@ output/
 .ai_evidence.json
 .AI_EVIDENCE.json
 .pumuki/
+.vercel
