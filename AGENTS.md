@@ -42,3 +42,19 @@
 - MUST: Registrar bugs o gaps de Pumuki en `docs/BUGS_Y_MEJORAS_PUMUKI.md`.
 - MUST: Ejecutar `pnpm -r test` y, si el cambio toca iOS, `cd apps/ios && swift test` antes de `in review`.
 - MUST: Mantener `docs/README.md` y `docs/SEGUIMIENTO_MASTER.md` alineados cuando cambie el foco real del producto.
+
+## Gobernanza ADLC iOS (overlay de paquete)
+
+- Debe existir y mantenerse:
+  - `docs/governance/PLAYBOOK.md`
+  - `docs/governance/PHASES_AND_GATES.md`
+  - `docs/governance/workitems/README.md`
+  - `docs/governance/templates/*`
+  - `.agents/skills/*`
+- DoR mínima por ticket: PRD o ticket equivalente con alcance, riesgos, dependencias y criterio de aceptación.
+- DoD mínima por ticket: evidencia de build/test/lint y QA adjunta en el handoff.
+- Si el cambio afecta dominios de arquitectura (navegación, estado, persistencia, networking, concurrencia, release), obligatoria ADR antes de ejecución.
+- `.codex/config.toml` se considera base común y debe respetar invocación explícita de skills (`allow_implicit_invocation` en false o equivalencia de política local).
+- Registrar cualquier ajuste de estos artefactos en:
+  - `docs/governance/baseline/OPEN_QUESTIONS.md`
+  - `docs/governance/baseline/RISK_REGISTER.md`

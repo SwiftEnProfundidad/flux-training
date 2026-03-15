@@ -37,7 +37,16 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Extender la paridad UX visible de Web desde `WEB-020_DASHBOARD_HOME` / `WEB-030_QUICK_ACTIONS` / `WEB-040_ALERT_CENTER` / `WEB-050_SYSTEM_STATUS` / `WEB-200_DASHBOARD_KPIS` / `WEB-210_READINESS_MONITOR` hacia la siguiente pantalla visible de `flux.pen` (`WEB-220_ALERTS_FULL`) y dejar iOS listo para la misma pasada de fidelidad**.
+- Task activa actual: **🚧 Despliegue a Vercel + verificación runtime real** del ciclo 2 (build/test/vercel + `GET /api/health`).
+
+### Evidencia técnica reciente (2026-03-15)
+- ✅ `pnpm -r check` completo: ✅ sin errores de `tsc`.
+- ✅ `pnpm --filter @flux/web build`: ✅ bundle generado (`dist/index-CxSjiOrz.js` en la build reciente).
+- ✅ `pnpm test:vercel-backend-adapter`: ✅ 46 tests de backend en verde + rutas Vercel verificadas.
+- ✅ `pnpm test:vercel-api-route`: ✅ 2/2 tests en verde (health/404).
+- ✅ `pnpm smoke:real-cloud-connectivity`: ✅ `status: ready` y `GET /api/health -> {"status":"ok"}`.
+- ❌ `pnpm smoke:real-cloud-connectivity` contra `https://flux-training-three.vercel.app/api`: `statusCode=500` en `createAuthSession` (`{"error":{"code":"500","message":"A server error has occurred"}}`) por bloqueo funcional de configuración real de auth en Firebase (`AUTH` pendiente).
+- ✅ Deploy Vercel: **`https://flux-training-three.vercel.app`** y alias `https://flux-training-2nzuv9m0l-merlosalbarracins-projects.vercel.app`.
 - Validacion visual local mas reciente (2026-03-13):
   - la home web de producto ya entra por card centrada y compacta, alineada con el patron visual de `WEB-000_ACCESS_GATE` / `WEB-010_SIGN_IN`;
   - tras login la hero editorial desaparece y queda una cabecera compacta + tabs de dominio para acercarse a `WEB-020_DASHBOARD_HOME`;
