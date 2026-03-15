@@ -225,7 +225,7 @@ export const progressSummarySchema = z.object({
   history: z.array(progressHistoryEntrySchema)
 });
 
-export const authProviderSchema = z.enum(["apple", "email"]);
+export const authProviderSchema = z.enum(["apple", "email", "google"]);
 
 export const authIdentitySchema = z.object({
   provider: authProviderSchema,

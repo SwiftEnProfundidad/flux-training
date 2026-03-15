@@ -455,6 +455,31 @@ describe("authSessionSchema", () => {
     expect(parsed.success).toBe(true);
   });
 
+  it("accepts a valid google auth session", () => {
+    const parsed = authSessionSchema.safeParse({
+      userId: "google-user-1",
+      sessionId: "session-google-1",
+      token: "google-token",
+      issuedAt: "2026-02-25T11:30:00.000Z",
+      expiresAt: "2026-02-25T12:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T11:40:00.000Z",
+      absoluteExpiresAt: "2026-02-25T23:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 1800,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
+      identity: {
+        provider: "google",
+        providerUserId: "google-user-123",
+        email: "google.user@example.com",
+        displayName: "Google User"
+      }
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
   it("rejects invalid session policy values", () => {
     const parsed = authSessionSchema.safeParse({
       userId: "user-1",

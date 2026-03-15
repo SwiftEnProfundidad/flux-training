@@ -1,4 +1,12 @@
-import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   AccessRole,
   ActivityLogEntry,
@@ -59,10 +67,13 @@ import {
 import {
   applyDashboardDomainToURL,
   dashboardRoles,
+  getProductVisibleModules,
   getVisibleModules,
+  normalizeDomainForRuntimeMode,
   readDashboardDomainFromURL,
   resolveDashboardRole,
   resolveDashboardDomain,
+  resolvePostSignInDomain,
   type DashboardDomain,
   type DashboardModule,
   type DashboardRole
@@ -84,6 +95,12 @@ import { createShortcutsScreenModel } from "./shortcuts-contract";
 import { resolveAuthHeroStatus } from "./auth-feedback";
 import { HeroAuthPanel } from "./HeroAuthPanel";
 import { HeroStatusPanel } from "./HeroStatusPanel";
+import { ProductOverviewPanel } from "./ProductOverviewPanel";
+import { ProductDashboardKpisPanel } from "./ProductDashboardKpisPanel";
+import { ProductReadinessMonitorPanel } from "./ProductReadinessMonitorPanel";
+import { ProductQuickActionsPanel } from "./ProductQuickActionsPanel";
+import { ProductAlertCenterPanel } from "./ProductAlertCenterPanel";
+import { ProductSystemStatusPanel } from "./ProductSystemStatusPanel";
 import { DomainFilterCard } from "./DomainFilterCard";
 import { RuntimeStateCard } from "./RuntimeStateCard";
 import { AccessGateCard } from "./AccessGateCard";
@@ -269,8 +286,17 @@ type SyncIdempotencyMetadata = {
 };
 type NutritionDeviationSeverity = "high" | "medium";
 type NutritionDeviationReason = "calories" | "protein";
+type ProductPanelView =
+  | "overview"
+  | "dashboard_kpis"
+  | "readiness_monitor"
+  | "quick_actions"
+  | "alert_center"
+  | "system_status";
+type ProductDashboardKpiRange = "today" | "week" | "month";
 type NutritionDeviationAlert = {
   id: string;
+  userId: string;
   date: string;
   severity: NutritionDeviationSeverity;
   reason: NutritionDeviationReason;
@@ -411,6 +437,9 @@ export function App() {
 
   const [email, setEmail] = useState(authScreenDefaults.email);
   const [password, setPassword] = useState(authScreenDefaults.password);
+  const [productAuthStep, setProductAuthStep] = useState<"access_gate" | "sign_in">(
+    "access_gate"
+  );
   const [displayName, setDisplayName] = useState("Juan");
   const [age, setAge] = useState("35");
   const [heightCm, setHeightCm] = useState("178");
@@ -562,9 +591,13 @@ export function App() {
   );
   const [dashboardHomeRuntimeStateOverride, setDashboardHomeRuntimeStateOverride] =
     useState<EnterpriseRuntimeState | null>(null);
+  const [productPanelView, setProductPanelView] = useState<ProductPanelView>("overview");
+  const [productDashboardKpiRange, setProductDashboardKpiRange] =
+    useState<ProductDashboardKpiRange>("today");
   const [roleCapabilitiesReloadNonce, setRoleCapabilitiesReloadNonce] = useState(0);
   const isInitialDomainRender = useRef(true);
   const isInitialRoleRender = useRef(true);
+  const productOverviewHydrationSessionRef = useRef<string | null>(null);
   const runtimeObservabilitySessionRef = useRef(createRuntimeObservabilitySession());
   const observabilityCollectionsCacheRef = useRef<{
     loadedAt: number;
@@ -608,30 +641,26 @@ export function App() {
     { id: "coach", label: translate("roleCoach") },
     { id: "admin", label: translate("roleAdmin") }
   ];
+  const productLandingDomain = useMemo<DashboardDomain>(
+    () =>
+      onboardingStatus === "saved" && legalStatus === "saved" ? "training" : "onboarding",
+    [legalStatus, onboardingStatus]
+  );
   const normalizeDomainForMode = useCallback(
-    (domain: DashboardDomain): DashboardDomain => {
-      if (isQAMode) {
-        return domain;
-      }
-      if (
-        domain === "onboarding" ||
-        domain === "training" ||
-        domain === "nutrition" ||
-        domain === "progress"
-      ) {
-        return domain;
-      }
-      return "onboarding";
-    },
-    [isQAMode]
+    (domain: DashboardDomain): DashboardDomain =>
+      normalizeDomainForRuntimeMode(domain, isQAMode, productLandingDomain),
+    [isQAMode, productLandingDomain]
   );
   const activeDomainForUI = normalizeDomainForMode(activeDomain);
+  const isProductOverviewDomain =
+    isQAMode === false && hasAuthenticatedSession && activeDomainForUI === "all";
   const domainTabsForUI = useMemo(
     () =>
       isQAMode
         ? domainTabs
         : domainTabs.filter(
             (tab) =>
+              tab.id === "all" ||
               tab.id === "onboarding" ||
               tab.id === "training" ||
               tab.id === "nutrition" ||
@@ -656,20 +685,12 @@ export function App() {
       })),
     [language]
   );
-  const productVisibleModules = useMemo<DashboardModule[]>(
-    () => [
-      "onboarding",
-      "training",
-      "recommendations",
-      "nutrition",
-      "progress",
-      "settings"
-    ],
-    []
-  );
   const visibleModulesForDomain = useMemo(
-    () => (isQAMode ? getVisibleModules(activeDomainForUI) : productVisibleModules),
-    [activeDomainForUI, isQAMode, productVisibleModules]
+    () =>
+      isQAMode
+        ? getVisibleModules(activeDomainForUI)
+        : getProductVisibleModules(activeDomainForUI),
+    [activeDomainForUI, isQAMode]
   );
   const visibleModulesForDomainSet = useMemo(
     () => new Set<DashboardModule>(visibleModulesForDomain),
@@ -686,6 +707,8 @@ export function App() {
   const runtimeStateForUI: EnterpriseRuntimeState = isQAMode ? activeDomainRuntimeState : "success";
   const canRenderOperationalModules =
     hasAuthenticatedSession && runtimeStateForUI === "success";
+  const canRenderDomainWorkspaceModules =
+    canRenderOperationalModules && isProductOverviewDomain === false;
   const effectiveDashboardHomeRuntimeState =
     isQAMode ? dashboardHomeRuntimeStateOverride ?? activeDomainRuntimeState : "success";
   const dashboardHomeScreenModel = useMemo(
@@ -724,6 +747,10 @@ export function App() {
   );
   const accessGateAppleActionId =
     webLane === "main" ? "web.accessGate.apple" : "web.light.accessGate.apple";
+  const accessGateStatusId =
+    webLane === "main" ? "web.accessGate.status" : "web.light.accessGate.status";
+  const accessGateGoogleActionId =
+    webLane === "main" ? "web.accessGate.google" : "web.light.accessGate.google";
   const accessGateEmailActionId =
     webLane === "main" ? "web.accessGate.email" : "web.light.accessGate.email";
   const quickActionsScreenModel = useMemo(
@@ -1603,6 +1630,7 @@ export function App() {
           if (log.calories >= 2800 || log.calories <= 1300) {
             alerts.push({
               id: `${log.userId}-${log.date}-calories`,
+              userId: log.userId,
               date: log.date,
               severity: log.calories >= 3000 || log.calories <= 1200 ? "high" : "medium",
               reason: "calories",
@@ -1614,6 +1642,7 @@ export function App() {
           if (log.proteinGrams <= 80) {
             alerts.push({
               id: `${log.userId}-${log.date}-protein`,
+              userId: log.userId,
               date: log.date,
               severity: log.proteinGrams <= 60 ? "high" : "medium",
               reason: "protein",
@@ -1903,11 +1932,11 @@ export function App() {
     if (dashboardHomeRuntimeStateOverride !== null) {
       setDashboardHomeRuntimeStateOverride(null);
     }
-    if (activeDomain === "all" || activeDomain === "operations") {
-      setActiveDomain("onboarding");
+    if (activeDomain === "operations" && activeDomain !== productLandingDomain) {
+      setActiveDomain(productLandingDomain);
     }
     setDomainRuntimeStates(createInitialDomainRuntimeStates());
-  }, [activeDomain, dashboardHomeRuntimeStateOverride, isQAMode, webLane]);
+  }, [activeDomain, dashboardHomeRuntimeStateOverride, isQAMode, productLandingDomain, webLane]);
 
   useEffect(() => {
     persistDomainPreference(activeDomain);
@@ -2285,21 +2314,119 @@ export function App() {
     setApiAuthSession(activeSession);
   }, [activeSession]);
 
+  useEffect(() => {
+    const currentSession = activeSession;
+
+    if (isProductOverviewDomain === false || currentSession === null) {
+      productOverviewHydrationSessionRef.current = null;
+      return;
+    }
+
+    if (productOverviewHydrationSessionRef.current === currentSession.sessionId) {
+      return;
+    }
+
+    const resolvedSession: AuthSession = currentSession;
+    productOverviewHydrationSessionRef.current = currentSession.sessionId;
+
+    async function hydrateProductOverview(): Promise<void> {
+      if (isLocalPreviewAuthSession(resolvedSession)) {
+        const previewSeed = createLocalPreviewDashboardSeed(resolvedSession.userId);
+        setOnboardingStatus("saved");
+        setLegalStatus("saved");
+        setPlans(previewSeed.plans);
+        setSelectedPlanId(previewSeed.plans[0]?.id ?? "");
+        setTrainingStatus("loaded");
+        setSessions(previewSeed.sessions);
+        setSessionStatus("saved");
+        setNutritionLogs(previewSeed.nutritionLogs);
+        setNutritionStatus("loaded");
+        setProgressSummary(previewSeed.progressSummary);
+        setProgressStatus("loaded");
+        setRecommendations(previewSeed.recommendations);
+        setRecommendationsStatus("loaded");
+        setOperationalAlerts(previewSeed.operationalAlerts);
+        setOperationalRunbooks(previewSeed.operationalRunbooks);
+        setActivityLogEntries(previewSeed.activityLogEntries);
+        setAnalyticsEvents(previewSeed.analyticsEvents);
+        setCrashReports(previewSeed.crashReports);
+        setObservabilitySummary(previewSeed.observabilitySummary);
+        setStructuredLogs(previewSeed.structuredLogs);
+        setObservabilityStatus("loaded");
+        setPendingQueueCount(previewSeed.pendingQueueCount);
+        setDashboardHomeRuntimeStateOverride("success");
+        return;
+      }
+
+      await Promise.all([
+        handleLoadPlans(),
+        handleLoadSessions(),
+        handleLoadNutritionLogs(),
+        handleLoadProgressSummary(),
+        handleRefreshDashboardHome()
+      ]);
+    }
+
+    void hydrateProductOverview();
+  }, [activeSession, isProductOverviewDomain]);
+
   async function handleAppleSignIn() {
     setAuthStatus("loading");
     try {
       const session = await createAuthSessionUseCase.executeWithApple();
+      setApiAuthSession(session);
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
+      setDashboardHomeRuntimeStateOverride(null);
+      setActiveDomain(resolvePostSignInDomain(isQAMode));
       markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setApiAuthSession(null);
       setActiveSession(null);
       setAuthStatus("auth_error");
       markDomainFailure("onboarding", error);
     }
+  }
+
+  async function handleGoogleSignIn() {
+    setAuthStatus("loading");
+    try {
+      const session = await createAuthSessionUseCase.executeWithGoogle();
+      setApiAuthSession(session);
+      setActiveSession(session);
+      setAuthStatus(`signed_in:${session.identity.provider}`);
+      setDashboardHomeRuntimeStateOverride(null);
+      setActiveDomain(resolvePostSignInDomain(isQAMode));
+      markDomainSuccess("onboarding");
+    } catch (error) {
+      if (shouldStopForUpgrade(error)) {
+        return;
+      }
+      setApiAuthSession(null);
+      setActiveSession(null);
+      setAuthStatus("auth_error");
+      markDomainFailure("onboarding", error);
+    }
+  }
+
+  function handleAdvanceProductAccessWithEmail() {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!hasValidEmail(normalizedEmail)) {
+      setAuthStatus("validation_error");
+      return;
+    }
+    setEmail(normalizedEmail);
+    setAuthStatus("signed_out");
+    setProductAuthStep("sign_in");
+  }
+
+  function handleReturnToProductAccess() {
+    setPassword("");
+    setAuthStatus("signed_out");
+    setProductAuthStep("access_gate");
   }
 
   async function handleEmailSignIn() {
@@ -2310,13 +2437,17 @@ export function App() {
     }
     try {
       const session = await createAuthSessionUseCase.executeWithEmail(email, password);
+      setApiAuthSession(session);
       setActiveSession(session);
       setAuthStatus(`signed_in:${session.identity.provider}`);
+      setDashboardHomeRuntimeStateOverride(null);
+      setActiveDomain(resolvePostSignInDomain(isQAMode));
       markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
         return;
       }
+      setApiAuthSession(null);
       setActiveSession(null);
       setAuthStatus("auth_error");
       markDomainFailure("onboarding", error);
@@ -2404,6 +2535,9 @@ export function App() {
         source: "web"
       });
       setLegalStatus("saved");
+      if (isQAMode === false) {
+        setActiveDomain("training");
+      }
       markDomainSuccess("onboarding");
     } catch (error) {
       if (shouldStopForUpgrade(error)) {
@@ -3372,7 +3506,7 @@ export function App() {
     setSelectedAthleteIds([selectedNutritionLog.userId]);
     setAthleteSearch(selectedNutritionLog.userId);
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleFocusNutritionCoachAtRisk() {
@@ -3384,12 +3518,12 @@ export function App() {
     setSelectedAthleteIds([firstAtRiskAthlete.athleteId]);
     setAthleteSearch(firstAtRiskAthlete.athleteId);
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleOpenNutritionCoachOperations() {
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleFocusHighestNutritionRisk() {
@@ -3403,7 +3537,7 @@ export function App() {
     setSelectedAthleteIds([highestRiskRow.athleteId]);
     setAthleteSearch(highestRiskRow.athleteId);
     setAthleteSortMode("sessions");
-    setActiveDomain(isQAMode ? "operations" : "progress");
+    setActiveDomain(isQAMode ? "operations" : "nutrition");
   }
 
   function handleClearProgressFilters() {
@@ -3863,6 +3997,7 @@ export function App() {
 
   function handleDomainSelection(domain: DashboardDomain) {
     const nextDomain = normalizeDomainForMode(domain);
+    setProductPanelView("overview");
     setActiveDomain(nextDomain);
     if (nextDomain === "all") {
       return;
@@ -4023,6 +4158,45 @@ export function App() {
     await handleRefreshDashboardHome();
   }
 
+  function handleExportProductReadinessCSV() {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const readinessRows = productReadinessAthletes.map((athlete) =>
+      [
+        athlete.name,
+        athlete.score,
+        athlete.tone,
+        productReadinessTrendBars.at(-1)?.label ?? ""
+      ]
+        .map((value) => `"${String(value).replaceAll("\"", "\"\"")}"`)
+        .join(",")
+    );
+    const trendRows = productReadinessTrendBars.map((bar) =>
+      [bar.label, bar.score, bar.tone]
+        .map((value) => `"${String(value).replaceAll("\"", "\"\"")}"`)
+        .join(",")
+    );
+    const csv = [
+      `"${translate("productReadinessMonitorAthletesTitle").replaceAll("\"", "\"\"")}"`,
+      `"athlete","score","tone","latest_day"`,
+      ...readinessRows,
+      "",
+      `"${translate("productReadinessMonitorTrendTitle").replaceAll("\"", "\"\"")}"`,
+      `"day","score","tone"`,
+      ...trendRows
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `flux-readiness-monitor-${productOverviewReferenceDate}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   async function handleRefreshAlertsFull() {
     await Promise.all([handleRefreshAlertCenter(), handleLoadAuditTimeline()]);
   }
@@ -4064,90 +4238,1740 @@ export function App() {
     : language === "es"
       ? "pendiente"
       : "pending";
+  const showProductAccessExperience = isQAMode === false && hasAuthenticatedSession === false;
+  const showProductDashboardExperience = isQAMode === false && hasAuthenticatedSession;
+  const isProductAccessGateStep = productAuthStep === "access_gate";
+  const showHeroAuthStatus =
+    showQATools ||
+    authStatus === "loading" ||
+    authStatus === "validation_error" ||
+    authStatus === "auth_error" ||
+    authStatus === "recovery_sent_email" ||
+    authStatus === "recovery_sent_sms";
+  const productDashboardNav = [
+    { id: "all" as DashboardDomain, label: translate("productDashboardNavOverview"), icon: "◈" },
+    { id: "onboarding" as DashboardDomain, label: translate("domainOnboarding"), icon: "◆" },
+    { id: "training" as DashboardDomain, label: translate("domainTraining"), icon: "▤" },
+    { id: "nutrition" as DashboardDomain, label: translate("domainNutrition"), icon: "○" },
+    { id: "progress" as DashboardDomain, label: translate("domainProgress"), icon: "↑" }
+  ];
+  const productWorkspaceTitle =
+    productDashboardNav.find((tab) => tab.id === activeDomainForUI)?.label ??
+    translate("dashboardHomeTitle");
+  const productWorkspaceBreadcrumb =
+    activeDomainForUI === "all"
+      ? productPanelView === "dashboard_kpis"
+        ? translate("productDashboardKpisBreadcrumb")
+        : productPanelView === "readiness_monitor"
+          ? translate("productReadinessMonitorBreadcrumb")
+        : productPanelView === "quick_actions"
+        ? translate("productQuickActionsBreadcrumb")
+        : productPanelView === "alert_center"
+          ? translate("productAlertCenterBreadcrumb")
+          : productPanelView === "system_status"
+            ? translate("productSystemStatusBreadcrumb")
+          : translate("productOverviewBreadcrumb")
+      : productWorkspaceTitle;
+  const showCompactOverviewTopbar = activeDomainForUI === "all";
+  const activeSessionIdentity = activeSession?.identity ?? null;
+  const productUserLabel =
+    activeSessionIdentity?.displayName?.trim() ||
+    activeSessionIdentity?.email?.trim() ||
+    translate("productWorkspaceSignedIn");
+  const productUserMeta =
+    activeSessionIdentity?.displayName?.trim() && activeSessionIdentity.email?.trim()
+      ? activeSessionIdentity.email.trim()
+      : translate("productWorkspaceSignedIn");
+  const productUserInitials =
+    productUserLabel
+      .split(/\s+/)
+      .filter((value) => value.length > 0)
+      .slice(0, 2)
+      .map((value) => value[0]?.toUpperCase() ?? "")
+      .join("") || "FX";
+  const productSidebarSecondaryNav = [
+    {
+      id: "readiness_monitor",
+      label: translate("productSidebarQuickAi"),
+      icon: "✦",
+      active: activeDomainForUI === "all" && productPanelView === "readiness_monitor",
+      onPress: () => {
+        handleDomainSelection("all");
+        setProductPanelView("readiness_monitor");
+      }
+    },
+    {
+      id: "system_status",
+      label: translate("productSidebarQuickSettings"),
+      icon: "⚙",
+      active: activeDomainForUI === "all" && productPanelView === "system_status",
+      onPress: () => {
+        handleDomainSelection("all");
+        setProductPanelView("system_status");
+      }
+    },
+    {
+      id: "alert_center",
+      label: translate("productSidebarQuickSupport"),
+      icon: "?",
+      active: activeDomainForUI === "all" && productPanelView === "alert_center",
+      onPress: () => {
+        handleDomainSelection("all");
+        setProductPanelView("alert_center");
+        void handleRefreshAlertCenter();
+      }
+    }
+  ];
+  const showProductOverviewPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "overview";
+  const showProductDashboardKpisPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "dashboard_kpis";
+  const showProductReadinessMonitorPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "readiness_monitor";
+  const showProductQuickActionsPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "quick_actions";
+  const showProductAlertCenterPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "alert_center";
+  const showProductSystemStatusPanel =
+    showProductDashboardExperience &&
+    isProductOverviewDomain &&
+    productPanelView === "system_status";
+  const overviewLocale = language === "es" ? "es-ES" : "en-US";
+  const criticalOperationalAlertsCount = openOperationalAlerts.filter(
+    (alert) => alert.severity === "critical"
+  ).length;
+  const highPriorityRecommendationsCount = recommendations.filter(
+    (recommendation) => recommendation.priority === "high"
+  ).length;
+  const highSeverityNutritionDeviationCount = nutritionDeviationAlerts.filter(
+    (alert) => alert.severity === "high"
+  ).length;
+  const productOverviewReferenceDate = useMemo(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    if (sessions.some((session) => session.endedAt.slice(0, 10) === todayKey)) {
+      return todayKey;
+    }
+
+    const latestSessionDate = sessions
+      .map((session) => session.endedAt.slice(0, 10))
+      .sort((left, right) => right.localeCompare(left))[0];
+    if (latestSessionDate !== undefined) {
+      return latestSessionDate;
+    }
+
+    const latestHistoryDate = progressSummary?.history
+      .map((entry) => entry.date)
+      .sort((left, right) => right.localeCompare(left))[0];
+
+    return latestHistoryDate ?? todayKey;
+  }, [progressSummary?.history, sessions]);
+  const completedSessionsForOverviewDay = useMemo(
+    () =>
+      sessions.filter((session) => session.endedAt.slice(0, 10) === productOverviewReferenceDate)
+        .length,
+    [productOverviewReferenceDate, sessions]
+  );
+  const plannedSessionsForOverviewDay = useMemo(() => {
+    const athleteBaseline =
+      athleteOperationRowsBase.length > 0
+        ? Math.max(1, Math.ceil(athleteOperationRowsBase.length * 0.45))
+        : 1;
+    return Math.max(
+      completedSessionsForOverviewDay,
+      athleteBaseline + Math.min(cohortAttentionCount, 4)
+    );
+  }, [athleteOperationRowsBase.length, cohortAttentionCount, completedSessionsForOverviewDay]);
+  const sessionCompletionRate =
+    plannedSessionsForOverviewDay === 0
+      ? 0
+      : Math.round((completedSessionsForOverviewDay / plannedSessionsForOverviewDay) * 100);
+  const averageReadinessScore = useMemo(() => {
+    const onboardingScore =
+      onboardingStatus === "saved"
+        ? 100
+        : onboardingStatus === "loading"
+          ? 68
+          : onboardingStatus === "consent_required"
+            ? 52
+            : 40;
+    const legalScore =
+      legalStatus === "saved"
+        ? 100
+        : legalStatus === "loading"
+          ? 70
+          : legalStatus === "consent_required"
+            ? 50
+            : 38;
+    const trainingCoverageScore =
+      athleteOperationRowsBase.length === 0
+        ? sessions.length > 0
+          ? 58
+          : 26
+        : clampNumber(Math.round((sessions.length / athleteOperationRowsBase.length) * 68), 18, 100);
+    const nutritionCoverageScore =
+      athleteOperationRowsBase.length === 0
+        ? nutritionLogs.length > 0
+          ? 56
+          : 24
+        : clampNumber(
+            Math.round((nutritionLogs.length / athleteOperationRowsBase.length) * 24),
+            18,
+            100
+          );
+    const progressCoverageScore =
+      progressSummary === null
+        ? 34
+        : clampNumber(
+            42 + progressSummary.workoutSessionsCount * 6 + progressSummary.nutritionLogsCount * 4,
+            22,
+            100
+          );
+    const cohortStabilityScore =
+      athleteOperationRowsBase.length === 0
+        ? 44
+        : clampNumber(
+            Math.round(
+              ((athleteOperationRowsBase.length - cohortAttentionCount) /
+                athleteOperationRowsBase.length) *
+                100
+            ),
+            18,
+            100
+          );
+    const penalty = cohortAttentionCount * 6 + criticalOperationalAlertsCount * 4;
+
+    return clampNumber(
+      Math.round(
+        onboardingScore * 0.18 +
+          legalScore * 0.12 +
+          trainingCoverageScore * 0.3 +
+          nutritionCoverageScore * 0.18 +
+          progressCoverageScore * 0.22 +
+          cohortStabilityScore * 0.1 -
+          penalty
+      ),
+      20,
+      96
+    );
+  }, [
+    athleteOperationRowsBase.length,
+    cohortAttentionCount,
+    criticalOperationalAlertsCount,
+    legalStatus,
+    nutritionLogs.length,
+    onboardingStatus,
+    progressSummary,
+    sessions.length
+  ]);
+  const productPrioritySignalsCount = Math.min(
+    9,
+    openOperationalAlerts.length +
+      highSeverityNutritionDeviationCount +
+      highPriorityRecommendationsCount +
+      (cohortAttentionCount > 0 ? 1 : 0)
+  );
+  const productOverviewMetrics = [
+    {
+      id: "athletes",
+      label: translate("productOverviewActiveAthletesLabel"),
+      value: String(athleteOperationRowsBase.length),
+      detail: `${cohortNormalCount} ${translate("productOverviewNormalCohortLabel")} · ${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
+      tone: athleteOperationRowsBase.length > 0 ? "positive" : "neutral"
+    },
+    {
+      id: "readiness",
+      label: translate("productOverviewReadinessAverageLabel"),
+      value: `${averageReadinessScore}%`,
+      detail:
+        averageReadinessScore >= 70
+          ? translate("productOverviewReadinessPositiveDetail")
+          : translate("productOverviewReadinessAttentionDetail"),
+      tone: averageReadinessScore >= 70 ? "positive" : averageReadinessScore < 50 ? "critical" : "neutral"
+    },
+    {
+      id: "today-sessions",
+      label: translate("productOverviewSessionsTodayLabel"),
+      value: `${completedSessionsForOverviewDay} / ${plannedSessionsForOverviewDay}`,
+      detail: `${completedSessionsForOverviewDay} ${translate("productOverviewSessionsCompletedLabel")} · ${Math.max(plannedSessionsForOverviewDay - completedSessionsForOverviewDay, 0)} ${translate("productOverviewSessionsRemainingLabel")}`,
+      tone: sessionCompletionRate >= 70 ? "positive" : sessionCompletionRate < 35 ? "critical" : "neutral"
+    },
+    {
+      id: "alerts",
+      label: translate("productOverviewActiveAlertsLabel"),
+      value: String(productPrioritySignalsCount),
+      detail: `${criticalOperationalAlertsCount} ${
+        criticalOperationalAlertsCount === 1
+          ? translate("productOverviewCriticalSignalSingularLabel")
+          : translate("productOverviewCriticalSignalsLabel")
+      } · ${Math.max(productPrioritySignalsCount - criticalOperationalAlertsCount, 0)} ${translate("productOverviewMonitoringSignalsLabel")}`,
+      tone: productPrioritySignalsCount > 0 ? "critical" : "neutral"
+    }
+  ] as const;
+  const progressHistoryByDate = useMemo(
+    () => new Map((progressSummary?.history ?? []).map((entry) => [entry.date, entry])),
+    [progressSummary?.history]
+  );
+  const productOverviewBars = useMemo(() => {
+    const weekdayFormatter = new Intl.DateTimeFormat(overviewLocale, { weekday: "short" });
+    const referenceDate = new Date(`${productOverviewReferenceDate}T12:00:00`);
+
+    return Array.from({ length: 7 }, (_, offset) => {
+      const date = new Date(referenceDate);
+      date.setDate(referenceDate.getDate() - (6 - offset));
+      const dateKey = date.toISOString().slice(0, 10);
+      const historyEntry = progressHistoryByDate.get(dateKey);
+      const dailySessionsCount = sessions.filter((session) => session.endedAt.slice(0, 10) === dateKey).length;
+      const dailyNutritionAlertCount = nutritionDeviationAlerts.filter(
+        (alert) => alert.date === dateKey
+      ).length;
+      const dailyWorkoutScore =
+        historyEntry === undefined
+          ? 26 + dailySessionsCount * 10
+          : clampNumber(historyEntry.workoutSessions * 42 + dailySessionsCount * 8, 18, 100);
+      const dailyProteinScore =
+        historyEntry?.proteinGrams === null || historyEntry?.proteinGrams === undefined
+          ? 44
+          : clampNumber(100 - Math.abs(historyEntry.proteinGrams - 150) * 0.9, 28, 100);
+      const dailyCaloriesScore =
+        historyEntry?.calories === null || historyEntry?.calories === undefined
+          ? 44
+          : clampNumber(100 - Math.abs(historyEntry.calories - 2200) / 12, 24, 100);
+      const fallbackScore = clampNumber(
+        averageReadinessScore - (6 - offset) * 3 + dailySessionsCount * 5 - dailyNutritionAlertCount * 8,
+        24,
+        92
+      );
+      const combinedScore =
+        historyEntry === undefined
+          ? fallbackScore
+          : clampNumber(
+              Math.round(
+                dailyWorkoutScore * 0.4 +
+                  dailyProteinScore * 0.3 +
+                  dailyCaloriesScore * 0.3 -
+                  dailyNutritionAlertCount * 9
+              ),
+              24,
+              96
+            );
+      const tone: "positive" | "neutral" | "critical" =
+        combinedScore >= 72 ? "positive" : combinedScore < 50 ? "critical" : "neutral";
+
+      return {
+        id: dateKey,
+        label: weekdayFormatter.format(date).replace(".", "").slice(0, 3),
+        value: `${combinedScore}%`,
+        height: combinedScore,
+        tone
+      };
+    });
+  }, [
+    averageReadinessScore,
+    nutritionDeviationAlerts,
+    overviewLocale,
+    productOverviewReferenceDate,
+    progressHistoryByDate,
+    sessions
+  ]);
+  const productOverviewAlerts = useMemo<Array<{
+    id: string;
+    title: string;
+    meta: string;
+    tone: "critical" | "warning" | "neutral";
+  }>>(() => {
+    const nextAlerts: Array<{
+      id: string;
+      title: string;
+      meta: string;
+      tone: "critical" | "warning" | "neutral";
+    }> = [];
+
+    if (cohortAttentionCount > 0) {
+      const focusAthleteLabel = formatProductAthleteLabel(
+        atRiskAthleteRows[0]?.athleteId,
+        activeSessionIdentity?.displayName ?? null
+      );
+      nextAlerts.push({
+        id: "follow-up",
+        title: `${focusAthleteLabel} · ${translate("productOverviewFollowUpAlertTitle")}`,
+        meta: `${translate("productOverviewFollowUpAlertMeta")} · ${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
+        tone: "critical"
+      });
+    }
+
+    nutritionDeviationAlerts.slice(0, 2).forEach((alert) => {
+      const nutritionAlertAthleteLabel = formatProductAthleteLabel(
+        alert.userId,
+        activeSessionIdentity?.displayName ?? null
+      );
+      nextAlerts.push({
+        id: alert.id,
+        title: `${nutritionAlertAthleteLabel} · ${
+          alert.reason === "protein"
+            ? translate("productOverviewProteinAlertTitle")
+            : translate("productOverviewCaloriesAlertTitle")
+        }`,
+        meta:
+          alert.reason === "protein"
+            ? `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                day: "2-digit",
+                month: "short"
+              })} · ${alert.proteinGrams} g · ${translate("productOverviewProteinAlertMeta")}`
+            : `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                day: "2-digit",
+                month: "short"
+              })} · ${alert.calories} kcal · ${translate("productOverviewCaloriesAlertMeta")}`,
+        tone: alert.severity === "high" ? "critical" : "warning"
+      });
+    });
+
+    recommendations.slice(0, 2).forEach((recommendation) => {
+      nextAlerts.push({
+        id: recommendation.id,
+        title: recommendation.title,
+        meta: `${toHumanStatus(recommendation.category, language)} · ${toHumanStatus(
+          recommendation.priority,
+          language
+        )}`,
+        tone: recommendation.priority === "high" ? "critical" : "warning"
+      });
+    });
+
+    openOperationalAlerts.slice(0, 2).forEach((alert) => {
+      nextAlerts.push({
+        id: alert.id,
+        title: alert.summary,
+        meta: `${new Date(alert.triggeredAt).toLocaleTimeString(overviewLocale, {
+          hour: "2-digit",
+          minute: "2-digit"
+        })} · ${toHumanStatus(alert.severity, language)}`,
+        tone: alert.severity === "critical" ? "critical" : "warning"
+      });
+    });
+
+    const recentActivityFallback = latestRecentActivityRow;
+
+    if (nextAlerts.length === 0 && recentActivityFallback !== undefined) {
+      nextAlerts.push({
+        id: recentActivityFallback.id,
+        title: recentActivityFallback.summary,
+        meta: `${new Date(recentActivityFallback.occurredAt).toLocaleTimeString(overviewLocale, {
+          hour: "2-digit",
+          minute: "2-digit"
+        })} · ${toHumanStatus(recentActivityFallback.outcome, language)}`,
+        tone: recentActivityFallback.outcome === "error" ? "critical" : "neutral"
+      });
+    }
+
+    return nextAlerts.slice(0, 3);
+  }, [
+    cohortAttentionCount,
+    language,
+    latestRecentActivityRow,
+    activeSessionIdentity?.displayName,
+    atRiskAthleteRows,
+    nutritionDeviationAlerts,
+    openOperationalAlerts,
+    overviewLocale,
+    recommendations,
+    translate
+  ]);
+  const productDashboardKpiReferenceDate = useMemo(
+    () => new Date(`${productOverviewReferenceDate}T12:00:00`),
+    [productOverviewReferenceDate]
+  );
+  const productDashboardKpiWindowDays =
+    productDashboardKpiRange === "today" ? 1 : productDashboardKpiRange === "week" ? 7 : 30;
+  const productDashboardKpiWindow = useMemo(() => {
+    const endDate = new Date(productDashboardKpiReferenceDate);
+    endDate.setHours(23, 59, 59, 999);
+    const startDate = new Date(productDashboardKpiReferenceDate);
+    startDate.setDate(productDashboardKpiReferenceDate.getDate() - (productDashboardKpiWindowDays - 1));
+    startDate.setHours(0, 0, 0, 0);
+
+    const previousEndDate = new Date(startDate);
+    previousEndDate.setDate(startDate.getDate() - 1);
+    previousEndDate.setHours(23, 59, 59, 999);
+
+    const previousStartDate = new Date(previousEndDate);
+    previousStartDate.setDate(previousEndDate.getDate() - (productDashboardKpiWindowDays - 1));
+    previousStartDate.setHours(0, 0, 0, 0);
+
+    return {
+      startKey: formatLocalDateKey(startDate),
+      endKey: formatLocalDateKey(endDate),
+      previousStartKey: formatLocalDateKey(previousStartDate),
+      previousEndKey: formatLocalDateKey(previousEndDate),
+      startDate,
+      endDate
+    };
+  }, [productDashboardKpiReferenceDate, productDashboardKpiWindowDays]);
+  const productDashboardKpiSessionsInWindow = useMemo(
+    () =>
+      sessions.filter((session) => {
+        const dateKey = session.endedAt.slice(0, 10);
+        return (
+          dateKey >= productDashboardKpiWindow.startKey &&
+          dateKey <= productDashboardKpiWindow.endKey
+        );
+      }),
+    [productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey, sessions]
+  );
+  const productDashboardKpiPreviousSessionsInWindow = useMemo(
+    () =>
+      sessions.filter((session) => {
+        const dateKey = session.endedAt.slice(0, 10);
+        return (
+          dateKey >= productDashboardKpiWindow.previousStartKey &&
+          dateKey <= productDashboardKpiWindow.previousEndKey
+        );
+      }),
+    [
+      productDashboardKpiWindow.previousEndKey,
+      productDashboardKpiWindow.previousStartKey,
+      sessions
+    ]
+  );
+  const productDashboardKpiNutritionLogsInWindow = useMemo(
+    () =>
+      nutritionLogs.filter(
+        (log) =>
+          log.date >= productDashboardKpiWindow.startKey &&
+          log.date <= productDashboardKpiWindow.endKey
+      ),
+    [nutritionLogs, productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey]
+  );
+  const productDashboardKpiHistoryInWindow = useMemo(
+    () =>
+      (progressSummary?.history ?? []).filter(
+        (entry) =>
+          entry.date >= productDashboardKpiWindow.startKey &&
+          entry.date <= productDashboardKpiWindow.endKey
+      ),
+    [productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey, progressSummary?.history]
+  );
+  const productDashboardKpiMonthlyHistory = useMemo(() => {
+    const monthlyStartDate = new Date(productDashboardKpiReferenceDate);
+    monthlyStartDate.setDate(productDashboardKpiReferenceDate.getDate() - 29);
+    const monthlyStartKey = formatLocalDateKey(monthlyStartDate);
+
+    return (progressSummary?.history ?? []).filter(
+      (entry) =>
+        entry.date >= monthlyStartKey && entry.date <= productDashboardKpiWindow.endKey
+    );
+  }, [
+    productDashboardKpiReferenceDate,
+    productDashboardKpiWindow.endKey,
+    progressSummary?.history
+  ]);
+  const productDashboardKpiOperationalAlertsInWindow = useMemo(
+    () =>
+      openOperationalAlerts.filter((alert) => {
+        const dateKey = alert.triggeredAt.slice(0, 10);
+        return (
+          dateKey >= productDashboardKpiWindow.startKey &&
+          dateKey <= productDashboardKpiWindow.endKey
+        );
+      }),
+    [openOperationalAlerts, productDashboardKpiWindow.endKey, productDashboardKpiWindow.startKey]
+  );
+  const productDashboardKpiNutritionAlertsInWindow = useMemo(
+    () =>
+      nutritionDeviationAlerts.filter(
+        (alert) =>
+          alert.date >= productDashboardKpiWindow.startKey &&
+          alert.date <= productDashboardKpiWindow.endKey
+      ),
+    [
+      nutritionDeviationAlerts,
+      productDashboardKpiWindow.endKey,
+      productDashboardKpiWindow.startKey
+    ]
+  );
+  const productDashboardKpiCompletedSessions = productDashboardKpiSessionsInWindow.length;
+  const productDashboardKpiAthletesCount = athleteOperationRowsBase.length;
+  const productDashboardKpiWeeklyPlanBaseline = useMemo(
+    () => plans.reduce((total, plan) => total + plan.days.length, 0),
+    [plans]
+  );
+  const productDashboardKpiPlannedSessions =
+    productDashboardKpiRange === "today"
+      ? plannedSessionsForOverviewDay
+      : Math.max(
+          productDashboardKpiCompletedSessions,
+          productDashboardKpiWeeklyPlanBaseline *
+            Math.max(1, Math.ceil(productDashboardKpiWindowDays / 7))
+        );
+  const productDashboardKpiPreviousPlannedSessions =
+    productDashboardKpiRange === "today"
+      ? plannedSessionsForOverviewDay
+      : Math.max(
+          productDashboardKpiPreviousSessionsInWindow.length,
+          productDashboardKpiWeeklyPlanBaseline *
+            Math.max(1, Math.ceil(productDashboardKpiWindowDays / 7))
+        );
+  const productDashboardKpiAdherence =
+    productDashboardKpiPlannedSessions === 0
+      ? 0
+      : Math.round((productDashboardKpiCompletedSessions / productDashboardKpiPlannedSessions) * 100);
+  const productDashboardKpiPreviousAdherence =
+    productDashboardKpiPreviousPlannedSessions === 0
+      ? 0
+      : Math.round(
+          (productDashboardKpiPreviousSessionsInWindow.length / productDashboardKpiPreviousPlannedSessions) *
+            100
+        );
+  const productDashboardKpiAdherenceDelta =
+    productDashboardKpiAdherence - productDashboardKpiPreviousAdherence;
+  const productDashboardKpiRpeSets = useMemo(
+    () =>
+      productDashboardKpiSessionsInWindow.flatMap((session) =>
+        session.exercises.flatMap((exercise) => exercise.sets)
+      ),
+    [productDashboardKpiSessionsInWindow]
+  );
+  const productDashboardKpiAverageRpe = productDashboardKpiRpeSets.length
+    ? Math.round(
+        (productDashboardKpiRpeSets.reduce((total, set) => total + set.rpe, 0) /
+          productDashboardKpiRpeSets.length) *
+          10
+      ) / 10
+    : 0;
+  const productDashboardKpiAlertsCount =
+    productDashboardKpiOperationalAlertsInWindow.length +
+    productDashboardKpiNutritionAlertsInWindow.length;
+  const productDashboardKpiNutritionCoverage = Math.min(
+    100,
+    Math.round(
+      (productDashboardKpiNutritionLogsInWindow.length / productDashboardKpiWindowDays) * 100
+    )
+  );
+  const productDashboardKpiReadinessScore = clampNumber(
+    Math.round(
+      averageReadinessScore * 0.58 +
+        productDashboardKpiAdherence * 0.26 +
+        productDashboardKpiNutritionCoverage * 0.16 -
+        productDashboardKpiAlertsCount * 4
+    ),
+    24,
+    96
+  );
+  const productDashboardKpiVideoBlocks = useMemo(
+    () =>
+      productDashboardKpiSessionsInWindow.reduce(
+        (total, session) => total + session.exercises.length,
+        0
+      ),
+    [productDashboardKpiSessionsInWindow]
+  );
+  const productDashboardKpiDistinctPatterns = useMemo(
+    () =>
+      new Set(
+        productDashboardKpiSessionsInWindow.flatMap((session) =>
+          session.exercises.map((exercise) => exercise.exerciseId)
+        )
+      ).size,
+    [productDashboardKpiSessionsInWindow]
+  );
+  const productDashboardKpiGoalTarget = Math.max(
+    productDashboardKpiMonthlyHistory.length * 2,
+    15
+  );
+  const productDashboardKpiGoalCompleted = Math.min(
+    productDashboardKpiGoalTarget,
+    productDashboardKpiMonthlyHistory.reduce((total, entry) => {
+      const proteinPoint = entry.proteinGrams !== null && entry.proteinGrams >= 140 ? 1 : 0;
+      const caloriesPoint =
+        entry.calories !== null && entry.calories >= 2000 && entry.calories <= 2400 ? 1 : 0;
+      return total + proteinPoint + caloriesPoint;
+    }, 0)
+  );
+  const productDashboardKpiGoalCompletionRate =
+    productDashboardKpiGoalTarget === 0
+      ? 0
+      : Math.round((productDashboardKpiGoalCompleted / productDashboardKpiGoalTarget) * 100);
+  const productDashboardKpiDateLabel = useMemo(() => {
+    const dayFormatter = new Intl.DateTimeFormat(overviewLocale, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+    if (productDashboardKpiRange === "today") {
+      return `${translate("productDashboardKpisRangeToday")} · ${dayFormatter.format(
+        productDashboardKpiWindow.endDate
+      )}`;
+    }
+
+    const startLabel = dayFormatter.format(productDashboardKpiWindow.startDate);
+    const endLabel = dayFormatter.format(productDashboardKpiWindow.endDate);
+    const rangeLabel =
+      productDashboardKpiRange === "week"
+        ? translate("productDashboardKpisRangeWeek")
+        : translate("productDashboardKpisRangeMonth");
+
+    return `${rangeLabel} · ${startLabel} – ${endLabel}`;
+  }, [
+    overviewLocale,
+    productDashboardKpiRange,
+    productDashboardKpiWindow.endDate,
+    productDashboardKpiWindow.startDate,
+    translate
+  ]);
+  const productDashboardKpiCards = [
+    {
+      id: "athletes",
+      label: translate("productOverviewActiveAthletesLabel"),
+      value: String(productDashboardKpiAthletesCount),
+      detail: `${cohortNormalCount} ${translate("productOverviewNormalCohortLabel")} · ${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
+      tone: productDashboardKpiAthletesCount > 0 ? "positive" : "neutral",
+      meterValue:
+        productDashboardKpiAthletesCount === 0
+          ? 0
+          : Math.round((cohortNormalCount / productDashboardKpiAthletesCount) * 100),
+      meterVariant: "segments" as const
+    },
+    {
+      id: "sessions",
+      label: translate("productDashboardKpisPlannedSessionsLabel"),
+      value: String(productDashboardKpiPlannedSessions),
+      detail: `${productDashboardKpiCompletedSessions} ${translate("productDashboardKpisLoggedLabel")}`,
+      tone:
+        productDashboardKpiCompletedSessions >= productDashboardKpiPlannedSessions
+          ? "positive"
+          : "neutral",
+      meterValue:
+        productDashboardKpiPlannedSessions === 0
+          ? 0
+          : Math.round(
+              (productDashboardKpiCompletedSessions / productDashboardKpiPlannedSessions) * 100
+            ),
+      meterVariant: "solid" as const
+    },
+    {
+      id: "adherence",
+      label: translate("productDashboardKpisAdherenceLabel"),
+      value: `${productDashboardKpiAdherence}%`,
+      detail: `${productDashboardKpiAdherenceDelta >= 0 ? "↑" : "↓"} ${Math.abs(
+        productDashboardKpiAdherenceDelta
+      )}% ${translate("productDashboardKpisVsPreviousLabel")}`,
+      tone:
+        productDashboardKpiAdherence >= 75
+          ? "positive"
+          : productDashboardKpiAdherence < 45
+            ? "critical"
+            : "neutral"
+    },
+    {
+      id: "rpe",
+      label: translate("productDashboardKpisAverageRpeLabel"),
+      value: productDashboardKpiAverageRpe.toFixed(1),
+      detail:
+        productDashboardKpiAverageRpe >= 6 &&
+        productDashboardKpiAverageRpe <= 7.5
+          ? translate("productDashboardKpisOptimalRpeDetail")
+          : translate("productDashboardKpisAdjustLoadDetail"),
+      tone:
+        productDashboardKpiAverageRpe >= 6 && productDashboardKpiAverageRpe <= 7.5
+          ? "neutral"
+          : "warning"
+    },
+    {
+      id: "readiness",
+      label: translate("productOverviewReadinessAverageLabel"),
+      value: String(productDashboardKpiReadinessScore),
+      detail: `${cohortAttentionCount} ${translate("productOverviewAttentionCohortLabel")}`,
+      tone:
+        productDashboardKpiReadinessScore >= 72
+          ? "positive"
+          : productDashboardKpiReadinessScore < 48
+            ? "critical"
+            : "warning"
+    },
+    {
+      id: "alerts",
+      label: translate("productOverviewActiveAlertsLabel"),
+      value: String(productDashboardKpiAlertsCount),
+      detail: `${productDashboardKpiOperationalAlertsInWindow.length} ${translate("productDashboardKpisCoachAlertsLabel")} · ${productDashboardKpiNutritionAlertsInWindow.length} ${translate("productDashboardKpisNutritionAlertsLabel")}`,
+      tone: productDashboardKpiAlertsCount > 0 ? "critical" : "neutral"
+    },
+    {
+      id: "videos",
+      label: translate("productDashboardKpisViewedVideosLabel"),
+      value: String(productDashboardKpiVideoBlocks),
+      detail: `${productDashboardKpiDistinctPatterns} ${translate("productDashboardKpisGuidedPatternsLabel")}`,
+      tone: productDashboardKpiVideoBlocks > 0 ? "neutral" : "warning"
+    },
+    {
+      id: "goals",
+      label: translate("productDashboardKpisCompletedGoalsLabel"),
+      value: `${productDashboardKpiGoalCompleted} / ${productDashboardKpiGoalTarget}`,
+      detail: `${productDashboardKpiGoalCompletionRate}% · ${Math.max(
+        productDashboardKpiGoalTarget - productDashboardKpiGoalCompleted,
+        0
+      )} ${translate("productDashboardKpisPendingLabel")}`,
+      tone: productDashboardKpiGoalCompletionRate >= 70 ? "positive" : "warning",
+      emphasis: true
+    }
+  ] as const;
+  const productDashboardKpiInsightSummary =
+    cohortAttentionCount > 0
+      ? `${translate("productDashboardKpisInsightFatiguePrefix")} ${cohortAttentionCount} ${translate("productDashboardKpisInsightFatigueSuffix")}`
+      : productDashboardKpiAlertsCount > 0
+        ? translate("productDashboardKpisInsightAlerts")
+        : translate("productDashboardKpisInsightStable");
+  const productDashboardKpiRanges = [
+    { id: "today" as const, label: translate("productDashboardKpisRangeToday") },
+    { id: "week" as const, label: translate("productDashboardKpisRangeWeek") },
+    { id: "month" as const, label: translate("productDashboardKpisRangeMonth") }
+  ];
+  const productReadinessAthletes = useMemo(() => {
+    const referenceDate = new Date(`${productOverviewReferenceDate}T12:00:00`);
+
+    return athleteOperationRowsBase
+      .map((row) => {
+        const athleteLabel = formatProductAthleteLabel(
+          row.athleteId,
+          activeSessionIdentity?.displayName ?? null
+        );
+        const initials = athleteLabel
+          .split(/\s+/)
+          .filter((fragment) => fragment.length > 0)
+          .slice(0, 2)
+          .map((fragment) => fragment[0]?.toUpperCase() ?? "")
+          .join("");
+        const lastSessionDate =
+          row.lastSessionDate === "-" ? null : new Date(`${row.lastSessionDate}T12:00:00`);
+        const daysSinceLastSession =
+          lastSessionDate === null
+            ? 6
+            : Math.max(
+                0,
+                Math.round(
+                  (referenceDate.getTime() - lastSessionDate.getTime()) / (24 * 60 * 60 * 1000)
+                )
+              );
+        const score = clampNumber(
+          Math.round(
+            28 +
+              row.plansCount * 8 +
+              row.sessionsCount * 8 +
+              row.nutritionLogsCount * 7 +
+              Math.max(2, 18 - daysSinceLastSession * 4) -
+              (row.riskLevel === "attention" ? 18 : 0)
+          ),
+          43,
+          90
+        );
+        const tone =
+          score < 50 ? "critical" : row.riskLevel === "attention" ? "neutral" : "positive";
+
+        return {
+          id: row.athleteId,
+          initials: initials || athleteLabel.slice(0, 2).toUpperCase(),
+          name: athleteLabel,
+          score,
+          tone
+        } as const;
+      })
+      .sort((left, right) => {
+        if (left.name === productUserLabel) {
+          return -1;
+        }
+        if (right.name === productUserLabel) {
+          return 1;
+        }
+        if (left.tone !== right.tone) {
+          return left.tone === "critical" ? -1 : right.tone === "critical" ? 1 : 0;
+        }
+        return left.name.localeCompare(right.name);
+      })
+      .slice(0, 5);
+  }, [
+    activeSessionIdentity?.displayName,
+    athleteOperationRowsBase,
+    productOverviewReferenceDate,
+    productUserLabel
+  ]);
+  const productReadinessTrendBars = useMemo(() => {
+    const weekdayFormatter = new Intl.DateTimeFormat(overviewLocale, { weekday: "short" });
+    const referenceDate = new Date(`${productOverviewReferenceDate}T12:00:00`);
+
+    return Array.from({ length: 14 }, (_, offset) => {
+      const date = new Date(referenceDate);
+      date.setDate(referenceDate.getDate() - (13 - offset));
+      const dateKey = date.toISOString().slice(0, 10);
+      const historyEntry = progressHistoryByDate.get(dateKey);
+      const dailySessionsCount = sessions.filter((session) => session.endedAt.slice(0, 10) === dateKey).length;
+      const dailyNutritionLogsCount = nutritionLogs.filter((log) => log.date === dateKey).length;
+      const dailyAlertsCount =
+        nutritionDeviationAlerts.filter((alert) => alert.date === dateKey).length +
+        openOperationalAlerts.filter((alert) => alert.triggeredAt.slice(0, 10) === dateKey).length;
+      const score =
+        historyEntry === undefined
+          ? clampNumber(
+              averageReadinessScore - (13 - offset) * 2 + dailySessionsCount * 5 - dailyAlertsCount * 9,
+              36,
+              88
+            )
+          : clampNumber(
+              Math.round(
+                34 +
+                  historyEntry.workoutSessions * 13 +
+                  Math.min(historyEntry.completedSets, 28) * 1.1 +
+                  dailyNutritionLogsCount * 8 -
+                  dailyAlertsCount * 18
+              ),
+              36,
+              90
+            );
+
+      return {
+        id: dateKey,
+        label: weekdayFormatter.format(date).replace(".", ""),
+        score,
+        tone: score < 50 ? "critical" : "positive"
+      } as const;
+    });
+  }, [
+    averageReadinessScore,
+    nutritionDeviationAlerts,
+    nutritionLogs,
+    openOperationalAlerts,
+    overviewLocale,
+    productOverviewReferenceDate,
+    progressHistoryByDate,
+    sessions
+  ]);
+  const productReadinessLowestTrendBar = productReadinessTrendBars.reduce(
+    (lowest, bar) => (bar.score < lowest.score ? bar : lowest),
+    productReadinessTrendBars[0] ?? { id: "today", label: "", score: 100, tone: "positive" as const }
+  );
+  const productReadinessInsight =
+    productReadinessLowestTrendBar.score < 50
+      ? `${translate("productReadinessMonitorInsightPrefix")} ${productReadinessLowestTrendBar.label.toLowerCase()}${translate("productReadinessMonitorInsightSuffix")}`
+      : translate("productReadinessMonitorStableInsight");
+  const productAlertCenterRows = useMemo<Array<{
+    id: string;
+    title: string;
+    meta: string;
+    tone: "critical" | "warning" | "neutral";
+    actionLabel: string;
+    onPress: () => void;
+  }>>(() => {
+    const rows: Array<{
+      id: string;
+      title: string;
+      meta: string;
+      tone: "critical" | "warning" | "neutral";
+      actionLabel: string;
+      onPress: () => void;
+    }> = [];
+
+    openOperationalAlerts.slice(0, 3).forEach((alert) => {
+      const runbookTitle = runbookTitleById[alert.runbookId] ?? translate("productAlertCenterRunbookFallback");
+      const alertTargetDomain: DashboardDomain =
+        alert.code === "blocked_action_spike" ? "nutrition" : "progress";
+      rows.push({
+        id: alert.id,
+        title: alert.summary,
+        meta: `${new Date(alert.triggeredAt).toLocaleTimeString(overviewLocale, {
+          hour: "2-digit",
+          minute: "2-digit"
+        })} · ${runbookTitle} · SLA ${alert.serviceLevelObjective}`,
+        tone: alert.severity === "critical" ? "critical" : "warning",
+        actionLabel:
+          alertTargetDomain === "nutrition"
+            ? translate("productAlertCenterOpenNutritionAction")
+            : translate("productAlertCenterOpenProgressAction"),
+        onPress: () => {
+          handleDomainSelection(alertTargetDomain);
+        }
+      });
+    });
+
+    if (rows.length < 3) {
+      nutritionDeviationAlerts.slice(0, 3 - rows.length).forEach((alert) => {
+        const nutritionAlertAthleteLabel = formatProductAthleteLabel(
+          alert.userId,
+          activeSessionIdentity?.displayName ?? null
+        );
+        rows.push({
+          id: alert.id,
+          title: `${nutritionAlertAthleteLabel} · ${
+            alert.reason === "protein"
+              ? translate("productOverviewProteinAlertTitle")
+              : translate("productOverviewCaloriesAlertTitle")
+          }`,
+          meta:
+            alert.reason === "protein"
+              ? `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                  day: "2-digit",
+                  month: "short"
+                })} · ${alert.proteinGrams} g · ${translate("productOverviewProteinAlertMeta")}`
+              : `${new Date(`${alert.date}T12:00:00`).toLocaleDateString(overviewLocale, {
+                  day: "2-digit",
+                  month: "short"
+                })} · ${alert.calories} kcal · ${translate("productOverviewCaloriesAlertMeta")}`,
+          tone: alert.severity === "high" ? "critical" : "warning",
+          actionLabel: translate("productAlertCenterOpenNutritionAction"),
+          onPress: () => {
+            handleDomainSelection("nutrition");
+          }
+        });
+      });
+    }
+
+    if (rows.length < 3) {
+      recentActivityRows.slice(0, 3 - rows.length).forEach((entry) => {
+        rows.push({
+          id: entry.id,
+          title: entry.summary,
+          meta: `${new Date(entry.occurredAt).toLocaleTimeString(overviewLocale, {
+            hour: "2-digit",
+            minute: "2-digit"
+          })} · ${toHumanStatus(entry.outcome, language)}`,
+          tone: entry.outcome === "error" ? "critical" : "neutral",
+          actionLabel:
+            entry.domain === "onboarding"
+              ? translate("productAlertCenterOpenOnboardingAction")
+              : entry.domain === "nutrition"
+                ? translate("productAlertCenterOpenNutritionAction")
+                : translate("productAlertCenterOpenProgressAction"),
+          onPress: () => {
+            handleDomainSelection(
+              entry.domain === "onboarding" || entry.domain === "nutrition"
+                ? entry.domain
+                : "progress"
+            );
+          }
+        });
+      });
+    }
+
+    return rows.slice(0, 3);
+  }, [
+    activeSessionIdentity?.displayName,
+    handleDomainSelection,
+    language,
+    nutritionDeviationAlerts,
+    openOperationalAlerts,
+    overviewLocale,
+    recentActivityRows,
+    runbookTitleById,
+    translate
+  ]);
+  const productAlertCenterTodayCount = useMemo(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const operationalToday = openOperationalAlerts.filter(
+      (alert) => alert.triggeredAt.slice(0, 10) === todayKey
+    ).length;
+    const nutritionToday = nutritionDeviationAlerts.filter((alert) => alert.date === todayKey).length;
+    return operationalToday + nutritionToday;
+  }, [nutritionDeviationAlerts, openOperationalAlerts]);
+  const productAlertCenterChips = [
+    {
+      id: "total",
+      label: translate("productAlertCenterChipTotal"),
+      value: String(productAlertCenterRows.length || openOperationalAlerts.length)
+    },
+    {
+      id: "critical",
+      label: translate("productAlertCenterChipCritical"),
+      value: String(
+        productAlertCenterRows.filter((alert) => alert.tone === "critical").length
+      )
+    },
+    {
+      id: "today",
+      label: translate("productAlertCenterChipToday"),
+      value: String(productAlertCenterTodayCount)
+    },
+    {
+      id: "runbooks",
+      label: translate("productAlertCenterChipRunbooks"),
+      value: String(operationalRunbooks.length)
+    }
+  ] as const;
+  const productSystemStatusCards = [
+    {
+      id: "runtime",
+      label: translate("systemStatusRuntimeLabel"),
+      status:
+        activeDomainRuntimeState === "success"
+          ? toHumanStatus("success", language)
+          : toHumanStatus(activeDomainRuntimeState, language),
+      detail: translate("productSystemStatusRuntimeDetail"),
+      tone: activeDomainRuntimeState === "success" ? "positive" : "warning"
+    },
+    {
+      id: "permissions",
+      label: translate("productSystemStatusPermissionsLabel"),
+      status:
+        roleCapabilitiesStatus === "loaded"
+          ? toHumanStatus("success", language)
+          : toHumanStatus(roleCapabilitiesStatus, language),
+      detail: translate("productSystemStatusPermissionsDetail"),
+      tone: roleCapabilitiesStatus === "loaded" ? "positive" : "warning"
+    },
+    {
+      id: "sync",
+      label: translate("productSystemStatusSyncLabel"),
+      status:
+        syncStatus === "error"
+          ? translate("productSystemStatusDegradedStatus")
+          : toHumanStatus("success", language),
+      detail: translate("productSystemStatusSyncDetail"),
+      tone: syncStatus === "error" ? "warning" : "positive"
+    },
+    {
+      id: "queue",
+      label: translate("systemStatusQueueLabel"),
+      status:
+        pendingQueueCount > 0
+          ? translate("productSystemStatusDegradedStatus")
+          : toHumanStatus("success", language),
+      detail:
+        pendingQueueCount > 0
+          ? `${pendingQueueCount} ${
+              pendingQueueCount === 1
+                ? translate("productSystemStatusQueuePendingSingular")
+                : translate("productSystemStatusQueuePendingPlural")
+            }`
+          : translate("productSystemStatusQueueClearDetail"),
+      tone: pendingQueueCount > 0 ? "warning" : "positive"
+    }
+  ] as const;
+  const productSystemStatusEvents = [
+    {
+      id: "permissions-event",
+      occurredAt:
+        structuredLogs[0]?.occurredAt ??
+        recentActivityRows[0]?.occurredAt ??
+        new Date().toISOString(),
+      summary: `${translate("productSystemStatusPermissionsLabel")} · ${
+        roleCapabilitiesStatus === "loaded"
+          ? toHumanStatus("success", language)
+          : toHumanStatus(roleCapabilitiesStatus, language)
+      }`
+    },
+    {
+      id: "sync-event",
+      occurredAt:
+        latestRecentActivityRow?.occurredAt ??
+        openOperationalAlerts[0]?.lastEvaluatedAt ??
+        new Date().toISOString(),
+      summary: `${translate("productSystemStatusSyncLabel")} · ${
+        pendingQueueCount > 0
+          ? `${pendingQueueCount} ${
+              pendingQueueCount === 1
+                ? translate("productSystemStatusQueuePendingSingular")
+                : translate("productSystemStatusQueuePendingPlural")
+            }`
+          : translate("productSystemStatusQueueClearDetail")
+      }`
+    },
+    {
+      id: "release-event",
+      occurredAt:
+        openOperationalAlerts[0]?.triggeredAt ??
+        structuredLogs[0]?.occurredAt ??
+        new Date().toISOString(),
+      summary: `${translate("systemStatusReleaseLabel")} · ${
+        releaseCompatibilityStatus === "compatible"
+          ? toHumanStatus("success", language)
+          : translate("productSystemStatusDegradedStatus")
+      }`
+    }
+  ] as const;
+  const productSystemStatusChips = [
+    {
+      id: "status",
+      label: translate("productSystemStatusSummaryLabel"),
+      value:
+        pendingQueueCount > 0 || releaseCompatibilityStatus !== "compatible"
+          ? translate("productSystemStatusSummaryAttention")
+          : translate("productSystemStatusSummaryHealthy")
+    }
+  ] as const;
+  const productQuickActions = [
+    {
+      id: "add-athlete",
+      icon: "✦",
+      title: translate("productQuickActionAddAthleteTitle"),
+      meta: translate("productQuickActionAddAthleteMeta"),
+      tone: "positive" as const,
+      onPress: () => {
+        handleDomainSelection("onboarding");
+      }
+    },
+    {
+      id: "create-plan",
+      icon: "▤",
+      title: translate("productQuickActionCreatePlanTitle"),
+      meta: translate("productQuickActionCreatePlanMeta"),
+      tone: "neutral" as const,
+      onPress: () => {
+        handleDomainSelection("training");
+        void handleLoadPlans();
+      }
+    },
+    {
+      id: "assign-session",
+      icon: "▶",
+      title: translate("productQuickActionAssignSessionTitle"),
+      meta: translate("productQuickActionAssignSessionMeta"),
+      tone: "positive" as const,
+      onPress: () => {
+        handleDomainSelection("training");
+        void handleLoadSessions();
+      }
+    },
+    {
+      id: "export-report",
+      icon: "⇣",
+      title: translate("productQuickActionExportTitle"),
+      meta: translate("productQuickActionExportMeta"),
+      tone: "neutral" as const,
+      onPress: () => {
+        handleDomainSelection("progress");
+        void handleLoadProgressSummary();
+      }
+    },
+    {
+      id: "review-alerts",
+      icon: "△",
+      title: translate("productQuickActionReviewAlertsTitle"),
+      meta: `${Math.max(productPrioritySignalsCount, 1)} ${translate("productQuickActionReviewAlertsMeta")}`,
+      tone: "critical" as const,
+      onPress: () => {
+        setProductPanelView("alert_center");
+        void handleRefreshAlertCenter();
+      }
+    },
+    {
+      id: "message-athlete",
+      icon: "✉",
+      title: translate("productQuickActionMessageTitle"),
+      meta: translate("productQuickActionMessageMeta"),
+      tone: "neutral" as const,
+      onPress: () => {
+        handleDomainSelection("onboarding");
+      }
+    }
+  ];
 
   return (
-    <div className={`app-shell tone-${readiness.tone}`}>
+    <div
+      className={`app-shell tone-${readiness.tone} ${showProductAccessExperience ? "product-access-shell" : ""} ${showProductDashboardExperience ? "product-dashboard-shell" : ""}`}
+    >
       <div className="app-background app-background-left" />
       <div className="app-background app-background-right" />
-      <main className="app-main">
-        <section
-          className="hero-card"
-          data-screen-id={signInScreenModel.screenId}
-          data-route-id={signInScreenModel.routeId}
-          data-status-id={signInScreenModel.statusId}
-          aria-busy={isAuthLoading}
-        >
-          <div className="hero-content">
-            <p className="eyebrow">{translate("appName")}</p>
-            <h1>{translate("heroTitle")}</h1>
-            <p className="hero-copy">{translate("heroCopy")}</p>
-            <HeroAuthPanel
-              isAuthLoading={isAuthLoading}
-              email={email}
-              password={password}
-              emailPlaceholder={translate("emailPlaceholder")}
-              passwordPlaceholder={translate("passwordPlaceholder")}
-              signInWithAppleLabel={translate("signInWithApple")}
-              signInWithEmailLabel={translate("signInWithEmail")}
-              recoverByEmailLabel={translate("recoverByEmail")}
-              recoverBySMSLabel={translate("recoverBySMS")}
-              authStatusLabel={resolveAuthHeroStatus({
-                authStatus,
-                hasAuthenticatedSession,
-                language
-              })}
-              actionIds={{
-                apple: signInScreenModel.actions.apple,
-                email: signInScreenModel.actions.email,
-                recoverEmail: signInScreenModel.actions.recoverEmail,
-                recoverSMS: signInScreenModel.actions.recoverSMS,
-                status: signInScreenModel.statusId
+      <main
+        className={`app-main ${showProductAccessExperience ? "product-access-main" : ""} ${showProductDashboardExperience ? "product-dashboard-main" : ""}`}
+      >
+        {showProductAccessExperience ? (
+          <section
+            className="product-access-layout"
+            data-screen-id={
+              isProductAccessGateStep ? accessGateScreenModel.screenId : signInScreenModel.screenId
+            }
+            data-route-id={
+              isProductAccessGateStep ? accessGateScreenModel.routeId : signInScreenModel.routeId
+            }
+            data-status-id={isProductAccessGateStep ? accessGateStatusId : signInScreenModel.statusId}
+            aria-busy={isAuthLoading}
+          >
+            <header className="product-access-header">
+              <div className="product-brand-lockup" aria-label={translate("appName")}>
+                <span className="product-brand-mark">FLUX</span>
+              </div>
+              <div className="product-access-header-meta">
+                {isProductAccessGateStep ? null : (
+                  <button
+                    className="product-access-back"
+                    onClick={handleReturnToProductAccess}
+                    type="button"
+                  >
+                    {translate("productBackToAccess")}
+                  </button>
+                )}
+                <div className="product-language-toggle" role="group" aria-label={translate("languageLabel")}>
+                  <button
+                    className={`button ghost language-button ${language === "es" ? "active" : ""}`}
+                    onClick={() => setLanguage("es")}
+                    type="button"
+                  >
+                    ES
+                  </button>
+                  <button
+                    className={`button ghost language-button ${language === "en" ? "active" : ""}`}
+                    onClick={() => setLanguage("en")}
+                    type="button"
+                  >
+                    EN
+                  </button>
+                </div>
+              </div>
+            </header>
+            <div className="product-access-stage">
+              <div className="product-access-card">
+                <div className="hero-content product-access-copy">
+                  <h1>
+                    {isProductAccessGateStep
+                      ? translate("productAccessTitle")
+                      : translate("productSignInTitle")}
+                  </h1>
+                  {isProductAccessGateStep ? (
+                    <p className="hero-copy">{translate("productAccessCopy")}</p>
+                  ) : (
+                    <p className="product-access-identity">{email.trim().toLowerCase()}</p>
+                  )}
+                </div>
+                <HeroAuthPanel
+                  isAuthLoading={isAuthLoading}
+                  email={email}
+                  password={password}
+                  emailPlaceholder={translate("emailPlaceholder")}
+                  passwordPlaceholder={translate("passwordPlaceholder")}
+                  signInWithAppleLabel={translate("signInWithApple")}
+                  signInWithGoogleLabel={translate("signInWithGoogle")}
+                  signInWithEmailLabel={translate("signInWithEmail")}
+                  recoverByEmailLabel={translate("recoverByEmail")}
+                  recoverBySMSLabel={translate("recoverBySMS")}
+                  authStatusLabel={resolveAuthHeroStatus({
+                    authStatus,
+                    hasAuthenticatedSession,
+                    language
+                  })}
+                  showStatus={showHeroAuthStatus}
+                  productMode={true}
+                  productStep={productAuthStep}
+                  dividerLabel={language === "es" ? "o" : "or"}
+                  continueWithEmailLabel={translate("productContinueLabel")}
+                  continueWithGoogleLabel={translate("continueWithGoogle")}
+                  accessHintLabel={translate("productAccessHint")}
+                  actionIds={{
+                    apple: signInScreenModel.actions.apple,
+                    google: isProductAccessGateStep
+                      ? accessGateGoogleActionId
+                      : signInScreenModel.actions.google,
+                    email: isProductAccessGateStep
+                      ? accessGateEmailActionId
+                      : signInScreenModel.actions.email,
+                    recoverEmail: signInScreenModel.actions.recoverEmail,
+                    recoverSMS: signInScreenModel.actions.recoverSMS,
+                    status: isProductAccessGateStep ? accessGateStatusId : signInScreenModel.statusId
+                  }}
+                  onAppleSignIn={handleAppleSignIn}
+                  onGoogleSignIn={handleGoogleSignIn}
+                  onEmailChange={(value) => {
+                    setEmail(value);
+                    if (isProductAccessGateStep && authStatus === "validation_error") {
+                      setAuthStatus("signed_out");
+                    }
+                  }}
+                  onPasswordChange={setPassword}
+                  onEmailSignIn={() => {
+                    if (isProductAccessGateStep) {
+                      handleAdvanceProductAccessWithEmail();
+                      return;
+                    }
+                    void handleEmailSignIn();
+                  }}
+                  onEmailRecovery={handleEmailRecovery}
+                />
+              </div>
+            </div>
+            <footer className="product-access-footer">{translate("productAccessFooter")}</footer>
+          </section>
+        ) : showQATools ? (
+          <section
+            className="hero-card"
+            data-screen-id={signInScreenModel.screenId}
+            data-route-id={signInScreenModel.routeId}
+            data-status-id={signInScreenModel.statusId}
+            aria-busy={isAuthLoading}
+          >
+            <div className="hero-content">
+              <p className="eyebrow">{translate("appName")}</p>
+              <h1>{translate("heroTitle")}</h1>
+              <p className="hero-copy">{translate("heroCopy")}</p>
+              <HeroAuthPanel
+                isAuthLoading={isAuthLoading}
+                email={email}
+                password={password}
+                emailPlaceholder={translate("emailPlaceholder")}
+                passwordPlaceholder={translate("passwordPlaceholder")}
+                signInWithAppleLabel={translate("signInWithApple")}
+                signInWithGoogleLabel={translate("signInWithGoogle")}
+                signInWithEmailLabel={translate("signInWithEmail")}
+                recoverByEmailLabel={translate("recoverByEmail")}
+                recoverBySMSLabel={translate("recoverBySMS")}
+                authStatusLabel={resolveAuthHeroStatus({
+                  authStatus,
+                  hasAuthenticatedSession,
+                  language
+                })}
+                showStatus={showHeroAuthStatus}
+                actionIds={{
+                  apple: signInScreenModel.actions.apple,
+                  google: signInScreenModel.actions.google,
+                  email: signInScreenModel.actions.email,
+                  recoverEmail: signInScreenModel.actions.recoverEmail,
+                  recoverSMS: signInScreenModel.actions.recoverSMS,
+                  status: signInScreenModel.statusId
+                }}
+                onAppleSignIn={handleAppleSignIn}
+                onGoogleSignIn={handleGoogleSignIn}
+                onEmailChange={setEmail}
+                onPasswordChange={setPassword}
+                onEmailSignIn={() => {
+                  void handleEmailSignIn();
+                }}
+                onEmailRecovery={handleEmailRecovery}
+              />
+            </div>
+            <HeroStatusPanel
+              language={language}
+              showQATools={showQATools}
+              webLane={webLane}
+              readinessScore={readiness.score}
+              readinessStateLabel={readinessLabel(readiness.label, language)}
+              labels={{
+                language: translate("languageLabel"),
+                lane: translate("laneLabel"),
+                laneMain: translate("laneMain"),
+                laneSecondary: translate("laneSecondary"),
+                readiness: translate("readinessLabel"),
+                authMetric: translate("authMetric"),
+                queueMetric: translate("queueMetric"),
+                goalMetric: translate("goalMetric"),
+                syncMetric: translate("syncMetric"),
+                runtimeMetric: translate("runtimeStateModeLabel")
               }}
-              onAppleSignIn={handleAppleSignIn}
-              onEmailChange={setEmail}
-              onPasswordChange={setPassword}
-              onEmailSignIn={() => {
-                void handleEmailSignIn();
+              values={{
+                goal: goalLabel(goal, language),
+                auth: heroAuthMetricValue,
+                queue: String(pendingQueueCount),
+                sync: humanizeStatus(syncStatus, language),
+                runtime: toHumanStatus(runtimeStateForUI, language)
               }}
-              onEmailRecovery={handleEmailRecovery}
+              hasAuthenticatedSession={hasAuthenticatedSession}
+              onLanguageChange={setLanguage}
+              onWebLaneChange={setWebLane}
             />
-          </div>
-          <HeroStatusPanel
-            language={language}
-            showQATools={showQATools}
-            webLane={webLane}
-            readinessScore={readiness.score}
-            readinessStateLabel={readinessLabel(readiness.label, language)}
-            labels={{
-              language: translate("languageLabel"),
-              lane: translate("laneLabel"),
-              laneMain: translate("laneMain"),
-              laneSecondary: translate("laneSecondary"),
-              readiness: translate("readinessLabel"),
-              authMetric: translate("authMetric"),
-              queueMetric: translate("queueMetric"),
-              goalMetric: translate("goalMetric"),
-              syncMetric: translate("syncMetric"),
-              runtimeMetric: translate("runtimeStateModeLabel")
-            }}
-            values={{
-              goal: goalLabel(goal, language),
-              auth: heroAuthMetricValue,
-              queue: String(pendingQueueCount),
-              sync: humanizeStatus(syncStatus, language),
-              runtime: toHumanStatus(runtimeStateForUI, language)
-            }}
-            hasAuthenticatedSession={hasAuthenticatedSession}
-            onLanguageChange={setLanguage}
-            onWebLaneChange={setWebLane}
-          />
-        </section>
+          </section>
+        ) : null}
+
+        {showProductDashboardExperience ? (
+          <aside className="product-sidebar">
+            <div className="product-sidebar-brand" aria-label={translate("appName")}>
+              <span className="product-brand-mark">FLUX</span>
+              <span className="product-sidebar-brand-copy">{translate("domainTraining")}</span>
+            </div>
+            <nav className="product-sidebar-nav" aria-label={translate("domainFilterLabel")}>
+              {productDashboardNav.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  className={`button ghost product-sidebar-link ${activeDomainForUI === tab.id ? "active" : ""}`}
+                  onClick={() => {
+                    handleDomainSelection(tab.id);
+                  }}
+                >
+                  <span className="product-sidebar-link-icon" aria-hidden="true">
+                    {tab.icon}
+                  </span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+            <div className="product-sidebar-divider" aria-hidden="true" />
+            <div className="product-sidebar-secondary-nav" aria-label={translate("appName")}>
+              {productSidebarSecondaryNav.map((item) => (
+                item.onPress !== undefined ? (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`product-sidebar-secondary-link interactive ${item.active ? "active" : ""}`}
+                    onClick={item.onPress}
+                  >
+                    <span className="product-sidebar-secondary-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </button>
+                ) : (
+                  <span key={item.id} className="product-sidebar-secondary-link">
+                    <span className="product-sidebar-secondary-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </span>
+                )
+              ))}
+            </div>
+            <div className="product-sidebar-spacer" aria-hidden="true" />
+            <div className="product-sidebar-user">
+              <span className="product-user-avatar" aria-hidden="true">
+                {productUserInitials}
+              </span>
+              <div className="product-user-copy">
+                <strong>{productUserLabel}</strong>
+                <span>{productUserMeta}</span>
+              </div>
+            </div>
+          </aside>
+        ) : null}
+
+        {showProductDashboardExperience ? (
+          <section className="product-topbar">
+            <div className="product-topbar-copyblock">
+              {showCompactOverviewTopbar ? (
+                productPanelView === "dashboard_kpis" ? (
+                  <div className="product-panel-headline product-panel-headline-kpis">
+                    <p className="product-shell-breadcrumb overview-inline">
+                      <strong>{productWorkspaceTitle}</strong>
+                      <span aria-hidden="true">/</span>
+                      <button
+                        className="product-shell-breadcrumb-button"
+                        type="button"
+                        onClick={() => {
+                          setProductPanelView("overview");
+                        }}
+                      >
+                        {translate("productDashboardKpisBreadcrumb")}
+                      </button>
+                      <span className="product-shell-breadcrumb-context">— {productDashboardKpiDateLabel}</span>
+                    </p>
+                    <div
+                      className="product-panel-chip-row product-panel-chip-row-interactive"
+                      aria-label={translate("productDashboardKpisTitle")}
+                    >
+                      {productDashboardKpiRanges.map((range) => (
+                        <button
+                          key={range.id}
+                          className={`product-panel-chip product-panel-chip-button ${
+                            productDashboardKpiRange === range.id ? "active" : ""
+                          }`}
+                          type="button"
+                          onClick={() => {
+                            setProductDashboardKpiRange(range.id);
+                          }}
+                        >
+                          <strong>{range.label}</strong>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : productPanelView === "readiness_monitor" ? (
+                  <div className="product-panel-headline product-panel-headline-readiness">
+                    <strong>{translate("productReadinessMonitorTitle")}</strong>
+                    <span className="product-panel-headline-support">
+                      {translate("productReadinessMonitorTeamSuffix")}
+                    </span>
+                  </div>
+                ) : productPanelView === "alert_center" ? (
+                  <div className="product-panel-headline">
+                    <strong>{translate("productAlertCenterTitle")}</strong>
+                    <div className="product-panel-chip-row" aria-label={translate("productAlertCenterTitle")}>
+                      {productAlertCenterChips.map((chip) => (
+                        <span key={chip.id} className="product-panel-chip">
+                          <span>{chip.label}</span>
+                          <strong>{chip.value}</strong>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : productPanelView === "system_status" ? (
+                  <div className="product-panel-headline">
+                    <strong>{translate("productSystemStatusTitle")}</strong>
+                    <div className="product-panel-chip-row" aria-label={translate("productSystemStatusTitle")}>
+                      {productSystemStatusChips.map((chip) => (
+                        <span key={chip.id} className="product-panel-chip">
+                          <span>{chip.label}</span>
+                          <strong>{chip.value}</strong>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="product-shell-breadcrumb overview-inline">
+                    <strong>{productWorkspaceTitle}</strong>
+                    <span aria-hidden="true">/</span>
+                    <button
+                      className="product-shell-breadcrumb-button"
+                      type="button"
+                      onClick={() =>
+                        setProductPanelView((current) =>
+                          current === "overview" ? "quick_actions" : "overview"
+                        )
+                      }
+                    >
+                      {productWorkspaceBreadcrumb}
+                    </button>
+                  </p>
+                )
+              ) : (
+                <>
+                  <p className="product-shell-breadcrumb">
+                    <span>{translate("productDashboardNavOverview")}</span>
+                    <span aria-hidden="true">/</span>
+                    <strong>{productWorkspaceBreadcrumb}</strong>
+                  </p>
+                  <h1>{productWorkspaceTitle}</h1>
+                </>
+              )}
+            </div>
+            {productPanelView === "readiness_monitor" ? (
+              <button
+                className="button ghost product-topbar-utility"
+                type="button"
+                onClick={handleExportProductReadinessCSV}
+              >
+                {translate("productReadinessMonitorExportAction")}
+              </button>
+            ) : (
+              <label className="product-topbar-search" aria-label={translate("productDashboardSearchPlaceholder")}>
+                <span aria-hidden="true">⌕</span>
+                <input
+                  type="search"
+                  placeholder={translate("productDashboardSearchPlaceholder")}
+                  readOnly
+                />
+              </label>
+            )}
+            <div className="product-topbar-meta">
+              {productPanelView === "readiness_monitor" ? null : (
+                <button
+                  className={`product-topbar-badge ${productPanelView === "alert_center" ? "active" : ""}`}
+                  type="button"
+                  aria-label={translate("productAlertCenterOpenLabel")}
+                  onClick={() =>
+                    setProductPanelView((current) =>
+                      current === "alert_center" ? "overview" : "alert_center"
+                    )
+                  }
+                >
+                  {openOperationalAlerts.length}
+                </button>
+              )}
+              <span className="product-topbar-avatar" aria-hidden="true">
+                {productUserInitials}
+              </span>
+            </div>
+          </section>
+        ) : null}
 
         {releaseCompatibilityStatus === "upgrade_required" ? (
           <section className="status-banner critical">
             <strong>{translate("updateRequiredTitle")}</strong>
             <p>{translate("updateRequiredCopy")}</p>
           </section>
+        ) : null}
+
+        {showProductOverviewPanel ? (
+          <ProductOverviewPanel
+            title={translate("productOverviewTitle")}
+            summary={translate("productOverviewSummary")}
+            metrics={[...productOverviewMetrics]}
+            bars={[...productOverviewBars]}
+            alertsTitle={translate("productOverviewAlertsTitle")}
+            alerts={productOverviewAlerts}
+            emptyAlertsLabel={translate("alertCenterNoAlerts")}
+            viewAllAlertsLabel={translate("productDashboardAlertsAction")}
+            onViewAllAlerts={() => {
+              setProductPanelView("alert_center");
+              void handleRefreshAlertCenter();
+            }}
+            openKpisLabel={translate("productDashboardKpisOpenLabel")}
+            onOpenKpis={() => {
+              setProductDashboardKpiRange("today");
+              setProductPanelView("dashboard_kpis");
+            }}
+          />
+        ) : null}
+
+        {showProductDashboardKpisPanel ? (
+          <ProductDashboardKpisPanel
+            screenId={dashboardKpisScreenModel.screenId}
+            routeId={dashboardKpisScreenModel.routeId}
+            status={dashboardKpisScreenModel.status}
+            cards={productDashboardKpiCards}
+            insightSummary={productDashboardKpiInsightSummary}
+            insightActionLabel={translate("productDashboardKpisInsightAction")}
+            onInsightPress={() => {
+              handleDomainSelection("progress");
+            }}
+          />
+        ) : null}
+
+        {showProductReadinessMonitorPanel ? (
+          <ProductReadinessMonitorPanel
+            screenId={readinessMonitorScreenModel.screenId}
+            routeId={readinessMonitorScreenModel.routeId}
+            status={readinessMonitorScreenModel.status}
+            athletesTitle={translate("productReadinessMonitorAthletesTitle")}
+            athletes={productReadinessAthletes}
+            viewAllLabel={`${translate("productReadinessMonitorViewAllPrefix")} (${athleteOperationRowsBase.length}) →`}
+            onViewAll={() => {
+              handleDomainSelection("onboarding");
+            }}
+            trendTitle={translate("productReadinessMonitorTrendTitle")}
+            trendLegendLabel={translate("productReadinessMonitorLegendLabel")}
+            trendCriticalLegendLabel={translate("productReadinessMonitorCriticalLegend")}
+            trendBars={productReadinessTrendBars}
+            insight={productReadinessInsight}
+          />
+        ) : null}
+
+        {showProductAlertCenterPanel ? (
+          <ProductAlertCenterPanel
+            screenId={alertCenterScreenModel.screenId}
+            routeId={alertCenterScreenModel.routeId}
+            status={alertCenterScreenModel.status}
+            items={productAlertCenterRows}
+            emptyLabel={translate("productAlertCenterEmpty")}
+            footerTitle={translate("productAlertCenterFooterTitle")}
+            footerMeta={`${operationalRunbooks.length} ${translate("productAlertCenterFooterRunbooksMeta")} · ${recentActivityRows.length} ${translate("productAlertCenterFooterActivityMeta")}`}
+          />
+        ) : null}
+
+        {showProductSystemStatusPanel ? (
+          <ProductSystemStatusPanel
+            screenId={systemStatusScreenModel.screenId}
+            routeId={systemStatusScreenModel.routeId}
+            status={systemStatusScreenModel.status}
+            cards={productSystemStatusCards}
+            eventsTitle={translate("productSystemStatusEventsTitle")}
+            events={productSystemStatusEvents.map((event) => ({
+              ...event,
+              occurredAt: new Date(event.occurredAt).toLocaleTimeString(overviewLocale, {
+                hour: "2-digit",
+                minute: "2-digit"
+              })
+            }))}
+          />
+        ) : null}
+
+        {showProductQuickActionsPanel ? (
+          <ProductQuickActionsPanel
+            screenId={quickActionsScreenModel.screenId}
+            routeId={quickActionsScreenModel.routeId}
+            status={quickActionsScreenModel.status}
+            title={translate("productQuickActionsTitle")}
+            actions={productQuickActions}
+          />
         ) : null}
 
         {showQATools ? (
@@ -4192,14 +6016,54 @@ export function App() {
           />
         ) : null}
 
-        <section
-          id="dashboard-grid"
-          className="dashboard-grid"
-          data-screen-id={hasAuthenticatedSession ? dashboardHomeScreenModel.screenId : undefined}
-          data-route-id={hasAuthenticatedSession ? dashboardHomeScreenModel.routeId : undefined}
-          data-screen-state={hasAuthenticatedSession ? dashboardHomeScreenModel.status : undefined}
-          aria-busy={dashboardHomeScreenModel.status === "loading"}
-        >
+        {showProductDashboardExperience ? (
+          isProductOverviewDomain === false ? (
+            <section className="product-workspace-header">
+              <div>
+                <p className="eyebrow">{translate("dashboardHomeTitle")}</p>
+                <h2>{productWorkspaceTitle}</h2>
+                <p>{translate("productWorkspaceSummary")}</p>
+              </div>
+            </section>
+          ) : null
+        ) : hasAuthenticatedSession && !showQATools ? (
+          <section
+            className="dashboard-section-card"
+            data-screen-id="web.productDomainTabs.screen"
+            data-route-id="web.productDomainTabs.route"
+            data-screen-state="success"
+          >
+            <div className="domain-filter-tabs" role="tablist" aria-label={translate("domainFilterLabel")}>
+              {domainTabsForUI.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeDomainForUI === tab.id}
+                  className={`button ghost domain-tab ${activeDomainForUI === tab.id ? "active" : ""}`}
+                  onClick={() => {
+                    handleDomainSelection(tab.id);
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {hasAuthenticatedSession === false ||
+        runtimeStateForUI !== "success" ||
+        isQAMode ||
+        isProductOverviewDomain === false ? (
+          <section
+            id="dashboard-grid"
+            className={`dashboard-grid ${showProductDashboardExperience ? "product-workspace-grid" : ""}`}
+            data-screen-id={hasAuthenticatedSession ? dashboardHomeScreenModel.screenId : undefined}
+            data-route-id={hasAuthenticatedSession ? dashboardHomeScreenModel.routeId : undefined}
+            data-screen-state={hasAuthenticatedSession ? dashboardHomeScreenModel.status : undefined}
+            aria-busy={dashboardHomeScreenModel.status === "loading"}
+          >
           {hasAuthenticatedSession === false ? (
             isQAMode ? (
               <AccessGateCard
@@ -4213,10 +6077,13 @@ export function App() {
                     : "Access required to load the operational dashboard."
                 }
                 signInWithAppleLabel={translate("signInWithApple")}
+                signInWithGoogleLabel={translate("signInWithGoogle")}
                 signInWithEmailLabel={translate("signInWithEmail")}
                 appleActionId={accessGateAppleActionId}
+                googleActionId={accessGateGoogleActionId}
                 emailActionId={accessGateEmailActionId}
                 onAppleSignIn={handleAppleSignIn}
+                onGoogleSignIn={handleGoogleSignIn}
                 onEmailSignIn={handleEmailSignIn}
               />
             ) : null
@@ -4577,12 +6444,13 @@ export function App() {
               ) : null}
                 </>
               ) : null}
-          {canRenderOperationalModules && isModuleVisibleForUI("onboarding") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("onboarding") ? (
             <OnboardingCard
               title={translate("onboardingSectionTitle")}
               statusLabel={translate("onboardingStatusLabel")}
               statusValue={toHumanStatus(onboardingStatus, language)}
               statusClass={toStatusClass(onboardingStatus)}
+              showStatus={isQAMode}
               displayNameLabel={translate("displayNamePlaceholder")}
               displayName={displayName}
               onDisplayNameChange={setDisplayName}
@@ -4613,25 +6481,12 @@ export function App() {
               parQ2Label={translate("parQQuestionTwo")}
               parQ2={parQ2}
               onParQ2Change={setParQ2}
-              privacyPolicyLabel={translate("acceptPrivacyPolicy")}
-              privacyPolicyAccepted={privacyPolicyAccepted}
-              onPrivacyPolicyChange={setPrivacyPolicyAccepted}
-              termsLabel={translate("acceptTerms")}
-              termsAccepted={termsAccepted}
-              onTermsChange={setTermsAccepted}
-              medicalDisclaimerLabel={translate("acceptMedicalDisclaimer")}
-              medicalDisclaimerAccepted={medicalDisclaimerAccepted}
-              onMedicalDisclaimerChange={setMedicalDisclaimerAccepted}
               completeLabel={translate("completeOnboarding")}
               onComplete={handleCompleteOnboarding}
-              saveConsentLabel={translate("saveConsent")}
-              onSaveConsent={handleSubmitLegalConsent}
-              exportDataLabel={translate("exportData")}
-              onExportData={handleExportData}
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("training") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("training") ? (
             <article
               className="module-card"
               data-screen-id={plansListScreenModel.screenId}
@@ -4910,7 +6765,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("operationsHub") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("operationsHub") ? (
             <article
               className="module-card"
               data-screen-id={athletesListScreenModel.screenId}
@@ -5086,7 +6941,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("adminGovernance") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("adminGovernance") ? (
             <article
               className="module-card"
               data-screen-id={adminUsersScreenModel.screenId}
@@ -5162,7 +7017,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("auditCompliance") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("auditCompliance") ? (
             <article
               className="module-card"
               data-screen-id={auditTrailScreenModel.screenId}
@@ -5264,7 +7119,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("billingSupport") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("billingSupport") ? (
             <article
               className="module-card"
               data-screen-id={billingOverviewScreenModel.screenId}
@@ -5385,7 +7240,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("recommendations") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("recommendations") ? (
             <article
               className="module-card"
               data-screen-id={aiInsightsScreenModel.screenId}
@@ -5426,7 +7281,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("nutrition") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("nutrition") ? (
             <article
               className="module-card"
               data-screen-id={nutritionOverviewScreenModel.screenId}
@@ -5634,7 +7489,7 @@ export function App() {
             </article>
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("progress") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("progress") ? (
             <ProgressTrendsPanel
               screenId={progressTrendsScreenModel.screenId}
               routeId={progressTrendsScreenModel.routeId}
@@ -5642,6 +7497,7 @@ export function App() {
               title={translate("progressTrendsTitle")}
               status={progressTrendsScreenModel.status}
               statusLabel={translate("progressTrendsStatusLabel")}
+              showStatus={isQAMode}
               summary={translate("progressTrendsSummary")}
               refreshLabel={translate("progressTrendsRefreshAction")}
               refreshActionId={progressTrendsScreenModel.actions.refresh}
@@ -5679,7 +7535,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("offlineSync") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("offlineSync") ? (
             <OfflineSyncPanel
               screenId="web.offlineSync.screen"
               routeId="web.route.offlineSync"
@@ -5715,7 +7571,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("settings") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("settings") ? (
             <SettingsPanel
               screenId="web.settings.screen"
               routeId="web.route.settings"
@@ -5723,6 +7579,7 @@ export function App() {
               title={translate("settingsTitle")}
               status={toHumanStatus(settingsStatus, language)}
               statusLabel={translate("settingsStatusLabel")}
+              showStatus={isQAMode}
               notificationsEnabled={notificationsEnabled}
               onNotificationsChange={setNotificationsEnabled}
               notificationsLabel={translate("notificationsPreference")}
@@ -5738,7 +7595,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("legal") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("legal") ? (
             <LegalCompliancePanel
               screenId={legalComplianceScreenModel.screenId}
               routeId={legalComplianceScreenModel.routeId}
@@ -5746,9 +7603,20 @@ export function App() {
               title={translate("legalSectionTitle")}
               status={legalComplianceScreenModel.status}
               statusLabel={translate("legalStatusLabel")}
+              showStatus={isQAMode}
               summaryLabel={translate("legalSummaryLabel")}
               summaryValue={`${privacyPolicyAccepted && termsAccepted && medicalDisclaimerAccepted ? "saved" : "idle"}`}
+              showSummary={isQAMode}
               language={language}
+              privacyPolicyLabel={translate("acceptPrivacyPolicy")}
+              privacyPolicyAccepted={privacyPolicyAccepted}
+              onPrivacyPolicyChange={setPrivacyPolicyAccepted}
+              termsLabel={translate("acceptTerms")}
+              termsAccepted={termsAccepted}
+              onTermsChange={setTermsAccepted}
+              medicalDisclaimerLabel={translate("acceptMedicalDisclaimer")}
+              medicalDisclaimerAccepted={medicalDisclaimerAccepted}
+              onMedicalDisclaimerChange={setMedicalDisclaimerAccepted}
               saveConsentLabel={translate("saveConsent")}
               exportDataLabel={translate("exportData")}
               requestDeletionLabel={translate("requestDeletion")}
@@ -5761,7 +7629,7 @@ export function App() {
             />
           ) : null}
 
-          {canRenderOperationalModules && isModuleVisibleForUI("observability") ? (
+          {canRenderDomainWorkspaceModules && isModuleVisibleForUI("observability") ? (
             <ObservabilityPanel
               screenId={analyticsOverviewScreenModel.screenId}
               routeId={analyticsOverviewScreenModel.routeId}
@@ -5803,7 +7671,8 @@ export function App() {
           ) : null}
             </>
           )}
-        </section>
+          </section>
+        ) : null}
       </main>
     </div>
   );
@@ -5891,6 +7760,556 @@ const DenseRowsInfo = memo(function DenseRowsInfo({
 
 function toHumanStatus(status: string, language: AppLanguage): string {
   return humanizeStatus(status, language);
+}
+
+function clampNumber(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function formatProductAthleteLabel(
+  athleteId: string | undefined,
+  activeDisplayName: string | null
+): string {
+  if (athleteId === undefined || athleteId.trim().length === 0) {
+    return activeDisplayName?.trim().length ? activeDisplayName.trim() : "Athlete";
+  }
+
+  const normalizedAthleteId = athleteId.trim().toLowerCase();
+  if (
+    normalizedAthleteId.startsWith("local-preview-session-") ||
+    normalizedAthleteId.startsWith("preview-google-") ||
+    normalizedAthleteId.startsWith("preview-apple-")
+  ) {
+    return activeDisplayName?.trim().length ? activeDisplayName.trim() : "Preview Athlete";
+  }
+
+  const previewLabelBySlug: Record<string, string> = {
+    pablo: "Pablo M.",
+    laura: "Laura R.",
+    marta: "Marta R."
+  };
+  const previewSlug = normalizedAthleteId.replace(/^preview-athlete-/, "");
+  if (previewLabelBySlug[previewSlug] !== undefined) {
+    return previewLabelBySlug[previewSlug] as string;
+  }
+
+  const emailLocalPart = normalizedAthleteId.includes("@")
+    ? normalizedAthleteId.split("@")[0] ?? normalizedAthleteId
+    : normalizedAthleteId;
+  const normalizedNameSource = emailLocalPart
+    .replace(/^preview-/, "")
+    .replace(/^athlete-/, "")
+    .replace(/^user-/, "")
+    .replace(/[._]+/g, "-");
+  const fragments = normalizedNameSource
+    .split("-")
+    .filter((fragment) => fragment.length > 0 && /^[a-z0-9]+$/.test(fragment));
+
+  if (fragments.length === 0) {
+    return athleteId;
+  }
+
+  return fragments
+    .slice(0, 2)
+    .map((fragment, index) =>
+      index === 0
+        ? `${fragment.charAt(0).toUpperCase()}${fragment.slice(1)}`
+        : `${fragment.charAt(0).toUpperCase()}.`
+    )
+    .join(" ");
+}
+
+function isLocalPreviewAuthSession(session: AuthSession): boolean {
+  return session.sessionId.startsWith("local-preview-session-");
+}
+
+function formatLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function createDateWithOffset(
+  baseDate: Date,
+  dayOffset: number,
+  hours: number,
+  minutes: number
+): string {
+  const nextDate = new Date(baseDate);
+  nextDate.setDate(baseDate.getDate() + dayOffset);
+  nextDate.setHours(hours, minutes, 0, 0);
+  return nextDate.toISOString();
+}
+
+function formatOffsetDateKey(baseDate: Date, dayOffset: number): string {
+  const nextDate = new Date(baseDate);
+  nextDate.setDate(baseDate.getDate() + dayOffset);
+  return formatLocalDateKey(nextDate);
+}
+
+function createLocalPreviewDashboardSeed(userId: string, now = new Date()): {
+  plans: TrainingPlan[];
+  sessions: WorkoutSessionInput[];
+  nutritionLogs: NutritionLog[];
+  progressSummary: ProgressSummary;
+  operationalAlerts: OperationalAlert[];
+  operationalRunbooks: OperationalRunbook[];
+  recommendations: AIRecommendation[];
+  activityLogEntries: ActivityLogEntry[];
+  analyticsEvents: AnalyticsEvent[];
+  crashReports: CrashReport[];
+  observabilitySummary: ObservabilitySummary;
+  structuredLogs: StructuredLog[];
+  pendingQueueCount: number;
+} {
+  const previewAthletes = [
+    userId,
+    "preview-athlete-pablo",
+    "preview-athlete-laura",
+    "preview-athlete-marta"
+  ] as const;
+  const dayMinus6 = formatOffsetDateKey(now, -6);
+  const dayMinus5 = formatOffsetDateKey(now, -5);
+  const dayMinus4 = formatOffsetDateKey(now, -4);
+  const dayMinus3 = formatOffsetDateKey(now, -3);
+  const dayMinus2 = formatOffsetDateKey(now, -2);
+  const dayMinus1 = formatOffsetDateKey(now, -1);
+  const today = formatOffsetDateKey(now, 0);
+  const basePlanDays = [
+    {
+      dayIndex: 1,
+      exercises: [
+        { exerciseId: "goblet-squat", targetSets: 4, targetReps: 10 },
+        { exerciseId: "push-up", targetSets: 4, targetReps: 12 }
+      ]
+    },
+    {
+      dayIndex: 3,
+      exercises: [
+        { exerciseId: "romanian-deadlift", targetSets: 4, targetReps: 10 },
+        { exerciseId: "lat-pulldown", targetSets: 4, targetReps: 12 }
+      ]
+    },
+    {
+      dayIndex: 5,
+      exercises: [
+        { exerciseId: "split-squat", targetSets: 3, targetReps: 12 },
+        { exerciseId: "seated-row", targetSets: 3, targetReps: 12 }
+      ]
+    }
+  ];
+
+  const plans: TrainingPlan[] = previewAthletes.map((athleteId, index) => ({
+    id: `${athleteId}-plan-${index + 1}`,
+    userId: athleteId,
+    name: index === 0 ? "Performance Reset" : `Starter Cohort ${index}`,
+    weeks: 6,
+    days: [...basePlanDays],
+    createdAt: createDateWithOffset(now, -14 + index, 9, 15)
+  }));
+
+  const sessions: WorkoutSessionInput[] = [
+    {
+      userId,
+      planId: `${userId}-plan-1`,
+      startedAt: createDateWithOffset(now, 0, 6, 30),
+      endedAt: createDateWithOffset(now, 0, 7, 18),
+      exercises: [
+        { exerciseId: "goblet-squat", sets: [{ reps: 10, loadKg: 24, rpe: 7 }] },
+        { exerciseId: "push-up", sets: [{ reps: 12, loadKg: 0, rpe: 7 }] }
+      ]
+    },
+    {
+      userId: "preview-athlete-pablo",
+      planId: "preview-athlete-pablo-plan-2",
+      startedAt: createDateWithOffset(now, 0, 12, 0),
+      endedAt: createDateWithOffset(now, 0, 12, 42),
+      exercises: [
+        { exerciseId: "split-squat", sets: [{ reps: 12, loadKg: 18, rpe: 8 }] }
+      ]
+    },
+    {
+      userId: "preview-athlete-marta",
+      planId: "preview-athlete-marta-plan-4",
+      startedAt: createDateWithOffset(now, -1, 18, 10),
+      endedAt: createDateWithOffset(now, -1, 18, 54),
+      exercises: [
+        { exerciseId: "lat-pulldown", sets: [{ reps: 12, loadKg: 32, rpe: 7 }] }
+      ]
+    },
+    {
+      userId,
+      planId: `${userId}-plan-1`,
+      startedAt: createDateWithOffset(now, -2, 7, 5),
+      endedAt: createDateWithOffset(now, -2, 7, 48),
+      exercises: [
+        { exerciseId: "romanian-deadlift", sets: [{ reps: 8, loadKg: 46, rpe: 8 }] }
+      ]
+    },
+    {
+      userId: "preview-athlete-laura",
+      planId: "preview-athlete-laura-plan-3",
+      startedAt: createDateWithOffset(now, -3, 8, 0),
+      endedAt: createDateWithOffset(now, -3, 8, 36),
+      exercises: [
+        { exerciseId: "goblet-squat", sets: [{ reps: 10, loadKg: 18, rpe: 7 }] }
+      ]
+    },
+    {
+      userId,
+      planId: `${userId}-plan-1`,
+      startedAt: createDateWithOffset(now, -5, 6, 40),
+      endedAt: createDateWithOffset(now, -5, 7, 20),
+      exercises: [
+        { exerciseId: "push-up", sets: [{ reps: 14, loadKg: 0, rpe: 6 }] }
+      ]
+    }
+  ];
+
+  const nutritionLogs: NutritionLog[] = [
+    {
+      userId,
+      date: today,
+      calories: 2210,
+      proteinGrams: 152,
+      carbsGrams: 228,
+      fatsGrams: 68
+    },
+    {
+      userId: "preview-athlete-laura",
+      date: dayMinus1,
+      calories: 3020,
+      proteinGrams: 104,
+      carbsGrams: 315,
+      fatsGrams: 92
+    },
+    {
+      userId: "preview-athlete-marta",
+      date: dayMinus2,
+      calories: 2140,
+      proteinGrams: 74,
+      carbsGrams: 206,
+      fatsGrams: 64
+    },
+    {
+      userId,
+      date: dayMinus3,
+      calories: 2185,
+      proteinGrams: 148,
+      carbsGrams: 221,
+      fatsGrams: 70
+    },
+    {
+      userId: "preview-athlete-laura",
+      date: dayMinus4,
+      calories: 2340,
+      proteinGrams: 138,
+      carbsGrams: 240,
+      fatsGrams: 72
+    },
+    {
+      userId,
+      date: dayMinus6,
+      calories: 2160,
+      proteinGrams: 143,
+      carbsGrams: 214,
+      fatsGrams: 69
+    }
+  ];
+
+  const progressSummary: ProgressSummary = {
+    userId,
+    generatedAt: createDateWithOffset(now, 0, 8, 20),
+    workoutSessionsCount: 18,
+    totalTrainingMinutes: 712,
+    totalCompletedSets: 186,
+    nutritionLogsCount: 23,
+    averageCalories: 2210,
+    averageProteinGrams: 146,
+    averageCarbsGrams: 228,
+    averageFatsGrams: 69,
+    history: [
+      {
+        date: dayMinus6,
+        workoutSessions: 2,
+        trainingMinutes: 76,
+        completedSets: 20,
+        calories: 2160,
+        proteinGrams: 143,
+        carbsGrams: 214,
+        fatsGrams: 69
+      },
+      {
+        date: dayMinus5,
+        workoutSessions: 2,
+        trainingMinutes: 88,
+        completedSets: 24,
+        calories: 2220,
+        proteinGrams: 148,
+        carbsGrams: 228,
+        fatsGrams: 70
+      },
+      {
+        date: dayMinus4,
+        workoutSessions: 1,
+        trainingMinutes: 62,
+        completedSets: 16,
+        calories: 2340,
+        proteinGrams: 138,
+        carbsGrams: 240,
+        fatsGrams: 72
+      },
+      {
+        date: dayMinus3,
+        workoutSessions: 3,
+        trainingMinutes: 96,
+        completedSets: 26,
+        calories: 2185,
+        proteinGrams: 148,
+        carbsGrams: 221,
+        fatsGrams: 70
+      },
+      {
+        date: dayMinus2,
+        workoutSessions: 2,
+        trainingMinutes: 84,
+        completedSets: 22,
+        calories: 2140,
+        proteinGrams: 74,
+        carbsGrams: 206,
+        fatsGrams: 64
+      },
+      {
+        date: dayMinus1,
+        workoutSessions: 2,
+        trainingMinutes: 92,
+        completedSets: 24,
+        calories: 3020,
+        proteinGrams: 104,
+        carbsGrams: 315,
+        fatsGrams: 92
+      },
+      {
+        date: today,
+        workoutSessions: 3,
+        trainingMinutes: 114,
+        completedSets: 30,
+        calories: 2210,
+        proteinGrams: 152,
+        carbsGrams: 228,
+        fatsGrams: 68
+      }
+    ]
+  };
+
+  const operationalRunbooks: OperationalRunbook[] = [
+    {
+      id: "runbook-high-incident-backlog",
+      alertCode: "high_incident_backlog",
+      title: "Priorizar atletas con backlog alto",
+      objective: "Reducir señales abiertas en progreso y nutrición durante el día.",
+      ownerOnCall: "coach@flux.app",
+      steps: [
+        {
+          id: "step-1",
+          title: "Revisar atletas en atención",
+          ownerRole: "coach",
+          slaMinutes: 15,
+          outcome: "Lista priorizada"
+        }
+      ],
+      updatedAt: createDateWithOffset(now, -1, 18, 0)
+    },
+    {
+      id: "runbook-blocked-action-spike",
+      alertCode: "blocked_action_spike",
+      title: "Resolver desvíos de nutrición prioritarios",
+      objective: "Disminuir alertas altas antes del cierre del día.",
+      ownerOnCall: "nutrition@flux.app",
+      steps: [
+        {
+          id: "step-2",
+          title: "Abrir revisión con atleta",
+          ownerRole: "coach",
+          slaMinutes: 20,
+          outcome: "Seguimiento abierto"
+        }
+      ],
+      updatedAt: createDateWithOffset(now, 0, 8, 10)
+    }
+  ];
+
+  const operationalAlerts: OperationalAlert[] = [
+    {
+      id: "preview-alert-progress",
+      userId,
+      code: "high_incident_backlog",
+      severity: "critical",
+      state: "open",
+      source: "web",
+      summary: "Pablo M. · progreso bajo esta semana",
+      correlationId: "preview-correlation-progress",
+      runbookId: "runbook-high-incident-backlog",
+      ownerOnCall: "coach@flux.app",
+      serviceLevelObjective: "15m",
+      currentValue: 3,
+      thresholdValue: 1,
+      triggeredAt: createDateWithOffset(now, 0, 8, 12),
+      lastEvaluatedAt: createDateWithOffset(now, 0, 8, 25)
+    },
+    {
+      id: "preview-alert-nutrition",
+      userId,
+      code: "blocked_action_spike",
+      severity: "high",
+      state: "open",
+      source: "web",
+      summary: "Laura R. · faltan logs nutricionales",
+      correlationId: "preview-correlation-nutrition",
+      runbookId: "runbook-blocked-action-spike",
+      ownerOnCall: "nutrition@flux.app",
+      serviceLevelObjective: "20m",
+      currentValue: 2,
+      thresholdValue: 1,
+      triggeredAt: createDateWithOffset(now, 0, 7, 44),
+      lastEvaluatedAt: createDateWithOffset(now, 0, 8, 18)
+    }
+  ];
+
+  const recommendations: AIRecommendation[] = [
+    {
+      id: "preview-recommendation-recovery",
+      userId,
+      title: "Reduce la carga del viernes para Pablo M.",
+      rationale: "El atleta enlaza dos días con recuperación baja y sueño irregular.",
+      priority: "high",
+      category: "recovery",
+      expectedImpact: "consistency",
+      actionLabel: "Ajustar sesión",
+      generatedAt: createDateWithOffset(now, 0, 7, 36)
+    },
+    {
+      id: "preview-recommendation-nutrition",
+      userId,
+      title: "Cerrar seguimiento de proteína en Marta R.",
+      rationale: "Se detectan dos días bajo objetivo de proteína con impacto en rendimiento.",
+      priority: "medium",
+      category: "nutrition",
+      expectedImpact: "performance",
+      actionLabel: "Abrir revisión",
+      generatedAt: createDateWithOffset(now, 0, 7, 48)
+    }
+  ];
+
+  const activityLogEntries: ActivityLogEntry[] = [
+    {
+      id: "preview-activity-progress",
+      userId,
+      occurredAt: createDateWithOffset(now, 0, 8, 6),
+      actorRole: "coach",
+      action: "incident_opened",
+      resource: "preview-athlete-pablo",
+      domain: "progress",
+      source: "web",
+      outcome: "success",
+      correlationId: "preview-correlation-progress",
+      summary: "Seguimiento abierto para Pablo M. por baja adherencia."
+    },
+    {
+      id: "preview-activity-legal",
+      userId,
+      occurredAt: createDateWithOffset(now, -1, 19, 5),
+      actorRole: "coach",
+      action: "consent_recorded",
+      resource: "preview-athlete-laura",
+      domain: "onboarding",
+      source: "web",
+      outcome: "success",
+      correlationId: "preview-correlation-legal",
+      summary: "Consentimiento médico registrado para Laura R."
+    }
+  ];
+
+  const analyticsEvents: AnalyticsEvent[] = [
+    {
+      userId,
+      name: "dashboard_viewed",
+      source: "web",
+      occurredAt: createDateWithOffset(now, 0, 8, 28),
+      attributes: {
+        seed: true,
+        domain: "all"
+      }
+    },
+    {
+      userId,
+      name: "recommendation_reviewed",
+      source: "web",
+      occurredAt: createDateWithOffset(now, 0, 8, 16),
+      attributes: {
+        seed: true,
+        priority: "high"
+      }
+    }
+  ];
+
+  const structuredLogs: StructuredLog[] = [
+    {
+      id: "preview-log-progress",
+      userId,
+      occurredAt: createDateWithOffset(now, 0, 8, 15),
+      source: "web",
+      level: "warning",
+      category: "operations",
+      eventName: "preview_dashboard_seed_loaded",
+      domain: "all",
+      correlationId: "preview-correlation-seed",
+      summary: "Seed local cargado para validar panel de producto.",
+      attributes: {
+        athletes: previewAthletes.length,
+        alerts: operationalAlerts.length
+      }
+    }
+  ];
+
+  const observabilitySummary: ObservabilitySummary = {
+    userId,
+    generatedAt: createDateWithOffset(now, 0, 8, 30),
+    totalAnalyticsEvents: analyticsEvents.length,
+    totalCrashReports: 0,
+    blockedActions: 1,
+    deniedAccessEvents: 0,
+    fatalCrashReports: 0,
+    uniqueCorrelationIds: 4,
+    sourceBreakdown: {
+      web: analyticsEvents.length + structuredLogs.length + operationalAlerts.length,
+      ios: 0,
+      backend: 0
+    },
+    canonicalCoverage: {
+      trackedCanonicalEvents: 4,
+      customEvents: 0
+    },
+    latestAnalyticsAt: analyticsEvents[0]?.occurredAt ?? null,
+    latestCrashAt: null
+  };
+
+  return {
+    plans,
+    sessions,
+    nutritionLogs,
+    progressSummary,
+    operationalAlerts,
+    operationalRunbooks,
+    recommendations,
+    activityLogEntries,
+    analyticsEvents,
+    crashReports: [],
+    observabilitySummary,
+    structuredLogs,
+    pendingQueueCount: 1
+  };
 }
 
 function toStatusClass(status: string): string {
@@ -6000,7 +8419,7 @@ function persistRolePreference(role: DashboardRole): void {
 
 function readDomainPreference(): DashboardDomain {
   if (typeof window === "undefined") {
-    return "onboarding";
+    return "all";
   }
   const domainFromURL = readDashboardDomainFromURL(window.location.href);
   if (domainFromURL !== null) {
@@ -6008,7 +8427,7 @@ function readDomainPreference(): DashboardDomain {
   }
   const persistedDomain = window.localStorage.getItem(dashboardDomainStorageKey);
   if (persistedDomain === null) {
-    return resolveWebRuntimeMode() === "qa" ? "all" : "onboarding";
+    return "all";
   }
   return resolveDashboardDomain(persistedDomain);
 }

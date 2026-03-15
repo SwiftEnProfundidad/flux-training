@@ -6,6 +6,7 @@ type OnboardingCardProps = {
   statusLabel: string;
   statusValue: string;
   statusClass: string;
+  showStatus?: boolean;
   displayNameLabel: string;
   displayName: string;
   onDisplayNameChange: (value: string) => void;
@@ -36,21 +37,8 @@ type OnboardingCardProps = {
   parQ2Label: string;
   parQ2: boolean;
   onParQ2Change: (value: boolean) => void;
-  privacyPolicyLabel: string;
-  privacyPolicyAccepted: boolean;
-  onPrivacyPolicyChange: (value: boolean) => void;
-  termsLabel: string;
-  termsAccepted: boolean;
-  onTermsChange: (value: boolean) => void;
-  medicalDisclaimerLabel: string;
-  medicalDisclaimerAccepted: boolean;
-  onMedicalDisclaimerChange: (value: boolean) => void;
   completeLabel: string;
   onComplete: () => void;
-  saveConsentLabel: string;
-  onSaveConsent: () => void;
-  exportDataLabel: string;
-  onExportData: () => void;
 };
 
 export const OnboardingCard = memo(function OnboardingCard({
@@ -58,6 +46,7 @@ export const OnboardingCard = memo(function OnboardingCard({
   statusLabel,
   statusValue,
   statusClass,
+  showStatus = true,
   displayNameLabel,
   displayName,
   onDisplayNameChange,
@@ -83,29 +72,18 @@ export const OnboardingCard = memo(function OnboardingCard({
   parQ2Label,
   parQ2,
   onParQ2Change,
-  privacyPolicyLabel,
-  privacyPolicyAccepted,
-  onPrivacyPolicyChange,
-  termsLabel,
-  termsAccepted,
-  onTermsChange,
-  medicalDisclaimerLabel,
-  medicalDisclaimerAccepted,
-  onMedicalDisclaimerChange,
   completeLabel,
-  onComplete,
-  saveConsentLabel,
-  onSaveConsent,
-  exportDataLabel,
-  onExportData
+  onComplete
 }: OnboardingCardProps) {
   return (
     <article className="module-card">
       <header className="module-header">
         <h2>{title}</h2>
-        <p>
-          {statusLabel}: <span className={`status-pill status-${statusClass}`}>{statusValue}</span>
-        </p>
+        {showStatus ? (
+          <p>
+            {statusLabel}: <span className={`status-pill status-${statusClass}`}>{statusValue}</span>
+          </p>
+        ) : null}
       </header>
       <div className="form-grid">
         <input
@@ -156,37 +134,9 @@ export const OnboardingCard = memo(function OnboardingCard({
           <input type="checkbox" checked={parQ2} onChange={(event) => onParQ2Change(event.target.checked)} />
           {parQ2Label}
         </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={privacyPolicyAccepted}
-            onChange={(event) => onPrivacyPolicyChange(event.target.checked)}
-          />
-          {privacyPolicyLabel}
-        </label>
-        <label>
-          <input type="checkbox" checked={termsAccepted} onChange={(event) => onTermsChange(event.target.checked)} />
-          {termsLabel}
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={medicalDisclaimerAccepted}
-            onChange={(event) => onMedicalDisclaimerChange(event.target.checked)}
-          />
-          {medicalDisclaimerLabel}
-        </label>
         <button className="button primary" onClick={onComplete} type="button">
           {completeLabel}
         </button>
-        <div className="inline-inputs">
-          <button className="button primary" onClick={onSaveConsent} type="button">
-            {saveConsentLabel}
-          </button>
-          <button className="button ghost" onClick={onExportData} type="button">
-            {exportDataLabel}
-          </button>
-        </div>
       </div>
     </article>
   );

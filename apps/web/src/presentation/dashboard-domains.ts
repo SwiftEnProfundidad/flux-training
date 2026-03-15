@@ -69,6 +69,14 @@ const domainModules: Record<DashboardDomain, DashboardModule[]> = {
   ]
 };
 
+const productDomainModules: Record<Exclude<DashboardDomain, "operations">, DashboardModule[]> = {
+  all: ["onboarding", "training", "nutrition", "progress"],
+  onboarding: ["onboarding", "legal"],
+  training: ["training"],
+  nutrition: ["nutrition"],
+  progress: ["progress", "recommendations"]
+};
+
 function isDashboardDomain(value: string): value is DashboardDomain {
   return dashboardDomains.includes(value as DashboardDomain);
 }
@@ -89,6 +97,32 @@ export function resolveDashboardRole(value: string | null | undefined): Dashboar
     return value;
   }
   return "athlete";
+}
+
+export function resolvePostSignInDomain(isQAMode: boolean): DashboardDomain {
+  return isQAMode ? "operations" : "all";
+}
+
+export function normalizeDomainForRuntimeMode(
+  domain: DashboardDomain,
+  isQAMode: boolean,
+  productLandingDomain: DashboardDomain = "onboarding"
+): DashboardDomain {
+  if (isQAMode) {
+    return domain;
+  }
+
+  if (
+    domain === "all" ||
+    domain === "onboarding" ||
+    domain === "training" ||
+    domain === "nutrition" ||
+    domain === "progress"
+  ) {
+    return domain;
+  }
+
+  return productLandingDomain;
 }
 
 export function readDashboardDomainFromURL(urlString: string): DashboardDomain | null {
@@ -118,6 +152,13 @@ export function applyDashboardDomainToURL(
 
 export function getVisibleModules(activeDomain: DashboardDomain): DashboardModule[] {
   return domainModules[activeDomain];
+}
+
+export function getProductVisibleModules(activeDomain: DashboardDomain): DashboardModule[] {
+  if (activeDomain === "operations") {
+    return productDomainModules.all;
+  }
+  return productDomainModules[activeDomain];
 }
 
 export function isModuleVisible(

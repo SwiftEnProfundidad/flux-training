@@ -24,6 +24,29 @@ class InMemoryAuthGateway implements AuthGateway {
     };
   }
 
+  async signInWithGoogle() {
+    return {
+      userId: "google-user",
+      sessionId: "web-session-google",
+      token: "google-token",
+      issuedAt: "2026-02-25T12:30:00.000Z",
+      expiresAt: "2026-02-25T13:00:00.000Z",
+      rotationRequiredAt: "2026-02-25T12:40:00.000Z",
+      absoluteExpiresAt: "2026-02-26T00:30:00.000Z",
+      sessionPolicy: {
+        maxIdleSeconds: 1800,
+        rotationIntervalSeconds: 600,
+        absoluteTtlSeconds: 43200
+      },
+      identity: {
+        provider: "google" as const,
+        providerUserId: "google-user",
+        email: "google.user@example.com",
+        displayName: "Google User"
+      }
+    };
+  }
+
   async signInWithEmail(email: string) {
     return {
       userId: email,
@@ -63,5 +86,14 @@ describe("CreateAuthSessionUseCase", () => {
 
     expect(session.identity.provider).toBe("email");
     expect(session.userId).toBe("user@example.com");
+  });
+
+  it("creates google session", async () => {
+    const useCase = new CreateAuthSessionUseCase(new InMemoryAuthGateway());
+
+    const session = await useCase.executeWithGoogle();
+
+    expect(session.identity.provider).toBe("google");
+    expect(session.identity.email).toBe("google.user@example.com");
   });
 });

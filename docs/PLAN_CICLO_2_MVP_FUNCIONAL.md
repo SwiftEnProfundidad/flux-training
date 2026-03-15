@@ -10,10 +10,10 @@
 - Llevar Flux a MVP funcional real para usuarios en Web + iOS, alineado con `flux.pen`, sin UI interna de pruebas y con flujos end-to-end operativos.
 
 ## Estado actual
-- Web: backlog anterior cerrado, pendiente validacion real de producto.
-- iOS: backlog anterior cerrado, pendiente validacion real de producto.
-- Backend: pendiente validacion real end-to-end.
-- Task activa actual: 🚧 Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real.
+- Web: backlog anterior cerrado, en correccion de paridad visible contra `flux.pen`.
+- iOS: backlog anterior cerrado, pendiente aplicar el mismo criterio de paridad visual.
+- Backend: backend alternativo en Vercel listo para el MVP inicial.
+- Task activa actual: 🚧 Cerrar paridad UX web visible contra `flux.pen`.
 - Progreso real del desbloqueo:
   - ✅ Web e iOS ya tienen checker de readiness reproducible.
   - ✅ Web e iOS ya tienen bootstrap local no destructivo para generar `.env.local`.
@@ -29,8 +29,13 @@
   - ✅ Preview/host inicial en Vercel Hobby ya desplegado con exito.
   - ✅ `/api/health` ya responde `200` en preview Vercel.
   - ✅ La sonda `pnpm smoke:real-cloud-connectivity` ya responde `ready` contra la preview Vercel.
+  - ✅ La web en modo producto ya deja de exponer `Operaciones` y `Admin` fuera de QA.
+  - ✅ El login en modo producto ya redirige al dominio de producto (`onboarding` / `training`) en vez de caer en shell interna.
+  - ✅ Hero de acceso, onboarding, legal, ajustes y progreso ya ocultan copy tecnica de estado fuera de QA.
+  - ✅ El baseline web ya refleja tabs de producto (`Onboarding`, `Entrenamiento`, `Nutricion`, `Progreso`) y no la consola operativa anterior.
   - ⛔ Firebase Auth del proyecto sigue sin configuracion operativa para email/password (`CONFIGURATION_NOT_FOUND`).
-  - 🚧 Siguiente desbloqueo real: activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
+  - ⏳ Dependencia externa pendiente: activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
+  - 🚧 Foco actual del producto: cerrar la paridad UX web visible contra `flux.pen` antes de retomar la validacion cloud E2E.
 
 ## Checklist de salida Vercel Hobby (obligatorio antes de seguir)
 - Paso 1: mantener Firebase Auth + Firestore en `flux-training-mvp`.
@@ -52,12 +57,14 @@
 - ✅ Reabrir ciclo 2 en tracking maestro.
 - ✅ Registrar gaps reales entre runtime y `flux.pen`.
 - ✅ Confirmar criterio de cierre del MVP funcional.
+- ✅ Alinear la home web al modo producto visible (sin shell de operaciones por defecto).
+- 🚧 Cerrar la paridad de acceso y navegacion principal web contra `flux.pen`.
 
 ## Criterio de cierre del MVP funcional
 - El MVP solo podra declararse `✅` cuando se cumplan a la vez estos cinco bloques:
   - Web producto real:
     - la entrada por defecto en `/` abre experiencia de producto y no una consola interna o shell QA,
-    - el usuario puede iniciar sesion por email/password y completar onboarding + consentimiento,
+    - el usuario puede iniciar sesion por email/password o Google y completar onboarding + consentimiento,
     - entrenamiento, nutricion, progreso, ajustes y legal permiten una accion principal real y muestran un resultado observable,
     - no queda copy tecnica visible al usuario (`screen`, `route`, `qa`, `ops`, `debug`, `idle`, `empty`, `success`, `runtime`, `lane`, `web.*`).
   - iOS producto real:
@@ -109,7 +116,28 @@
 - Backend/runtime real:
   - ⏳ Todavia no queda demostrado en este ciclo que Web+iOS esten operando contra backend MVP real sin fallback demo/local encubierto.
 
+
+## Hallazgo runtime (2026-03-09)
+- La API oficial `identityPlatform:initializeAuth` responde `FAILED_PRECONDITION` con `BILLING_NOT_ENABLED`.
+- Eso significa que el bloqueo real no es solo la pantalla de `Authentication`, sino que Firebase Auth/Identity Platform no puede inicializarse sin billing habilitado en el proyecto.
+- Consecuencia operativa: antes de `Get started` o de activar `Email/Password`, hay que habilitar billing en `flux-training-mvp`.
+- Secuencia correcta tras desbloqueo:
+  1. habilitar billing
+  2. inicializar Auth
+  3. activar `Email/Password`
+  4. reintentar `pnpm check:firebase-auth-readiness`
+  5. ejecutar `pnpm smoke:real-login`
+
 ## Fase 2 — Backend y autenticacion real
+### Hallazgo operativo confirmado
+- Firebase CLI no ofrece comando oficial para activar `Authentication > Email/Password`.
+- Evidencia real:
+  - `firebase --help` no expone comandos de configuracion de proveedores de Auth.
+  - `firebase help auth` devuelve `auth is not a valid command`.
+- Conclusion:
+  - este desbloqueo no se puede automatizar desde el repo con `firebase-tools`;
+  - debe hacerse manualmente desde Firebase Console.
+
 - ✅ Auditar backend real vs fallback/demo.
 - ✅ Preparar entorno minimo de auth/backend real.
 - ⛔ Validar login email/password end-to-end.
@@ -122,9 +150,83 @@
 - ✅ Añadir checker reproducible de autenticacion del proveedor cloud.
 - ✅ Añadir diagnostico reproducible de fuentes locales de autenticacion cloud.
 - ✅ Confirmar que el bloqueo actual ya no es billing sino Firebase Auth sin configurar.
-- 🚧 Activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
+- ⛔ Activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`.
 - ⏳ Validar onboarding + consentimiento en backend real.
 - ⏳ Validar training, nutrition, progress y legal por endpoint real.
+
+## Fase 3 — Paridad UX visible contra `flux.pen`
+- 🚧 Cerrar hero de acceso web, tabs de dominio y navegacion principal de producto.
+- ✅ 2026-03-13: la entrada web ya replica el patron de card centrada de `WEB-000_ACCESS_GATE` / `WEB-010_SIGN_IN` con topbar minima, footer discreto y CTA principal lima.
+- ✅ 2026-03-13: tras login en modo producto ya no persiste la hero editorial; la web colapsa a cabecera compacta + tabs de dominio (`Onboarding`, `Entrenamiento`, `Nutricion`, `Progreso`) para acercarse a `WEB-020_DASHBOARD_HOME`.
+- ✅ 2026-03-13: la shell productizada ya conmuta `Panel / Resumen` -> `Panel / Acciones rápidas` dentro del mismo rail lateral; `WEB-030_QUICK_ACTIONS` replica el breadcrumb de Pencil, el grid 3x2 de acciones y conecta al menos una CTA real (`Añadir atleta` -> `Onboarding`).
+- ✅ 2026-03-13: la shell productizada ya abre `WEB-040_ALERT_CENTER` desde la badge del topbar y desde el CTA del overview; el centro de alertas replica la jerarquía del board Pencil con título, chips de estado, lista priorizada y CTA real (`Abrir progreso → Progreso`).
+- ✅ 2026-03-13: `WEB-050_SYSTEM_STATUS` ya vive dentro de la misma shell productizada y se abre desde `Ajustes` en el rail secundario; la vista replica la composición compacta de Pencil con título, pill de estado, 4 cards de health y eventos recientes del sistema.
+- ✅ 2026-03-13: `WEB-200_DASHBOARD_KPIS` ya vive dentro del mismo `Panel` productizado y se abre desde las KPI cards del overview; la vista replica el board Pencil con breadcrumb `Panel / KPIs`, pills `Hoy / 7D / 30D`, grid 4x2 y strip inferior con CTA real hacia `Progreso`.
+- ✅ 2026-03-13: `WEB-210_READINESS_MONITOR` ya vive dentro del mismo `Panel` productizado y se abre desde `Preparacion IA` en el rail secundario; la vista replica el board Pencil con topbar `Monitor de Preparacion`, export CSV local, roster priorizado, tendencia de 14 dias e insight inferior con CTA real `Ver todos -> Onboarding`.
+- ✅ Validacion local de esta iteracion:
+  - `pnpm --filter @flux/web test -- src/presentation/HeroAuthPanel.spec.tsx src/presentation/OnboardingCard.spec.tsx src/presentation/LegalCompliancePanel.spec.tsx src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/SettingsPanel.spec.tsx src/presentation/dashboard-domains.spec.ts src/infrastructure/firebase-auth-client.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Validacion local `WEB-030_QUICK_ACTIONS`:
+  - `pnpm --filter @flux/web test -- src/presentation/i18n.spec.ts src/presentation/ProductQuickActionsPanel.spec.tsx`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Validacion local `WEB-040_ALERT_CENTER`:
+  - `pnpm --filter @flux/web test -- src/presentation/ProductAlertCenterPanel.spec.tsx src/presentation/i18n.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Validacion local `WEB-050_SYSTEM_STATUS`:
+  - `pnpm --filter @flux/web test -- src/presentation/ProductSystemStatusPanel.spec.tsx src/presentation/i18n.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Validacion local `WEB-200_DASHBOARD_KPIS`:
+  - `pnpm --filter @flux/web test -- src/presentation/ProductDashboardKpisPanel.spec.tsx src/presentation/ProductOverviewPanel.spec.tsx src/presentation/i18n.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Validacion local `WEB-210_READINESS_MONITOR`:
+  - `pnpm --filter @flux/web test -- src/presentation/ProductReadinessMonitorPanel.spec.tsx src/presentation/i18n.spec.ts`
+  - `pnpm --filter @flux/web check`
+  - `pnpm --filter @flux/web build`
+  - `pnpm -r test`
+- ✅ Evidencia visual local de esta iteracion:
+  - `flux.pen` revisado contra `WEB-000_ACCESS_GATE`, `WEB-010_SIGN_IN` y `WEB-020_DASHBOARD_HOME`
+  - runtime web capturado en localhost antes y despues del ajuste visual
+- ✅ Evidencia visual local `WEB-030_QUICK_ACTIONS`:
+  - referencia `flux.pen`: `WEB-030_QUICK_ACTIONS` (`xJyx8`)
+  - runtime web capturado en `output/playwright/web-030-product-quick-actions-v1.png`
+  - smoke real validando `Continuar con cuenta Google` -> `Panel / Acciones rápidas` -> `Añadir atleta` -> `Onboarding`
+- ✅ Evidencia visual local `WEB-040_ALERT_CENTER`:
+  - referencia `flux.pen`: `WEB-040_ALERT_CENTER` (`WmuDh`)
+  - runtime web capturado en `output/playwright/web-040-product-alert-center-v1.png`
+  - smoke real validando `Continuar con cuenta Google` -> badge de alertas -> `Centro de alertas` -> `Abrir progreso → Progreso`
+- ✅ Evidencia visual local `WEB-050_SYSTEM_STATUS`:
+  - referencia `flux.pen`: `WEB-050_SYSTEM_STATUS` (`7tRaG`)
+  - runtime web capturado en `output/playwright/web-050-product-system-status-v1.png`
+  - smoke real validando `Continuar con cuenta Google` -> `Ajustes` -> `Estado del sistema`
+- ✅ Evidencia visual local `WEB-200_DASHBOARD_KPIS`:
+  - referencia `flux.pen`: `WEB-200_DASHBOARD_KPIS` (`ZvoLJ`)
+  - runtime web capturado en `output/playwright/web-200-product-dashboard-kpis-v1.png`
+  - smoke real validando `Continuar con cuenta Google` -> KPI del overview -> `Panel / KPIs` -> `Ver análisis IA →` -> `Progreso`
+- ✅ Evidencia visual local `WEB-210_READINESS_MONITOR`:
+  - referencia `flux.pen`: `WEB-210_READINESS_MONITOR` (`BylLP`)
+  - runtime web capturado en `output/playwright/web-210-product-readiness-monitor-v2.png`
+  - smoke real validando `Continuar con cuenta Google` -> `Preparacion IA` -> `Ver todos (4) →` -> `Onboarding`
+- ✅ La shell autenticada base (`WEB-020_DASHBOARD_HOME`) y sus cinco extensiones inmediatas (`WEB-030_QUICK_ACTIONS`, `WEB-040_ALERT_CENTER`, `WEB-050_SYSTEM_STATUS`, `WEB-200_DASHBOARD_KPIS`, `WEB-210_READINESS_MONITOR`) ya quedan alineadas visualmente en la misma experiencia productizada.
+- ⏳ Atacar la siguiente pantalla visible del bloque de dashboard extendido: `WEB-220_ALERTS_FULL`.
+- ⏳ Ejecutar el mismo smoke visual apuntando a `VITE_API_TARGET` de Vercel para eliminar los `404` locales de analytics durante la navegacion de producto.
+- ⏳ Trasladar los mismos criterios de limpieza de UX a iOS si quedan huecos visibles.
+
+## Decisión operativa vigente
+- Mientras Firebase/Auth siga bloqueado externamente, el ciclo 2 avanza por la ruta visible de producto:
+  - primero paridad UX web contra `flux.pen`,
+  - despues paridad UX iOS,
+  - y solo entonces se retoma el smoke cloud E2E cuando el proveedor quede operativo.
+- No se reabrira como `🚧` ninguna task de Firebase mientras el cambio siga dependiendo de Firebase Console o billing externo.
 
 ## Resultado de la auditoria backend/runtime real (2026-03-08)
 - Backend real:
@@ -434,7 +536,17 @@
     - el bloqueo real ya no es de autenticacion al proveedor sino de acceso al proyecto `flux-training`.
 
 ## Fase 3 — Web producto real
-- ⏳ Corregir entrada web para modo producto real.
+- ✅ Entrada web producto ya alineada en tres pasos: `WEB-000_ACCESS_GATE` -> `WEB-010_SIGN_IN` -> `Panel` autenticado estilo `WEB-020_DASHBOARD_HOME`, con overview limpio y módulos detallados por dominio lateral.
+- ✅ `Panel` web ya muestra KPI y alertas con semántica de producto (`Atletas activos`, `Preparación promedio`, `Sesiones hoy`, `Alertas activas`) y fallback local preview para no caer a cero en desarrollo.
+- ✅ La navegación lateral de producto en preview local ya no dispara `500` de `/api/createAnalyticsEvent`; observabilidad usa fallback web local cuando la sesión es `local-preview`.
+- ✅ `Panel` ya reserva el overview solo para la home autenticada; `Onboarding` y el resto de dominios laterales vuelven a entrar con workspace limpio, sin arrastrar KPI ni gráfico sobre la vista detallada.
+- ✅ El copy fino de `Panel` ya se acerca más al board: breadcrumb `Panel / Resumen`, KPI menos técnicos y alertas con nombre de atleta + acción concreta.
+- ✅ La shell autenticada web ya compacta la topbar a una sola línea en `Panel`, aplana cards y reduce el peso visual del rail para acercarse mejor a `WEB-020_DASHBOARD_HOME`.
+- ✅ El topbar autenticado ya elimina el selector visible de idioma en modo producto para acercarse mejor a la referencia Pencil y dejar solo búsqueda, alertas y avatar en cabecera.
+- ✅ El rail lateral ya incorpora iconografía sutil y una jerarquía visual más cercana al board `WEB-020`, manteniendo los dominios reales de producto.
+- ✅ La columna de alertas ya diferencia mejor estados `critical/warning` y el copy de KPI se ha comprimido para acercar la densidad de cards a la referencia Pencil.
+- ✅ El remate visual del `Panel` ya ajusta microcontraste, sombras y ritmo vertical de KPI/chart/alertas; además, el KPI de alertas corrige singular/plural (`1 crítica · 4 abiertas`) para no introducir ruido visible.
+- ⏳ Reducir diferencias restantes de la shell autenticada web vs `flux.pen` en microdetalles residuales muy finos de tipografía y contraste.
 - ⏳ Validar auth + onboarding + consentimiento.
 - ⏳ Validar training end-to-end.
 - ⏳ Validar nutrition + progress + IA.

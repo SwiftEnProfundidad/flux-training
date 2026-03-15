@@ -13,6 +13,24 @@ describe("i18n", () => {
     expect(translate("offlineSyncTitle")).toBe("Sin conexión + Sincronización");
     expect(translate("syncStatusLabel")).toBe("Sincronización");
     expect(translate("rejectedLastSyncLabel")).toBe("Rechazadas en última sincronización");
+    expect(translate("productDashboardNavOverview")).toBe("Panel");
+    expect(translate("productDashboardSearchPlaceholder")).toBe("Buscar atleta o plan...");
+    expect(translate("productOverviewBreadcrumb")).toBe("Resumen");
+    expect(translate("productQuickActionsBreadcrumb")).toBe("Acciones rápidas");
+    expect(translate("productAlertCenterBreadcrumb")).toBe("Centro de alertas");
+    expect(translate("productSystemStatusBreadcrumb")).toBe("Estado del sistema");
+    expect(translate("productSidebarQuickAi")).toBe("Preparación IA");
+    expect(translate("productSidebarQuickSettings")).toBe("Ajustes");
+    expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist listo · señales al día");
+    expect(translate("productOverviewCriticalSignalSingularLabel")).toBe("crítica");
+    expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
+    expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
+    expect(translate("productQuickActionsTitle")).toBe("¿Qué quieres hacer hoy?");
+    expect(translate("productQuickActionReviewAlertsMeta")).toBe("siguen abiertas");
+    expect(translate("productAlertCenterTitle")).toBe("Centro de alertas");
+    expect(translate("productAlertCenterOpenProgressAction")).toBe("Abrir progreso →");
+    expect(translate("productSystemStatusTitle")).toBe("Estado del sistema");
+    expect(translate("productSystemStatusDegradedStatus")).toBe("Degradado");
   });
 
   it("supports english language", () => {
@@ -27,6 +45,41 @@ describe("i18n", () => {
     expect(translate("laneLabel")).toBe("Lane");
     expect(translate("laneMain")).toBe("Main");
     expect(translate("laneSecondary")).toBe("Secondary");
+    expect(translate("productAccessTitle")).toBe("Welcome back");
+    expect(translate("productContinueLabel")).toBe("Continue");
+    expect(translate("continueWithGoogle")).toBe("Continue with Google account");
+    expect(translate("productDashboardNavOverview")).toBe("Panel");
+    expect(translate("productDashboardSearchPlaceholder")).toBe("Search athlete or plan...");
+    expect(translate("productDashboardAlertsAction")).toBe("View all alerts →");
+    expect(translate("productOverviewBreadcrumb")).toBe("Overview");
+    expect(translate("productQuickActionsBreadcrumb")).toBe("Quick actions");
+    expect(translate("productAlertCenterBreadcrumb")).toBe("Alert center");
+    expect(translate("productSystemStatusBreadcrumb")).toBe("System status");
+    expect(translate("productDashboardKpisBreadcrumb")).toBe("KPIs");
+    expect(translate("productReadinessMonitorBreadcrumb")).toBe("Readiness");
+    expect(translate("productSidebarQuickAi")).toBe("AI readiness");
+    expect(translate("productSidebarQuickSupport")).toBe("Support");
+    expect(translate("productOverviewReadinessPositiveDetail")).toBe("checklist ready · signals on track");
+    expect(translate("productOverviewCriticalSignalSingularLabel")).toBe("critical");
+    expect(translate("productOverviewTitle")).toBe("Team readiness");
+    expect(translate("productOverviewSummary")).toBe(
+      "Last 7 days · sessions, nutrition and prioritized signals."
+    );
+    expect(translate("productOverviewAlertsTitle")).toBe("Recent alerts");
+    expect(translate("productQuickActionsTitle")).toBe("What do you want to do today?");
+    expect(translate("productQuickActionMessageMeta")).toBe("Resume follow-up from onboarding");
+    expect(translate("productAlertCenterTitle")).toBe("Alert center");
+    expect(translate("productAlertCenterFooterTitle")).toBe("Runbooks ready to act");
+    expect(translate("productSystemStatusTitle")).toBe("System status");
+    expect(translate("productSystemStatusQueuePendingPlural")).toBe("pending operations");
+    expect(translate("productDashboardKpisTitle")).toBe("Panel KPIs");
+    expect(translate("productDashboardKpisOpenLabel")).toBe("Open panel KPIs");
+    expect(translate("productDashboardKpisViewedVideosLabel")).toBe("Videos reviewed today");
+    expect(translate("productDashboardKpisInsightAction")).toBe("View AI analysis →");
+    expect(translate("productReadinessMonitorTitle")).toBe("Readiness monitor");
+    expect(translate("productReadinessMonitorExportAction")).toBe("Export CSV");
+    expect(translate("productReadinessMonitorTrendTitle")).toBe("Readiness trend — Last 14 days");
+    expect(translate("signInWithGoogle")).toBe("Sign in with Google");
     expect(translate("recoverByEmail")).toBe("Recover by email");
     expect(translate("recoverBySMS")).toBe("Recover by SMS");
     expect(translate("retryRoleCapabilities")).toBe("Retry capabilities");
@@ -254,8 +307,21 @@ describe("i18n", () => {
     expect(translate("laneLabel")).toBe("Lane");
     expect(translate("laneMain")).toBe("Main");
     expect(translate("laneSecondary")).toBe("Secondary");
+    expect(translate("productAccessTitle")).toBe("Bienvenido de nuevo");
+    expect(translate("productContinueLabel")).toBe("Continuar");
+    expect(translate("continueWithGoogle")).toBe("Continuar con cuenta Google");
+    expect(translate("signInWithGoogle")).toBe("Iniciar con Google");
     expect(translate("recoverByEmail")).toBe("Recuperar por email");
     expect(translate("recoverBySMS")).toBe("Recuperar por SMS");
+    expect(translate("productSidebarQuickSupport")).toBe("Soporte");
+    expect(translate("productOverviewCaloriesAlertTitle")).toBe("calorías altas");
+    expect(translate("productOverviewProteinAlertMeta")).toBe("por debajo del objetivo");
+    expect(translate("productOverviewSessionsRemainingLabel")).toBe("pendiente");
+    expect(translate("productOverviewTitle")).toBe("Preparación del equipo");
+    expect(translate("productOverviewSummary")).toBe(
+      "Últimos 7 días · sesiones, nutrición y señales priorizadas."
+    );
+    expect(translate("productOverviewAlertsTitle")).toBe("Alertas recientes");
     expect(translate("retryRoleCapabilities")).toBe("Reintentar capacidades");
     expect(translate("dashboardHomeTitle")).toBe("Panel principal");
     expect(translate("dashboardHomeStatusLabel")).toBe("Panel");
@@ -282,6 +348,17 @@ describe("i18n", () => {
     expect(translate("dashboardKpisTitle")).toBe("Indicadores clave");
     expect(translate("dashboardKpisStatusLabel")).toBe("Indicadores");
     expect(translate("dashboardKpisRefreshAction")).toBe("Refrescar indicadores");
+    expect(translate("productDashboardKpisBreadcrumb")).toBe("KPIs");
+    expect(translate("productDashboardKpisTitle")).toBe("KPIs del panel");
+    expect(translate("productDashboardKpisOpenLabel")).toBe("Abrir KPIs del panel");
+    expect(translate("productDashboardKpisViewedVideosLabel")).toBe("Videos revisados hoy");
+    expect(translate("productDashboardKpisInsightAction")).toBe("Ver análisis IA →");
+    expect(translate("productReadinessMonitorBreadcrumb")).toBe("Preparación");
+    expect(translate("productReadinessMonitorTitle")).toBe("Monitor de Preparación");
+    expect(translate("productReadinessMonitorExportAction")).toBe("Exportar CSV");
+    expect(translate("productReadinessMonitorTrendTitle")).toBe(
+      "Tendencia preparación — Últimos 14 días"
+    );
     expect(translate("readinessLabel")).toBe("Preparacion");
     expect(translate("readinessMonitorTitle")).toBe("Monitor de preparacion");
     expect(translate("readinessMonitorStatusLabel")).toBe("Preparacion");

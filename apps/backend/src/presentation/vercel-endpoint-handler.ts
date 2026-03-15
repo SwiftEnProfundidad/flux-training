@@ -35,10 +35,11 @@ import {
   requestDataDeletion,
   requestDataExport
 } from "./http";
+import { type HttpsFunction } from "firebase-functions/v2/https";
 
-export type BackendHttpHandler = (request: unknown, response: unknown) => unknown;
+export type BackendHttpHandler = HttpsFunction;
 
-const endpointHandlers = {
+const endpointHandlers: Record<string, BackendHttpHandler> = {
   health,
   createWorkoutSession,
   createAuthSession,
@@ -74,7 +75,7 @@ const endpointHandlers = {
   listStructuredLogs,
   listActivityLog,
   exportForensicAudit
-} satisfies Record<string, BackendHttpHandler>;
+};
 
 export function resolveVercelEndpointHandler(endpoint: string): BackendHttpHandler | null {
   const normalizedEndpoint = endpoint.trim();

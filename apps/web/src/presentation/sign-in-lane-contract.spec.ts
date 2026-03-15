@@ -14,6 +14,7 @@ describe("sign in lane contract", () => {
       statusId: "web.signIn.status",
       actions: {
         apple: "web.signIn.apple",
+        google: "web.signIn.google",
         email: "web.signIn.email",
         recoverEmail: "web.signIn.recoverEmail",
         recoverSMS: "web.signIn.recoverSMS"
@@ -34,6 +35,7 @@ describe("sign in lane contract", () => {
       statusId: "web.light.signIn.status",
       actions: {
         apple: "web.light.signIn.apple",
+        google: "web.light.signIn.google",
         email: "web.light.signIn.email",
         recoverEmail: "web.light.signIn.recoverEmail",
         recoverSMS: "web.light.signIn.recoverSMS"

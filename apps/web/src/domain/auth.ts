@@ -2,6 +2,7 @@ import { type AuthSession, authSessionSchema } from "@flux/contracts";
 
 export interface AuthGateway {
   signInWithApple(): Promise<AuthSession>;
+  signInWithGoogle(): Promise<AuthSession>;
   signInWithEmail(email: string, password: string): Promise<AuthSession>;
 }
 
@@ -13,9 +14,13 @@ export class CreateAuthSessionUseCase {
     return authSessionSchema.parse(session);
   }
 
+  async executeWithGoogle(): Promise<AuthSession> {
+    const session = await this.authGateway.signInWithGoogle();
+    return authSessionSchema.parse(session);
+  }
+
   async executeWithEmail(email: string, password: string): Promise<AuthSession> {
     const session = await this.authGateway.signInWithEmail(email, password);
     return authSessionSchema.parse(session);
   }
 }
-

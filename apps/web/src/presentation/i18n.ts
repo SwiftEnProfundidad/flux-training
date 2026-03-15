@@ -7,7 +7,127 @@ type AppTranslations = {
   appName: string;
   heroTitle: string;
   heroCopy: string;
+  productAccessTitle: string;
+  productAccessCopy: string;
+  productAccessHint: string;
+  productSignInTitle: string;
+  productContinueLabel: string;
+  continueWithGoogle: string;
+  productBackToAccess: string;
+  productAccessFooter: string;
+  productWorkspaceSummary: string;
+  productWorkspaceSignedIn: string;
+  productDashboardNavOverview: string;
+  productDashboardSearchPlaceholder: string;
+  productDashboardAlertsAction: string;
+  productOverviewBreadcrumb: string;
+  productQuickActionsBreadcrumb: string;
+  productAlertCenterBreadcrumb: string;
+  productSystemStatusBreadcrumb: string;
+  productDashboardKpisBreadcrumb: string;
+  productReadinessMonitorBreadcrumb: string;
+  productSidebarQuickAi: string;
+  productSidebarQuickSettings: string;
+  productSidebarQuickSupport: string;
+  productOverviewTitle: string;
+  productOverviewSummary: string;
+  productOverviewActiveAthletesLabel: string;
+  productOverviewReadinessAverageLabel: string;
+  productOverviewSessionsTodayLabel: string;
+  productOverviewActiveAlertsLabel: string;
+  productOverviewAlertsTitle: string;
+  productOverviewFollowUpAlertTitle: string;
+  productOverviewFollowUpAlertMeta: string;
+  productOverviewCaloriesAlertTitle: string;
+  productOverviewCaloriesAlertMeta: string;
+  productOverviewProteinAlertTitle: string;
+  productOverviewProteinAlertMeta: string;
+  productOverviewNormalCohortLabel: string;
+  productOverviewAttentionCohortLabel: string;
+  productOverviewReadinessPositiveDetail: string;
+  productOverviewReadinessAttentionDetail: string;
+  productOverviewSessionsCompletedLabel: string;
+  productOverviewSessionsRemainingLabel: string;
+  productOverviewCriticalSignalSingularLabel: string;
+  productOverviewCriticalSignalsLabel: string;
+  productOverviewMonitoringSignalsLabel: string;
+  productQuickActionsTitle: string;
+  productQuickActionAddAthleteTitle: string;
+  productQuickActionAddAthleteMeta: string;
+  productQuickActionCreatePlanTitle: string;
+  productQuickActionCreatePlanMeta: string;
+  productQuickActionAssignSessionTitle: string;
+  productQuickActionAssignSessionMeta: string;
+  productQuickActionExportTitle: string;
+  productQuickActionExportMeta: string;
+  productQuickActionReviewAlertsTitle: string;
+  productQuickActionReviewAlertsMeta: string;
+  productQuickActionMessageTitle: string;
+  productQuickActionMessageMeta: string;
+  productAlertCenterTitle: string;
+  productAlertCenterChipTotal: string;
+  productAlertCenterChipCritical: string;
+  productAlertCenterChipToday: string;
+  productAlertCenterChipRunbooks: string;
+  productAlertCenterOpenLabel: string;
+  productAlertCenterOpenProgressAction: string;
+  productAlertCenterOpenNutritionAction: string;
+  productAlertCenterOpenOnboardingAction: string;
+  productAlertCenterRunbookFallback: string;
+  productAlertCenterEmpty: string;
+  productAlertCenterFooterTitle: string;
+  productAlertCenterFooterRunbooksMeta: string;
+  productAlertCenterFooterActivityMeta: string;
+  productSystemStatusTitle: string;
+  productSystemStatusSummaryLabel: string;
+  productSystemStatusSummaryHealthy: string;
+  productSystemStatusSummaryAttention: string;
+  productSystemStatusPermissionsLabel: string;
+  productSystemStatusSyncLabel: string;
+  productSystemStatusRuntimeDetail: string;
+  productSystemStatusPermissionsDetail: string;
+  productSystemStatusSyncDetail: string;
+  productSystemStatusQueueClearDetail: string;
+  productSystemStatusQueuePendingSingular: string;
+  productSystemStatusQueuePendingPlural: string;
+  productSystemStatusDegradedStatus: string;
+  productSystemStatusEventsTitle: string;
+  productDashboardKpisTitle: string;
+  productDashboardKpisOpenLabel: string;
+  productDashboardKpisRangeToday: string;
+  productDashboardKpisRangeWeek: string;
+  productDashboardKpisRangeMonth: string;
+  productDashboardKpisPlannedSessionsLabel: string;
+  productDashboardKpisAdherenceLabel: string;
+  productDashboardKpisAverageRpeLabel: string;
+  productDashboardKpisViewedVideosLabel: string;
+  productDashboardKpisCompletedGoalsLabel: string;
+  productDashboardKpisLoggedLabel: string;
+  productDashboardKpisVsPreviousLabel: string;
+  productDashboardKpisOptimalRpeDetail: string;
+  productDashboardKpisAdjustLoadDetail: string;
+  productDashboardKpisCoachAlertsLabel: string;
+  productDashboardKpisNutritionAlertsLabel: string;
+  productDashboardKpisGuidedPatternsLabel: string;
+  productDashboardKpisPendingLabel: string;
+  productDashboardKpisInsightFatiguePrefix: string;
+  productDashboardKpisInsightFatigueSuffix: string;
+  productDashboardKpisInsightAlerts: string;
+  productDashboardKpisInsightStable: string;
+  productDashboardKpisInsightAction: string;
+  productReadinessMonitorTitle: string;
+  productReadinessMonitorTeamSuffix: string;
+  productReadinessMonitorExportAction: string;
+  productReadinessMonitorAthletesTitle: string;
+  productReadinessMonitorViewAllPrefix: string;
+  productReadinessMonitorTrendTitle: string;
+  productReadinessMonitorLegendLabel: string;
+  productReadinessMonitorCriticalLegend: string;
+  productReadinessMonitorInsightPrefix: string;
+  productReadinessMonitorInsightSuffix: string;
+  productReadinessMonitorStableInsight: string;
   signInWithApple: string;
+  signInWithGoogle: string;
   signInWithEmail: string;
   recoverByEmail: string;
   recoverBySMS: string;
@@ -519,7 +639,133 @@ const translations: Record<AppLanguage, AppTranslations> = {
     appName: "Flux Training",
     heroTitle: "Entrena con foco y seguimiento real",
     heroCopy: "Panel personal para autenticacion, onboarding, entrenamiento, nutricion y progreso.",
+    productAccessTitle: "Bienvenido de nuevo",
+    productAccessCopy: "Introduce tu email para acceder al workspace.",
+    productAccessHint: "¿Sin cuenta? → Contacta con tu organización",
+    productSignInTitle: "Inicia sesión",
+    productContinueLabel: "Continuar",
+    continueWithGoogle: "Continuar con cuenta Google",
+    productBackToAccess: "← Volver",
+    productAccessFooter: "© 2026 Flux Entrenamiento · Privacidad · Terminos de uso",
+    productWorkspaceSummary:
+      "Entrada de producto alineada con onboarding, entrenamiento, nutricion y progreso.",
+    productWorkspaceSignedIn: "Sesion activa",
+    productDashboardNavOverview: "Panel",
+    productDashboardSearchPlaceholder: "Buscar atleta o plan...",
+    productDashboardAlertsAction: "Ver todas las alertas →",
+    productOverviewBreadcrumb: "Resumen",
+    productQuickActionsBreadcrumb: "Acciones rápidas",
+    productAlertCenterBreadcrumb: "Centro de alertas",
+    productSystemStatusBreadcrumb: "Estado del sistema",
+    productDashboardKpisBreadcrumb: "KPIs",
+    productReadinessMonitorBreadcrumb: "Preparación",
+    productSidebarQuickAi: "Preparación IA",
+    productSidebarQuickSettings: "Ajustes",
+    productSidebarQuickSupport: "Soporte",
+    productOverviewTitle: "Preparación del equipo",
+    productOverviewSummary: "Últimos 7 días · sesiones, nutrición y señales priorizadas.",
+    productOverviewActiveAthletesLabel: "Atletas activos",
+    productOverviewReadinessAverageLabel: "Preparación promedio",
+    productOverviewSessionsTodayLabel: "Sesiones hoy",
+    productOverviewActiveAlertsLabel: "Alertas activas",
+    productOverviewAlertsTitle: "Alertas recientes",
+    productOverviewFollowUpAlertTitle: "seguimiento pendiente",
+    productOverviewFollowUpAlertMeta: "revisar onboarding y nutrición",
+    productOverviewCaloriesAlertTitle: "calorías altas",
+    productOverviewCaloriesAlertMeta: "por encima del objetivo",
+    productOverviewProteinAlertTitle: "proteína baja",
+    productOverviewProteinAlertMeta: "por debajo del objetivo",
+    productOverviewNormalCohortLabel: "en ritmo",
+    productOverviewAttentionCohortLabel: "con seguimiento",
+    productOverviewReadinessPositiveDetail: "checklist listo · señales al día",
+    productOverviewReadinessAttentionDetail: "señales abiertas hoy",
+    productOverviewSessionsCompletedLabel: "listas",
+    productOverviewSessionsRemainingLabel: "pendiente",
+    productOverviewCriticalSignalSingularLabel: "crítica",
+    productOverviewCriticalSignalsLabel: "críticas",
+    productOverviewMonitoringSignalsLabel: "abiertas",
+    productQuickActionsTitle: "¿Qué quieres hacer hoy?",
+    productQuickActionAddAthleteTitle: "Añadir atleta",
+    productQuickActionAddAthleteMeta: "Crear perfil y checklist inicial",
+    productQuickActionCreatePlanTitle: "Crear plan",
+    productQuickActionCreatePlanMeta: "Abrir plantilla y preparar bloque",
+    productQuickActionAssignSessionTitle: "Asignar sesión",
+    productQuickActionAssignSessionMeta: "Enviar trabajo de hoy al atleta",
+    productQuickActionExportTitle: "Exportar reporte",
+    productQuickActionExportMeta: "Preparar resumen semanal del progreso",
+    productQuickActionReviewAlertsTitle: "Revisar alertas",
+    productQuickActionReviewAlertsMeta: "siguen abiertas",
+    productQuickActionMessageTitle: "Mensaje a atleta",
+    productQuickActionMessageMeta: "Retomar seguimiento desde onboarding",
+    productAlertCenterTitle: "Centro de alertas",
+    productAlertCenterChipTotal: "Total",
+    productAlertCenterChipCritical: "Críticas",
+    productAlertCenterChipToday: "Hoy",
+    productAlertCenterChipRunbooks: "Runbooks",
+    productAlertCenterOpenLabel: "Abrir centro de alertas",
+    productAlertCenterOpenProgressAction: "Abrir progreso →",
+    productAlertCenterOpenNutritionAction: "Abrir nutrición →",
+    productAlertCenterOpenOnboardingAction: "Abrir onboarding →",
+    productAlertCenterRunbookFallback: "Runbook activo",
+    productAlertCenterEmpty: "Sin alertas activas ahora",
+    productAlertCenterFooterTitle: "Runbooks listos para actuar",
+    productAlertCenterFooterRunbooksMeta: "flujos activos",
+    productAlertCenterFooterActivityMeta: "seguimientos recientes",
+    productSystemStatusTitle: "Estado del sistema",
+    productSystemStatusSummaryLabel: "Estado",
+    productSystemStatusSummaryHealthy: "Operativo",
+    productSystemStatusSummaryAttention: "Atención",
+    productSystemStatusPermissionsLabel: "Permisos",
+    productSystemStatusSyncLabel: "Sincronización offline",
+    productSystemStatusRuntimeDetail: "dominio estable",
+    productSystemStatusPermissionsDetail: "cobertura RBAC vigente",
+    productSystemStatusSyncDetail: "pipeline lista para recuperar",
+    productSystemStatusQueueClearDetail: "sin operaciones pendientes",
+    productSystemStatusQueuePendingSingular: "operación pendiente",
+    productSystemStatusQueuePendingPlural: "operaciones pendientes",
+    productSystemStatusDegradedStatus: "Degradado",
+    productSystemStatusEventsTitle: "Eventos recientes del sistema",
+    productDashboardKpisTitle: "KPIs del panel",
+    productDashboardKpisOpenLabel: "Abrir KPIs del panel",
+    productDashboardKpisRangeToday: "Hoy",
+    productDashboardKpisRangeWeek: "7D",
+    productDashboardKpisRangeMonth: "30D",
+    productDashboardKpisPlannedSessionsLabel: "Sesiones planificadas",
+    productDashboardKpisAdherenceLabel: "Adherencia semanal",
+    productDashboardKpisAverageRpeLabel: "RPE medio registrado",
+    productDashboardKpisViewedVideosLabel: "Videos revisados hoy",
+    productDashboardKpisCompletedGoalsLabel: "Objetivos logrados (mes)",
+    productDashboardKpisLoggedLabel: "registradas",
+    productDashboardKpisVsPreviousLabel: "vs periodo anterior",
+    productDashboardKpisOptimalRpeDetail: "zona optima 6-7.5",
+    productDashboardKpisAdjustLoadDetail: "ajustar carga semanal",
+    productDashboardKpisCoachAlertsLabel: "coach",
+    productDashboardKpisNutritionAlertsLabel: "nutrición",
+    productDashboardKpisGuidedPatternsLabel: "patrones con guía",
+    productDashboardKpisPendingLabel: "pendientes",
+    productDashboardKpisInsightFatiguePrefix: "Pico de fatiga detectado en",
+    productDashboardKpisInsightFatigueSuffix:
+      "atletas — revisar carga semanal antes del siguiente bloque.",
+    productDashboardKpisInsightAlerts:
+      "Las alertas siguen concentradas en nutrición y progreso — conviene revisar el centro de alertas.",
+    productDashboardKpisInsightStable:
+      "La semana se mantiene estable — puedes profundizar en progreso antes de cerrar el día.",
+    productDashboardKpisInsightAction: "Ver análisis IA →",
+    productReadinessMonitorTitle: "Monitor de Preparación",
+    productReadinessMonitorTeamSuffix: "Equipo",
+    productReadinessMonitorExportAction: "Exportar CSV",
+    productReadinessMonitorAthletesTitle: "Atletas — Preparación hoy",
+    productReadinessMonitorViewAllPrefix: "Ver todos",
+    productReadinessMonitorTrendTitle: "Tendencia preparación — Últimos 14 días",
+    productReadinessMonitorLegendLabel: "Equipo",
+    productReadinessMonitorCriticalLegend: "<50 (crítico)",
+    productReadinessMonitorInsightPrefix: "IA detecta patrón: preparación baja los",
+    productReadinessMonitorInsightSuffix:
+      " — posible acumulación de fatiga a final de semana. Sugerencia: reducir volumen el domingo.",
+    productReadinessMonitorStableInsight:
+      "IA detecta patrón estable: el equipo sostiene una preparación consistente en los últimos 14 días.",
     signInWithApple: "Iniciar con Apple",
+    signInWithGoogle: "Iniciar con Google",
     signInWithEmail: "Iniciar con email",
     recoverByEmail: "Recuperar por email",
     recoverBySMS: "Recuperar por SMS",
@@ -1041,7 +1287,133 @@ const translations: Record<AppLanguage, AppTranslations> = {
     appName: "Flux Training",
     heroTitle: "Train with focus and real tracking",
     heroCopy: "Personal dashboard for auth, onboarding, training, nutrition and progress.",
+    productAccessTitle: "Welcome back",
+    productAccessCopy: "Enter your email to access the workspace.",
+    productAccessHint: "No account? Contact your organization",
+    productSignInTitle: "Sign in",
+    productContinueLabel: "Continue",
+    continueWithGoogle: "Continue with Google account",
+    productBackToAccess: "← Back",
+    productAccessFooter: "© 2026 Flux Training · Privacy · Terms of use",
+    productWorkspaceSummary:
+      "Product entry aligned with onboarding, training, nutrition and progress.",
+    productWorkspaceSignedIn: "Active session",
+    productDashboardNavOverview: "Panel",
+    productDashboardSearchPlaceholder: "Search athlete or plan...",
+    productDashboardAlertsAction: "View all alerts →",
+    productOverviewBreadcrumb: "Overview",
+    productQuickActionsBreadcrumb: "Quick actions",
+    productAlertCenterBreadcrumb: "Alert center",
+    productSystemStatusBreadcrumb: "System status",
+    productDashboardKpisBreadcrumb: "KPIs",
+    productReadinessMonitorBreadcrumb: "Readiness",
+    productSidebarQuickAi: "AI readiness",
+    productSidebarQuickSettings: "Settings",
+    productSidebarQuickSupport: "Support",
+    productOverviewTitle: "Team readiness",
+    productOverviewSummary: "Last 7 days · sessions, nutrition and prioritized signals.",
+    productOverviewActiveAthletesLabel: "Active athletes",
+    productOverviewReadinessAverageLabel: "Average readiness",
+    productOverviewSessionsTodayLabel: "Sessions today",
+    productOverviewActiveAlertsLabel: "Active alerts",
+    productOverviewAlertsTitle: "Recent alerts",
+    productOverviewFollowUpAlertTitle: "needs follow-up",
+    productOverviewFollowUpAlertMeta: "review onboarding and nutrition",
+    productOverviewCaloriesAlertTitle: "high calories",
+    productOverviewCaloriesAlertMeta: "above target",
+    productOverviewProteinAlertTitle: "low protein",
+    productOverviewProteinAlertMeta: "below target",
+    productOverviewNormalCohortLabel: "on track",
+    productOverviewAttentionCohortLabel: "needing follow-up",
+    productOverviewReadinessPositiveDetail: "checklist ready · signals on track",
+    productOverviewReadinessAttentionDetail: "open signals today",
+    productOverviewSessionsCompletedLabel: "done",
+    productOverviewSessionsRemainingLabel: "pending",
+    productOverviewCriticalSignalSingularLabel: "critical",
+    productOverviewCriticalSignalsLabel: "critical",
+    productOverviewMonitoringSignalsLabel: "open",
+    productQuickActionsTitle: "What do you want to do today?",
+    productQuickActionAddAthleteTitle: "Add athlete",
+    productQuickActionAddAthleteMeta: "Create profile and kickoff checklist",
+    productQuickActionCreatePlanTitle: "Create plan",
+    productQuickActionCreatePlanMeta: "Open template and shape the next block",
+    productQuickActionAssignSessionTitle: "Assign session",
+    productQuickActionAssignSessionMeta: "Send today's work to the athlete",
+    productQuickActionExportTitle: "Export report",
+    productQuickActionExportMeta: "Prepare the weekly progress summary",
+    productQuickActionReviewAlertsTitle: "Review alerts",
+    productQuickActionReviewAlertsMeta: "still open",
+    productQuickActionMessageTitle: "Message athlete",
+    productQuickActionMessageMeta: "Resume follow-up from onboarding",
+    productAlertCenterTitle: "Alert center",
+    productAlertCenterChipTotal: "Total",
+    productAlertCenterChipCritical: "Critical",
+    productAlertCenterChipToday: "Today",
+    productAlertCenterChipRunbooks: "Runbooks",
+    productAlertCenterOpenLabel: "Open alert center",
+    productAlertCenterOpenProgressAction: "Open progress →",
+    productAlertCenterOpenNutritionAction: "Open nutrition →",
+    productAlertCenterOpenOnboardingAction: "Open onboarding →",
+    productAlertCenterRunbookFallback: "Active runbook",
+    productAlertCenterEmpty: "No active alerts right now",
+    productAlertCenterFooterTitle: "Runbooks ready to act",
+    productAlertCenterFooterRunbooksMeta: "active flows",
+    productAlertCenterFooterActivityMeta: "recent follow-ups",
+    productSystemStatusTitle: "System status",
+    productSystemStatusSummaryLabel: "Status",
+    productSystemStatusSummaryHealthy: "Operational",
+    productSystemStatusSummaryAttention: "Attention",
+    productSystemStatusPermissionsLabel: "Permissions",
+    productSystemStatusSyncLabel: "Offline sync",
+    productSystemStatusRuntimeDetail: "domain stable",
+    productSystemStatusPermissionsDetail: "RBAC coverage available",
+    productSystemStatusSyncDetail: "pipeline ready to recover",
+    productSystemStatusQueueClearDetail: "no pending operations",
+    productSystemStatusQueuePendingSingular: "pending operation",
+    productSystemStatusQueuePendingPlural: "pending operations",
+    productSystemStatusDegradedStatus: "Degraded",
+    productSystemStatusEventsTitle: "Recent system events",
+    productDashboardKpisTitle: "Panel KPIs",
+    productDashboardKpisOpenLabel: "Open panel KPIs",
+    productDashboardKpisRangeToday: "Today",
+    productDashboardKpisRangeWeek: "7D",
+    productDashboardKpisRangeMonth: "30D",
+    productDashboardKpisPlannedSessionsLabel: "Planned sessions",
+    productDashboardKpisAdherenceLabel: "Weekly adherence",
+    productDashboardKpisAverageRpeLabel: "Average logged RPE",
+    productDashboardKpisViewedVideosLabel: "Videos reviewed today",
+    productDashboardKpisCompletedGoalsLabel: "Goals completed (month)",
+    productDashboardKpisLoggedLabel: "logged",
+    productDashboardKpisVsPreviousLabel: "vs previous range",
+    productDashboardKpisOptimalRpeDetail: "optimal zone 6-7.5",
+    productDashboardKpisAdjustLoadDetail: "adjust weekly load",
+    productDashboardKpisCoachAlertsLabel: "coach",
+    productDashboardKpisNutritionAlertsLabel: "nutrition",
+    productDashboardKpisGuidedPatternsLabel: "guided patterns",
+    productDashboardKpisPendingLabel: "pending",
+    productDashboardKpisInsightFatiguePrefix: "Fatigue spike detected in",
+    productDashboardKpisInsightFatigueSuffix:
+      "athletes — review weekly load before the next block.",
+    productDashboardKpisInsightAlerts:
+      "Alerts remain concentrated in nutrition and progress — it is worth reviewing the alert center.",
+    productDashboardKpisInsightStable:
+      "The range remains stable — you can go deeper into progress before the day closes.",
+    productDashboardKpisInsightAction: "View AI analysis →",
+    productReadinessMonitorTitle: "Readiness monitor",
+    productReadinessMonitorTeamSuffix: "Team",
+    productReadinessMonitorExportAction: "Export CSV",
+    productReadinessMonitorAthletesTitle: "Athletes — readiness today",
+    productReadinessMonitorViewAllPrefix: "View all",
+    productReadinessMonitorTrendTitle: "Readiness trend — Last 14 days",
+    productReadinessMonitorLegendLabel: "Team",
+    productReadinessMonitorCriticalLegend: "<50 (critical)",
+    productReadinessMonitorInsightPrefix: "AI detects pattern: low readiness on",
+    productReadinessMonitorInsightSuffix:
+      " — possible fatigue accumulation near the weekend. Suggestion: reduce Sunday volume.",
+    productReadinessMonitorStableInsight:
+      "AI detects a stable pattern: the team is sustaining consistent readiness across the last 14 days.",
     signInWithApple: "Sign in with Apple",
+    signInWithGoogle: "Sign in with Google",
     signInWithEmail: "Email sign in",
     recoverByEmail: "Recover by email",
     recoverBySMS: "Recover by SMS",

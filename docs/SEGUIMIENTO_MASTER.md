@@ -11,7 +11,7 @@
 - Objetivo actual: MVP web+iOS usable end-to-end, sin fallback demo, con paridad funcional contra `flux.pen`.
 - El plan activo esta en formato pantalla a pantalla (121 subtasks trazables).
 - Plan activo simple del siguiente ciclo: `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Baseline real del ciclo 2 ya levantado: Web entra y autentica, pero tras login sigue mostrando panel operativo apilado no alineado con `flux.pen`; iOS entra en producto real, pero la pieza de acceso todavia no replica el board 1:1.
+- Baseline real del ciclo 2 ya levantado: Web e iOS ya entran en modo producto, pero todavia queda trabajo para igualar la estructura visible, jerarquia y transiciones del board canonico `flux.pen`.
 - Criterio de cierre del ciclo 2 ya fijado por escrito: el MVP solo podra darse por cerrado con evidencia runtime real en Web+iOS+Backend y sin copy tecnica visible al usuario.
 - Auditoria backend/runtime ya cerrada: el backend cloud es real, pero el unico backend HTTP local disponible hoy es demo; Web e iOS mantienen fallback local controlado para auth y iOS todavia mezcla persistencia local en onboarding/settings/legal.
 - Entorno minimo del ciclo 2 ya esta definido: para validar MVP real debemos usar backend cloud + Firebase web config real; sin esas credenciales no puede cerrarse el login E2E real.
@@ -37,7 +37,25 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real**.
+- Task activa actual: **🚧 Despliegue a Vercel + verificación runtime real** del ciclo 2 (build/test/vercel + `GET /api/health`).
+
+### Evidencia técnica reciente (2026-03-15)
+- ✅ `pnpm -r check` completo: ✅ sin errores de `tsc`.
+- ✅ `pnpm --filter @flux/web build`: ✅ bundle generado (`dist/index-CxSjiOrz.js` en la build reciente).
+- ✅ `pnpm test:vercel-backend-adapter`: ✅ 46 tests de backend en verde + rutas Vercel verificadas.
+- ✅ `pnpm test:vercel-api-route`: ✅ 2/2 tests en verde (health/404).
+- ✅ `pnpm smoke:real-cloud-connectivity`: ✅ `status: ready` y `GET /api/health -> {"status":"ok"}`.
+- ❌ `pnpm smoke:real-cloud-connectivity` contra `https://flux-training-three.vercel.app/api`: `statusCode=500` en `createAuthSession` (`{"error":{"code":"500","message":"A server error has occurred"}}`) por bloqueo funcional de configuración real de auth en Firebase (`AUTH` pendiente).
+- ✅ Deploy Vercel: **`https://flux-training-three.vercel.app`** y alias `https://flux-training-2nzuv9m0l-merlosalbarracins-projects.vercel.app`.
+- Validacion visual local mas reciente (2026-03-13):
+  - la home web de producto ya entra por card centrada y compacta, alineada con el patron visual de `WEB-000_ACCESS_GATE` / `WEB-010_SIGN_IN`;
+  - tras login la hero editorial desaparece y queda una cabecera compacta + tabs de dominio para acercarse a `WEB-020_DASHBOARD_HOME`;
+  - `Panel` ya conmuta a `Acciones rápidas` dentro de la misma shell autenticada, replicando `WEB-030_QUICK_ACTIONS` con breadcrumb dedicado, grid 3x2 y CTA real `Añadir atleta -> Onboarding`;
+  - la badge del topbar y el CTA del overview ya abren `Centro de alertas`, replicando `WEB-040_ALERT_CENTER` con filas priorizadas y CTA real `Abrir progreso -> Progreso`;
+  - `Ajustes` del rail secundario ya abre `Estado del sistema`, replicando `WEB-050_SYSTEM_STATUS` con cards compactas de health y eventos recientes;
+  - las KPI cards del overview ya abren `Panel / KPIs`, replicando `WEB-200_DASHBOARD_KPIS` con pills `Hoy / 7D / 30D`, grid 4x2 y CTA real `Ver análisis IA -> Progreso`;
+  - `Preparación IA` del rail secundario ya abre `Monitor de Preparación`, replicando `WEB-210_READINESS_MONITOR` con export CSV local, roster priorizado, tendencia de 14 dias y CTA real `Ver todos (4) -> Onboarding`;
+  - el gap principal ya no es Firebase sino seguir el bloque visible de dashboard de `flux.pen` pantalla a pantalla, empezando por `WEB-220_ALERTS_FULL`.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`
@@ -58,12 +76,14 @@
     - `https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app`
     - `GET /api/health -> 200 {"status":"ok"}`
     - `VITE_API_TARGET=https://skill-deploy-e9ta5haso1-codex-agent-deploys.vercel.app/api pnpm smoke:real-cloud-connectivity -> ready`
-- Bloqueo real actual tras revalidar el login cloud:
+- Bloqueo secundario actual del login cloud:
   - `pnpm check:firebase-auth-readiness -> blocked-firebase-auth-configuration`
   - `errorCode: CONFIGURATION_NOT_FOUND`
   - esto significa que la Web app y el proyecto existen, pero Firebase Auth no esta operativo todavia para Email/Password.
+- Ese bloqueo cloud no detiene el trabajo actual de paridad visual/UX, que sigue centrado en montar la experiencia visible del producto con fidelidad respecto a `flux.pen`.
 - Checklist operativo de salida del bloqueo actual:
   - apuntar Web e iOS al host Vercel para backend HTTP
+  - confirmado: `firebase-tools` no expone un comando oficial para activar proveedores de Authentication; este paso es manual en Firebase Console
   - activar Firebase Auth y el proveedor Email/Password en `flux-training-mvp`
   - despues cargar credenciales E2E reales
   - revalidar `pnpm smoke:real-login`
@@ -138,8 +158,8 @@
 - `IOS-L-130_WORKOUT_ACTIVE` ya esta operativo como variante light del workout activo con ruta/pantalla propias (`training.route.workoutActiveLight`, `training.workoutActive.light.screen`) y ajuste real de ejercicio con estados `loading|empty|error|saved|validation_error|denied|offline`.
 - `IOS-L-140_EXERCISE_VIDEO` ya esta operativo como variante light de video por ejercicio con ruta/pantalla propias (`training.route.videoPlayerLight`, `training.videoPlayer.light.screen`) y reproduccion real con estados `loading|empty|error|success|denied|offline`.
 - `IOS-L-150_SESSION_SUMMARY` ya esta operativo como variante light del resumen de sesion con ruta/pantalla propias (`training.route.sessionSummaryLight`, `training.sessionSummary.light.screen`) y resumen real de cierre con estados `loading|empty|error|saved|loaded|denied|offline`.
-- `WEB-000_ACCESS_GATE` ya esta operativo con gate de acceso real: cuando no hay sesion renderiza `web.accessGate.screen`, bloquea el dashboard operativo y ofrece entrada por Apple/email hacia autenticacion real.
-- `WEB-010_SIGN_IN` ya esta operativo con instrumentacion de pantalla/acciones (`web.signIn.screen`, `web.signIn.apple`, `web.signIn.email`) y estados reales de autenticacion/recovery.
+- `WEB-000_ACCESS_GATE` ya esta operativo con gate de acceso real: cuando no hay sesion renderiza `web.accessGate.screen`, bloquea el dashboard operativo y presenta entrada email-first (`Continuar`) + Google en la experiencia de producto antes del paso de contraseña.
+- `WEB-010_SIGN_IN` ya esta operativo con instrumentacion de pantalla/acciones (`web.signIn.screen`, `web.signIn.apple`, `web.signIn.google`, `web.signIn.email`) y estados reales de autenticacion/recovery, aislando la contraseña en el segundo paso del flujo de producto.
 - `WEB-020_DASHBOARD_HOME` ya esta operativo con contrato de pantalla (`web.route.dashboardHome -> web.dashboardHome.screen`), estado trazable (`web.dashboardHome.status`) y accion real de refresco (`web.dashboardHome.refresh`) conectada a capacidades RBAC, observabilidad y cola offline.
 - `WEB-030_QUICK_ACTIONS` ya esta operativo con pantalla dedicada (`web.quickActions.screen`) y acciones rapidas reales instrumentadas (`web.quickActions.runAll`, `loadPlans`, `loadSessions`, `loadRecommendations`, `refreshDashboard`) para ejecutar operaciones clave del dashboard.
 - `WEB-040_ALERT_CENTER` ya esta operativo con pantalla dedicada (`web.alertCenter.screen`), estado trazable (`web.alertCenter.status`) y carga real de alertas/runbooks (`web.alertCenter.load`, `web.alertCenter.audit`) sobre observabilidad.
@@ -304,7 +324,7 @@
 
 ## Decisiones activas
 - Backend productivo: Firebase Functions + Firestore.
-- Auth real: Apple + email/password.
+- Auth real: Apple + Google + email/password.
 - Idioma base: ES, secundario: EN.
 - Alcance de salida: 121 pantallas funcionales (66 iOS + 55 Web).
 
@@ -319,7 +339,7 @@ Planes activos:
 | Fase 1 | Inventario canonico 121/121 + cobertura base | ✅ |
 | Fase 1 | Reabrir cierres no validados en runtime | ✅ |
 | Fase 1 | Priorizacion por impacto de usuario | ✅ |
-| Fase 2 | Auth real de sesion (email/password + Apple) | ✅ |
+| Fase 2 | Auth real de sesion (email/password + Apple + Google) | ✅ |
 | Fase 2 | RBAC por endpoint y dominio | ✅ |
 | Fase 2 | Persistencia real (Firestore) sin in-memory | ✅ |
 | Fase 2 | Errores observables (codigos + correlationId) | ✅ |
@@ -378,3 +398,8 @@ Planes activos:
 - Evidencia de fase 42 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/ProgressTrendsPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase42-progress-trends-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde; smoke Playwright con login por email (`qa+progress-trends@flux.app`), `Refrescar tendencias` y filtro `sesiones minimas = 1` en `http://127.0.0.1:5185/__qa?unlockQa=1&qa=1&domain=progress`, confirmando presencia de `web.progressTrends.screen` con `Dias filtrados 0`.
 - Web modularizacion progresiva (fase 43): extraccion de `offline-sync` a `OfflineSyncPanel` para desacoplar sincronizacion de cola, refresh e idempotencia del contenedor `App.tsx`.
 - Evidencia de fase 43 (2026-03-06): `pnpm --filter @flux/web test -- src/presentation/OfflineSyncPanel.spec.tsx src/presentation/App.tsx`, `pnpm --filter @flux/web build`, `pnpm --filter @flux/web check`, `pnpm exec pumuki sdd evidence --scenario-id=docs/validation/features/critical_regression_suite --test-command='pnpm --filter @flux/web test -- src/presentation/OfflineSyncPanel.spec.tsx src/presentation/App.tsx' --test-status=passed --test-output=.pumuki/runtime/phase43-offline-sync-test.log --json` y `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json` en verde; smoke Playwright real en `http://127.0.0.1:5186/__qa?unlockQa=1&qa=1&domain=operations`, login por email (`qa+offline-sync@flux.app`) y `Sincronizar cola`, confirmando presencia de `web.offlineSync.screen` con estado `Sincronización: sincronizado`.
+
+
+- Hallazgo real 2026-03-09: `identityPlatform:initializeAuth` falla con `BILLING_NOT_ENABLED`; el bloqueo correcto es billing para inicializar Firebase Auth, no solo activar `Email/Password`.
+- Ajuste web 2026-03-13: la shell autenticada de producto ya entra en `Panel` y deja de forzar `onboarding/training` como home. La composición visible pasa a `rail lateral + topbar compacta + overview KPI/alertas` limpio, y el `Panel` se hidrata con datos preview locales coherentes en auth de desarrollo para no degradarse a cero cuando no hay backend local.
+- Evidencia web 2026-03-13: `pnpm --filter @flux/web test -- src/presentation/i18n.spec.ts src/presentation/ProductOverviewPanel.spec.tsx`, `pnpm --filter @flux/web check`, `pnpm --filter @flux/web build`, `pnpm -r test` y smoke Playwright en `http://127.0.0.1:4174/` con login Google local, captura `output/playwright/web-020-product-shell-panel-v11.png`, topbar de `Panel` compactada a una línea (`Panel / Resumen`) y sin selector visible de idioma, rail lateral con iconografía sutil, alerts con jerarquía `critical/warning`, KPI de alertas corregido a `1 crítica · 4 abiertas`, cards más densas y flujo limpio sin `500` de `/api/createAnalyticsEvent` ni errores de consola o red.

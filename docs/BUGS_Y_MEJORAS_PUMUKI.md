@@ -7,6 +7,7 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
 - 🚧 En construccion (maximo 1)
 - ⏳ Pendiente
 - ⛔ Bloqueado
+- 💤 Sin incidencias activas / backlog externo cerrado
 
 ## Objetivo
 - Acelerar feedback real hacia Pumuki con evidencia reproducible.
@@ -811,3 +812,9 @@ Registro operativo para documentar fallos, fricciones y mejoras del framework `p
   - propuesta Pumuki:
     - soportar un estado nativo `bootstrap-remote-push`,
     - detectar cuando el remoto esta vacio o no existe y evaluar atomicidad por commit nuevo, no por el diff agregado de toda la rama.
+- Revalidación iteración de vendorización de skills (2026-03-09):
+  - comando: `pnpm exec pumuki watch --once --stage=PRE_COMMIT --scope=staged --json`
+  - resultado observado: `gateOutcome="ALLOW"` pero el hook de atomicidad bloqueó el commit posterior con `GIT_ATOMICITY_TOO_MANY_FILES` y `changed_files=34 exceeds max_files=25`.
+  - impacto: cuando el límite de atomicidad salta, Pumuki no muestra en la salida resumida qué subconjunto exacto de archivos está contando ni cómo recomienda partir el bloque, así que obliga a inspección manual adicional para separar commits.
+  - mejora propuesta: añadir en el finding de atomicidad una lista resumida de archivos contabilizados o una agrupación por carpetas para acelerar la partición de commits.
+  - severidad: media; no bloquea el trabajo definitivo, pero sí añade fricción innecesaria en repos con skills vendorizadas o lotes documentales grandes.
