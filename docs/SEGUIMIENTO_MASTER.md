@@ -37,7 +37,7 @@
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-- Task activa actual del ciclo 2: **🚧 Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real**.
+[🚧] - FLUX-REP-6380 cerrar repin de `pumuki@6.3.80` y dejar el consumer alineado con su tracking canónico.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`
