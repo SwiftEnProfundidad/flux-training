@@ -32,12 +32,16 @@
 - El repo ya dispone tambien de un checker especifico de acceso al proyecto cloud: `pnpm check:cloud-project-access`, y hoy confirma `blocked-project-access` para `flux-training` con la cuenta autenticada actual.
 - Se han inspeccionado tambien los cuatro proyectos visibles para la cuenta actual y ninguno parece ser Flux: tres no tienen Functions y el cuarto (`mi-orange-25fab`) no deja listarlas, asi que el bloqueo ya no es “seguir probando candidatos visibles” sino confirmar el proyecto correcto.
 
+## Tarea activa única (🚧)
+
+- [🚧] - Confirmar el proyecto cloud correcto de Flux y desbloquear el login E2E real con Firebase Auth operativo.
+
 ## Correccion de estado real (2026-03-04)
 - Se invalida cualquier cierre previo que no tenga fidelidad visual/flujo contra `flux.pen` en runtime real.
 - Estado actual iOS: **✅ iOS 66/66 completado** en `docs/PLAN_IOS_MVP_OPERATIVO.md`.
 - Estado actual web: **✅ Web 55/55 completado** en `docs/PLAN_WEB_MVP_OPERATIVO.md`.
 - Estado actual global: **🚧 Ciclo 2 de MVP funcional real abierto** en `docs/PLAN_CICLO_2_MVP_FUNCIONAL.md`.
-[🚧] - FLUX-REP-6380 cerrar repin de `pumuki@6.3.80` y dejar el consumer alineado con su tracking canónico.
+- Task activa actual del ciclo 2: Activar Firebase Auth y Email/Password en `flux-training-mvp` para desbloquear login E2E real.
 - El proyecto Firebase real ya esta creado y visible:
   - `projectId: flux-training-mvp`
   - hosting site: `flux-training-mvp.web.app`
