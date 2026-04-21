@@ -49,6 +49,6 @@
   },
   "devDependencies": {
     "@fission-ai/openspec": "1.2.0",
-    "pumuki": "6.3.85"
+    "pumuki": "6.3.98"
   }
 }
