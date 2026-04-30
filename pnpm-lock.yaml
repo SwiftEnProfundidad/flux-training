@@ -12,8 +12,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0(@types/node@22.19.11)
       pumuki:
-        specifier: 6.3.72
-        version: 6.3.72(ts-morph@27.0.2)
+        specifier: 6.3.129
+        version: 6.3.129(ts-morph@27.0.2)
 
   apps/backend:
     dependencies:
@@ -2002,8 +2002,8 @@ packages:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
 
-  pumuki@6.3.72:
-    resolution: {integrity: sha512-SKl0yw4V6dkJULfSpp+auwwrOPC7VuC2sl33JvAweEnstFftc6rK9EXsPahsVMzoB0ZbI4nfFJlnzGhSBU5JzQ==}
+  pumuki@6.3.129:
+    resolution: {integrity: sha512-ye9CQZViJxD57dvhTwiHnklUP59rSwAHy5BNmX9/bdZX/7cQGNPZwjIrPu8Gm7asYZm/0r+y+JqvHdzbXA9how==}
     engines: {node: '>=18.0.0', npm: '>=9.0.0'}
     hasBin: true
     peerDependencies:
@@ -2250,10 +2250,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   vary@1.1.2:
@@ -4399,7 +4401,7 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
-  pumuki@6.3.72(ts-morph@27.0.2):
+  pumuki@6.3.129(ts-morph@27.0.2):
     dependencies:
       '@babel/parser': 7.29.0
       npm-packlist: 10.0.4
