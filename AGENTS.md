@@ -29,6 +29,15 @@
 - REQUIRED SKILL: `ios-enterprise-rules`
 - REQUIRED SKILL: `swift-concurrency`
 - REQUIRED SKILL: `swiftui-expert-skill`
+- REQUIRED SKILL: `update-swiftui-apis`
+- REQUIRED SKILL: `swift-testing-expert`
+- REQUIRED SKILL: `xcode-build-orchestrator`
+- REQUIRED SKILL: `xcode-project-analyzer`
+- REQUIRED SKILL: `xcode-build-fixer`
+- REQUIRED SKILL: `xcode-compilation-analyzer`
+- REQUIRED SKILL: `xcode-build-benchmark`
+- REQUIRED SKILL: `spm-build-analysis`
+- REQUIRED SKILL: `core-data-expert`
 - REQUIRED SKILL: `backend-enterprise-rules`
 - REQUIRED SKILL: `frontend-enterprise-rules`
 
